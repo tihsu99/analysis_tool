@@ -1,0 +1,19 @@
+
+imax *  number of channels
+jmax *  number of backgrounds
+
+kmax *  number of nuisance parameterS (sources of systematical uncertainties)
+
+------------
+shapes * SR ttc_2017_WS.root ws_ttc_emu_2017:ttc2017_emu_SR_$PROCESS ws_ttc_emu_2017:ttc2017_emu_SR_$PROCESS_$SYSTEMATIC
+
+------------
+bin SR
+observation -1
+------------
+bin           SR         SR       SR  SR
+process   signal  nonprompt  diboson  tt
+process1       0          1        2   3
+rate          -1         -1       -1  -1
+lumi          lnN  1.025  -  1.025  1.025
+CMSYEAR_PU  shape      1  -      1      1

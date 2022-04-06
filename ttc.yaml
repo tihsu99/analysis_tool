@@ -1,0 +1,28 @@
+## Signal Region 
+SR: 
+  bin: 
+    SR: 4
+  Process: 
+    - signal 
+    - nonprompt 
+    - diboson 
+    - tt
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+
+
+  NuisForProc: 
+    - lumi: [signal, diboson, tt]
+    - CMSYEAR_PU: [signal, diboson, tt]
+    
+  UnclnN:
+    - lumi: 1.025 
+    - CMSYEAR_PU: shape
