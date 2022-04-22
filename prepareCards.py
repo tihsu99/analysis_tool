@@ -6,7 +6,7 @@ import pandas as pd
 import sys, optparse,argparse
 
 ## ----- command line argument
-usage = "python prepareCards.py -y 2017 -c emu -reg ['SR']"
+usage = "python prepareCards.py -y 2017 -c em -reg 'SR'"
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-y", "--year", dest="year", default="2017")
 parser.add_argument("-m", "--model", dest="model", default="ExY")
@@ -22,19 +22,22 @@ regions  = args.reg
 modelName = args.model
 
 
-print (year, category, regions, modelName)
+print (year)#, category, regions, modelName)
 
-if category=='emu':
+if category=='em':
     f = open('ttc.yaml')
 else:
     print "no category"
     exit 
-    
+
 doc = yaml.safe_load(f)
 
 
 outdir = 'datacards_ttc_'+year
 os.system('mkdir '+ outdir)
+
+
+
 top_ = '''
 imax *  number of channels
 jmax *  number of backgrounds
@@ -45,7 +48,9 @@ kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 
 
 def getUpperPart2(reg,cat):
-    top_= 'shapes * '+reg+' ttc_'+year+'_WS.root ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS_$SYSTEMATIC'+'\n'
+    ## old version to be kept
+    #top_= 'shapes * '+reg+' ttc_'+year+'_WS.root ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS_$SYSTEMATIC'+'\n'
+    top_= 'shapes * '+reg+' inputs/TMVApp_MASSPOINT_CHANNELNAME.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC'+'\n'
     return top_
 
 
@@ -152,23 +157,24 @@ print (regions)
 
 for reg in regions:
     outputfile = 'ttc_datacard_'+year+'_'+reg+'_'+category+'_template.txt'
+    
+    print ("reg:",reg)
     print (doc[reg])
     df0 = pd.DataFrame(getbinProcRate(doc[reg]))
+    df0 = df0.rename(columns={"process1":"process"})   ## replacing process1 by process
     print (df0)
     
-    #df1 = pd.DataFrame(getProcRate(doc[reg]))
-    #df0['process'] = df0['process'].replace(['signal'],sigHist)
-    # df =  pd.DataFrame(getSyst(doc))
     df1 =  pd.DataFrame(getProcSyst(doc[reg]))
     print (df1)
     
-    #df = pd.merge(df0,df1)
     fout = open(outdir+'/'+outputfile,'w')
     p0 = df0.T.to_string(justify='right',index=True, header=False)
     p1 = df1.T.to_string(justify='right',index=True, header=False)
     
     part1 = top_
     part2 = getUpperPart2(reg,category)
+    part2 = part2.replace("CHANNELNAME",category)
+    print ("part2: ",part2)
     part3 = getUpperPart3(reg)
     #part4 = getEndPart(reg)
     
@@ -190,47 +196,3 @@ for reg in regions:
     fout.write(part4+'\n')
     '''
     fout.close()
-
-#os.system("sed -i'.bak' 's/process1/process /g' "+outdir+"/*")
-#os.system("sed -i'.bak' 's/YEAR/"+year+"/g' "+outdir+"/*")
-#os.system("rm -rf "+outdir+"/*bak")
-
-
-'''
-iregion=[]
-
-#allregions.append(rl.TextFileToList(iregion))		 
-
-modelRename =''
-
-if modelName == 'THDMa' :
-    modelRename = '2hdma'
-
-
-monohbb_file='monohbb'+year+'_datacardslist_'+category+'_'+'allregion_'+modelName+'_all.txt'
-monohbb_file_SR='monohbb'+year+'_datacardslist_'+category+'_'+'SR_'+modelName+'_all.txt'
-#monohbb_file='monohbb'+year+'_datacardslist_'+category+'_'+modelName+'_all.txt'
-
-#monoHbb2017_R_SR_ggF_sp_0p8_tb_1p0_mXd_10_mA_600_ma_200
-
-
-
-ftxt = open(monohbb_file,'w')
-ftxt_SR= open(monohbb_file_SR,'w')
-for sigHist in getSignalHists(signalDoc,modelName):
-    outfile_SR = 'monoHbb'+year+'_'+category+'_SR_'+sigHist
-    srfile = 'ttc_datacard_'+year+'_SR_'+category+'_'+sigHist+'.txt'
-    outfile= 'ttc_datacard_'+year+'_'+modelName+'_'+category+'_allregion_'+sigHist+'.txt'
-    # os.system('combineCards.py sr='+outdir+'/'+srfile+' zee='+outdir+'/ttc_datacard_2017_ZEE_R.txt  zmumu='+outdir+'/ttc_datacard_2017_ZMUMU_R.txt wmu='+outdir+'/ttc_datacard_2017_WMU_R.txt we='+outdir+'/ttc_datacard_2017_WE_R.txt topmu='+outdir+'/ttc_datacard_2017_TOPMU_R.txt tope='+outdir+'/ttc_datacard_2017_TOPE_R.txt >'+outdir+'/'+outfile)
-    os.system('combineCards.py sr='+outdir+'/'+srfile+' zee='+outdir+'/ttc_datacard_2017_ZEE_'+category+'.txt  zmumu='+outdir+'/ttc_datacard_2017_ZMUMU_'+category+'.txt topmu='+outdir+'/ttc_datacard_2017_TOPMU_'+category+'.txt tope='+outdir+'/ttc_datacard_2017_TOPE_'+category+'.txt >'+outdir+'/'+outfile)
-    ftxt.write(outdir+'/'+outfile+' \n')
-    ftxt_SR.write(outfile_SR+'\n')
-    
-ftxt.close()
-ftxt_SR.close()
-    
-#print(iregion)
-
-
-    
-'''

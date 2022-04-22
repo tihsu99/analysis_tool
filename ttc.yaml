@@ -1,18 +1,24 @@
 ## Signal Region 
-SR: 
+SR_em: 
   bin: 
-    SR: 4
+    SR_em: 6
   Process: 
-    - signal 
-    - nonprompt 
-    - diboson 
-    - tt
+    - TAToTTQ_MAMASSPOINT_rtc01
+    - TTTo1L
+    - ttWW 
+    - ttWZ
+    - ttWtoLNu
+    - ttZ
   process1: 
     - 0
     - 1
     - 2
     - 3
+    - 4
+    - 5
   rate: 
+    - -1
+    - -1
     - -1
     - -1
     - -1
@@ -20,9 +26,11 @@ SR:
 
 
   NuisForProc: 
-    - lumi: [signal, diboson, tt]
-    - CMSYEAR_PU: [signal, diboson, tt]
+    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
     
   UnclnN:
     - lumi: 1.025 
-    - CMSYEAR_PU: shape
+    - pileup: shape
+    - prefire: shape
