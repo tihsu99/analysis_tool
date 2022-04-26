@@ -1,0 +1,20 @@
+
+imax *  number of channels
+jmax *  number of backgrounds
+
+kmax *  number of nuisance parameterS (sources of systematical uncertainties)
+
+------------
+shapes * SR_em inputs/TMVApp_500_em.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC
+
+------------
+bin SR_em
+observation -1
+------------
+bin                          SR_em   SR_em  SR_em  SR_em     SR_em  SR_em
+process  TAToTTQ_MA500_rtc01  TTTo1L   ttWW   ttWZ  ttWtoLNu    ttZ
+process                          0       1      2      3         4      5
+rate                            -1      -1     -1     -1        -1     -1
+lumi       lnN  1.025  1.025  1.025  1.025  1.025  1.025
+pileup   shape      1      1      1      1      1      1
+prefire  shape      1      1      1      1      1      1
