@@ -1,7 +1,83 @@
-## Signal Region 
+## Signal Region em
 SR_em: 
   bin: 
     SR_em: 6
+  Process: 
+    - TAToTTQ_MAMASSPOINT_rtc01
+    - TTTo1L
+    - ttWW 
+    - ttWZ
+    - ttWtoLNu
+    - ttZ
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+
+
+  NuisForProc: 
+    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    
+  UnclnN:
+    - lumi: 1.025 
+    - pileup: shape
+    - prefire: shape
+
+
+## Signal Region ee
+SR_ee: 
+  bin: 
+    SR_ee: 6
+  Process: 
+    - TAToTTQ_MAMASSPOINT_rtc01
+    - TTTo1L
+    - ttWW 
+    - ttWZ
+    - ttWtoLNu
+    - ttZ
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+
+
+  NuisForProc: 
+    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+    
+  UnclnN:
+    - lumi: 1.025 
+    - pileup: shape
+    - prefire: shape
+
+
+## Signal Region mm
+SR_mm: 
+  bin: 
+    SR_mm: 6
   Process: 
     - TAToTTQ_MAMASSPOINT_rtc01
     - TTTo1L

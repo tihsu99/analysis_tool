@@ -6,7 +6,7 @@ import pandas as pd
 import sys, optparse,argparse
 
 ## ----- command line argument
-usage = "python prepareCards.py -y 2017 -c em -reg 'SR'"
+usage = "python prepareCards.py -y 2017 -c em -reg 'SR_em'"
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-y", "--year", dest="year", default="2017")
 parser.add_argument("-m", "--model", dest="model", default="ExY")
@@ -24,7 +24,7 @@ modelName = args.model
 
 print (year)#, category, regions, modelName)
 
-if category=='em':
+if category=='em' or category=='ee' or category=='mm':
     f = open('ttc.yaml')
 else:
     print "no category"
@@ -196,3 +196,10 @@ for reg in regions:
     fout.write(part4+'\n')
     '''
     fout.close()
+
+
+
+
+'''
+[khurana@lxplus752 LimitModel]$ combineCards.py mm=datacards_ttc_2017/ttc_datacard_2017_SR_mm_mm_template.txt ee=datacards_ttc_2017/ttc_datacard_2017_SR_ee_ee_template.txt em=datacards_ttc_2017/ttc_datacard_2017_SR_em_em_template.txt > combo.txt
+'''
