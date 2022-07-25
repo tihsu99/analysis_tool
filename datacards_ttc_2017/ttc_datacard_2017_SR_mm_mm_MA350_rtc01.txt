@@ -5,16 +5,29 @@ jmax *  number of backgrounds
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 
 ------------
-shapes * SR_mm inputs/TMVApp_200_mm.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC
+shapes * SR_mm inputs/2017/rtc01/TMVApp_350_mm.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC
 
 ------------
 bin SR_mm
 observation -1
 ------------
-bin                          SR_mm   SR_mm  SR_mm  SR_mm     SR_mm  SR_mm
-process  TAToTTQ_MA200_rtc01  TTTo1L   ttWW   ttWZ  ttWtoLNu    ttZ
-process                          0       1      2      3         4      5
-rate                            -1      -1     -1     -1        -1     -1
-lumi       lnN  1.025  1.025  1.025  1.025  1.025  1.025
-pileup   shape      1      1      1      1      1      1
-prefire  shape      1      1      1      1      1      1
+bin                                  SR_mm   SR_mm  SR_mm  SR_mm     SR_mm  SR_mm
+process  TAToTTQ_rtc01_MA350  TTTo1L   ttWW   ttWZ  ttWtoLNu    ttZ
+process                                  0       1      2      3         4      5
+rate                                    -1      -1     -1     -1        -1     -1
+lumi2017           lnN  1.023     -  1.023  1.023  1.023  1.023
+pileup             lnN   1.05     -   1.05   1.05   1.05   1.05
+prefire2017      shape      1     -      1      1      1      1
+fake2017         shape      -     1      -      -      -      -
+jes2017          shape      1     -      1      1      1      1
+jer2017          shape      1     -      1      1      1      1
+dimuTrigger2017  shape      1     -      1      1      1      1
+muID2017         shape      1     -      1      1      1      1
+chargemisid2017    lnN      -   1.3    1.3    1.3    1.3    1.3
+norm_ttWW          lnN      -     -    1.1      -      -      -
+norm_ttWZ          lnN      -     -      -    1.1      -      -
+norm_ttWtoLNu      lnN      -     -      -      -    1.1      -
+norm_ttZ           lnN      -     -      -      -      -    1.1
+hf_tag2017         lnN   1.07  1.07   1.07   1.07   1.07   1.07
+* autoMCStats 10 0 1  
+sigscale rateParam * TAToTTQ_rtc01_MA350 0.01 [0.009999,0.01111]

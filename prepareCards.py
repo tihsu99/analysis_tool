@@ -33,6 +33,13 @@ else:
 doc = yaml.safe_load(f)
 
 
+
+
+## for nuisnaces 
+f_nuis = open('nuisances.yaml')
+doc_nuis   = yaml.safe_load(f_nuis)
+
+
 outdir = 'datacards_ttc_'+year
 os.system('mkdir '+ outdir)
 
@@ -50,7 +57,8 @@ kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 def getUpperPart2(reg,cat):
     ## old version to be kept
     #top_= 'shapes * '+reg+' ttc_'+year+'_WS.root ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS_$SYSTEMATIC'+'\n'
-    top_= 'shapes * '+reg+' inputs/TMVApp_MASSPOINT_CHANNELNAME.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC'+'\n'
+    ###top_= 'shapes * '+reg+' inputs/COUPLINGVALUE/TMVApp_MASSPOINT_CHANNELNAME.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC'+'\n'
+    top_= 'shapes * '+reg+' inputs/'+year+'/COUPLINGVALUE/TMVApp_MASSPOINT_CHANNELNAME.root ttc'+year+'_$PROCESS ttc'+year+'_$PROCESS_$SYSTEMATIC'+'\n'
     return top_
 
 
@@ -165,7 +173,12 @@ for reg in regions:
     print (df0)
     
     df1 =  pd.DataFrame(getProcSyst(doc[reg]))
-    print (df1)
+    
+    df1 =  df1.replace("LUMIVAL",doc_nuis["LUMIVAL"]["y"+str(year)])
+    df1.rename(columns=lambda s: s.replace("YEAR", year), inplace=True)
+    if (year=="2018"):
+        df1.rename(columns={"prefire2018":"###prefire2018"},inplace=True)
+    print ("df1:",df1)
     
     fout = open(outdir+'/'+outputfile,'w')
     p0 = df0.T.to_string(justify='right',index=True, header=False)
@@ -174,6 +187,10 @@ for reg in regions:
     part1 = top_
     part2 = getUpperPart2(reg,category)
     part2 = part2.replace("CHANNELNAME",category)
+    #part2 = part2.replace("../datacards_ttc_2016","")
+    #part2 = part2.replace("../datacards_ttc_2017","")
+    #part2 = part2.replace("../datacards_ttc_2018","")
+    
     print ("part2: ",part2)
     part3 = getUpperPart3(reg)
     #part4 = getEndPart(reg)
@@ -189,6 +206,8 @@ for reg in regions:
  
     fout.write(p0+'\n')
     fout.write(p1+'\n')
+    fout.write("* autoMCStats 10 0 1  "+'\n')
+    fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
     # fout.write(p1+'\n')
     '''
     fout.write('------------'+'\n')

@@ -1,0 +1,151 @@
+## setup environment, 
+Follow the Higgs Combination Twiki to install the combine package and compile it, 
+ (add the link to combine Twiki  here )
+Only for Raman
+source envsetter.sh
+
+### Install the code 
+The code is part of the repository ttcbar, to get it simply do: 
+git clone git@github.com:ramankhurana/ttcbar.git
+
+cd ttcbar/LimitModel
+
+### Create template card for one region  datacards 
+python prepareCards.py -y 2016 -c em -reg 'SR_em'
+python prepareCards.py -y 2016 -c ee -reg 'SR_ee'
+python prepareCards.py -y 2016 -c mm -reg 'SR_mm'
+
+
+python prepareCards.py -y 2016apv -c em -reg 'SR_em'
+python prepareCards.py -y 2016apv -c ee -reg 'SR_ee'
+python prepareCards.py -y 2016apv -c mm -reg 'SR_mm'
+
+python prepareCards.py -y 2017 -c em -reg 'SR_em'
+python prepareCards.py -y 2017 -c ee -reg 'SR_ee'
+python prepareCards.py -y 2017 -c mm -reg 'SR_mm'
+
+
+python prepareCards.py -y 2018 -c em -reg 'SR_em'
+python prepareCards.py -y 2018 -c ee -reg 'SR_ee'
+python prepareCards.py -y 2018 -c mm -reg 'SR_mm'
+
+
+### Combine the cards for all regions to make a jumbo card 
+
+cd datacards_ttc_2016; combineCards.py em=ttc_datacard_2016_SR_em_em_template.txt ee=ttc_datacard_2016_SR_ee_ee_template.txt mm=ttc_datacard_2016_SR_mm_mm_template.txt > ttc_datacard_2016_SR_C_C_template.txt ; cd -
+
+cd datacards_ttc_2016apv; combineCards.py em=ttc_datacard_2016apv_SR_em_em_template.txt ee=ttc_datacard_2016apv_SR_ee_ee_template.txt mm=ttc_datacard_2016apv_SR_mm_mm_template.txt > ttc_datacard_2016apv_SR_C_C_template.txt ; cd -
+
+cd datacards_ttc_2017; combineCards.py em=ttc_datacard_2017_SR_em_em_template.txt ee=ttc_datacard_2017_SR_ee_ee_template.txt mm=ttc_datacard_2017_SR_mm_mm_template.txt > ttc_datacard_2017_SR_C_C_template.txt ; cd -
+
+cd datacards_ttc_2018; combineCards.py em=ttc_datacard_2018_SR_em_em_template.txt ee=ttc_datacard_2018_SR_ee_ee_template.txt mm=ttc_datacard_2018_SR_mm_mm_template.txt > ttc_datacard_2018_SR_C_C_template.txt ; cd -
+
+cd datacards_ttc_run2; combineCards.py d2016=../datacards_ttc_2016/ttc_datacard_2016_SR_C_C_template.txt d2016apv=../datacards_ttc_2016apv/ttc_datacard_2016apv_SR_C_C_template.txt d2017=../datacards_ttc_2017/ttc_datacard_2017_SR_C_C_template.txt d2018=../datacards_ttc_2018/ttc_datacard_2018_SR_C_C_template.txt > ttc_datacard_run2_SR_C_C_template.txt; cd -
+
+
+### Run the cards 
+
+#### 2016
+python runlimits.py -c em --rtc rtc04 -y 2016 
+python runlimits.py -c mm --rtc rtc04 -y 2016
+python runlimits.py -c ee --rtc rtc04 -y 2016
+python runlimits.py -c C --rtc rtc04 -y 2016
+
+
+#### 2016 apv 
+python runlimits.py -c em --rtc rtc04 -y 2016apv 
+python runlimits.py -c mm --rtc rtc04 -y 2016apv
+python runlimits.py -c ee --rtc rtc04 -y 2016apv
+python runlimits.py -c C --rtc rtc04 -y 2016apv
+
+#### 2017
+python runlimits.py -c em --rtc rtc04 -y 2017 
+python runlimits.py -c mm --rtc rtc04 -y 2017
+python runlimits.py -c ee --rtc rtc04 -y 2017
+python runlimits.py -c C --rtc rtc04 -y 2017
+
+#### 2018
+
+python runlimits.py -c em --rtc rtc04 -y 2018 
+python runlimits.py -c mm --rtc rtc04 -y 2018
+python runlimits.py -c ee --rtc rtc04 -y 2018
+python runlimits.py -c C --rtc rtc04 -y 2018
+
+python runlimits.py -c em --rtc rtc08 -y 2018 
+python runlimits.py -c mm --rtc rtc08 -y 2018
+python runlimits.py -c ee --rtc rtc08 -y 2018
+python runlimits.py -c C --rtc rtc08 -y 2018
+
+
+#### run 2 
+python runlimits.py -c C --rtc rtc01 -y run2	
+python runlimits.py -c C --rtc rtc04 -y run2	
+python runlimits.py -c C --rtc rtc08 -y run2	
+python runlimits.py -c C --rtc rtc10 -y run2	
+
+
+
+
+python runlimits.py -c em --rtc rtc01 -y 2017 
+python runlimits.py -c mm --rtc rtc01 -y 2017
+python runlimits.py -c ee --rtc rtc01 -y 2017
+python runlimits.py -c C --rtc rtc01 -y 2017
+
+python runlimits.py -c em --rtc rtc08 -y 2017 
+python runlimits.py -c mm --rtc rtc08 -y 2017
+python runlimits.py -c ee --rtc rtc08 -y 2017
+python runlimits.py -c C --rtc rtc08 -y 2017
+
+
+python runlimits.py -c em --rtc rtc10 -y 2017 
+python runlimits.py -c mm --rtc rtc10 -y 2017
+python runlimits.py -c ee --rtc rtc10 -y 2017
+python runlimits.py -c C --rtc rtc10 -y 2017
+
+
+python runlimits.py -c em --rtc rtc01 
+python runlimits.py -c mm --rtc rtc01
+python runlimits.py -c ee --rtc rtc01
+python runlimits.py -c C --rtc rtc01
+
+
+
+
+python runlimits.py -c em --rtc rtc08
+python runlimits.py -c mm --rtc rtc08
+python runlimits.py -c ee --rtc rtc08
+python runlimits.py -c C --rtc rtc08
+
+
+python runlimits.py -c em --rtc rtc10
+python runlimits.py -c mm --rtc rtc10
+python runlimits.py -c ee --rtc rtc10
+python runlimits.py -c C --rtc rtc10
+
+
+## For impacts and pulls 
+source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
+
+source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
+* autoMCStats 10 0 1
+
+
+## For signal shape comparison 
+python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
+
+
+## for rescaling signal
+sigscale rateParam * TAToTTQ_rtc01_MA350 0.01 [0.009999,0.01111]
+
+
+## Stack plots 
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root ee asimov 20161718
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root em asimov 20161718
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root mm asimov 20161718
+
+nuisance edit rename * * jes2016 jes2017
+nuisance edit rename * * jes2018 jes2017
+nuisance edit rename * * jes2016apv jes2017
+
+
+page 124 of the AN for theory cross-section uncertainty 

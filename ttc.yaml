@@ -3,7 +3,7 @@ SR_em:
   bin: 
     SR_em: 6
   Process: 
-    - TAToTTQ_MAMASSPOINT_rtc01
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
     - TTTo1L
     - ttWW 
     - ttWZ
@@ -26,22 +26,44 @@ SR_em:
 
 
   NuisForProc: 
-    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefireYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - fakeYEAR: [TTTo1L]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,  ttWW, ttWZ, ttWtoLNu, ttZ]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - elemuTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,  ttWW, ttWZ, ttWtoLNu, ttZ]
+    - muIDYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,  ttWW, ttWZ, ttWtoLNu, ttZ]
+    - eleIDYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - chargemisidYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - norm_ttWW: [ttWW]
+    - norm_ttWZ: [ttWZ]
+    - norm_ttWtoLNu: [ttWtoLNu]
+    - norm_ttZ: [ttZ]
+    - hf_tagYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]    
   UnclnN:
-    - lumi: 1.025 
-    - pileup: shape
-    - prefire: shape
-
+    - lumiYEAR: LUMIVAL
+    - pileup: 1.05
+    - prefireYEAR: shape
+    - fakeYEAR: shape 
+    - jesYEAR: shape
+    - jerYEAR: shape 
+    - elemuTriggerYEAR: shape
+    - muIDYEAR: shape
+    - eleIDYEAR: shape
+    - chargemisidYEAR: 1.25
+    - norm_ttWW: 1.1
+    - norm_ttWZ: 1.1
+    - norm_ttWtoLNu: 1.1
+    - norm_ttZ: 1.1
+    - hf_tagYEAR: 1.07
 
 ## Signal Region ee
 SR_ee: 
   bin: 
     SR_ee: 6
   Process: 
-    - TAToTTQ_MAMASSPOINT_rtc01
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
     - TTTo1L
     - ttWW 
     - ttWZ
@@ -64,14 +86,36 @@ SR_ee:
 
 
   NuisForProc: 
-    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefireYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - fakeYEAR: [TTTo1L]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - dieleTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - eleIDYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - chargemisidYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - norm_ttWW: [ttWW]
+    - norm_ttWZ: [ttWZ]
+    - norm_ttWtoLNu: [ttWtoLNu]
+    - norm_ttZ: [ttZ]
+    - hf_tagYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+
   UnclnN:
-    - lumi: 1.025 
-    - pileup: shape
-    - prefire: shape
+    - lumiYEAR: LUMIVAL
+    - pileup: 1.05
+    - prefireYEAR: shape
+    - fakeYEAR: shape
+    - jesYEAR: shape
+    - jerYEAR: shape
+    - dieleTriggerYEAR: shape
+    - eleIDYEAR: shape
+    - chargemisidYEAR: 1.25
+    - norm_ttWW: 1.1
+    - norm_ttWZ: 1.1
+    - norm_ttWtoLNu: 1.1
+    - norm_ttZ: 1.1
+    - hf_tagYEAR: 1.07
 
 
 ## Signal Region mm
@@ -79,7 +123,7 @@ SR_mm:
   bin: 
     SR_mm: 6
   Process: 
-    - TAToTTQ_MAMASSPOINT_rtc01
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
     - TTTo1L
     - ttWW 
     - ttWZ
@@ -102,11 +146,33 @@ SR_mm:
 
 
   NuisForProc: 
-    - lumi: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - pileup: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    - prefire: [TAToTTQ_MAMASSPOINT_rtc01, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
-    
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - prefireYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - fakeYEAR: [TTTo1L]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - dimuTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - muIDYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - chargemisidYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWW, ttWZ, ttWtoLNu, ttZ]
+    - norm_ttWW: [ttWW]
+    - norm_ttWZ: [ttWZ]
+    - norm_ttWtoLNu: [ttWtoLNu]
+    - norm_ttZ: [ttZ]
+    - hf_tagYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo1L, ttWW, ttWZ, ttWtoLNu, ttZ]
+
   UnclnN:
-    - lumi: 1.025 
-    - pileup: shape
-    - prefire: shape
+    - lumiYEAR: LUMIVAL
+    - pileup: 1.05
+    - prefireYEAR: shape
+    - fakeYEAR: shape
+    - jesYEAR: shape
+    - jerYEAR: shape
+    - dimuTriggerYEAR: shape
+    - muIDYEAR: shape
+    - chargemisidYEAR: 1.25
+    - norm_ttWW: 1.1
+    - norm_ttWZ: 1.1
+    - norm_ttWtoLNu: 1.1
+    - norm_ttZ: 1.1
+    - hf_tagYEAR: 1.07

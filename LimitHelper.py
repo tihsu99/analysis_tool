@@ -5,7 +5,7 @@ from ROOT import TGraph, TFile, TGraphAsymmErrors
 import ROOT as rt
 import argparse
 import csv 
-
+import pandas as pd
 
 #import yaml
 #f = open('systematicsDict.yaml') 
@@ -17,14 +17,18 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", model="extYukawa"):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling=0.1, model="extYukawa"):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
         self.postfix_              = postfix
         self.model_                = model
-        self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+self.postfix_+"_"+self.model_+".txt"
-        self.limit_root_file       = self.limitlog.replace(".txt",".root")
+        self.coupling_             = coupling
+        self.coupling_str_         = str(self.coupling_).replace(".","p")
+        
+        self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_rtc"+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
+        self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
+        self.limit_root_file       = self.limitlog_scaled.replace(".txt",".root")
 
         #self.runmode = runmode
         print "class instantiation done"
@@ -130,7 +134,7 @@ class RunLimits:
 
 
     def TextFileToRootGraphs(self,med_idx=0):
-        filename = self.limitlog
+        filename = self.limitlog_scaled
         limit_root_file = filename.replace(".txt",".root")
         
         f = open(filename,"r")
@@ -181,7 +185,7 @@ class RunLimits:
     def SaveLimitPdf1D(self):
         rootfile = self.limit_root_file
         setlogX=0
-        yaxis=0.1
+        yaxis=1000
         
         
         rt.gStyle.SetOptTitle(0)
@@ -201,7 +205,7 @@ class RunLimits:
         exp2s.SetFillColor(rt.kYellow);
         exp2s.SetLineColor(rt.kYellow)
         exp2s.GetXaxis().SetTitle("m_{A} (GeV)");
-        exp2s.GetYaxis().SetRangeUser(.001,yaxis)
+        exp2s.GetYaxis().SetRangeUser(0.1,yaxis)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         #exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
         exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
@@ -277,7 +281,7 @@ class RunLimits:
         
         latex.DrawLatex(0.20, 0.7, "ttc  "+self.analysisbin_);
         latex.DrawLatex(0.20, 0.64, "Extra Yukawa");
-        latex.DrawLatex(0.15, 0.58, "rtc = 0.1"); #sin#theta = 0.7, m_{\chi} = 1 GeV");
+        latex.DrawLatex(0.15, 0.58, "rtc ="+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
@@ -293,6 +297,53 @@ class RunLimits:
         
         return "pdf file is saved"
         
+
+
+    def getlimitScaled_1D(self, rtc_=0.1, divisionfactor=10000000000):
+        limit_file_in  = self.limitlog
+        limit_file_out = self.limitlog_scaled
+        
+        df = pd.read_fwf("ttc_cross_sections.txt")
+        xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
+        xs.drop(axis=1,labels=["PID","rhotu","rhott","Err_cross_section"], inplace=True)
+        
+        limits = pd.read_csv(limit_file_in, delimiter=" ", names=["rhotc","Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
+        limits["rtc"] = 0.4 ## this is dummy value
+        
+        xs_skim_ = xs[xs.rhotc==rtc_]
+        xs_rtc_  = xs_skim_.set_index(["rhotc","Mass"])
+        limits.rhotc = limits.rhotc*0.1
+        limits=limits.set_index(["rhotc","Mass"])
+        limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
+        for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
+            limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
+            
+        limits_merged.drop(axis=1,
+                           labels=["rtc","cross_section"],
+                           inplace=True)
+        
+        limits_scaled = limits_merged
+        
+        limits_scaled.reset_index(inplace=True)
+
+        limits_scaled.dropna(axis=0,
+                             inplace=True)
+        
+        p0 = limits_scaled.to_string(justify='right',
+                                     index=False,
+                                     header=False)
+        
+        
+        fout = open(limit_file_out,"w")
+        fout.write(p0)
+        fout.close()
+        
+        print (limits_scaled)
+        return limits_scaled
+
+
+
+
     def RunImpacts(self, datacard, logfilename, runmode="data"):
         workspace=datacard.replace(".txt",".root")
         
