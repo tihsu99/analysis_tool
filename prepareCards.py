@@ -58,7 +58,8 @@ def getUpperPart2(reg,cat):
     ## old version to be kept
     #top_= 'shapes * '+reg+' ttc_'+year+'_WS.root ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS_$SYSTEMATIC'+'\n'
     ###top_= 'shapes * '+reg+' inputs/COUPLINGVALUE/TMVApp_MASSPOINT_CHANNELNAME.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC'+'\n'
-    top_= 'shapes * '+reg+' inputs/'+year+'/COUPLINGVALUE/TMVApp_MASSPOINT_CHANNELNAME.root ttc'+year+'_$PROCESS ttc'+year+'_$PROCESS_$SYSTEMATIC'+'\n'
+    ###top_= 'shapes * '+reg+' inputs/'+year+'/COUPLINGVALUE/TMVApp_MASSPOINT_CHANNELNAME.root ttc'+year+'_$PROCESS ttc'+year+'_$PROCESS_$SYSTEMATIC'+'\n'
+    top_= 'shapes * '+reg+' FinalInputs/'+year+'/ttc_a_rtcCOUPLINGVALUE_MAMASSPOINT/TMVApp_MASSPOINT_CHANNELNAME.root ttc'+year+'_$PROCESS ttc'+year+'_$PROCESS_$SYSTEMATIC'+'\n'
     return top_
 
 
