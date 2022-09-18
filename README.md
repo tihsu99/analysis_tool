@@ -24,11 +24,15 @@ source envsetter.sh
 ### Install the code 
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
+cd $CMSSW_BASE/src
 git clone git@github.com:ZhengGang85129/LimitModel.git
-
-cd ttcbar/LimitModel; cmsenv 
 ```
 ### Rebin and merging of processes 
+
+Move into LimitModel
+```
+cd LimitModel; cmsenv 
+```
 
 Once input from Meng/others are ready in the form of plain histograms, normalised to cross-section x Lumi, use the ReBin.py macro to perform two main tasks: 
 
@@ -36,10 +40,25 @@ Once input from Meng/others are ready in the form of plain histograms, normalise
 
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
 
-This is ddone by 
+Ex: For coupling value 0.4 for all the dilepton channels in 2016postapv samples:
 
-```python ReBin.py``` 
-Before running the macro, some values needs to be set, specially the input and output paths. 
+```
+python ReBin.py -c all --Couplings 0p4 --y 2016postapv 
+
+``` 
+Ex: For coupings values from 0.1 to 1.0 for all the dilepton channels in 2016postapv samples:
+```
+python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2016postapv
+```
+
+
+You can see the rough description through the following commands
+```
+python ReBin.py --h
+```
+
+
+#Before running the macro, some values needs to be set, specially the input and output paths. 
 
 
 The new output files are then used for the limit extraction. 
@@ -186,6 +205,28 @@ python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2
 nuisance edit rename * * jes2016 jes2017
 nuisance edit rename * * jes2018 jes2017
 nuisance edit rename * * jes2016apv jes2017
+
+
+
+## Trouble Shooting 
+
+### For ReBin.py
+
+If you encounter the error message like
+```
+Traceback (most recent call last):
+  File "./ReBin.py", line 142, in <module>
+    h_ttV.Add( f_in.Get(prefix+"ttZtoQQ"+inuis) )
+TypeError: none of the 3 overloaded methods succeeded. Full details:
+  bool TH1::Add(TF1* h1, double c1 = 1, const char* option = "") =>
+    could not convert argument 1
+  bool TH1::Add(const TH1* h1, double c1 = 1) =>
+    could not convert argument 1
+  bool TH1::Add(const TH1* h, const TH1* h2, double c1 = 1, double c2 = 1) =>
+    takes at least 2 arguments (1 given)
+```
+
+You should tune the name of histogram you want to rebin to be consistent with the histograms names in input file.
 
 
 page 124 of the AN for theory cross-section uncertainty 
