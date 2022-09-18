@@ -24,7 +24,7 @@ source envsetter.sh
 ### Install the code 
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
-git clone git@github.com:ramankhurana/ttcbar.git
+git clone git@github.com:ZhengGang85129/LimitModel.git
 
 cd ttcbar/LimitModel; cmsenv 
 ```
