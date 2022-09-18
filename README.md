@@ -70,14 +70,15 @@ The next step is to create the datacards. The input needed for making datacards 
 
 The datacards for each decay mode, each year can be created using following syntax, just copy paste them to terminal and wait for it to be over. 
 
-python prepareCards.py -y 2016 -c em -reg 'SR_em'
-python prepareCards.py -y 2016 -c ee -reg 'SR_ee'
-python prepareCards.py -y 2016 -c mm -reg 'SR_mm'
-
-
+```
 python prepareCards.py -y 2016apv -c em -reg 'SR_em'
 python prepareCards.py -y 2016apv -c ee -reg 'SR_ee'
 python prepareCards.py -y 2016apv -c mm -reg 'SR_mm'
+
+
+python prepareCards.py -y 2016postapv -c em -reg 'SR_em'
+python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee'
+python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm'
 
 python prepareCards.py -y 2017 -c em -reg 'SR_em'
 python prepareCards.py -y 2017 -c ee -reg 'SR_ee'
@@ -87,7 +88,7 @@ python prepareCards.py -y 2017 -c mm -reg 'SR_mm'
 python prepareCards.py -y 2018 -c em -reg 'SR_em'
 python prepareCards.py -y 2018 -c ee -reg 'SR_ee'
 python prepareCards.py -y 2018 -c mm -reg 'SR_mm'
-
+```
 
 ### Combine the cards for all regions to make a jumbo card 
 
