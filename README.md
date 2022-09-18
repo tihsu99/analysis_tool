@@ -228,7 +228,7 @@ TypeError: none of the 3 overloaded methods succeeded. Full details:
     takes at least 2 arguments (1 given)
 ```
 
-You should tune the name of histogram you want to rebin to be consistent with the histograms names in input file.
+You should tune the name of histogram you want to "get" and "rebin", instead of "naming", to be consistent with the histograms names in input file.
 For this case, ttZtoQQ->ttZToQQ in line 142 for year2016postapv.
 
 ### For runlimits.py
@@ -254,7 +254,7 @@ allparameters: ('500', '04')
 04 500
 ```
 
-You should tune the name of histogram you want to rebin to be consistent with the histograms names in input file.
+You should tune the name of histogram you want to "get" and "rebin", instead of "naming",to be consistent with the histograms names in input file.
 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
