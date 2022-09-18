@@ -92,7 +92,7 @@ python prepareCards.py -y 2018 -c mm -reg 'SR_mm'
 
 ### Combine the cards for all regions to make a jumbo card 
 ```
-cd datacards_ttc_2016; combineCards.py em=ttc_datacard_2016_SR_em_em_template.txt ee=ttc_datacard_2016_SR_ee_ee_template.txt mm=ttc_datacard_2016_SR_mm_mm_template.txt > ttc_datacard_2016_SR_C_C_template.txt ; cd -
+cd datacards_ttc_2016postapv; combineCards.py em=ttc_datacard_2016postapv_SR_em_em_template.txt ee=ttc_datacard_2016postapv_SR_ee_ee_template.txt mm=ttc_datacard_2016postapv_SR_mm_mm_template.txt > ttc_datacard_2016postapv_SR_C_C_template.txt ; cd -
 
 cd datacards_ttc_2016apv; combineCards.py em=ttc_datacard_2016apv_SR_em_em_template.txt ee=ttc_datacard_2016apv_SR_ee_ee_template.txt mm=ttc_datacard_2016apv_SR_mm_mm_template.txt > ttc_datacard_2016apv_SR_C_C_template.txt ; cd -
 
