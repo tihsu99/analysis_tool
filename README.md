@@ -208,7 +208,7 @@ nuisance edit rename * * jes2016 jes2017
 nuisance edit rename * * jes2018 jes2017
 nuisance edit rename * * jes2016apv jes2017
 
-
+page 124 of the AN for theory cross-section uncertainty 
 
 ## Trouble Shooting 
 
@@ -229,9 +229,34 @@ TypeError: none of the 3 overloaded methods succeeded. Full details:
 ```
 
 You should tune the name of histogram you want to rebin to be consistent with the histograms names in input file.
+For this case, ttZtoQQ->ttZToQQ in line 142 for year2016postapv.
 
+### For runlimits.py
 
-page 124 of the AN for theory cross-section uncertainty 
+If you encounter the error message like
+```
+Traceback (most recent call last):
+  File "/afs/cern.ch/user/z/zhenggan/work_space/CMSSW_10_2_13/bin/slc7_amd64_gcc700/text2workspace.py", line 63, in <module>
+    MB.doModel(justCheckPhysicsModel=options.justCheckPhysicsModel)
+  File "/afs/cern.ch/user/z/zhenggan/work_space/CMSSW_10_2_13/python/HiggsAnalysis/CombinedLimit/ModelTools.py", line 110, in doModel
+    if not justCheckPhysicsModel: self.doObservables()
+  File "/afs/cern.ch/user/z/zhenggan/work_space/CMSSW_10_2_13/python/HiggsAnalysis/CombinedLimit/ShapeTools.py", line 61, in doObservables
+    self.prepareAllShapes();
+  File "/afs/cern.ch/user/z/zhenggan/work_space/CMSSW_10_2_13/python/HiggsAnalysis/CombinedLimit/ShapeTools.py", line 332, in prepareAllShapes
+    shape = self.getShape(b,p); norm = 0;
+  File "/afs/cern.ch/user/z/zhenggan/work_space/CMSSW_10_2_13/python/HiggsAnalysis/CombinedLimit/ShapeTools.py", line 573, in getShape
+    raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (objname,finalNames[0],names[1],names[0])
+RuntimeError: Failed to find ttc2016postapv_tzq in file FinalInputs/2016postapv/ttc_a_rtc04_MA500/TMVApp_500_em.root (from pattern ttc2016postapv_$PROCESS, FinalInputs/2016postapv/ttc_a_rtc04_MA500/TMVApp_500_em.root)
+Error when running the combination:
+	Failed to convert the input datacard from LandS to RooStats format. The lines above probably contain more information about the error.
+combine -M AsymptoticLimits datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_em_em_MA500_rtc04.txt -t -1 > datacards_ttc_2016postapv/log/ttc_datacard_2016postapv_SR_em_em_MA500_rtc04.log
+allparameters: ('500', '04')
+04 500
+```
+
+You should tune the name of histogram you want to rebin to be consistent with the histograms names in input file.
+
+For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
 
 
