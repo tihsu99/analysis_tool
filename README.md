@@ -22,11 +22,12 @@ source envsetter.sh
 ```
 
 ### Install the code 
-The code is part of the repository ttcbar, to get it simply do: 
+The code is part of the repository ttcbar, to get it simply do git clone: 
+```
 git clone git@github.com:ramankhurana/ttcbar.git
 
 cd ttcbar/LimitModel; cmsenv 
-
+```
 ### Rebin and merging of processes 
 
 Once input from Meng/others are ready in the form of plain histograms, normalised to cross-section x Lumi, use the ReBin.py macro to perform two main tasks: 
