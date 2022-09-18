@@ -1,5 +1,5 @@
 
-#Enviroment Setup
+# Enviroment Setup
 ```
 export SCRAM_ARCH=slc7_amd64_gcc700
 cmsrel CMSSW_10_2_13
@@ -14,7 +14,7 @@ git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-## Higgs Combination Twiki(Only For Raman) 
+## Higgs Combination Tool Installation(Only For Raman) 
 Follow the Higgs Combination Twiki to install the combine package and compile it, 
  (add the link to combine Twiki  here )
 ```
