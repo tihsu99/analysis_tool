@@ -8,8 +8,8 @@ import sys, optparse,argparse
 ## ----- command line argument
 usage = "python prepareCards.py -y 2017 -c em -reg 'SR_em'"
 parser = argparse.ArgumentParser(description=usage)
-parser.add_argument("-y", "--year", dest="year", default="2017")
-parser.add_argument("-m", "--model", dest="model", default="ExY")
+parser.add_argument("-y", "--year", dest="year", default="2016postapv",choices=["2016postapv","2016apv","2017","2018"])
+#parser.add_argument("-m", "--model", dest="model", default="ExY")
 parser.add_argument("-c", "--category",  dest="category",default="all")
 parser.add_argument("-reg", nargs="+", default=["a", "b"])
 
@@ -19,10 +19,11 @@ args = parser.parse_args()
 year     = args.year
 category = args.category
 regions  = args.reg
-modelName = args.model
+
+#modelName = args.model
 
 
-print (year)#, category, regions, modelName)
+#print (year,regions)#, category, regions, modelName)
 
 if category=='em' or category=='ee' or category=='mm':
     f = open('ttc.yaml')
@@ -41,7 +42,7 @@ doc_nuis   = yaml.safe_load(f_nuis)
 
 
 outdir = 'datacards_ttc_'+year
-os.system('mkdir '+ outdir)
+os.system('mkdir -p '+ outdir)
 
 
 
@@ -124,6 +125,7 @@ def getProcSyst(lists):
 def getbinProcRate(ttcdict):
     print ("inside getbinProcRate", ttcdict)
     binProcRate = OrderedDict()
+
     reg     = ttcdict["bin"].keys()[0] 
     length  =  int(ttcdict["bin"][reg])
     
@@ -157,18 +159,22 @@ def getProcRate(lists):
     return binProcRate
 
 
-'''
-=======================
-START WRITING DATACARDS
-=======================
-'''
-print (regions)
+print("=======================")
+print("START WRITING DATACARDS")
+print("=======================")
+#print (regions)
 
 for reg in regions:
     outputfile = 'ttc_datacard_'+year+'_'+reg+'_'+category+'_template.txt'
     
-    print ("reg:",reg)
-    print (doc[reg])
+    #print ("reg:",reg)
+    #print ("doc[reg]: {}".format(doc[reg]))
+    #print("getbinProcRate(doc[reg]): {}".format(getbinProcRate(doc[reg])))
+    
+    
+    #print(getbinProcRate(doc[reg]))
+    
+    
     df0 = pd.DataFrame(getbinProcRate(doc[reg]))
     df0 = df0.rename(columns={"process1":"process"})   ## replacing process1 by process
     print (df0)
@@ -179,7 +185,7 @@ for reg in regions:
     df1.rename(columns=lambda s: s.replace("YEAR", year), inplace=True)
     if (year=="2018"):
         df1.rename(columns={"prefire2018":"###prefire2018"},inplace=True)
-    print ("df1:",df1)
+    print (df1)
     
     fout = open(outdir+'/'+outputfile,'w')
     p0 = df0.T.to_string(justify='right',index=True, header=False)
@@ -211,12 +217,12 @@ for reg in regions:
     fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
     # fout.write(p1+'\n')
     '''
-    fout.write('------------'+'\n')
-    fout.write(p+'\n')
-    fout.write(part4+'\n')
+    
+    #fout.write('------------'+'\n')
+    #fout.write(p+'\n')
+    #fout.write(part4+'\n')
     '''
     fout.close()
-
 
 
 

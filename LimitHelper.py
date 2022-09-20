@@ -147,9 +147,11 @@ class RunLimits:
         expp2=array('f')
         obs=array('f')
         errx=array('f')
-    
+        
+        counter = 0
         for line in f:
             if len(line.rsplit())<7: continue
+            counter +=1
             med.append(float(line.rstrip().split()[1]))
             mchi.append(float(line.rstrip().split()[0]))
             
@@ -161,7 +163,7 @@ class RunLimits:
 
             obs.append(float(line.rstrip().split()[7]))
             errx.append(0.0)
-    
+        print(int(len(med)))
         print ('expm2: ', expm2)
         print ('expm1: ', expm1)
         print ('expmed: ', expmed)
@@ -182,10 +184,10 @@ class RunLimits:
         f1.Close()
         return limit_root_file
 
-    def SaveLimitPdf1D(self):
+    def SaveLimitPdf1D(self,outputdir='./'):
         rootfile = self.limit_root_file
         setlogX=0
-        yaxis=1000
+        yaxis=10000
         
         
         rt.gStyle.SetOptTitle(0)
@@ -285,14 +287,19 @@ class RunLimits:
         #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
+        OUT_DIR = os.path.join(outputdir,"plot_limit")
         
-        self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin/","plots_limit/")
-        
+        print(OUT_DIR)
+        #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
+
+        self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin/",outputdir+"/plots_limit/")
+        #self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin","plot_limit")
         #c.SetLogx(1)
         c.Update()
         #c.SaveAs(name+".png")
-        c.SaveAs(self.limit_pdf_file)
-        c.SaveAs(self.limit_pdf_file.replace(".pdf",".png"))
+        print(self.limit_pdf_file) 
+        c.Print(self.limit_pdf_file)
+        c.Print(self.limit_pdf_file.replace(".pdf",".png"))
         c.Close()
         
         return "pdf file is saved"
@@ -314,20 +321,26 @@ class RunLimits:
         xs_rtc_  = xs_skim_.set_index(["rhotc","Mass"])
         limits.rhotc = limits.rhotc*0.1
         limits=limits.set_index(["rhotc","Mass"])
+        print(limits)
         limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
+        print(limits_merged)
         for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
             limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
             
+        print(limits_merged)
         limits_merged.drop(axis=1,
                            labels=["rtc","cross_section"],
                            inplace=True)
         
         limits_scaled = limits_merged
+        print(limits_scaled)
         
         limits_scaled.reset_index(inplace=True)
+        print(limits_scaled)
 
         limits_scaled.dropna(axis=0,
                              inplace=True)
+        print(limits_scaled)
         
         p0 = limits_scaled.to_string(justify='right',
                                      index=False,
