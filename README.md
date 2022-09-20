@@ -48,7 +48,7 @@ python ReBin.py -c all --Couplings 0p4 --y 2016postapv
 ``` 
 Ex: For coupings values from 0.1 to 1.0 for all the dilepton channels in 2016postapv samples:
 ```
-python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2016postapv --Masses 200 300 350 400 500 600 700 900 1000
+python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000
 ```
 
 
@@ -129,10 +129,10 @@ python runlimits.py -c C --rtc rtc04 -y 2017
 ```
 #### 2018
 ```
-python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
-python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
-python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
-python runlimits.py -c C --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~3000 sec
+python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 # run time : ~100 sec 
+python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 # run time : ~100 sec 
+python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 # run time : ~100 sec 
+python runlimits.py -c C  --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 # run time : ~3000 sec
 ```
 ```
 python runlimits.py -c em --rtc rtc08 -y 2018 
