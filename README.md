@@ -129,10 +129,10 @@ python runlimits.py -c C --rtc rtc04 -y 2017
 ```
 #### 2018
 ```
-python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~90 sec 
-python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~90 sec 
-python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~90 sec 
-python runlimits.py -c C --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : 
+python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
+python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
+python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~100 sec 
+python runlimits.py -c C --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 900 1000 # run time : ~3000 sec
 ```
 ```
 python runlimits.py -c em --rtc rtc08 -y 2018 
@@ -140,6 +140,7 @@ python runlimits.py -c mm --rtc rtc08 -y 2018
 python runlimits.py -c ee --rtc rtc08 -y 2018
 python runlimits.py -c C --rtc rtc08 -y 2018
 ```
+
 
 #### run 2 
 ```
