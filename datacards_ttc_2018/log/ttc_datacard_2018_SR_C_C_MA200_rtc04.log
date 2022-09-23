@@ -8,412 +8,204 @@ Poisson cut-off: 10
 Processes excluded for sums: TAToTTQ_rtc04_MA200
 ============================================================
 Bin        Contents        Error           Notes                         
-0          45.361023       6.305840        total sum                     
-0          45.341340       6.305836        excluding marked processes    
-0          52.000000       7.211103        Unweighted events, alpha=0.872327
+0          46.434810       6.311711        total sum                     
+0          46.415127       6.311707        excluding marked processes    
+0          54.000000       7.348469        Unweighted events, alpha=0.859904
   => Total parameter prop_binem_bin0[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-1          79.095896       8.325635        total sum                     
-1          79.001706       8.325621        excluding marked processes    
-1          90.000000       9.486833        Unweighted events, alpha=0.878843
+1          81.380772       8.337364        total sum                     
+1          81.286582       8.337350        excluding marked processes    
+1          95.000000       9.746794        Unweighted events, alpha=0.856640
   => Total parameter prop_binem_bin1[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-2          90.371059       10.872064       total sum                     
-2          90.193374       10.872044       excluding marked processes    
-2          69.000000       8.306624        Unweighted events, alpha=1.309725
+2          93.281145       10.881224       total sum                     
+2          93.103461       10.881204       excluding marked processes    
+2          73.000000       8.544004        Unweighted events, alpha=1.277824
   => Total parameter prop_binem_bin2[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-3          85.034026       8.356056        total sum                     
-3          84.840145       8.356031        excluding marked processes    
-3          103.000000      10.148892       Unweighted events, alpha=0.825573
+3          87.821911       8.370150        total sum                     
+3          87.628030       8.370125        excluding marked processes    
+3          110.000000      10.488088       Unweighted events, alpha=0.798381
   => Total parameter prop_binem_bin3[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-4          91.063707       9.512663        total sum                     
-4          90.803312       9.512635        excluding marked processes    
-4          91.000000       9.539392        Unweighted events, alpha=1.000700
+4          95.230897       9.530588        total sum                     
+4          94.970503       9.530560        excluding marked processes    
+4          99.000000       9.949874        Unweighted events, alpha=0.961928
   => Total parameter prop_binem_bin4[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-5          91.162293       8.981549        total sum                     
-5          90.823202       8.981506        excluding marked processes    
-5          102.000000      10.099505       Unweighted events, alpha=0.893748
+5          94.333426       8.996324        total sum                     
+5          93.994336       8.996281        excluding marked processes    
+5          109.000000      10.440307       Unweighted events, alpha=0.865444
   => Total parameter prop_binem_bin5[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-6          59.666569       7.512421        total sum                     
-6          59.261931       7.512363        excluding marked processes    
-6          62.000000       7.874008        Unweighted events, alpha=0.962364
+6          61.935479       7.524719        total sum                     
+6          61.530840       7.524660        excluding marked processes    
+6          67.000000       8.185353        Unweighted events, alpha=0.924410
   => Total parameter prop_binem_bin6[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-7          72.504302       8.340158        total sum                     
-7          72.092176       8.340106        excluding marked processes    
-7          75.000000       8.660254        Unweighted events, alpha=0.966724
+7          75.459611       8.355740        total sum                     
+7          75.047485       8.355689        excluding marked processes    
+7          81.000000       9.000000        Unweighted events, alpha=0.931600
   => Total parameter prop_binem_bin7[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-8          63.098620       7.382566        total sum                     
-8          62.697125       7.382504        excluding marked processes    
-8          72.000000       8.485281        Unweighted events, alpha=0.876370
+8          65.585439       7.398908        total sum                     
+8          65.183944       7.398845        excluding marked processes    
+8          78.000000       8.831761        Unweighted events, alpha=0.840839
   => Total parameter prop_binem_bin8[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-9          40.079078       5.651720        total sum                     
-9          39.619542       5.651631        excluding marked processes    
-9          49.000000       7.000000        Unweighted events, alpha=0.817940
+9          42.676783       5.667269        total sum                     
+9          42.217247       5.667181        excluding marked processes    
+9          55.000000       7.416198        Unweighted events, alpha=0.775942
   => Total parameter prop_binem_bin9[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-10         53.200824       7.968328        total sum                     
-10         52.708790       7.968266        excluding marked processes    
-10         44.000000       6.633250        Unweighted events, alpha=1.209110
+10         55.053027       7.977738        total sum                     
+10         54.560993       7.977676        excluding marked processes    
+10         47.000000       6.855655        Unweighted events, alpha=1.171341
   => Total parameter prop_binem_bin10[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-11         40.633444       5.581710        total sum                     
-11         40.214180       5.581640        excluding marked processes    
-11         52.000000       7.211103        Unweighted events, alpha=0.781412
+11         42.469913       5.596207        total sum                     
+11         42.050649       5.596137        excluding marked processes    
+11         56.000000       7.483315        Unweighted events, alpha=0.758391
   => Total parameter prop_binem_bin11[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-12         36.153034       5.933657        total sum                     
-12         35.619953       5.933567        excluding marked processes    
-12         36.000000       6.000000        Unweighted events, alpha=1.004251
+12         38.368304       5.950786        total sum                     
+12         37.835222       5.950696        excluding marked processes    
+12         40.000000       6.324555        Unweighted events, alpha=0.959208
   => Total parameter prop_binem_bin12[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-13         40.069423       5.744352        total sum                     
-13         39.470824       5.744248        excluding marked processes    
-13         47.000000       6.855655        Unweighted events, alpha=0.852541
+13         42.586651       5.760299        total sum                     
+13         41.988052       5.760195        excluding marked processes    
+13         53.000000       7.280110        Unweighted events, alpha=0.803522
   => Total parameter prop_binem_bin13[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-14         32.635518       4.974574        total sum                     
-14         32.043566       4.974453        excluding marked processes    
-14         41.000000       6.403124        Unweighted events, alpha=0.795988
+14         36.022386       5.003311        total sum                     
+14         35.430434       5.003191        excluding marked processes    
+14         50.000000       7.071068        Unweighted events, alpha=0.720448
   => Total parameter prop_binem_bin14[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-15         37.997399       6.064565        total sum                     
-15         37.387808       6.064464        excluding marked processes    
-15         38.000000       6.164414        Unweighted events, alpha=0.999932
+15         40.810784       6.084952        total sum                     
+15         40.201192       6.084851        excluding marked processes    
+15         44.000000       6.633250        Unweighted events, alpha=0.927518
   => Total parameter prop_binem_bin15[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-16         31.622941       5.576141        total sum                     
-16         30.957019       5.576022        excluding marked processes    
-16         31.000000       5.567764        Unweighted events, alpha=1.020095
+16         33.702938       5.591338        total sum                     
+16         33.037016       5.591219        excluding marked processes    
+16         35.000000       5.916080        Unweighted events, alpha=0.962941
   => Total parameter prop_binem_bin16[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-17         30.340750       5.765004        total sum                     
-17         29.684198       5.764895        excluding marked processes    
-17         27.000000       5.196152        Unweighted events, alpha=1.123731
+17         31.935419       5.776789        total sum                     
+17         31.278867       5.776679        excluding marked processes    
+17         29.000000       5.385165        Unweighted events, alpha=1.101221
   => Total parameter prop_binem_bin17[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-18         26.386137       4.513651        total sum                     
-18         25.666342       4.513497        excluding marked processes    
-18         32.000000       5.656854        Unweighted events, alpha=0.824567
+18         28.353244       4.530775        total sum                     
+18         27.633449       4.530622        excluding marked processes    
+18         37.000000       6.082763        Unweighted events, alpha=0.766304
   => Total parameter prop_binem_bin18[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-19         23.461145       5.415286        total sum                     
-19         22.744977       5.415156        excluding marked processes    
-19         18.000000       4.242641        Unweighted events, alpha=1.303397
+19         25.541057       5.430755        total sum                     
+19         24.824889       5.430626        excluding marked processes    
+19         21.000000       4.582576        Unweighted events, alpha=1.216241
   => Total parameter prop_binem_bin19[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-20         29.437721       4.972416        total sum                     
-20         28.656258       4.972268        excluding marked processes    
-20         33.000000       5.744563        Unweighted events, alpha=0.892052
+20         31.406046       4.989878        total sum                     
+20         30.624583       4.989730        excluding marked processes    
+20         38.000000       6.164414        Unweighted events, alpha=0.826475
   => Total parameter prop_binem_bin20[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-21         32.511832       5.270761        total sum                     
-21         31.740420       5.270628        excluding marked processes    
-21         36.000000       6.000000        Unweighted events, alpha=0.903106
+21         34.980498       5.293586        total sum                     
+21         34.209087       5.293453        excluding marked processes    
+21         42.000000       6.480741        Unweighted events, alpha=0.832869
   => Total parameter prop_binem_bin21[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-22         21.397003       4.216012        total sum                     
-22         20.547752       4.215826        excluding marked processes    
-22         24.000000       4.898979        Unweighted events, alpha=0.891542
+22         22.724102       4.228657        total sum                     
+22         21.874850       4.228472        excluding marked processes    
+22         27.000000       5.196152        Unweighted events, alpha=0.841633
   => Total parameter prop_binem_bin22[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-23         25.396405       5.919009        total sum                     
-23         24.463530       5.918868        excluding marked processes    
-23         17.000000       4.123106        Unweighted events, alpha=1.493906
+23         26.835344       5.927943        total sum                     
+23         25.902470       5.927802        excluding marked processes    
+23         19.000000       4.358899        Unweighted events, alpha=1.412387
   => Total parameter prop_binem_bin23[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-24         26.713068       4.564194        total sum                     
-24         25.712961       4.564001        excluding marked processes    
-24         32.000000       5.656854        Unweighted events, alpha=0.834783
+24         27.993716       4.574141        total sum                     
+24         26.993610       4.573949        excluding marked processes    
+24         35.000000       5.916080        Unweighted events, alpha=0.799820
   => Total parameter prop_binem_bin24[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-25         13.950224       4.278314        total sum                     
-25         12.939076       4.278102        excluding marked processes    
-25         9.000000        3.000000        Unweighted events, alpha=1.550025
-  => Number of weighted events is below poisson threshold
-    tzq                  0.183994        0.036445                                      
-                         25.000000       5.000000        Unweighted events, alpha=0.007360
-      => Parameter prop_binem_bin25_tzq[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    VVV                  0.052700        0.031812                                      
-                         3.000000        1.732051        Unweighted events, alpha=0.017567
-      => Product of prop_binem_bin25_VVV[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
-  ----------------------------------------------------------
-    t_tbar_W             0.136805        0.136805                                      
-                         1.000000        1.000000        Unweighted events, alpha=0.136805
-      => Product of prop_binem_bin25_t_tbar_W[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             3.013002        0.159384                                      
-                         357.000000      18.894444       Unweighted events, alpha=0.008440
-      => Parameter prop_binem_bin25_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               2.421018        0.108675                                      
-                         496.000000      22.271057       Unweighted events, alpha=0.004881
-      => Parameter prop_binem_bin25_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.011227        0.024734                                      
-      => Poisson not viable, prop_binem_bin25_ttV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttVV                 0.092287        0.009383                                      
-                         97.000000       9.848858        Unweighted events, alpha=0.000951
-      => Parameter prop_binem_bin25_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  101.114822      4.261126                                      
-                         563.000000      23.727621       Unweighted events, alpha=0.179600
-      => Parameter prop_binem_bin25_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.125776        0.006616                                      
-                         361.000000      19.000000       Unweighted events, alpha=0.000348
-      => Parameter prop_binem_bin25_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               6.902267        4.271199                                      
-                         3.000000        1.732051        Unweighted events, alpha=2.300756
-      => Product of prop_binem_bin25_TTTo1L[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
-  ----------------------------------------------------------
+25         16.035865       4.296939        total sum                     
+25         15.024717       4.296728        excluding marked processes    
+25         12.000000       3.464102        Unweighted events, alpha=1.336322
+  => Total parameter prop_binem_bin25[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-26         23.982758       4.731529        total sum                     
-26         22.914336       4.731327        excluding marked processes    
-26         23.000000       4.795832        Unweighted events, alpha=1.042729
+26         25.502245       4.746332        total sum                     
+26         24.433823       4.746131        excluding marked processes    
+26         27.000000       5.196152        Unweighted events, alpha=0.944528
   => Total parameter prop_binem_bin26[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-27         27.750135       5.138060        total sum                     
-27         26.655963       5.137877        excluding marked processes    
-27         27.000000       5.196152        Unweighted events, alpha=1.027783
+27         29.614123       5.154186        total sum                     
+27         28.519951       5.154003        excluding marked processes    
+27         31.000000       5.567764        Unweighted events, alpha=0.955294
   => Total parameter prop_binem_bin27[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-28         16.883568       3.793607        total sum                     
-28         15.726382       3.793346        excluding marked processes    
-28         17.000000       4.123106        Unweighted events, alpha=0.993151
+28         18.657234       3.817737        total sum                     
+28         17.500048       3.817478        excluding marked processes    
+28         21.000000       4.582576        Unweighted events, alpha=0.888440
   => Total parameter prop_binem_bin28[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-29         15.138041       3.435121        total sum                     
-29         13.862731       3.434813        excluding marked processes    
-29         16.000000       4.000000        Unweighted events, alpha=0.946128
+29         17.197766       3.463222        total sum                     
+29         15.922456       3.462916        excluding marked processes    
+29         21.000000       4.582576        Unweighted events, alpha=0.818941
   => Total parameter prop_binem_bin29[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-30         11.102856       3.274338        total sum                     
-30         9.791135        3.274003        excluding marked processes    
-30         9.000000        3.000000        Unweighted events, alpha=1.233651
-  => Number of weighted events is below poisson threshold
-    tzq                  0.083466        0.034995                                      
-                         6.000000        2.449490        Unweighted events, alpha=0.013911
-      => Product of prop_binem_bin30_tzq[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
-  ----------------------------------------------------------
-    VVV                  0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    t_tbar_W             0.411411        0.305083                                      
-                         2.000000        1.414214        Unweighted events, alpha=0.205706
-      => Product of prop_binem_bin30_t_tbar_W[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             3.222043        0.155460                                      
-                         430.000000      20.736441       Unweighted events, alpha=0.007493
-      => Parameter prop_binem_bin30_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               2.274972        0.104669                                      
-                         472.000000      21.725561       Unweighted events, alpha=0.004820
-      => Parameter prop_binem_bin30_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.082830        0.036576                                      
-                         5.000000        2.236068        Unweighted events, alpha=0.016566
-      => Product of prop_binem_bin30_ttV[5.00,0.01,41.33] and const [0.2000] to be poisson constrained
-  ----------------------------------------------------------
-    ttVV                 0.085379        0.008785                                      
-                         94.000000       9.695360        Unweighted events, alpha=0.000908
-      => Parameter prop_binem_bin30_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  131.172089      4.687613                                      
-                         783.000000      27.982137       Unweighted events, alpha=0.167525
-      => Parameter prop_binem_bin30_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.110781        0.006480                                      
-                         292.000000      17.088007       Unweighted events, alpha=0.000379
-      => Parameter prop_binem_bin30_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               3.520253        3.253954                                      
-                         1.000000        1.000000        Unweighted events, alpha=3.520253
-      => Product of prop_binem_bin30_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
+30         12.570561       3.291121        total sum                     
+30         11.258840       3.290787        excluding marked processes    
+30         12.000000       3.464102        Unweighted events, alpha=1.047547
+  => Total parameter prop_binem_bin30[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-31         21.688607       4.590850        total sum                     
-31         20.163196       4.590575        excluding marked processes    
-31         19.000000       4.358899        Unweighted events, alpha=1.141506
+31         23.706648       4.606851        total sum                     
+31         22.181237       4.606577        excluding marked processes    
+31         23.000000       4.795832        Unweighted events, alpha=1.030724
   => Total parameter prop_binem_bin31[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-32         15.649070       3.809999        total sum                     
-32         14.002091       3.809635        excluding marked processes    
-32         14.000000       3.741657        Unweighted events, alpha=1.117791
+32         17.935566       3.832692        total sum                     
+32         16.288587       3.832330        excluding marked processes    
+32         18.000000       4.242641        Unweighted events, alpha=0.996420
   => Total parameter prop_binem_bin32[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-33         12.513932       3.466242        total sum                     
-33         10.920845       3.465885        excluding marked processes    
-33         10.000000       3.162278        Unweighted events, alpha=1.251393
-  => Number of weighted events is below poisson threshold
-    tzq                  0.086600        0.030067                                      
-                         8.000000        2.828427        Unweighted events, alpha=0.010825
-      => Product of prop_binem_bin33_tzq[8.00,0.12,47.91] and const [0.1250] to be poisson constrained
-  ----------------------------------------------------------
-    VVV                  0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    t_tbar_W             0.832679        0.346067                                      
-                         6.000000        2.449490        Unweighted events, alpha=0.138780
-      => Product of prop_binem_bin33_t_tbar_W[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             2.985399        0.149892                                      
-                         397.000000      19.924859       Unweighted events, alpha=0.007520
-      => Parameter prop_binem_bin33_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               2.116614        0.104435                                      
-                         411.000000      20.273135       Unweighted events, alpha=0.005150
-      => Parameter prop_binem_bin33_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.000000        0.039735                                      
-      => Poisson not viable, prop_binem_bin33_ttV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttVV                 0.082266        0.008647                                      
-                         91.000000       9.539392        Unweighted events, alpha=0.000904
-      => Parameter prop_binem_bin33_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  159.308716      4.978412                                      
-                         1024.000000     32.000000       Unweighted events, alpha=0.155575
-      => Parameter prop_binem_bin33_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.126314        0.006536                                      
-                         373.000000      19.313208       Unweighted events, alpha=0.000339
-      => Parameter prop_binem_bin33_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               4.690972        3.443344                                      
-                         2.000000        1.414214        Unweighted events, alpha=2.345486
-      => Product of prop_binem_bin33_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
+33         14.081739       3.483651        total sum                     
+33         12.488651       3.483296        excluding marked processes    
+33         13.000000       3.605551        Unweighted events, alpha=1.083211
+  => Total parameter prop_binem_bin33[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-34         17.290679       3.606296        total sum                     
-34         15.424395       3.605870        excluding marked processes    
-34         18.000000       4.242641        Unweighted events, alpha=0.960593
+34         18.651243       3.619163        total sum                     
+34         16.784959       3.618739        excluding marked processes    
+34         22.000000       4.690416        Unweighted events, alpha=0.847784
   => Total parameter prop_binem_bin34[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-35         19.190936       3.992285        total sum                     
-35         17.271661       3.991904        excluding marked processes    
-35         19.000000       4.358899        Unweighted events, alpha=1.010049
+35         20.083122       4.000356        total sum                     
+35         18.163846       3.999976        excluding marked processes    
+35         21.000000       4.582576        Unweighted events, alpha=0.956339
   => Total parameter prop_binem_bin35[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-36         12.600223       3.435890        total sum                     
-36         10.515285       3.435397        excluding marked processes    
-36         9.000000        3.000000        Unweighted events, alpha=1.400025
-  => Number of weighted events is below poisson threshold
-    tzq                  0.083589        0.025117                                      
-                         11.000000       3.316625        Unweighted events, alpha=0.007599
-      => Parameter prop_binem_bin36_tzq[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    VVV                  0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    t_tbar_W             0.079737        0.079737                                      
-                         1.000000        1.000000        Unweighted events, alpha=0.079737
-      => Product of prop_binem_bin36_t_tbar_W[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             2.643634        0.135190                                      
-                         382.000000      19.544820       Unweighted events, alpha=0.006921
-      => Parameter prop_binem_bin36_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               2.151942        0.100288                                      
-                         460.000000      21.447611       Unweighted events, alpha=0.004678
-      => Parameter prop_binem_bin36_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.008354        0.033465                                      
-      => Poisson not viable, prop_binem_bin36_ttV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttVV                 0.074091        0.008398                                      
-                         78.000000       8.831761        Unweighted events, alpha=0.000950
-      => Parameter prop_binem_bin36_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  208.493774      5.822437                                      
-                         1282.000000     35.805028       Unweighted events, alpha=0.162632
-      => Parameter prop_binem_bin36_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.117857        0.006630                                      
-                         316.000000      17.776389       Unweighted events, alpha=0.000373
-      => Parameter prop_binem_bin36_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               5.356081        3.430072                                      
-                         2.000000        1.414214        Unweighted events, alpha=2.678041
-      => Product of prop_binem_bin36_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
+36         14.083490       3.451485        total sum                     
+36         11.998552       3.450994        excluding marked processes    
+36         12.000000       3.464102        Unweighted events, alpha=1.173624
+  => Total parameter prop_binem_bin36[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-37         16.506508       3.746822        total sum                     
-37         14.245977       3.746356        excluding marked processes    
-37         14.000000       3.741657        Unweighted events, alpha=1.179036
+37         17.427888       3.759505        total sum                     
+37         15.167357       3.759041        excluding marked processes    
+37         16.000000       4.000000        Unweighted events, alpha=1.089243
   => Total parameter prop_binem_bin37[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-38         10.245789       2.474145        total sum                     
-38         7.528791        2.473326        excluding marked processes    
-38         9.000000        3.000000        Unweighted events, alpha=1.138421
-  => Number of weighted events is below poisson threshold
-    tzq                  0.038745        0.026061                                      
-                         2.000000        1.414214        Unweighted events, alpha=0.019373
-      => Product of prop_binem_bin38_tzq[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
-    VVV                  0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    t_tbar_W             0.226764        0.226764                                      
-                         1.000000        1.000000        Unweighted events, alpha=0.226764
-      => Product of prop_binem_bin38_t_tbar_W[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             1.957122        0.118699                                      
-                         272.000000      16.492423       Unweighted events, alpha=0.007195
-      => Parameter prop_binem_bin38_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               1.688247        0.088089                                      
-                         367.000000      19.157244       Unweighted events, alpha=0.004600
-      => Parameter prop_binem_bin38_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.062742        0.030304                                      
-                         4.000000        2.000000        Unweighted events, alpha=0.015686
-      => Product of prop_binem_bin38_ttV[4.00,0.00,38.96] and const [0.2500] to be poisson constrained
-  ----------------------------------------------------------
-    ttVV                 0.057422        0.006967                                      
-                         68.000000       8.246211        Unweighted events, alpha=0.000844
-      => Parameter prop_binem_bin38_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  271.699738      6.364363                                      
-                         1823.000000     42.696604       Unweighted events, alpha=0.149040
-      => Parameter prop_binem_bin38_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.159776        0.006760                                      
-                         559.000000      23.643181       Unweighted events, alpha=0.000286
-      => Parameter prop_binem_bin38_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               3.337973        2.458125                                      
-                         2.000000        1.414214        Unweighted events, alpha=1.668987
-      => Product of prop_binem_bin38_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
+38         11.017227       2.485303        total sum                     
+38         8.300230        2.484488        excluding marked processes    
+38         11.000000       3.316625        Unweighted events, alpha=1.001566
+  => Total parameter prop_binem_bin38[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-39         4.029317        0.926947        total sum                     
-39         1.713853        0.925090        excluding marked processes    
-39         3.000000        1.732051        Unweighted events, alpha=1.343106
+39         4.479596        0.941068        total sum                     
+39         2.164132        0.939239        excluding marked processes    
+39         5.000000        2.236068        Unweighted events, alpha=0.895919
   => Number of weighted events is below poisson threshold
     tzq                  0.018193        0.012183                                      
                          2.000000        1.414214        Unweighted events, alpha=0.009096
@@ -441,6 +233,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000796
       => Parameter prop_binem_bin39_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.450280        0.162414                                      
+                         8.000000        2.828427        Unweighted events, alpha=0.056285
+      => Product of prop_binem_bin39_TTTo2L[8.00,0.12,47.91] and const [0.1250] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  231.546402      5.863661                                      
                          1559.000000     39.484174       Unweighted events, alpha=0.148522
       => Parameter prop_binem_bin39_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -463,9 +259,9 @@ Poisson cut-off: 10
 Processes excluded for sums: TAToTTQ_rtc04_MA200
 ============================================================
 Bin        Contents        Error           Notes                         
-0          22.550546       7.498225        total sum                     
-0          22.543510       7.498225        excluding marked processes    
-0          9.000000        3.000000        Unweighted events, alpha=2.505616
+0          23.089259       7.500493        total sum                     
+0          23.082223       7.500492        excluding marked processes    
+0          9.000000        3.000000        Unweighted events, alpha=2.565473
   => Number of weighted events is below poisson threshold
     tzq                  0.021370        0.013695                                      
                          2.000000        1.414214        Unweighted events, alpha=0.010685
@@ -494,6 +290,10 @@ Bin        Contents        Error           Notes
                          24.000000       4.898979        Unweighted events, alpha=0.000781
       => Parameter prop_binee_bin0_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.538713        0.184433                                      
+                         9.000000        3.000000        Unweighted events, alpha=0.059857
+      => Product of prop_binee_bin0_TTTo2L[9.00,0.20,49.98] and const [0.1111] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  0.703637        0.361617                                      
                          4.000000        2.000000        Unweighted events, alpha=0.175909
       => Product of prop_binee_bin0_TAToTTQ_rtc04_MA200[4.00,0.00,38.96] and const [0.2500] to be poisson constrained
@@ -511,86 +311,44 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin0_TTTo1L[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-1          43.267439       8.203915        total sum                     
-1          43.253902       8.203914        excluding marked processes    
-1          28.000000       5.291503        Unweighted events, alpha=1.545266
+1          45.107827       8.219277        total sum                     
+1          45.094289       8.219275        excluding marked processes    
+1          30.000000       5.477226        Unweighted events, alpha=1.503594
   => Total parameter prop_binee_bin1[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-2          49.546222       12.733598       total sum                     
-2          49.496685       12.733594       excluding marked processes    
-2          15.000000       3.872983        Unweighted events, alpha=3.303081
+2          51.100728       12.739398       total sum                     
+2          51.051191       12.739394       excluding marked processes    
+2          16.000000       4.000000        Unweighted events, alpha=3.193796
   => Total parameter prop_binee_bin2[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-3          17.798311       5.699955        total sum                     
-3          17.737360       5.699944        excluding marked processes    
-3          10.000000       3.162278        Unweighted events, alpha=1.779831
-  => Number of weighted events is below poisson threshold
-    tzq                  0.004943        0.026584                                      
-      => Poisson not viable, prop_binee_bin3_tzq[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    VVV                  0.678467        0.280082                                      
-                         6.000000        2.449490        Unweighted events, alpha=0.113078
-      => Product of prop_binee_bin3_VVV[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
-  ----------------------------------------------------------
-    t_tbar_W             1.211314        0.674592                                      
-                         3.000000        1.732051        Unweighted events, alpha=0.403771
-      => Product of prop_binee_bin3_t_tbar_W[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             1.223391        0.105553                                      
-                         134.000000      11.575837       Unweighted events, alpha=0.009130
-      => Parameter prop_binee_bin3_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               1.308231        0.078673                                      
-                         277.000000      16.643317       Unweighted events, alpha=0.004723
-      => Parameter prop_binee_bin3_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.079607        0.038510                                      
-                         4.000000        2.000000        Unweighted events, alpha=0.019902
-      => Product of prop_binee_bin3_ttV[4.00,0.00,38.96] and const [0.2500] to be poisson constrained
-  ----------------------------------------------------------
-    ttVV                 0.051362        0.006552                                      
-                         61.000000       7.810250        Unweighted events, alpha=0.000842
-      => Parameter prop_binee_bin3_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  6.095064        1.155848                                      
-                         28.000000       5.291503        Unweighted events, alpha=0.217681
-      => Parameter prop_binee_bin3_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.044478        0.004522                                      
-                         97.000000       9.848858        Unweighted events, alpha=0.000459
-      => Parameter prop_binee_bin3_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               13.135566       5.651217                                      
-                         5.000000        2.236068        Unweighted events, alpha=2.627113
-      => Product of prop_binee_bin3_TTTo1L[5.00,0.01,41.33] and const [0.2000] to be poisson constrained
-  ----------------------------------------------------------
+3          18.833180       5.710276        total sum                     
+3          18.772229       5.710264        excluding marked processes    
+3          11.000000       3.316625        Unweighted events, alpha=1.712107
+  => Total parameter prop_binee_bin3[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-4          28.719367       7.921986        total sum                     
-4          28.657252       7.921978        excluding marked processes    
-4          13.000000       3.605551        Unweighted events, alpha=2.209182
+4          30.037584       7.934374        total sum                     
+4          29.975470       7.934367        excluding marked processes    
+4          14.000000       3.741657        Unweighted events, alpha=2.145542
   => Total parameter prop_binee_bin4[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-5          19.636596       4.023046        total sum                     
-5          19.571915       4.023032        excluding marked processes    
-5          24.000000       4.898979        Unweighted events, alpha=0.818191
+5          21.128300       4.043064        total sum                     
+5          21.063619       4.043050        excluding marked processes    
+5          27.000000       5.196152        Unweighted events, alpha=0.782530
   => Total parameter prop_binee_bin5[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-6          17.226314       4.974442        total sum                     
-6          17.150988       4.974427        excluding marked processes    
-6          12.000000       3.464102        Unweighted events, alpha=1.435526
+6          18.388234       4.990013        total sum                     
+6          18.312908       4.989998        excluding marked processes    
+6          13.000000       3.605551        Unweighted events, alpha=1.414480
   => Total parameter prop_binee_bin6[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-7          11.532797       3.428562        total sum                     
-7          11.451833       3.428539        excluding marked processes    
-7          11.000000       3.316625        Unweighted events, alpha=1.048436
+7          12.918714       3.450883        total sum                     
+7          12.837750       3.450859        excluding marked processes    
+7          14.000000       3.741657        Unweighted events, alpha=0.922765
   => Total parameter prop_binee_bin7[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-8          6.152614        2.488239        total sum                     
-8          6.043700        2.488194        excluding marked processes    
-8          6.000000        2.449490        Unweighted events, alpha=1.025436
+8          7.112196        2.510831        total sum                     
+8          7.003282        2.510786        excluding marked processes    
+8          8.000000        2.828427        Unweighted events, alpha=0.889025
   => Number of weighted events is below poisson threshold
     tzq                  0.049417        0.024194                                      
                          4.000000        2.000000        Unweighted events, alpha=0.012354
@@ -619,6 +377,10 @@ Bin        Contents        Error           Notes
                          56.000000       7.483315        Unweighted events, alpha=0.000732
       => Parameter prop_binee_bin8_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.959582        0.336066                                      
+                         8.000000        2.828427        Unweighted events, alpha=0.119948
+      => Product of prop_binee_bin8_TTTo2L[8.00,0.12,47.91] and const [0.1250] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  10.891441       1.506328                                      
                          52.000000       7.211103        Unweighted events, alpha=0.209451
       => Parameter prop_binee_bin8_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -635,19 +397,19 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin8_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-9          15.310711       4.612551        total sum                     
-9          15.207886       4.612527        excluding marked processes    
-9          11.000000       3.316625        Unweighted events, alpha=1.391883
+9          17.117101       4.638051        total sum                     
+9          17.014276       4.638027        excluding marked processes    
+9          13.000000       3.605551        Unweighted events, alpha=1.316700
   => Total parameter prop_binee_bin9[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-10         15.041963       3.940958        total sum                     
-10         14.942330       3.940933        excluding marked processes    
-10         14.000000       3.741657        Unweighted events, alpha=1.074426
+10         16.212674       3.956880        total sum                     
+10         16.113040       3.956855        excluding marked processes    
+10         17.000000       4.123106        Unweighted events, alpha=0.953687
   => Total parameter prop_binee_bin10[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-11         6.488018        3.363451        total sum                     
-11         6.361400        3.363413        excluding marked processes    
-11         4.000000        2.000000        Unweighted events, alpha=1.622005
+11         7.579960        3.377701        total sum                     
+11         7.453342        3.377663        excluding marked processes    
+11         5.000000        2.236068        Unweighted events, alpha=1.515992
   => Number of weighted events is below poisson threshold
     tzq                  0.073796        0.021031                                      
                          12.000000       3.464102        Unweighted events, alpha=0.006150
@@ -676,6 +438,10 @@ Bin        Contents        Error           Notes
                          41.000000       6.403124        Unweighted events, alpha=0.000940
       => Parameter prop_binee_bin11_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.091942        0.309938                                      
+                         12.000000       3.464102        Unweighted events, alpha=0.090995
+      => Parameter prop_binee_bin11_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  12.661825       1.594483                                      
                          63.000000       7.937254        Unweighted events, alpha=0.200981
       => Parameter prop_binee_bin11_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -692,9 +458,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin11_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-12         6.374806        2.383202        total sum                     
-12         6.258340        2.383161        excluding marked processes    
-12         7.000000        2.645751        Unweighted events, alpha=0.910687
+12         7.233512        2.399252        total sum                     
+12         7.117045        2.399211        excluding marked processes    
+12         9.000000        3.000000        Unweighted events, alpha=0.803724
   => Number of weighted events is below poisson threshold
     tzq                  0.037720        0.022058                                      
                          3.000000        1.732051        Unweighted events, alpha=0.012573
@@ -723,6 +489,10 @@ Bin        Contents        Error           Notes
                          37.000000       6.082763        Unweighted events, alpha=0.000821
       => Parameter prop_binee_bin12_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.858706        0.277054                                      
+                         10.000000       3.162278        Unweighted events, alpha=0.085871
+      => Product of prop_binee_bin12_TTTo2L[10.00,0.30,52.00] and const [0.1000] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  11.646677       1.393308                                      
                          70.000000       8.366600        Unweighted events, alpha=0.166381
       => Parameter prop_binee_bin12_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -739,8 +509,8 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin12_TTTo1L[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-13         3.695533        8.641387        total sum                     
-13         3.538386        8.641369        excluding marked processes    
+13         4.123373        8.643272        total sum                     
+13         3.966226        8.643254        excluding marked processes    
 13         0.000000        0.000000        Unweighted events, alpha=inf  
   => Number of weighted events is below poisson threshold
     tzq                  0.012911        0.020164                                      
@@ -769,6 +539,10 @@ Bin        Contents        Error           Notes
                          47.000000       6.855655        Unweighted events, alpha=0.000845
       => Parameter prop_binee_bin13_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.427841        0.180511                                      
+                         6.000000        2.449490        Unweighted events, alpha=0.071307
+      => Product of prop_binee_bin13_TTTo2L[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  15.714711       1.739924                                      
                          82.000000       9.055385        Unweighted events, alpha=0.191643
       => Parameter prop_binee_bin13_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -784,9 +558,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin13_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-14         5.311542        2.810419        total sum                     
-14         5.156201        2.810366        excluding marked processes    
-14         3.000000        1.732051        Unweighted events, alpha=1.770514
+14         6.260658        2.825012        total sum                     
+14         6.105318        2.824959        excluding marked processes    
+14         5.000000        2.236068        Unweighted events, alpha=1.252132
   => Number of weighted events is below poisson threshold
     tzq                  0.022074        0.022879                                      
       => Poisson not viable, prop_binee_bin14_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -814,6 +588,10 @@ Bin        Contents        Error           Notes
                          34.000000       5.830952        Unweighted events, alpha=0.001041
       => Parameter prop_binee_bin14_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.949117        0.286770                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.086283
+      => Parameter prop_binee_bin14_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  15.534008       1.719159                                      
                          82.000000       9.055385        Unweighted events, alpha=0.189439
       => Parameter prop_binee_bin14_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -830,9 +608,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin14_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-15         2.239289        2.641026        total sum                     
-15         2.094936        2.640980        excluding marked processes    
-15         1.000000        1.000000        Unweighted events, alpha=2.239289
+15         2.786732        2.648872        total sum                     
+15         2.642379        2.648827        excluding marked processes    
+15         1.000000        1.000000        Unweighted events, alpha=2.786732
   => Number of weighted events is below poisson threshold
     tzq                  0.002958        0.019295                                      
       => Poisson not viable, prop_binee_bin15_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -861,6 +639,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000773
       => Parameter prop_binee_bin15_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.547443        0.203737                                      
+                         7.000000        2.645751        Unweighted events, alpha=0.078206
+      => Product of prop_binee_bin15_TTTo2L[7.00,0.07,45.79] and const [0.1429] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  14.435327       1.552785                                      
                          86.000000       9.273618        Unweighted events, alpha=0.167853
       => Parameter prop_binee_bin15_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -876,9 +658,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin15_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-16         2.346597        1.669039        total sum                     
-16         2.197187        1.668966        excluding marked processes    
-16         2.000000        1.414214        Unweighted events, alpha=1.173299
+16         3.053658        1.699454        total sum                     
+16         2.904248        1.699382        excluding marked processes    
+16         3.000000        1.732051        Unweighted events, alpha=1.017886
   => Number of weighted events is below poisson threshold
     tzq                  0.064468        0.022714                                      
                          8.000000        2.828427        Unweighted events, alpha=0.008059
@@ -908,6 +690,10 @@ Bin        Contents        Error           Notes
                          33.000000       5.744563        Unweighted events, alpha=0.000946
       => Parameter prop_binee_bin16_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.707061        0.320080                                      
+                         5.000000        2.236068        Unweighted events, alpha=0.141412
+      => Product of prop_binee_bin16_TTTo2L[5.00,0.01,41.33] and const [0.2000] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  14.940987       1.566107                                      
                          91.000000       9.539392        Unweighted events, alpha=0.164187
       => Parameter prop_binee_bin16_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -923,9 +709,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin16_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-17         5.357033        2.383158        total sum                     
-17         5.199877        2.383100        excluding marked processes    
-17         5.000000        2.236068        Unweighted events, alpha=1.071407
+17         6.485613        2.408151        total sum                     
+17         6.328457        2.408094        excluding marked processes    
+17         7.000000        2.645751        Unweighted events, alpha=0.926516
   => Number of weighted events is below poisson threshold
     tzq                  0.048582        0.021787                                      
                          5.000000        2.236068        Unweighted events, alpha=0.009716
@@ -953,6 +739,10 @@ Bin        Contents        Error           Notes
                          47.000000       6.855655        Unweighted events, alpha=0.000837
       => Parameter prop_binee_bin17_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.128580        0.346049                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.102598
+      => Parameter prop_binee_bin17_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  15.715549       1.665170                                      
                          89.000000       9.433981        Unweighted events, alpha=0.176579
       => Parameter prop_binee_bin17_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -969,9 +759,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin17_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-18         7.650604        2.838391        total sum                     
-18         7.423784        2.838315        excluding marked processes    
-18         7.000000        2.645751        Unweighted events, alpha=1.092943
+18         8.345155        2.852082        total sum                     
+18         8.118335        2.852006        excluding marked processes    
+18         8.000000        2.828427        Unweighted events, alpha=1.043144
   => Number of weighted events is below poisson threshold
     tzq                  0.045811        0.019925                                      
                          5.000000        2.236068        Unweighted events, alpha=0.009162
@@ -998,6 +788,10 @@ Bin        Contents        Error           Notes
                          31.000000       5.567764        Unweighted events, alpha=0.000914
       => Parameter prop_binee_bin18_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.694552        0.279117                                      
+                         6.000000        2.449490        Unweighted events, alpha=0.115759
+      => Product of prop_binee_bin18_TTTo2L[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  22.682001       2.077781                                      
                          119.000000      10.908712       Unweighted events, alpha=0.190605
       => Parameter prop_binee_bin18_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1014,9 +808,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin18_TTTo1L[4.00,0.00,38.96] and const [0.2500] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-19         3.894527        2.268873        total sum                     
-19         3.698945        2.268797        excluding marked processes    
-19         3.000000        1.732051        Unweighted events, alpha=1.298176
+19         5.026279        2.292599        total sum                     
+19         4.830698        2.292524        excluding marked processes    
+19         4.000000        2.000000        Unweighted events, alpha=1.256570
   => Number of weighted events is below poisson threshold
     tzq                  0.039403        0.019063                                      
                          4.000000        2.000000        Unweighted events, alpha=0.009851
@@ -1045,6 +839,10 @@ Bin        Contents        Error           Notes
                          28.000000       5.291503        Unweighted events, alpha=0.000998
       => Parameter prop_binee_bin19_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.131752        0.328976                                      
+                         12.000000       3.464102        Unweighted events, alpha=0.094313
+      => Parameter prop_binee_bin19_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  19.558163       1.852806                                      
                          111.000000      10.535654       Unweighted events, alpha=0.176200
       => Parameter prop_binee_bin19_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1060,56 +858,14 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin19_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-20         10.192334       3.232492        total sum                     
-20         10.018315       3.232445        excluding marked processes    
-20         10.000000       3.162278        Unweighted events, alpha=1.019233
-  => Number of weighted events is below poisson threshold
-    tzq                  0.000000        0.020058                                      
-      => Poisson not viable, prop_binee_bin20_tzq[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    VVV                  0.218921        0.164971                                      
-                         2.000000        1.414214        Unweighted events, alpha=0.109461
-      => Product of prop_binee_bin20_VVV[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
-  ----------------------------------------------------------
-    t_tbar_W             0.341055        0.341055                                      
-                         1.000000        1.000000        Unweighted events, alpha=0.341055
-      => Product of prop_binee_bin20_t_tbar_W[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
-    ttWtoLNu             0.965747        0.085324                                      
-                         128.000000      11.313708       Unweighted events, alpha=0.007545
-      => Parameter prop_binee_bin20_ttWtoLNu[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    tt_V_H               0.589112        0.053601                                      
-                         121.000000      11.000000       Unweighted events, alpha=0.004869
-      => Parameter prop_binee_bin20_tt_V_H[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    ttV                  0.049713        0.049388                                      
-                         1.000000        1.000000        Unweighted events, alpha=0.049713
-      => Product of prop_binee_bin20_ttV[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
-  ----------------------------------------------------------
-    ttVV                 0.038238        0.005806                                      
-                         43.000000       6.557439        Unweighted events, alpha=0.000889
-      => Parameter prop_binee_bin20_ttVV[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TAToTTQ_rtc04_MA200  17.401934       1.740575                                      
-                         100.000000      10.000000       Unweighted events, alpha=0.174019
-      => Parameter prop_binee_bin20_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    DY                   0.000000        0.000000                                      
-      => Error is zero, ignore      
-  ----------------------------------------------------------
-    tttX                 0.032242        0.003904                                      
-                         68.000000       8.246211        Unweighted events, alpha=0.000474
-      => Parameter prop_binee_bin20_tttX[0.00,-7.00,7.00] to be gaussian constrained
-  ----------------------------------------------------------
-    TTTo1L               7.783287        3.208134                                      
-                         6.000000        2.449490        Unweighted events, alpha=1.297214
-      => Product of prop_binee_bin20_TTTo1L[6.00,0.03,43.60] and const [0.1667] to be poisson constrained
-  ----------------------------------------------------------
+20         11.319885       3.249195        total sum                     
+20         11.145865       3.249148        excluding marked processes    
+20         12.000000       3.464102        Unweighted events, alpha=0.943324
+  => Total parameter prop_binee_bin20[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-21         6.261457        2.283516        total sum                     
-21         6.083056        2.283443        excluding marked processes    
-21         7.000000        2.645751        Unweighted events, alpha=0.894494
+21         7.494791        2.311737        total sum                     
+21         7.316390        2.311665        excluding marked processes    
+21         10.000000       3.162278        Unweighted events, alpha=0.749479
   => Number of weighted events is below poisson threshold
     tzq                  0.014017        0.022095                                      
       => Poisson not viable, prop_binee_bin21_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -1137,6 +893,10 @@ Bin        Contents        Error           Notes
                          31.000000       5.567764        Unweighted events, alpha=0.000997
       => Parameter prop_binee_bin21_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.233334        0.360119                                      
+                         12.000000       3.464102        Unweighted events, alpha=0.102778
+      => Parameter prop_binee_bin21_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  17.840057       1.829435                                      
                          95.000000       9.746794        Unweighted events, alpha=0.187790
       => Parameter prop_binee_bin21_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1153,9 +913,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin21_TTTo1L[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-22         2.606276        2.138294        total sum                     
-22         2.399519        2.138209        excluding marked processes    
-22         1.000000        1.000000        Unweighted events, alpha=2.606276
+22         4.148570        2.175178        total sum                     
+22         3.941813        2.175094        excluding marked processes    
+22         3.000000        1.732051        Unweighted events, alpha=1.382857
   => Number of weighted events is below poisson threshold
     tzq                  0.030818        0.017774                                      
                          3.000000        1.732051        Unweighted events, alpha=0.010273
@@ -1183,6 +943,10 @@ Bin        Contents        Error           Notes
                          33.000000       5.744563        Unweighted events, alpha=0.001115
       => Parameter prop_binee_bin22_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.542294        0.398867                                      
+                         15.000000       3.872983        Unweighted events, alpha=0.102820
+      => Parameter prop_binee_bin22_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  20.675686       1.913835                                      
                          117.000000      10.816654       Unweighted events, alpha=0.176715
       => Parameter prop_binee_bin22_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1198,8 +962,8 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin22_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-23         3.962837        8.353983        total sum                     
-23         3.718389        8.353957        excluding marked processes    
+23         5.032089        8.359459        total sum                     
+23         4.787640        8.359432        excluding marked processes    
 23         0.000000        0.000000        Unweighted events, alpha=inf  
   => Number of weighted events is below poisson threshold
     tzq                  0.004837        0.020298                                      
@@ -1229,6 +993,10 @@ Bin        Contents        Error           Notes
                          25.000000       5.000000        Unweighted events, alpha=0.000915
       => Parameter prop_binee_bin23_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.069251        0.302513                                      
+                         12.000000       3.464102        Unweighted events, alpha=0.089104
+      => Parameter prop_binee_bin23_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  24.444832       2.092152                                      
                          137.000000      11.704700       Unweighted events, alpha=0.178429
       => Parameter prop_binee_bin23_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1245,9 +1013,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin23_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-24         3.919513        2.697728        total sum                     
-24         3.668654        2.697647        excluding marked processes    
-24         2.000000        1.414214        Unweighted events, alpha=1.959757
+24         5.108624        2.718173        total sum                     
+24         4.857765        2.718093        excluding marked processes    
+24         3.000000        1.732051        Unweighted events, alpha=1.702875
   => Number of weighted events is below poisson threshold
     tzq                  0.023594        0.019401                                      
                          1.000000        1.000000        Unweighted events, alpha=0.023594
@@ -1276,6 +1044,10 @@ Bin        Contents        Error           Notes
                          17.000000       4.123106        Unweighted events, alpha=0.001308
       => Parameter prop_binee_bin24_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.189111        0.332760                                      
+                         13.000000       3.605551        Unweighted events, alpha=0.091470
+      => Parameter prop_binee_bin24_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  25.085880       2.086294                                      
                          145.000000      12.041595       Unweighted events, alpha=0.173006
       => Parameter prop_binee_bin24_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1291,9 +1063,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin24_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-25         2.399767        2.430366        total sum                     
-25         2.134456        2.430260        excluding marked processes    
-25         1.000000        1.000000        Unweighted events, alpha=2.399767
+25         3.958768        2.461944        total sum                     
+25         3.693457        2.461840        excluding marked processes    
+25         2.000000        1.414214        Unweighted events, alpha=1.979384
   => Number of weighted events is below poisson threshold
     tzq                  0.063825        0.021941                                      
                          8.000000        2.828427        Unweighted events, alpha=0.007978
@@ -1322,6 +1094,10 @@ Bin        Contents        Error           Notes
                          37.000000       6.082763        Unweighted events, alpha=0.001018
       => Parameter prop_binee_bin25_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.559001        0.393053                                      
+                         16.000000       4.000000        Unweighted events, alpha=0.097438
+      => Parameter prop_binee_bin25_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  26.531067       2.260742                                      
                          138.000000      11.747340       Unweighted events, alpha=0.192254
       => Parameter prop_binee_bin25_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1337,9 +1113,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin25_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-26         6.481305        2.882676        total sum                     
-26         6.234415        2.882603        excluding marked processes    
-26         5.000000        2.236068        Unweighted events, alpha=1.296261
+26         8.249923        2.933013        total sum                     
+26         8.003033        2.932941        excluding marked processes    
+26         7.000000        2.645751        Unweighted events, alpha=1.178560
   => Number of weighted events is below poisson threshold
     tzq                  0.053324        0.020385                                      
                          7.000000        2.645751        Unweighted events, alpha=0.007618
@@ -1368,6 +1144,10 @@ Bin        Contents        Error           Notes
                          40.000000       6.324555        Unweighted events, alpha=0.000636
       => Parameter prop_binee_bin26_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.768618        0.541059                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.160783
+      => Parameter prop_binee_bin26_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  24.689011       2.043855                                      
                          146.000000      12.083046       Unweighted events, alpha=0.169103
       => Parameter prop_binee_bin26_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1384,9 +1164,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin26_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-27         4.649176        2.502348        total sum                     
-27         4.358427        2.502251        excluding marked processes    
-27         3.000000        1.732051        Unweighted events, alpha=1.549725
+27         5.442749        2.516783        total sum                     
+27         5.152001        2.516686        excluding marked processes    
+27         4.000000        2.000000        Unweighted events, alpha=1.360687
   => Number of weighted events is below poisson threshold
     tzq                  0.066558        0.018069                                      
                          14.000000       3.741657        Unweighted events, alpha=0.004754
@@ -1413,6 +1193,10 @@ Bin        Contents        Error           Notes
                          30.000000       5.477226        Unweighted events, alpha=0.000832
       => Parameter prop_binee_bin27_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.793574        0.269161                                      
+                         9.000000        3.000000        Unweighted events, alpha=0.088175
+      => Product of prop_binee_bin27_TTTo2L[9.00,0.20,49.98] and const [0.1111] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  29.074877       2.201919                                      
                          174.000000      13.190906       Unweighted events, alpha=0.167097
       => Parameter prop_binee_bin27_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1429,9 +1213,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin27_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-28         1.851135        1.631244        total sum                     
-28         1.601149        1.631123        excluding marked processes    
-28         1.000000        1.000000        Unweighted events, alpha=1.851135
+28         3.668741        1.719179        total sum                     
+28         3.418756        1.719064        excluding marked processes    
+28         4.000000        2.000000        Unweighted events, alpha=0.917185
   => Number of weighted events is below poisson threshold
     tzq                  0.050432        0.016754                                      
                          9.000000        3.000000        Unweighted events, alpha=0.005604
@@ -1460,6 +1244,10 @@ Bin        Contents        Error           Notes
                          36.000000       6.000000        Unweighted events, alpha=0.000914
       => Parameter prop_binee_bin28_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.817607        0.542789                                      
+                         11.000000       3.316625        Unweighted events, alpha=0.165237
+      => Parameter prop_binee_bin28_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  24.998537       1.989127                                      
                          158.000000      12.569805       Unweighted events, alpha=0.158219
       => Parameter prop_binee_bin28_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1475,9 +1263,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin28_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-29         5.606787        2.550669        total sum                     
-29         5.297401        2.550565        excluding marked processes    
-29         4.000000        2.000000        Unweighted events, alpha=1.401697
+29         6.760235        2.569225        total sum                     
+29         6.450849        2.569121        excluding marked processes    
+29         6.000000        2.449490        Unweighted events, alpha=1.126706
   => Number of weighted events is below poisson threshold
     tzq                  0.052787        0.019583                                      
                          7.000000        2.645751        Unweighted events, alpha=0.007541
@@ -1505,6 +1293,10 @@ Bin        Contents        Error           Notes
                          33.000000       5.744563        Unweighted events, alpha=0.000748
       => Parameter prop_binee_bin29_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.153448        0.308227                                      
+                         14.000000       3.741657        Unweighted events, alpha=0.082389
+      => Parameter prop_binee_bin29_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  30.938614       2.307820                                      
                          180.000000      13.416408       Unweighted events, alpha=0.171881
       => Parameter prop_binee_bin29_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1521,9 +1313,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin29_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-30         2.074814        1.543549        total sum                     
-30         1.737094        1.543375        excluding marked processes    
-30         1.000000        1.000000        Unweighted events, alpha=2.074814
+30         3.628456        1.593225        total sum                     
+30         3.290735        1.593056        excluding marked processes    
+30         4.000000        2.000000        Unweighted events, alpha=0.907114
   => Number of weighted events is below poisson threshold
     tzq                  0.030018        0.014355                                      
                          4.000000        2.000000        Unweighted events, alpha=0.007505
@@ -1552,6 +1344,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000873
       => Parameter prop_binee_bin30_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.553641        0.394743                                      
+                         15.000000       3.872983        Unweighted events, alpha=0.103576
+      => Parameter prop_binee_bin30_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  33.772072       2.320959                                      
                          212.000000      14.560220       Unweighted events, alpha=0.159302
       => Parameter prop_binee_bin30_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1567,9 +1363,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin30_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-31         7.209202        3.327450        total sum                     
-31         6.875866        3.327371        excluding marked processes    
-31         4.000000        2.000000        Unweighted events, alpha=1.802300
+31         8.499209        3.358344        total sum                     
+31         8.165874        3.358266        excluding marked processes    
+31         6.000000        2.449490        Unweighted events, alpha=1.416535
   => Number of weighted events is below poisson threshold
     tzq                  0.019431        0.018158                                      
                          1.000000        1.000000        Unweighted events, alpha=0.019431
@@ -1597,6 +1393,10 @@ Bin        Contents        Error           Notes
                          32.000000       5.656854        Unweighted events, alpha=0.000861
       => Parameter prop_binee_bin31_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.290008        0.454483                                      
+                         8.000000        2.828427        Unweighted events, alpha=0.161251
+      => Product of prop_binee_bin31_TTTo2L[8.00,0.12,47.91] and const [0.1250] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  33.333519       2.287487                                      
                          212.000000      14.560220       Unweighted events, alpha=0.157234
       => Parameter prop_binee_bin31_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1613,9 +1413,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin31_TTTo1L[3.00,0.00,36.46] and const [0.3333] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-32         4.202310        2.306841        total sum                     
-32         3.810718        2.306697        excluding marked processes    
-32         3.000000        1.732051        Unweighted events, alpha=1.400770
+32         5.359567        2.329072        total sum                     
+32         4.967975        2.328929        excluding marked processes    
+32         5.000000        2.236068        Unweighted events, alpha=1.071913
   => Number of weighted events is below poisson threshold
     tzq                  0.047121        0.019207                                      
                          6.000000        2.449490        Unweighted events, alpha=0.007853
@@ -1644,6 +1444,10 @@ Bin        Contents        Error           Notes
                          32.000000       5.656854        Unweighted events, alpha=0.000658
       => Parameter prop_binee_bin32_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.157257        0.321030                                      
+                         13.000000       3.605551        Unweighted events, alpha=0.089020
+      => Parameter prop_binee_bin32_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  39.159142       2.583526                                      
                          230.000000      15.165751       Unweighted events, alpha=0.170257
       => Parameter prop_binee_bin32_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1659,9 +1463,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin32_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-33         2.253482        0.835513        total sum                     
-33         1.787209        0.835062        excluding marked processes    
-33         5.000000        2.236068        Unweighted events, alpha=0.450696
+33         3.284235        0.910830        total sum                     
+33         2.817962        0.910416        excluding marked processes    
+33         10.000000       3.162278        Unweighted events, alpha=0.328424
   => Number of weighted events is below poisson threshold
     tzq                  0.025044        0.020188                                      
                          2.000000        1.414214        Unweighted events, alpha=0.012522
@@ -1690,6 +1494,10 @@ Bin        Contents        Error           Notes
                          30.000000       5.477226        Unweighted events, alpha=0.000699
       => Parameter prop_binee_bin33_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.030754        0.362670                                      
+                         8.000000        2.828427        Unweighted events, alpha=0.128844
+      => Product of prop_binee_bin33_TTTo2L[8.00,0.12,47.91] and const [0.1250] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  46.627296       2.742945                                      
                          289.000000      17.000000       Unweighted events, alpha=0.161340
       => Parameter prop_binee_bin33_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1705,9 +1513,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin33_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-34         1.947891        1.376944        total sum                     
-34         1.516099        1.376711        excluding marked processes    
-34         1.000000        1.000000        Unweighted events, alpha=1.947891
+34         3.179070        1.415677        total sum                     
+34         2.747278        1.415450        excluding marked processes    
+34         4.000000        2.000000        Unweighted events, alpha=0.794767
   => Number of weighted events is below poisson threshold
     tzq                  0.009481        0.016945                                      
       => Poisson not viable, prop_binee_bin34_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -1735,6 +1543,10 @@ Bin        Contents        Error           Notes
                          21.000000       4.582576        Unweighted events, alpha=0.000753
       => Parameter prop_binee_bin34_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.231179        0.328887                                      
+                         14.000000       3.741657        Unweighted events, alpha=0.087941
+      => Parameter prop_binee_bin34_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  43.179180       2.533524                                      
                          290.000000      17.029386       Unweighted events, alpha=0.148894
       => Parameter prop_binee_bin34_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1750,9 +1562,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin34_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-35         5.789443        2.727927        total sum                     
-35         5.244591        2.727768        excluding marked processes    
-35         4.000000        2.000000        Unweighted events, alpha=1.447361
+35         7.139274        2.754779        total sum                     
+35         6.594421        2.754621        excluding marked processes    
+35         6.000000        2.449490        Unweighted events, alpha=1.189879
   => Number of weighted events is below poisson threshold
     tzq                  0.039653        0.016230                                      
                          6.000000        2.449490        Unweighted events, alpha=0.006609
@@ -1780,6 +1592,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000664
       => Parameter prop_binee_bin35_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.349830        0.383694                                      
+                         12.000000       3.464102        Unweighted events, alpha=0.112486
+      => Parameter prop_binee_bin35_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  54.485252       2.950621                                      
                          341.000000      18.466185       Unweighted events, alpha=0.159781
       => Parameter prop_binee_bin35_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1796,9 +1612,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binee_bin35_TTTo1L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-36         2.374892        0.903045        total sum                     
-36         1.743855        0.902498        excluding marked processes    
-36         4.000000        2.000000        Unweighted events, alpha=0.593723
+36         2.948486        0.929904        total sum                     
+36         2.317449        0.929372        excluding marked processes    
+36         6.000000        2.449490        Unweighted events, alpha=0.491414
   => Number of weighted events is below poisson threshold
     tzq                  0.027488        0.013925                                      
                          4.000000        2.000000        Unweighted events, alpha=0.006872
@@ -1828,6 +1644,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000776
       => Parameter prop_binee_bin36_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.573594        0.221878                                      
+                         7.000000        2.645751        Unweighted events, alpha=0.081942
+      => Product of prop_binee_bin36_TTTo2L[7.00,0.07,45.79] and const [0.1429] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  63.103691       3.144086                                      
                          403.000000      20.074860       Unweighted events, alpha=0.156585
       => Parameter prop_binee_bin36_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1843,9 +1663,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin36_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-37         3.984137        2.129591        total sum                     
-37         3.386843        2.129384        excluding marked processes    
-37         3.000000        1.732051        Unweighted events, alpha=1.328046
+37         5.236710        2.156853        total sum                     
+37         4.639416        2.156648        excluding marked processes    
+37         5.000000        2.236068        Unweighted events, alpha=1.047342
   => Number of weighted events is below poisson threshold
     tzq                  0.028474        0.017086                                      
                          3.000000        1.732051        Unweighted events, alpha=0.009491
@@ -1874,6 +1694,10 @@ Bin        Contents        Error           Notes
                          22.000000       4.690416        Unweighted events, alpha=0.000789
       => Parameter prop_binee_bin37_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               1.252573        0.341843                                      
+                         13.000000       3.605551        Unweighted events, alpha=0.096352
+      => Parameter prop_binee_bin37_TTTo2L[0.00,-7.00,7.00] to be gaussian constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  59.729362       2.969829                                      
                          404.000000      20.099751       Unweighted events, alpha=0.147845
       => Parameter prop_binee_bin37_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1889,9 +1713,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin37_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-38         1.886163        1.003905        total sum                     
-38         1.182832        1.003336        excluding marked processes    
-38         1.000000        1.000000        Unweighted events, alpha=1.886163
+38         2.716957        1.042652        total sum                     
+38         2.013626        1.042104        excluding marked processes    
+38         4.000000        2.000000        Unweighted events, alpha=0.679239
   => Number of weighted events is below poisson threshold
     tzq                  0.018388        0.013964                                      
                          2.000000        1.414214        Unweighted events, alpha=0.009194
@@ -1920,6 +1744,10 @@ Bin        Contents        Error           Notes
                          27.000000       5.196152        Unweighted events, alpha=0.000827
       => Parameter prop_binee_bin38_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.830793        0.281600                                      
+                         9.000000        3.000000        Unweighted events, alpha=0.092310
+      => Product of prop_binee_bin38_TTTo2L[9.00,0.20,49.98] and const [0.1111] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  70.333099       3.378984                                      
                          433.000000      20.808652       Unweighted events, alpha=0.162432
       => Parameter prop_binee_bin38_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1935,9 +1763,9 @@ Bin        Contents        Error           Notes
       => Poisson not viable, prop_binee_bin38_TTTo1L[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-39         2.105831        1.120865        total sum                     
-39         1.409182        1.120418        excluding marked processes    
-39         2.000000        1.414214        Unweighted events, alpha=1.052915
+39         2.274453        1.127349        total sum                     
+39         1.577804        1.126905        excluding marked processes    
+39         2.000000        1.414214        Unweighted events, alpha=1.137227
   => Number of weighted events is below poisson threshold
     tzq                  0.005109        0.008695                                      
       => Poisson not viable, prop_binee_bin39_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -1964,6 +1792,10 @@ Bin        Contents        Error           Notes
                          12.000000       3.464102        Unweighted events, alpha=0.000553
       => Parameter prop_binee_bin39_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.168622        0.120744                                      
+                         2.000000        1.414214        Unweighted events, alpha=0.084311
+      => Product of prop_binee_bin39_TTTo2L[2.00,0.00,33.79] and const [0.5000] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  69.664894       3.163568                                      
                          485.000000      22.022716       Unweighted events, alpha=0.143639
       => Parameter prop_binee_bin39_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -1986,194 +1818,194 @@ Poisson cut-off: 10
 Processes excluded for sums: TAToTTQ_rtc04_MA200
 ============================================================
 Bin        Contents        Error           Notes                         
-0          29.562806       4.508925        total sum                     
-0          29.549760       4.508923        excluding marked processes    
-0          43.000000       6.557439        Unweighted events, alpha=0.687507
+0          30.210326       4.512842        total sum                     
+0          30.197281       4.512840        excluding marked processes    
+0          45.000000       6.708204        Unweighted events, alpha=0.671341
   => Total parameter prop_binmm_bin0[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-1          59.445597       5.889184        total sum                     
-1          59.314418       5.889155        excluding marked processes    
-1          101.000000      10.049876       Unweighted events, alpha=0.588570
+1          61.644302       5.904794        total sum                     
+1          61.513123       5.904765        excluding marked processes    
+1          109.000000      10.440307       Unweighted events, alpha=0.565544
   => Total parameter prop_binmm_bin1[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-2          84.062926       8.616673        total sum                     
-2          83.884822       8.616649        excluding marked processes    
-2          95.000000       9.746794        Unweighted events, alpha=0.884873
+2          86.636399       8.628604        total sum                     
+2          86.458295       8.628580        excluding marked processes    
+2          100.000000      10.000000       Unweighted events, alpha=0.866364
   => Total parameter prop_binmm_bin2[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-3          57.180756       5.667525        total sum                     
-3          56.933552       5.667470        excluding marked processes    
-3          101.000000      10.049876       Unweighted events, alpha=0.566146
+3          60.061919       5.692893        total sum                     
+3          59.814715       5.692838        excluding marked processes    
+3          110.000000      10.488088       Unweighted events, alpha=0.546017
   => Total parameter prop_binmm_bin3[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-4          56.743921       6.690251        total sum                     
-4          56.470409       6.690205        excluding marked processes    
-4          71.000000       8.426150        Unweighted events, alpha=0.799210
+4          59.033461       6.703041        total sum                     
+4          58.759949       6.702995        excluding marked processes    
+4          77.000000       8.774964        Unweighted events, alpha=0.766668
   => Total parameter prop_binmm_bin4[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-5          56.247335       6.051098        total sum                     
-5          55.918970       6.051038        excluding marked processes    
-5          85.000000       9.219544        Unweighted events, alpha=0.661733
+5          58.215976       6.062328        total sum                     
+5          57.887611       6.062268        excluding marked processes    
+5          91.000000       9.539392        Unweighted events, alpha=0.639736
   => Total parameter prop_binmm_bin5[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-6          42.550568       4.835830        total sum                     
-6          42.203284       4.835756        excluding marked processes    
-6          76.000000       8.717798        Unweighted events, alpha=0.559876
+6          44.177545       4.849486        total sum                     
+6          43.830262       4.849412        excluding marked processes    
+6          82.000000       9.055385        Unweighted events, alpha=0.538751
   => Total parameter prop_binmm_bin6[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-7          38.772083       6.531227        total sum                     
-7          38.398078       6.531169        excluding marked processes    
-7          35.000000       5.916080        Unweighted events, alpha=1.107774
+7          40.088399       6.538400        total sum                     
+7          39.714394       6.538343        excluding marked processes    
+7          37.000000       6.082763        Unweighted events, alpha=1.083470
   => Total parameter prop_binmm_bin7[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-8          31.949456       4.564138        total sum                     
-8          31.577413       4.564050        excluding marked processes    
-8          48.000000       6.928203        Unweighted events, alpha=0.665614
+8          33.719144       4.579435        total sum                     
+8          33.347101       4.579347        excluding marked processes    
+8          53.000000       7.280110        Unweighted events, alpha=0.636210
   => Total parameter prop_binmm_bin8[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-9          37.789679       4.874655        total sum                     
-9          37.377091       4.874555        excluding marked processes    
-9          59.000000       7.681146        Unweighted events, alpha=0.640503
+9          39.016349       4.886817        total sum                     
+9          38.603760       4.886718        excluding marked processes    
+9          62.000000       7.874008        Unweighted events, alpha=0.629296
   => Total parameter prop_binmm_bin9[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-10         32.849672       4.753659        total sum                     
-10         32.426487       4.753561        excluding marked processes    
-10         47.000000       6.855655        Unweighted events, alpha=0.698929
+10         33.773437       4.760178        total sum                     
+10         33.350252       4.760080        excluding marked processes    
+10         49.000000       7.000000        Unweighted events, alpha=0.689254
   => Total parameter prop_binmm_bin10[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-11         27.031269       3.992455        total sum                     
-11         26.611904       3.992341        excluding marked processes    
-11         44.000000       6.633250        Unweighted events, alpha=0.614347
+11         28.731875       4.011340        total sum                     
+11         28.312510       4.011226        excluding marked processes    
+11         50.000000       7.071068        Unweighted events, alpha=0.574637
   => Total parameter prop_binmm_bin11[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-12         26.964732       4.201981        total sum                     
-12         26.474532       4.201858        excluding marked processes    
-12         40.000000       6.324555        Unweighted events, alpha=0.674118
+12         28.168119       4.213677        total sum                     
+12         27.677919       4.213554        excluding marked processes    
+12         43.000000       6.557439        Unweighted events, alpha=0.655073
   => Total parameter prop_binmm_bin12[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-13         20.369492       3.759435        total sum                     
-13         19.887744       3.759288        excluding marked processes    
-13         28.000000       5.291503        Unweighted events, alpha=0.727482
+13         21.790837       3.781856        total sum                     
+13         21.309089       3.781710        excluding marked processes    
+13         32.000000       5.656854        Unweighted events, alpha=0.680964
   => Total parameter prop_binmm_bin13[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-14         18.822256       3.391752        total sum                     
-14         18.302182       3.391600        excluding marked processes    
-14         29.000000       5.385165        Unweighted events, alpha=0.649043
+14         19.358775       3.396270        total sum                     
+14         18.838700       3.396118        excluding marked processes    
+14         31.000000       5.567764        Unweighted events, alpha=0.624477
   => Total parameter prop_binmm_bin14[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-15         24.936242       4.701798        total sum                     
-15         24.424694       4.701691        excluding marked processes    
-15         27.000000       5.196152        Unweighted events, alpha=0.923565
+15         26.054131       4.713293        total sum                     
+15         25.542584       4.713186        excluding marked processes    
+15         29.000000       5.385165        Unweighted events, alpha=0.898418
   => Total parameter prop_binmm_bin15[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-16         19.550361       3.279826        total sum                     
-16         19.055300       3.279682        excluding marked processes    
-16         34.000000       5.830952        Unweighted events, alpha=0.575011
+16         20.668162       3.298076        total sum                     
+16         20.173101       3.297932        excluding marked processes    
+16         37.000000       6.082763        Unweighted events, alpha=0.558599
   => Total parameter prop_binmm_bin16[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-17         17.937607       3.316124        total sum                     
-17         17.434500       3.315980        excluding marked processes    
-17         28.000000       5.291503        Unweighted events, alpha=0.640629
+17         18.565651       3.321770        total sum                     
+17         18.062544       3.321626        excluding marked processes    
+17         30.000000       5.477226        Unweighted events, alpha=0.618855
   => Total parameter prop_binmm_bin17[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-18         14.106713       3.096670        total sum                     
-18         13.511830       3.096483        excluding marked processes    
-18         19.000000       4.358899        Unweighted events, alpha=0.742459
+18         14.965145       3.109050        total sum                     
+18         14.370262       3.108864        excluding marked processes    
+18         21.000000       4.582576        Unweighted events, alpha=0.712626
   => Total parameter prop_binmm_bin18[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-19         17.591338       3.215964        total sum                     
-19         16.999587       3.215784        excluding marked processes    
-19         28.000000       5.291503        Unweighted events, alpha=0.628262
+19         18.493264       3.228553        total sum                     
+19         17.901512       3.228374        excluding marked processes    
+19         31.000000       5.567764        Unweighted events, alpha=0.596557
   => Total parameter prop_binmm_bin19[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-20         18.638211       3.530400        total sum                     
-20         18.023454       3.530235        excluding marked processes    
-20         26.000000       5.099020        Unweighted events, alpha=0.716854
+20         19.367847       3.538391        total sum                     
+20         18.753090       3.538227        excluding marked processes    
+20         28.000000       5.291503        Unweighted events, alpha=0.691709
   => Total parameter prop_binmm_bin20[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-21         14.772511       3.002354        total sum                     
-21         14.140101       3.002161        excluding marked processes    
-21         22.000000       4.690416        Unweighted events, alpha=0.671478
+21         15.358870       3.008887        total sum                     
+21         14.726460       3.008694        excluding marked processes    
+21         24.000000       4.898979        Unweighted events, alpha=0.639953
   => Total parameter prop_binmm_bin21[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-22         14.235875       2.894158        total sum                     
-22         13.567403       2.893947        excluding marked processes    
-22         22.000000       4.690416        Unweighted events, alpha=0.647085
+22         14.996213       2.906021        total sum                     
+22         14.327741       2.905811        excluding marked processes    
+22         24.000000       4.898979        Unweighted events, alpha=0.624842
   => Total parameter prop_binmm_bin22[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-23         12.146070       2.838158        total sum                     
-23         11.424394       2.837920        excluding marked processes    
-23         16.000000       4.000000        Unweighted events, alpha=0.759129
+23         12.864734       2.852133        total sum                     
+23         12.143059       2.851897        excluding marked processes    
+23         18.000000       4.242641        Unweighted events, alpha=0.714707
   => Total parameter prop_binmm_bin23[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-24         14.086003       3.019787        total sum                     
-24         13.362763       3.019565        excluding marked processes    
-24         20.000000       4.472136        Unweighted events, alpha=0.704300
+24         14.796116       3.032370        total sum                     
+24         14.072875       3.032149        excluding marked processes    
+24         22.000000       4.690416        Unweighted events, alpha=0.672551
   => Total parameter prop_binmm_bin24[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-25         13.990766       3.118274        total sum                     
-25         13.207563       3.118050        excluding marked processes    
-25         18.000000       4.242641        Unweighted events, alpha=0.777265
+25         14.547155       3.124954        total sum                     
+25         13.763951       3.124731        excluding marked processes    
+25         19.000000       4.358899        Unweighted events, alpha=0.765640
   => Total parameter prop_binmm_bin25[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-26         9.347404        1.847454        total sum                     
-26         8.554144        1.847076        excluding marked processes    
-26         21.000000       4.582576        Unweighted events, alpha=0.445114
+26         10.189005       1.866147        total sum                     
+26         9.395746        1.865773        excluding marked processes    
+26         25.000000       5.000000        Unweighted events, alpha=0.407560
   => Total parameter prop_binmm_bin26[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-27         13.718302       2.959737        total sum                     
-27         12.862635       2.959468        excluding marked processes    
-27         19.000000       4.358899        Unweighted events, alpha=0.722016
+27         14.310556       2.968462        total sum                     
+27         13.454890       2.968194        excluding marked processes    
+27         21.000000       4.582576        Unweighted events, alpha=0.681455
   => Total parameter prop_binmm_bin27[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-28         5.381455        0.621269        total sum                     
-28         4.499943        0.619952        excluding marked processes    
-28         53.000000       7.280110        Unweighted events, alpha=0.101537
+28         5.921789        0.659995        total sum                     
+28         5.040277        0.658755        excluding marked processes    
+28         59.000000       7.681146        Unweighted events, alpha=0.100369
   => Total parameter prop_binmm_bin28[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-29         11.827893       2.731779        total sum                     
-29         10.878646       2.731469        excluding marked processes    
-29         16.000000       4.000000        Unweighted events, alpha=0.739243
+29         12.284934       2.740748        total sum                     
+29         11.335687       2.740439        excluding marked processes    
+29         17.000000       4.123106        Unweighted events, alpha=0.722643
   => Total parameter prop_binmm_bin29[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-30         12.409323       2.796112        total sum                     
-30         11.440348       2.795814        excluding marked processes    
-30         17.000000       4.123106        Unweighted events, alpha=0.729960
+30         12.777198       2.801706        total sum                     
+30         11.808223       2.801409        excluding marked processes    
+30         18.000000       4.242641        Unweighted events, alpha=0.709844
   => Total parameter prop_binmm_bin30[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-31         9.976038        2.287003        total sum                     
-31         8.847065        2.286563        excluding marked processes    
-31         15.000000       3.872983        Unweighted events, alpha=0.665069
+31         10.342415       2.297269        total sum                     
+31         9.213442        2.296831        excluding marked processes    
+31         16.000000       4.000000        Unweighted events, alpha=0.646401
   => Total parameter prop_binmm_bin31[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-32         7.424669        1.607184        total sum                     
-32         6.269629        1.606577        excluding marked processes    
-32         15.000000       3.872983        Unweighted events, alpha=0.494978
+32         7.808798        1.613844        total sum                     
+32         6.653757        1.613240        excluding marked processes    
+32         17.000000       4.123106        Unweighted events, alpha=0.459341
   => Total parameter prop_binmm_bin32[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-33         7.471374        1.639991        total sum                     
-33         6.187266        1.639316        excluding marked processes    
-33         14.000000       3.741657        Unweighted events, alpha=0.533670
+33         7.783251        1.647689        total sum                     
+33         6.499143        1.647017        excluding marked processes    
+33         16.000000       4.000000        Unweighted events, alpha=0.486453
   => Total parameter prop_binmm_bin33[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-34         7.478289        1.646234        total sum                     
-34         6.162199        1.645579        excluding marked processes    
-34         14.000000       3.741657        Unweighted events, alpha=0.534163
+34         7.588294        1.648118        total sum                     
+34         6.272204        1.647464        excluding marked processes    
+34         14.000000       3.741657        Unweighted events, alpha=0.542021
   => Total parameter prop_binmm_bin34[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-35         7.099749        1.544681        total sum                     
-35         5.747598        1.543919        excluding marked processes    
-35         14.000000       3.741657        Unweighted events, alpha=0.507125
+35         7.490158        1.557193        total sum                     
+35         6.138007        1.556437        excluding marked processes    
+35         16.000000       4.000000        Unweighted events, alpha=0.468135
   => Total parameter prop_binmm_bin35[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-36         9.008142        2.152921        total sum                     
-36         7.449322        2.152317        excluding marked processes    
-36         12.000000       3.464102        Unweighted events, alpha=0.750679
+36         9.558203        2.162538        total sum                     
+36         7.999383        2.161936        excluding marked processes    
+36         14.000000       3.741657        Unweighted events, alpha=0.682729
   => Total parameter prop_binmm_bin36[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-37         6.774488        1.602563        total sum                     
-37         4.930964        1.601584        excluding marked processes    
-37         9.000000        3.000000        Unweighted events, alpha=0.752721
+37         6.871570        1.605501        total sum                     
+37         5.028046        1.604524        excluding marked processes    
+37         10.000000       3.162278        Unweighted events, alpha=0.687157
   => Number of weighted events is below poisson threshold
     tzq                  0.011373        0.020512                                      
       => Poisson not viable, prop_binmm_bin37_tzq[0.00,-7.00,7.00] to be gaussian constrained
@@ -2199,6 +2031,10 @@ Bin        Contents        Error           Notes
                          47.000000       6.855655        Unweighted events, alpha=0.000960
       => Parameter prop_binmm_bin37_ttVV[0.00,-7.00,7.00] to be gaussian constrained
   ----------------------------------------------------------
+    TTTo2L               0.097082        0.097082                                      
+                         1.000000        1.000000        Unweighted events, alpha=0.097082
+      => Product of prop_binmm_bin37_TTTo2L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
+  ----------------------------------------------------------
     TAToTTQ_rtc04_MA200  184.352417      5.601884                                      
                          1083.000000     32.908965       Unweighted events, alpha=0.170224
       => Parameter prop_binmm_bin37_TAToTTQ_rtc04_MA200[0.00,-7.00,7.00] to be gaussian constrained
@@ -2215,9 +2051,9 @@ Bin        Contents        Error           Notes
       => Product of prop_binmm_bin37_TTTo1L[1.00,0.00,30.85] and const [1.0000] to be poisson constrained
   ----------------------------------------------------------
 ------------------------------------------------------------
-38         4.821166        0.183792        total sum                     
-38         2.816828        0.175226        excluding marked processes    
-38         258.000000      16.062378       Unweighted events, alpha=0.018687
+38         5.030715        0.220147        total sum                     
+38         3.026376        0.213048        excluding marked processes    
+38         202.000000      14.212670       Unweighted events, alpha=0.024905
   => Total parameter prop_binmm_bin38[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
 39         3.258290        0.128822        total sum                     
@@ -2225,16 +2061,16 @@ Bin        Contents        Error           Notes
 39         159.000000      12.609520       Unweighted events, alpha=0.020492
   => Total parameter prop_binmm_bin39[0.00,-7.00,7.00] to be gaussian constrained
 ------------------------------------------------------------
-SimNLL created with 3 channels, 118 generic constraints, 351 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
-SimNLL created with 3 channels, 118 generic constraints, 351 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
-SimNLL created with 3 channels, 118 generic constraints, 351 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 3 channels, 109 generic constraints, 333 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 3 channels, 109 generic constraints, 333 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 3 channels, 109 generic constraints, 333 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
 
  -- AsymptoticLimits ( CLs ) --
-Observed Limit: r < 0.7353
-Expected  2.5%: r < 0.3815
-Expected 16.0%: r < 0.5166
-Expected 50.0%: r < 0.7344
-Expected 84.0%: r < 1.0564
-Expected 97.5%: r < 1.4563
+Observed Limit: r < 0.7753
+Expected  2.5%: r < 0.3998
+Expected 16.0%: r < 0.5436
+Expected 50.0%: r < 0.7754
+Expected 84.0%: r < 1.1154
+Expected 97.5%: r < 1.5376
 
-Done in 2.77 min (cpu), 2.77 min (real)
+Done in 4.24 min (cpu), 4.25 min (real)

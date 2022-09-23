@@ -36,7 +36,6 @@ ctagWJetXS                shape  1    -  1  1  1  1  1  1  1  1  1
 ctagTTXS                  shape  1    -  1  1  1  1  1  1  1  1  1
 ctagJER                   shape  1    -  1  1  1  1  1  1  1  1  1
 ctagJES                   shape  1    -  1  1  1  1  1  1  1  1  1
-chargeflip2016postapv     shape  -    -  1  1  1  1  1  1  1  1  1
 met2016postapvunclusterE  shape  1    -  1  1  1  1  1  1  1  1  1
 jes2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1
 jer2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1

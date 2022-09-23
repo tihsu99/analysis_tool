@@ -11,35 +11,35 @@ shapes * SR_em FinalInputs/2018/ttc_a_rtc04_MA400/TMVApp_400_em.root ttc2018_$PR
 bin SR_em
 observation -1
 ------------
-bin                                  SR_em   SR_em     SR_em  SR_em  SR_em  SR_em  SR_em     SR_em   SR_em  SR_em  SR_em
-process  TAToTTQ_rtc04_MA400  TTTo1L  ttWtoLNu   ttVV    ttV   tttX    VVV  t_tbar_W  tt_V_H     DY    tzq
-process                                  0       1         2      3      4      5      6         7       8      9     10
-rate                                    -1      -1        -1     -1     -1     -1     -1        -1      -1     -1     -1
-lumi2018           shape  1    -  1  1  1  1  1  1  1  1  1
-pileup             shape  1    -  1  1  1  1  1  1  1  1  1
-muID2018sys        shape  1    -  1  1  1  1  1  1  1  1  1
-muID2018stat       shape  1    -  1  1  1  1  1  1  1  1  1
-eleID2018sys       shape  1    -  1  1  1  1  1  1  1  1  1
-eleID2018stat      shape  1    -  1  1  1  1  1  1  1  1  1
-elemuTrigger2018   shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018stat       shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018EleID      shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018LHEmuF     shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018LHEmuR     shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018muID       shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018PSFSR      shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2018PU         shape  1    -  1  1  1  1  1  1  1  1  1
-ctagDYXS           shape  1    -  1  1  1  1  1  1  1  1  1
-ctagSTXS           shape  1    -  1  1  1  1  1  1  1  1  1
-ctagVVXS           shape  1    -  1  1  1  1  1  1  1  1  1
-ctagWJetXS         shape  1    -  1  1  1  1  1  1  1  1  1
-ctagTTXS           shape  1    -  1  1  1  1  1  1  1  1  1
-ctagJER            shape  1    -  1  1  1  1  1  1  1  1  1
-ctagJES            shape  1    -  1  1  1  1  1  1  1  1  1
-chargeflip2018     shape  -    -  -  -  -  -  -  -  -  -  -
-met2018unclusterE  shape  1    -  1  1  1  1  1  1  1  1  1
-jes2018            shape  1    -  1  1  1  1  1  1  1  1  1
-jer2018            shape  1    -  1  1  1  1  1  1  1  1  1
-fake2018             lnN  -  1.3  -  -  -  -  -  -  -  -  -
+bin                                  SR_em   SR_em   SR_em     SR_em  SR_em  SR_em  SR_em  SR_em     SR_em   SR_em  SR_em  SR_em
+process  TAToTTQ_rtc04_MA400  TTTo1L  TTTo2L  ttWtoLNu   ttVV    ttV   tttX    VVV  t_tbar_W  tt_V_H     DY    tzq
+process                                  0       1       2         3      4      5      6      7         8       9     10     11
+rate                                    -1      -1      -1        -1     -1     -1     -1     -1        -1      -1     -1     -1
+lumi2018           shape  1    -  1  1  1  1  1  1  1  1  1  1
+pileup             shape  1    -  1  1  1  1  1  1  1  1  1  1
+muID2018sys        shape  1    -  1  1  1  1  1  1  1  1  1  1
+muID2018stat       shape  1    -  1  1  1  1  1  1  1  1  1  1
+eleID2018sys       shape  1    -  1  1  1  1  1  1  1  1  1  1
+eleID2018stat      shape  1    -  1  1  1  1  1  1  1  1  1  1
+elemuTrigger2018   shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018stat       shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018EleID      shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018LHEmuF     shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018LHEmuR     shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018muID       shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018PSFSR      shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2018PU         shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagDYXS           shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagSTXS           shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagVVXS           shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagWJetXS         shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagTTXS           shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagJER            shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagJES            shape  1    -  1  1  1  1  1  1  1  1  1  1
+chargeflip2018     shape  -    -  -  -  -  -  -  -  -  -  -  -
+met2018unclusterE  shape  1    -  1  1  1  1  1  1  1  1  1  1
+jes2018            shape  1    -  1  1  1  1  1  1  1  1  1  1
+jer2018            shape  1    -  1  1  1  1  1  1  1  1  1  1
+fake2018             lnN  -  1.3  -  -  -  -  -  -  -  -  -  -
 * autoMCStats 10 0 1  
 sigscale rateParam * TAToTTQ_rtc04_MA400 0.01 [0.009999,0.01111]

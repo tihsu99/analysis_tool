@@ -187,7 +187,7 @@ class RunLimits:
     def SaveLimitPdf1D(self,outputdir='./'):
         rootfile = self.limit_root_file
         setlogX=0
-        yaxis=10000
+        yaxis=1000
         
         
         rt.gStyle.SetOptTitle(0)
@@ -298,8 +298,9 @@ class RunLimits:
         c.Update()
         #c.SaveAs(name+".png")
         print(self.limit_pdf_file) 
-        c.Print(self.limit_pdf_file)
-        c.Print(self.limit_pdf_file.replace(".pdf",".png"))
+        c.SaveAs(self.limit_pdf_file)
+        os.system("rm {}".format(self.limit_pdf_file.replace(".pdf",".png")))
+        c.SaveAs(self.limit_pdf_file.replace(".pdf",".png"))
         c.Close()
         
         return "pdf file is saved"
