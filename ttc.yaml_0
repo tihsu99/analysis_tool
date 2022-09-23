@@ -1,0 +1,295 @@
+## Signal Region em
+SR_em: 
+  bin: 
+    SR_em: 11
+  Process: 
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
+    - TTTo1L
+    - ttWtoLNu 
+    - ttVV
+    - ttV
+    - tttX
+    - VVV
+    - t_tbar_W
+    - tt_V_H
+    - DY
+    - tzq
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+
+
+  NuisForProc: 
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - muIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - muIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - eleIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - eleIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - elemuTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEAREleID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuF: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARmuID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPSFSR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPU: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagDYXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagSTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagVVXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagWJetXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagTTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJER: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJES: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - chargeflipYEAR: []
+    - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - fakeYEAR: [TTTo1L]
+
+  UnclnN:
+    - lumiYEAR: shape
+    - pileup: shape
+    - muIDYEARsys: shape 
+    - muIDYEARstat: shape
+    - eleIDYEARsys: shape
+    - eleIDYEARstat: shape
+    - elemuTriggerYEAR: shape
+    - ctagYEARstat: shape
+    - ctagYEAREleID: shape 
+    - ctagYEARLHEmuF: shape
+    - ctagYEARLHEmuR: shape
+    - ctagYEARmuID: shape
+    - ctagYEARPSFSR: shape
+    - ctagYEARPU: shape
+    - ctagDYXS: shape 
+    - ctagSTXS: shape
+    - ctagVVXS: shape 
+    - ctagWJetXS: shape 
+    - ctagTTXS: shape 
+    - ctagJER: shape
+    - ctagJES: shape 
+    - chargeflipYEAR: shape
+    - metYEARunclusterE: shape
+    - jesYEAR: shape
+    - jerYEAR: shape 
+    - fakeYEAR: 1.30
+
+
+## Signal Region ee
+SR_ee: 
+  bin: 
+    SR_ee: 11
+  Process: 
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
+    - TTTo1L
+    - ttWtoLNu 
+    - ttVV
+    - ttV
+    - tttX
+    - VVV
+    - t_tbar_W
+    - tt_V_H
+    - DY
+    - tzq
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+
+  NuisForProc: 
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - muIDYEARsys: []
+    - muIDYEARstat: []
+    - eleIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - eleIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - dieleTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEAREleID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuF: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARmuID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPSFSR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPU: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagDYXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagSTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagVVXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagWJetXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagTTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJER: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJES: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - chargeflipYEAR: [ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - fakeYEAR: [TTTo1L]
+
+
+  UnclnN:
+    - lumiYEAR: shape
+    - pileup: shape
+    - muIDYEARsys: shape 
+    - muIDYEARstat: shape
+    - eleIDYEARsys: shape
+    - eleIDYEARstat: shape
+    - dieleTriggerYEAR: shape
+    - ctagYEARstat: shape
+    - ctagYEAREleID: shape 
+    - ctagYEARLHEmuF: shape
+    - ctagYEARLHEmuR: shape
+    - ctagYEARmuID: shape
+    - ctagYEARPSFSR: shape
+    - ctagYEARPU: shape
+    - ctagDYXS: shape 
+    - ctagSTXS: shape
+    - ctagVVXS: shape 
+    - ctagWJetXS: shape 
+    - ctagTTXS: shape 
+    - ctagJER: shape
+    - ctagJES: shape 
+    - chargeflipYEAR: shape
+    - metYEARunclusterE: shape
+    - jesYEAR: shape
+    - jerYEAR: shape 
+    - fakeYEAR: 1.30
+
+
+## Signal Region mm
+SR_mm: 
+  bin: 
+    SR_mm: 11
+  Process: 
+    - TAToTTQ_COUPLINGVALUE_MAMASSPOINT
+    - TTTo1L
+    - ttWtoLNu 
+    - ttVV
+    - ttV
+    - tttX
+    - VVV
+    - t_tbar_W
+    - tt_V_H
+    - DY
+    - tzq
+  process1: 
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+  rate: 
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+    - -1
+  NuisForProc: 
+    - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - muIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - muIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - eleIDYEARsys: []
+    - eleIDYEARstat: []
+    - dimuTriggerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEAREleID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuF: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARLHEmuR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARmuID: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPSFSR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagYEARPU: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagDYXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagSTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagVVXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagWJetXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagTTXS: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJER: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - ctagJES: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - chargeflipYEAR: []
+    - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - fakeYEAR: [TTTo1L]
+
+
+
+  UnclnN:
+    - lumiYEAR: shape
+    - pileup: shape
+    - muIDYEARsys: shape 
+    - muIDYEARstat: shape
+    - eleIDYEARsys: shape
+    - eleIDYEARstat: shape
+    - dimuTriggerYEAR: shape
+    - ctagYEARstat: shape
+    - ctagYEAREleID: shape 
+    - ctagYEARLHEmuF: shape
+    - ctagYEARLHEmuR: shape
+    - ctagYEARmuID: shape
+    - ctagYEARPSFSR: shape
+    - ctagYEARPU: shape
+    - ctagDYXS: shape 
+    - ctagSTXS: shape
+    - ctagVVXS: shape 
+    - ctagWJetXS: shape 
+    - ctagTTXS: shape 
+    - ctagJER: shape
+    - ctagJES: shape 
+    - chargeflipYEAR: shape
+    - metYEARunclusterE: shape
+    - jesYEAR: shape
+    - jerYEAR: shape 
+    - fakeYEAR: 1.30

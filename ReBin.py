@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-y','--year',help='List of Years of data. Default value=["2016postapv"].',default=['2016postapv'],nargs='*')
 parser.add_argument('--Couplings',help='List of various couplings you want to consider. The format must be like: 0.4 -> 0p4, 1.0 -> 1p0. Default value=["0p4"]',default=["0p4"],nargs='*')
 parser.add_argument('--Masses',help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
-parser.add_argument('-c','--category',help='List of dilepton channels. Default value=["all"]. *In general, you do not need to tune this value',default=["all"])
+parser.add_argument('-c','--category',help='List of dilepton channels. Default value=["all"]. *In general, you do not need to tune this value',default=["all"],nargs='+')
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
 
@@ -118,6 +118,15 @@ for imass in masses:
                         fout.cd()
                         h_TTTo1L.Write()
                         print (prefix+"TTTo1L"+inuis,"hisstogram written")
+                            
+                    
+                    f_in.cd()
+                    if (type( f_in.Get(prefix+"TTTo2L"+inuis) ) is TH1F) :
+                        h_TTTo2L      = copy.deepcopy ( f_in.Get(prefix+"TTTo2L"+inuis) ) 
+                        h_TTTo2L.Rebin(rebin_); h_TTTo2L.SetNameTitle("ttc"+iyear+"_TTTo2L"+inuis,"ttc"+iyear+"_TTTo2L"+inuis)
+                        fout.cd()
+                        h_TTTo2L.Write()
+                        print (prefix+"TTTo2L"+inuis,"hisstogram written")
                             
                     
                     f_in.cd()
