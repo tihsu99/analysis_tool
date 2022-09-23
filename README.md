@@ -43,12 +43,12 @@ Once input from Meng/others are ready in the form of plain histograms, normalise
 Ex: For coupling value 0.4 for all the dilepton channels in 2016postapv samples:
 
 ```
-python ReBin.py -c all --Couplings 0p4 --y 2016postapv 
+python ReBin.py -c all --Couplings 0p4 --y 2018
 
 ``` 
 Ex: For coupings values from 0.1 to 1.0 for all the dilepton channels in 2016postapv samples:
 ```
-python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2016postapv --Masses 200 300 350 400 500 600 700
+python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2018 --Masses 200 300 350 400 500 600 700
 ```
 
 
