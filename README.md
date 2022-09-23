@@ -24,8 +24,7 @@ source envsetter.sh
 ### Install the code 
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
-cd $CMSSW_BASE/src
-git clone git@github.com:ZhengGang85129/LimitModel.git
+git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
 ### Rebin and merging of processes 
 
