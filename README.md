@@ -57,7 +57,10 @@ Normally, you should use the following commands.
 python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output --outputdir ./FinalInputs
 
 ```
-And you will see after this step, there are several rebined root files. 
+
+And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
+And once this step is done, there are several rebined root files under FinalInputs or your favoured output directory.
+
 
 
 Ex: For coupling value 0.4 for all the dilepton channels in 2016postapv samples:
