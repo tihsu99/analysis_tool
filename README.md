@@ -6,7 +6,6 @@ cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-cd HiggsAnalysis/CombinedLimit
 
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
@@ -17,6 +16,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 ```
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 cd $CMSSW_BASE/src
+# COMMENT FROM EFE: I don't understand the line below since it was already checkout in the like above, no? 
 git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 cd CombineHarvester
 scram b -j 6
