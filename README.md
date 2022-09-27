@@ -114,6 +114,10 @@ python prepareCards.py -y 2018 -c em -reg 'SR_em'
 python prepareCards.py -y 2018 -c ee -reg 'SR_ee'
 python prepareCards.py -y 2018 -c mm -reg 'SR_mm'
 ```
+Note: If you want to prepare the template datacard again, you can add as following
+```
+python prepareCards.py -y 2018 -c em -reg 'SR_em' --reset
+```
 
 ### Combine the cards for all regions to make a jumbo card 
 ```
