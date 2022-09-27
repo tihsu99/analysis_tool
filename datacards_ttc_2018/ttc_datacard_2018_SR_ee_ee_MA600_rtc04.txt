@@ -37,7 +37,6 @@ ctagTTXS           shape  1    -  1  1  1  1  1  1  1  1  1  1
 ctagJER            shape  1    -  1  1  1  1  1  1  1  1  1  1
 ctagJES            shape  1    -  1  1  1  1  1  1  1  1  1  1
 met2018unclusterE  shape  1    -  1  1  1  1  1  1  1  1  1  1
-chargeflip2018     shape  -    -  1  1  1  1  1  1  1  1  1  1
 jes2018            shape  1    -  1  1  1  1  1  1  1  1  1  1
 jer2018            shape  1    -  1  1  1  1  1  1  1  1  1  1
 fake2018             lnN  -  1.3  -  -  -  -  -  -  -  -  -  -

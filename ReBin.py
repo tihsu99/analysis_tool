@@ -16,9 +16,11 @@ Algorithm:
 from ROOT import TH1F, TFile 
 import copy
 import os
-import sys 
-
-
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+#print(sys.path)
+import json
+from Util.General_Tool import MakeNuisance_Hist
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -33,28 +35,20 @@ parser.add_argument('--Masses',help='List of masses point. Default list=[200,300
 parser.add_argument('-c','--category',help='List of dilepton channels. Default value=["all"]. *In general, you do not need to tune this value',default=["all"],nargs='+')
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
-
+parser.add_argument('--unblind',action='store_true')
 
 args = parser.parse_args()
 args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
 
+with open('./data_info/nuisance_list.json'.format(args.year),'r') as f:
+    nuisances = json.load(f)
 
+print(nuisances)
 
-nuisnaces=["_lumiYEAR", "_pileup", "_muIDYEARsys", "_muIDYEARstat",
-           "_eleIDYEARsys", "_eleIDYEARstat", "_elemuTriggerYEAR", 
-           "_ctagYEARstat", "_ctagYEAREleID", "_ctagYEARLHEmuF", 
-           "_ctagYEARLHEmuR", "_ctagYEARmuID", "_ctagYEARPSFSR", 
-           "_ctagYEARPU", "_ctagDYXS", "_ctagSTXS", "_ctagVVXS",
-           "_ctagWJetXS", "_ctagTTXS", "_ctagJER", "_ctagJES",
-           "_chargeflipYEAR",
-           "_sigYEARpdf",  ## only signal 
-           "_metYEARunclusterE", 
-           "_prefireYEAR", "_jesYEAR",
-           "_jerYEAR", "_elemuTriggerYEAR" ,"_dimuTriggerYEAR","_dieleTriggerYEAR"]
 
 variations=["Up", "Down"]
 
-allvariations= [inuis+iv for iv in variations for inuis in nuisnaces]
+allvariations= [inuis+iv for iv in variations for inuis in nuisances]
 allvariations.append("")
 #print ("allvariations: ", allvariations)
 if 'all' in args.category:
@@ -78,6 +72,14 @@ filename="TMVApp_{}_{}.root"
 
 signal_="TAToTTQ_rtcCOUPLIING_MAMASS"
 
+sample_names = dict()
+
+for iyear in years:
+    with open('./data_info/process_name_{}.json'.format(iyear),'r') as f:
+        sample_names[iyear] = json.load(f)
+
+
+Process_Categories = sample_names[iyear].keys()
 
 for imass in masses: 
     for ir in regions:
@@ -85,7 +87,10 @@ for imass in masses:
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
                 ic_ = ic.replace("p","")
-                inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                if iyear=='2017':
+                    inputdir_ = inputdir.format(iyear+'_correct_weight', ic_, str(imass)) 
+                else:
+                    inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
                 print (" fiilename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
                 print (inputdir_+"/"+filename_)
@@ -108,172 +113,49 @@ for imass in masses:
                 
                 ## This list needs to be altered for each year, 
                 allvariations = [iv.replace("YEAR",iyear) for iv in allvariations]
-                print ("systematic variations: ", allvariations)
+                #print ("systematic variations: ", allvariations)
                 for inuis in allvariations:
                     
-                    #print (prefix+"TTTo1L"+inuis)
-                    if (type( f_in.Get(prefix+"TTTo1L"+inuis) ) is TH1F) :
-                        h_TTTo1L      = copy.deepcopy ( f_in.Get(prefix+"TTTo1L"+inuis) ) 
-                        h_TTTo1L.Rebin(rebin_); h_TTTo1L.SetNameTitle("ttc"+iyear+"_TTTo1L"+inuis,"ttc"+iyear+"_TTTo1L"+inuis)
-                        fout.cd()
-                        h_TTTo1L.Write()
-                        print (prefix+"TTTo1L"+inuis,"hisstogram written")
-                            
+                    Hist = dict()
+
                     
-                    f_in.cd()
-                    if (type( f_in.Get(prefix+"TTTo2L"+inuis) ) is TH1F) :
-                        h_TTTo2L      = copy.deepcopy ( f_in.Get(prefix+"TTTo2L"+inuis) ) 
-                        h_TTTo2L.Rebin(rebin_); h_TTTo2L.SetNameTitle("ttc"+iyear+"_TTTo2L"+inuis,"ttc"+iyear+"_TTTo2L"+inuis)
-                        fout.cd()
-                        h_TTTo2L.Write()
-                        print (prefix+"TTTo2L"+inuis,"hisstogram written")
-                            
-                    
-                    f_in.cd()
-                    #print (prefix+"ttW"+inuis)
-                    temp_fix = ""
-                    if iyear=='2018':temp_fix="toLNu"
-                    elif iyear=='2016postapv':pass
-                    else:raise ValueError('Please fix me.')
-                    if type(f_in.Get(prefix+"ttW"+temp_fix+inuis)) is TH1F:
-                        h_ttWtoLNu    = copy.deepcopy ( f_in.Get(prefix+"ttW"+temp_fix+inuis) )
-                        h_ttWtoLNu.Rebin(rebin_);  h_ttWtoLNu.SetNameTitle("ttc"+iyear+"_ttWtoLNu"+inuis,"ttc"+iyear+"_ttWtoLNu"+inuis)
-                        fout.cd()
-                        h_ttWtoLNu.Write()
-                        #print (prefix+"ttWtoLNu"+inuis, "hisstogram written")
-                    
-                    f_in.cd()
-                    if type(f_in.Get(prefix+"ttWW"+inuis)) is TH1F:
-                        h_ttVV        = copy.deepcopy (f_in.Get(prefix+"ttWW"+inuis) )
-                        h_ttVV.Add (f_in.Get(prefix+"ttWZ"+inuis) )
-                        h_ttVV.Rebin(rebin_);  h_ttVV.SetNameTitle("ttc"+iyear+"_ttVV"+inuis,"ttc"+iyear+"_ttVV"+inuis)
-                        fout.cd()
-                        h_ttVV.Write()
+                    for Category in Process_Categories:
                         
-                    f_in.cd()
-                    if type(f_in.Get(prefix+"ttZ"+inuis)) is TH1F:
-                        h_ttV      = copy.deepcopy(f_in.Get(prefix+"ttZ"+inuis))
-                        if iyear=='2018': 
-                            h_ttV.Add( f_in.Get(prefix+"ttZtoQQ"+inuis) )
-                            h_ttV.Add( f_in.Get(prefix+"ttWtoQQ"+inuis) )
-                        elif iyear=='2016postapv': 
-                            h_ttV.Add( f_in.Get(prefix+"ttZToQQ"+inuis) )
-                            h_ttV.Add( f_in.Get(prefix+"ttWToQQ"+inuis) )
-                        else:raise ValueError('Please fix me.')
-                        h_ttV.Rebin(rebin_);  h_ttV.SetNameTitle("ttc"+iyear+"_ttV"+inuis,"ttc"+iyear+"_ttV"+inuis)
-                        fout.cd()
-                        h_ttV.Write()
-                    
-                    f_in.cd()
-                    if iyear=='2018':
-                        if (type(f_in.Get(prefix+"tttW"+inuis))) is TH1F:
-                            h_tttX     = copy.deepcopy ( f_in.Get(prefix+"tttW"+inuis) )
-                            h_tttX.Add (  f_in.Get(prefix+"tttt"+inuis) )
-                            h_tttX.Rebin(rebin_);  h_tttX.SetNameTitle("ttc"+iyear+"_tttX"+inuis,"ttc"+iyear+"_tttX"+inuis)
+                        Category = str(Category)
+                        f_in.cd()
+                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear)
+                        if Hist[Category] is None:pass
+                        else:
                             fout.cd()
-                            h_tttX.Write()   
+                            Hist[Category].Write()
+                         
                     
-                    elif iyear=='2016postapv':
-                        if (type(f_in.Get(prefix+"tttJ"+inuis))) is TH1F:
-                            h_tttX     = copy.deepcopy ( f_in.Get(prefix+"tttJ"+inuis) )
-                            h_tttX.Add (  f_in.Get(prefix+"tttt"+inuis) )
-                            h_tttX.Rebin(rebin_);  h_tttX.SetNameTitle("ttc"+iyear+"_tttX"+inuis,"ttc"+iyear+"_tttX"+inuis)
+
+                    ### data_obs ###
+                    ''' 
+                    if args.unblind:
+                        f_in.cd()
+                        if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
+                            h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
+                            h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
                             fout.cd()
-                            h_tttX.Write()   
-                    else:raise ValueError('Please fix me.')
-
-
-                    f_in.cd()
-                    if iyear=='2018':process_name_y = 'WWW'
-                    elif iyear=='2016postapv':process_name_y = 'www1'
-                    else:raise ValueError('Please fix me.')
-
-                    if (type(f_in.Get(prefix+process_name_y+inuis))) is TH1F:
-                        h_VVV      = copy.deepcopy ( f_in.Get(prefix+process_name_y+inuis) )
-                        
-                        if iyear=='2018':
-                            h_VVV.Add( f_in.Get(prefix+"WWZ"+inuis))
-                            h_VVV.Add( f_in.Get(prefix+"WZZ"+inuis))
-                        elif iyear=='2016postapv':
-                            h_VVV.Add( f_in.Get(prefix+"wwz1"+inuis))
-                            h_VVV.Add( f_in.Get(prefix+"wzz1"+inuis))
-
-                        else:raise ValueError('Please specifiy this as well!')
-                        h_VVV.Rebin(rebin_);  h_VVV.SetNameTitle("ttc"+iyear+"_VVV"+inuis,"ttc"+iyear+"_VVV"+inuis)
-                        fout.cd()   
-                        h_VVV.Write()
-                        
-                    
-                    f_in.cd()
-                    if (type(f_in.Get(prefix+"tW"+inuis))) is TH1F:
-                        h_t_tbar_W = copy.deepcopy ( f_in.Get(prefix+"tW"+inuis) )
-                        h_t_tbar_W.Add(  f_in.Get(prefix+"tbarW"+inuis) ) 
-                        h_t_tbar_W.Rebin(rebin_);  h_t_tbar_W.SetNameTitle("ttc"+iyear+"_t_tbar_W"+inuis,"ttc"+iyear+"_t_tbar_W"+inuis)
-                        fout.cd()
-                        h_t_tbar_W.Write()
-                        
-                    f_in.cd()
-                    if (type(f_in.Get(prefix+"ttH"+inuis))) is TH1F:
-                        h_tt_V_H   = copy.deepcopy ( f_in.Get(prefix+"ttH"+inuis) )
-                        h_tt_V_H.Add ( f_in.Get(prefix+"ttWH"+inuis))
-                        h_tt_V_H.Add ( f_in.Get(prefix+"ttZH"+inuis))
-                        h_tt_V_H.Rebin(rebin_);  h_tt_V_H.SetNameTitle("ttc"+iyear+"_tt_V_H"+inuis,"ttc"+iyear+"_tt_V_H"+inuis)
-                        fout.cd()
-                        h_tt_V_H.Write()
-                    
-                    f_in.cd()
-                    if iyear=='2018':tmp_fix=''
-                    elif iyear=='2016postapv':tmp_fix = 'nlo'
-                    else:raise ValueError('Please fix me.')
-                    
-                    if (type(f_in.Get(prefix+"DY"+tmp_fix+inuis))) is TH1F:
-                        h_DY       = copy.deepcopy (f_in.Get(prefix+"DY"+tmp_fix+inuis))
-                        h_DY.Rebin(rebin_);  h_DY.SetNameTitle("ttc"+iyear+"_DY"+inuis,"ttc"+iyear+"_DY"+inuis)
-                        fout.cd()
-                        h_DY.Write()
-                    
-                    f_in.cd()
-                    if iyear=='2018':
-                        H=f_in.Get(prefix+"tzq"+inuis)
-                    elif iyear=='2016postapv':
-                        H=f_in.Get(prefix+"tZq"+inuis)
-                    else:raise ValueError('Please fix me.')
-                    if (type(H)) is TH1F:
-                        if iyear=='2018':h_tzq      = copy.deepcopy (H)
-                        elif iyear=='2016postapv':h_tzq      = copy.deepcopy (H)
-                        else:raise ValueError('Please fix me.')
-
-                        h_tzq      = copy.deepcopy (H) 
-                        h_tzq.Rebin(rebin_);  h_tzq.SetNameTitle("ttc"+iyear+"_tzq"+inuis,"ttc"+iyear+"_tzq"+inuis)
-                        fout.cd()
-                        h_tzq.Write()
-                        
-                    f_in.cd()
-                    if (type(f_in.Get(prefix+"WWdps"+inuis))) is TH1F:
-                        h_VV       = copy.deepcopy (f_in.Get(prefix+"WWdps"+inuis))
-                        h_VV.Add( f_in.Get(prefix+"WZ"+inuis))
-                        h_VV.Add( f_in.Get(prefix+"osWW"+inuis))
-                        h_VV.Rebin(rebin_);  h_VV.SetNameTitle("ttc"+iyear+"_VV"+inuis,"ttc"+iyear+"_VV"+inuis)
-                        fout.cd()
-                        h_VV.Write
-                        
+                            h_data_obs.Write()
+                    else:pass 
+                    '''
                     f_in.cd()
                     if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
                         h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
                         h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
                         fout.cd()
                         h_data_obs.Write()
-                        
-                    
+                    ### Signal Sample ####
                     sig_name_ = prefix+(signal_.replace("MASS",str(imass))).replace("COUPLIING",ic_)
                     f_in.cd()
-                    if (type(f_in.Get(sig_name_+inuis))) is TH1F:
-                        h_signal_ = copy.deepcopy( f_in.Get(sig_name_+inuis)); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(sig_name_+inuis, sig_name_+inuis)
+                    if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
+                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+inuis), str(sig_name_+inuis))
                         fout.cd()
                         h_signal_.Write()
 
 
                     
                                         
-
-                
