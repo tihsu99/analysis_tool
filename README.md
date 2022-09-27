@@ -26,6 +26,19 @@ The code is part of the repository ttcbar, to get it simply do git clone:
 ```
 git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
+### Initialization
+
+
+```
+python Init.py --year 2017 
+```
+If you don't want _chargeflipYEAR nuisances, you can remove it through the argument --blacklist
+```
+python Init.py --year 2017 --blacklist _chargefilpYEAR  
+```
+
+Note: at this moment, you also need to drop the corresponding term in ttc.yaml for sure. -> This will be made automatically as soon as possible.
+
 ### Rebin and merging of processes 
 
 Move into LimitModel

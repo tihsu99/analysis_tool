@@ -4,7 +4,7 @@ You need to fill in the process name for MC sample in root file manually.
 
 '''
 
-def Bkg_MC_SAMPLE_NAME(year:str):
+def Bkg_MC_SAMPLE_NAME(year=''):
     SAMPLE=dict()
     SAMPLE['DY'] = []
     SAMPLE['TTTo1L'] = []
