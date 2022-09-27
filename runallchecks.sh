@@ -3,6 +3,7 @@ year=$2 #2017, 2016, 2018, 20161718
 catg=$3 #C, em, mm, ee 
 datacard=$4 #datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
 
+if [ -d "$dirname" ]; then rm -Rf $dirname; fi
 mkdir $dirname
 
 ## source runallchecks.sh LimitChecks_19Sept2022 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
