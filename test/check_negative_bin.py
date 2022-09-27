@@ -1,16 +1,5 @@
 '''
-Algorithm: 
-- get the file name
-- get the histograms 
-- create a new histogram, bkg_sum 
-- use the fine binned histogram for this purpose, however during development, it is not availale, 
-- loop over all the bins (from top to bottom). 
-- if the event content is <7, sum its content with the neighbour (on left of the histogram), and increase the bin width by 1 unit
-- check if the new integral is <7 or not, if <7 add the neighbouring bin on the left and increase the bin width by 1 unit
-- keep repeating until the bin content is >=7 and save this bin width. 
-- Use this new content and bin width to make the new shape and write it to a new file. 
-- use them to get the limits, 
-- repeat the whole process with 6, 7, 8, 9, 10 events and see what givess the best limits. 
+Just to check where are the negative bins in histograms.
 '''
 
 from ROOT import TH1F, TFile 
@@ -25,8 +14,7 @@ from Util.General_Tool import MakeNuisance_Hist
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
 import argparse
-
-
+from Util.General_Tool import MakeNuisance_Hist 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-y','--year',help='List of Years of data. Default value=["2016postapv"].',default=['2016postapv'],nargs='*')
@@ -98,17 +86,9 @@ for imass in masses:
                 f_in = TFile(rootfiilename,"R")
                 
                 f_in.cd()
-                #f_in.ls()
-
                 prefix="ttc"+iyear+"_"
                 
                 rebin_=5
-                ## create the output file in EOS 
-                print (rootfiilename.split("/")[-2], rootfiilename.split("/")[-1])
-                os.system("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2])
-                outputfilename=outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2]+"/"+rootfiilename.split("/")[-1]
-                print (outputfilename)
-                fout = TFile(outputfilename,"RECREATE")
 
                 
                 ## This list needs to be altered for each year, 
@@ -125,7 +105,7 @@ for imass in masses:
                         f_in.cd()
                         Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear)
                         
-                        #for 
+                        print(Hist[Category].GetNBinX()) 
                         
                         
                         #if Hist[Category] is None:pass
@@ -136,29 +116,15 @@ for imass in masses:
                     
 
                     ### data_obs ###
-                    ''' 
-                    if args.unblind:
-                        f_in.cd()
-                        if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
-                            h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
-                            h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
-                            fout.cd()
-                            h_data_obs.Write()
-                    else:pass 
-                    '''
                     f_in.cd()
                     if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
                         h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
                         h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
-                        fout.cd()
-                        h_data_obs.Write()
                     ### Signal Sample ####
                     sig_name_ = prefix+(signal_.replace("MASS",str(imass))).replace("COUPLIING",ic_)
                     f_in.cd()
                     if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
                         h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+inuis), str(sig_name_+inuis))
-                        fout.cd()
-                        h_signal_.Write()
 
 
                     
