@@ -39,6 +39,14 @@ Once input from Meng/others are ready in the form of plain histograms, normalise
 
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
 
+Normally, you should use the following commands.
+```
+python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output --outputdir ./FinalInputs
+
+```
+And you will see after this step, there are several rebined root files. 
+
+
 Ex: For coupling value 0.4 for all the dilepton channels in 2016postapv samples:
 
 ```
