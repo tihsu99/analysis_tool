@@ -6,10 +6,10 @@ from ROOT import TH1F, TFile
 import copy
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+CURRENT_WORKDIR = os.getcwd()
+sys.path.append(CURRENT_WORKDIR)
 #print(sys.path)
 import json
-from Util.General_Tool import MakeNuisance_Hist
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -79,16 +79,16 @@ for imass in masses:
                     inputdir_ = inputdir.format(iyear+'_correct_weight', ic_, str(imass)) 
                 else:
                     inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
-                print (" fiilename: ", inputdir_+"/"+filename_)
+                #print (" fiilename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
-                print (inputdir_+"/"+filename_)
+                #print (inputdir_+"/"+filename_)
                 rootfiilename=inputdir_+"/"+filename_
                 f_in = TFile(rootfiilename,"R")
                 
                 f_in.cd()
                 prefix="ttc"+iyear+"_"
                 
-                rebin_=5
+                rebin_=20
 
                 
                 ## This list needs to be altered for each year, 
@@ -103,15 +103,17 @@ for imass in masses:
                         
                         Category = str(Category)
                         f_in.cd()
-                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear)
-                        
-                        print(Hist[Category].GetNBinX()) 
+                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear,q=True)
                         
                         
-                        #if Hist[Category] is None:pass
-                        #else:
-                        #    fout.cd()
-                        #    Hist[Category].Write()
+                        
+                        if Hist[Category] is None:pass
+                        else:
+                            
+                            for ibin in range(Hist[Category].GetNbinsX()):
+                                if Hist[Category].GetBinContent(ibin+1) < 0:
+                                    print('Negative Value in bin {} in process {} in year {} in file: {}'.format(ibin,Category,iyear,rootfiilename))
+                            
                          
                     
 
