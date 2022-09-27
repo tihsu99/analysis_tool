@@ -132,25 +132,25 @@ cd datacards_ttc_run2; combineCards.py d2016=../datacards_ttc_2016/ttc_datacard_
 
 #### 2016postapv
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016postapv 
-python runlimits.py -c mm --rtc rtc04 -y 2016postapv
-python runlimits.py -c ee --rtc rtc04 -y 2016postapv
-python runlimits.py -c C --rtc rtc04 -y 2016postapv
+python runlimits.py -c em --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
 ```
 
 #### 2016 apv 
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016apv 
-python runlimits.py -c mm --rtc rtc04 -y 2016apv
-python runlimits.py -c ee --rtc rtc04 -y 2016apv
-python runlimits.py -c C --rtc rtc04 -y 2016apv
+python runlimits.py -c em --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
 ```
 #### 2017
 ```
-python runlimits.py -c em --rtc rtc04 -y 2017 
-python runlimits.py -c mm --rtc rtc04 -y 2017
-python runlimits.py -c ee --rtc rtc04 -y 2017
-python runlimits.py -c C --rtc rtc04 -y 2017
+python runlimits.py -c em --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
 ```
 #### 2018
 ```
