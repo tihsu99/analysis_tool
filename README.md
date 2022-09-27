@@ -13,6 +13,14 @@ git fetch origin
 git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
+#Install the CombineHarvester Tool
+```
+bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
+cd $CMSSW_BASE/src
+git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
+cd CombineHarvester
+scram b -j 6
+```
 
 ## Higgs Combination Tool Installation(Only For Raman) 
 Follow the Higgs Combination Twiki to install the combine package and compile it, 
