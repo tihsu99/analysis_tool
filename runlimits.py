@@ -12,6 +12,7 @@ parser.add_argument("-y", "--year", dest="year", default="2017")
 parser.add_argument("-rtc", "--rtc", dest="rtc", default="rtc01")
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument("--plot_only",help='Plot Only',action="store_true")
+parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 
@@ -83,7 +84,9 @@ RL.TextFileToRootGraphs()
 
 
 ### save the .root file into a pdf file for presentations  
-RL.SaveLimitPdf1D(outputdir=args.outputdir)
+if os.path.isdir(args.outputdir):pass
+else:os.system('mkdir -p {}'.format(args.outputdir))
+RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max)
     
 print("Run time for the current program is : {}".format(time.time()-start_time))
     

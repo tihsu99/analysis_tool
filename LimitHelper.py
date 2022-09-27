@@ -184,10 +184,10 @@ class RunLimits:
         f1.Close()
         return limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./'):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000):
         rootfile = self.limit_root_file
         setlogX=0
-        yaxis=1000
+        y_max=y_max # scale of y axis 
         
         
         rt.gStyle.SetOptTitle(0)
@@ -207,7 +207,7 @@ class RunLimits:
         exp2s.SetFillColor(rt.kYellow);
         exp2s.SetLineColor(rt.kYellow)
         exp2s.GetXaxis().SetTitle("m_{A} (GeV)");
-        exp2s.GetYaxis().SetRangeUser(0.1,yaxis)
+        exp2s.GetYaxis().SetRangeUser(0.1,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         #exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
         exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
@@ -298,6 +298,9 @@ class RunLimits:
         c.Update()
         #c.SaveAs(name+".png")
         print(self.limit_pdf_file) 
+        if os.path.isdir(outputdir+"/plots_limit/"):pass
+        else: os.system("mkdir -p {}".format(outputdir+"/plots_limit/"))
+        
         c.SaveAs(self.limit_pdf_file)
         os.system("rm {}".format(self.limit_pdf_file.replace(".pdf",".png")))
         c.SaveAs(self.limit_pdf_file.replace(".pdf",".png"))

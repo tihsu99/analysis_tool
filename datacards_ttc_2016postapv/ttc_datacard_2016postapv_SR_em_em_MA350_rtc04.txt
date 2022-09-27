@@ -11,35 +11,35 @@ shapes * SR_em FinalInputs/2016postapv/ttc_a_rtc04_MA350/TMVApp_350_em.root ttc2
 bin SR_em
 observation -1
 ------------
-bin                                  SR_em   SR_em     SR_em  SR_em  SR_em  SR_em  SR_em     SR_em   SR_em  SR_em  SR_em
-process  TAToTTQ_rtc04_MA350  TTTo1L  ttWtoLNu   ttVV    ttV   tttX    VVV  t_tbar_W  tt_V_H     DY    tzq
-process                                  0       1         2      3      4      5      6         7       8      9     10
-rate                                    -1      -1        -1     -1     -1     -1     -1        -1      -1     -1     -1
-lumi2016postapv           shape  1    -  1  1  1  1  1  1  1  1  1
-pileup                    shape  1    -  1  1  1  1  1  1  1  1  1
-muID2016postapvsys        shape  1    -  1  1  1  1  1  1  1  1  1
-muID2016postapvstat       shape  1    -  1  1  1  1  1  1  1  1  1
-eleID2016postapvsys       shape  1    -  1  1  1  1  1  1  1  1  1
-eleID2016postapvstat      shape  1    -  1  1  1  1  1  1  1  1  1
-elemuTrigger2016postapv   shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvstat       shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvEleID      shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvLHEmuF     shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvLHEmuR     shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvmuID       shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvPSFSR      shape  1    -  1  1  1  1  1  1  1  1  1
-ctag2016postapvPU         shape  1    -  1  1  1  1  1  1  1  1  1
-ctagDYXS                  shape  1    -  1  1  1  1  1  1  1  1  1
-ctagSTXS                  shape  1    -  1  1  1  1  1  1  1  1  1
-ctagVVXS                  shape  1    -  1  1  1  1  1  1  1  1  1
-ctagWJetXS                shape  1    -  1  1  1  1  1  1  1  1  1
-ctagTTXS                  shape  1    -  1  1  1  1  1  1  1  1  1
-ctagJER                   shape  1    -  1  1  1  1  1  1  1  1  1
-ctagJES                   shape  1    -  1  1  1  1  1  1  1  1  1
-chargeflip2016postapv     shape  -    -  -  -  -  -  -  -  -  -  -
-met2016postapvunclusterE  shape  1    -  1  1  1  1  1  1  1  1  1
-jes2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1
-jer2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1
-fake2016postapv             lnN  -  1.3  -  -  -  -  -  -  -  -  -
+bin                                  SR_em   SR_em   SR_em     SR_em  SR_em  SR_em  SR_em  SR_em     SR_em   SR_em  SR_em  SR_em
+process  TAToTTQ_rtc04_MA350  TTTo1L  TTTo2L  ttWtoLNu   ttVV    ttV   tttX    VVV  t_tbar_W  tt_V_H     DY    tzq
+process                                  0       1       2         3      4      5      6      7         8       9     10     11
+rate                                    -1      -1      -1        -1     -1     -1     -1     -1        -1      -1     -1     -1
+lumi2016postapv           shape  1    -  1  1  1  1  1  1  1  1  1  1
+pileup                    shape  1    -  1  1  1  1  1  1  1  1  1  1
+muID2016postapvsys        shape  1    -  1  1  1  1  1  1  1  1  1  1
+muID2016postapvstat       shape  1    -  1  1  1  1  1  1  1  1  1  1
+eleID2016postapvsys       shape  1    -  1  1  1  1  1  1  1  1  1  1
+eleID2016postapvstat      shape  1    -  1  1  1  1  1  1  1  1  1  1
+elemuTrigger2016postapv   shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvstat       shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvEleID      shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvLHEmuF     shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvLHEmuR     shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvmuID       shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvPSFSR      shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctag2016postapvPU         shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagDYXS                  shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagSTXS                  shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagVVXS                  shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagWJetXS                shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagTTXS                  shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagJER                   shape  1    -  1  1  1  1  1  1  1  1  1  1
+ctagJES                   shape  1    -  1  1  1  1  1  1  1  1  1  1
+chargeflip2016postapv     shape  -    -  -  -  -  -  -  -  -  -  -  -
+met2016postapvunclusterE  shape  1    -  1  1  1  1  1  1  1  1  1  1
+jes2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1  1
+jer2016postapv            shape  1    -  1  1  1  1  1  1  1  1  1  1
+fake2016postapv             lnN  -  1.3  -  -  -  -  -  -  -  -  -  -
 * autoMCStats 10 0 1  
 sigscale rateParam * TAToTTQ_rtc04_MA350 0.01 [0.009999,0.01111]

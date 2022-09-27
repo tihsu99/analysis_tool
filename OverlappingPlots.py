@@ -11,7 +11,7 @@ ROOT.gROOT.SetBatch(True)
 sys.argv.append( '-b-' )
 
 
-from ROOT import TFile, TH1F, gDirectory, TCanvas, TPad, TProfile,TGraph, TGraphAsymmErrors
+from ROOT import TFile, TH1F, gDirectory, TCanvas, TPad, TProfile,TGraph, TGraphAsymmErrors,THStack
 from ROOT import TH1D, TH1, TH1I
 from ROOT import gStyle
 from ROOT import gROOT
@@ -27,7 +27,7 @@ markerStyle=[23,21,22,20,24,25,26,27,28,29,20,21,22,23]
 linestyle=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 
 
-def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xRange=[-99999,99999,1],legendheader="",ylim=[0.1,1000] ): 
+def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xRange=[-99999,99999,1],legendheader="",ylim=[0.1,1000],rebin=5): 
     ## ylim: only for graphs 
 
     gStyle.SetOptTitle(0)
@@ -79,12 +79,9 @@ def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xR
             print ("printing histo "+str(histVec[ihisto_]))
             histo = inputfile[ifile_].Get(histVec[ihisto_])
             #status_ = type(histo) is TGraphAsymmErrors
+            histo.Rebin(rebin) 
             histList.append(histo)
             # for ratio plot as they should nt be normalize 
-            histList1.append(histo)
-            #print histList[ii].Integral()
-            #histList[ii].Rebin(xRange[2])
-            #histList[ii].Scale(1.0/histList[ii].Integral())
             maximum.append(histList[ii].GetMaximum())
             maximum.sort()
 
@@ -96,15 +93,16 @@ def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xR
     print histList
     for ih in range(len(histList)):
         tt = type(histList[ih])
+        #if ih >0:continue
         if logstatus[1] is 1 :
             histList[ih].SetMaximum(maximum[0]*1000)
             histList[ih].SetMinimum(minimum[0])
         if logstatus[1] is 0 :
-            histList[ih].SetMaximum(maximum[0]*1.4) #1.4 for log
-            histList[ih].SetMinimum(0.5) #1.4 for log
+            histList[ih].SetMaximum(maximum[-1]*1.4) #1.4 for log
+            histList[ih].SetMinimum(0.) #1.4 for log
 #        print "graph_status =" ,(tt is TGraphAsymmErrors)
 #        print "hist status =", (tt is TH1D) or (tt is TH1F)
-         #histList[ih].Smooth()
+        histList[ih].Smooth()
         if ih == 0 :      
             if tt is TGraphAsymmErrors : 
                 histList[ih].Draw("APL")
@@ -115,14 +113,13 @@ def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xR
             if tt is TGraphAsymmErrors : 
                 histList[ih].Draw("P L same")
             if (tt is TH1D) or (tt is TH1F) or (tt is TH1) or (tt is TH1I) :
-                histList[ih].Draw("HIST   same")   ## removed hist 
-
+                histList[ih].Draw("SAME")   ## removed hist 
         if tt is TGraphAsymmErrors :
             #histList[ih].SetMaximum(maximum[-1]*1000)
             #histList[ih].SetMinimum(minimum[0]*0.1)
 
-            histList[ih].SetMaximum(ylim[1]) 
-            histList[ih].SetMinimum(ylim[0]) 
+            #histList[ih].SetMaximum(ylim[1]) 
+            #histList[ih].SetMinimum(ylim[0]) 
             
             histList[ih].SetMarkerColor(colors[ih])
             histList[ih].SetLineColor(colors[ih])
@@ -165,20 +162,20 @@ def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xR
     pt.SetTextFont(42)
     pt.SetTextSize(0.046)
     #text = pt.AddText(0.12,0.35,"CMS Internal                     36 fb^{-1} (2016) ")
-    text = pt.AddText(0.12,0.35,"CMS Internal         ")#            41.5 fb^{-1} (2017) ")
-    #text = pt.AddText(0.12,0.35,"CMS Internal                     59.6 fb^{-1} (2018) ")
+    #text = pt.AddText(0.12,0.35,"CMS Internal         ")#            41.5 fb^{-1} (2017) ")
+    text = pt.AddText(0.12,0.35,"CMS Internal                     59.6 fb^{-1} (2018) ")
     #text = pt.AddText(0.6,0.5,"41.5 fb^{-1} (2017) ")
     pt.Draw()
    
     
 
     leg.Draw()
-    outputdirname = 'plots_limit_comp/'
+    outputdirname = '/eos/user/z/zhenggan/www/run2/plots_limit_comp/'
     histname=outputdirname+pngname 
     c.SaveAs(histname+'.png')
     c.SaveAs(histname+'.pdf')
-    outputname = 'cp  -r '+ outputdirname+'/*' +' /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc/plots_limit_comp/'
-    os.system(outputname) 
+    #outputname = 'cp  -r '+ outputdirname+'/*' +' /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc/plots_limit_comp/'
+    #os.system(outputname) 
     
 
 
