@@ -18,7 +18,7 @@ bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/m
 cd $CMSSW_BASE/src
 # COMMENT FROM EFE: I don't understand the line below since it was already checkout with the comment two lines above, no? 
 # From Zheng-Gang: I'm not pretty sure about this. In Raman's code, he didn't mention that we need to install 
-# CombineHarvester if we need to implement #plotImpact.py or combineTool.py etc. Thus I follow the Readme 
+# CombineHarvester if we need to implement plotImpact.py or combineTool.py etc. Thus I search for it and follow the Readme 
 # on https://github.com/cms-analysis/CombineHarvester, and did a little change. 
 git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 cd CombineHarvester
