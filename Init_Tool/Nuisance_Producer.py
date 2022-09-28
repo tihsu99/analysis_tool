@@ -12,7 +12,7 @@ def nui_producer(year,blacklist=[],whitelist=[]):
     "_sigYEARpdf",  ## only signal 
     "_metYEARunclusterE", 
     "_prefireYEAR", "_jesYEAR",
-    "_jerYEAR", "_elemuTriggerYEAR" ,"_dimuTriggerYEAR","_dieleTriggerYEAR"]
+    "_jerYEAR", "_elemuTriggerYEAR" ,"_dimuTriggerYEAR","_dieleTriggerYEAR","fakeYEAR"]
 
     nuis_Final = []
     for nui in nuis_Init:
