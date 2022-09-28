@@ -39,10 +39,7 @@ parser.add_argument('--unblind',action='store_true')
 
 args = parser.parse_args()
 
-if args.year=='2017':
-    args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
-else:
-    args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
+args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
 
 with open('./data_info/nuisance_list.json'.format(args.year),'r') as f:
     nuisances = json.load(f)
