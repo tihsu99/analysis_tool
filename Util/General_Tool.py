@@ -25,3 +25,12 @@ def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category
         else:print("Warning: {} doesn't exist".format(sample_nuis_name))
     return h
 
+def MakePositive_Hist(Hist,value=0.0001):
+
+    H = copy.deepcopy(Hist) 
+
+    for ibin in range(Hist.GetNbinsX()):
+        if Hist.GetBinContent(ibin+1) < 0:
+            H.SetBinContent(ibin+1,value) #this is up to user
+        else:pass
+    return H

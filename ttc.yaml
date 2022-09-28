@@ -167,7 +167,7 @@ SR_ee:
     - ctagJER: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - ctagJES: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
-    #- chargeflipYEAR: [TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - chargeflipYEAR: [TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - fakeYEAR: [TTTo1L]
@@ -196,7 +196,7 @@ SR_ee:
     - ctagJER: shape
     - ctagJES: shape 
     - metYEARunclusterE: shape
-    #- chargeflipYEAR: shape
+    - chargeflipYEAR: shape
     - jesYEAR: shape
     - jerYEAR: shape 
     - fakeYEAR: 1.30

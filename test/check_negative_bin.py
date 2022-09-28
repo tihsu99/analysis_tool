@@ -112,7 +112,9 @@ for imass in masses:
                             
                             for ibin in range(Hist[Category].GetNbinsX()):
                                 if Hist[Category].GetBinContent(ibin+1) < 0:
-                                    print('Negative Value in bin {} in process {} in year {} in file: {}'.format(ibin,Category,iyear,rootfiilename))
+                                    Hist[Category].SetBinContent(ibin+1,0.001)
+                                    if Hist[Category].GetBinContent(ibin+1) < 0:
+                                        print('Negative Value in bin {} in process {} in year {} in file: {}'.format(ibin,Category,iyear,rootfiilename))
                             
                          
                     
