@@ -20,7 +20,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 #print(sys.path)
 import json
-from Util.General_Tool import MakeNuisance_Hist
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -38,7 +38,11 @@ parser.add_argument('--inputdir',help="Input directory, normally, you don't need
 parser.add_argument('--unblind',action='store_true')
 
 args = parser.parse_args()
-args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
+
+if args.year=='2017':
+    args.inputdir=args.inputdir+'_correct_weight/{}/ttc_a_rtc{}_MA{}'
+else:
+    args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
 
 with open('./data_info/nuisance_list.json'.format(args.year),'r') as f:
     nuisances = json.load(f)
@@ -127,6 +131,7 @@ for imass in masses:
                         if Hist[Category] is None:pass
                         else:
                             fout.cd()
+                            Hist[Category] = MakePositive_Hist(Hist[Category])
                             Hist[Category].Write()
                          
                     
