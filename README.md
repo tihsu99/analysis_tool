@@ -17,6 +17,7 @@ scramv1 b clean; scramv1 b # always make a clean build
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 cd $CMSSW_BASE/src
 # COMMENT FROM EFE: I don't understand the line below since it was already checkout with the comment two lines above, no? 
+# From Zheng-Gang: I'm not pretty sure about this. In Raman's code, he didn't mention that we need to install CombineHarvester if we need to implement plotImpact.py or combineTool.py etc. Thus I follow the Readme on https://github.com/cms-analysis/CombineHarvester, and did a little change. 
 git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 cd CombineHarvester
 scram b -j 6
