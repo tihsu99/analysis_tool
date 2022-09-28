@@ -12,6 +12,8 @@ parser.add_argument("-y", "--year", dest="year", default="2016postapv",choices=[
 #parser.add_argument("-m", "--model", dest="model", default="ExY")
 parser.add_argument("-c", "--category",  dest="category",default="all")
 parser.add_argument("-reg", nargs="+", default=["a", "b"])
+parser.add_argument("--reset",action="store_true")
+
 
 args = parser.parse_args()
 
@@ -42,8 +44,12 @@ doc_nuis   = yaml.safe_load(f_nuis)
 
 
 outdir = 'datacards_ttc_'+year
-os.system('mkdir -p '+ outdir)
+if args.reset:
+    print('Resetting the data_cards for {},{}'.format(year,category))
+    print('rm {}/ttc_datacard_{}_{}*'.format(outdir,year,category))
+    os.system('rm {}/ttc_datacard_{}_{}*'.format(outdir,year,category))
 
+os.system('mkdir -p '+ outdir)
 
 
 top_ = '''
@@ -52,7 +58,6 @@ jmax *  number of backgrounds
 
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 '''
-
 
 
 def getUpperPart2(reg,cat):
@@ -216,14 +221,11 @@ for reg in regions:
     fout.write("* autoMCStats 10 0 1  "+'\n')
     fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
     # fout.write(p1+'\n')
-    '''
     
     #fout.write('------------'+'\n')
     #fout.write(p+'\n')
     #fout.write(part4+'\n')
-    '''
     fout.close()
-
 
 
 '''

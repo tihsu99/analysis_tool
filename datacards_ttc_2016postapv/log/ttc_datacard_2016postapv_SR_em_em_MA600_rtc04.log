@@ -1,4 +1,0 @@
- <<< Combine >>> 
->>> random number generator seed is 123456
->>> method used is AsymptoticLimits
-Channel SR_em will use autoMCStats with settings: event-threshold=10, include-signal=0, hist-mode=1
