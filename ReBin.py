@@ -40,7 +40,7 @@ parser.add_argument('--unblind',action='store_true')
 args = parser.parse_args()
 
 if args.year=='2017':
-    args.inputdir=args.inputdir+'_correct_weight/{}/ttc_a_rtc{}_MA{}'
+    args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
 else:
     args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
 
@@ -91,10 +91,7 @@ for imass in masses:
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
                 ic_ = ic.replace("p","")
-                if iyear=='2017':
-                    inputdir_ = inputdir.format(iyear+'_correct_weight', ic_, str(imass)) 
-                else:
-                    inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
                 print (" fiilename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
                 print (inputdir_+"/"+filename_)
