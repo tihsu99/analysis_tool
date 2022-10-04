@@ -44,6 +44,10 @@ doc_nuis   = yaml.safe_load(f_nuis)
 
 
 outdir = 'datacards_ttc_'+year
+
+#remove the output directoty first
+os.system('rm -rf ' + outdir)
+
 if args.reset:
     print('Resetting the data_cards for {},{}'.format(year,category))
     print('rm {}/ttc_datacard_{}_{}*'.format(outdir,year,category))
