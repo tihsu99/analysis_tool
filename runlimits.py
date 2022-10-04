@@ -77,7 +77,8 @@ if not args.plot_only:
 
 ### scale the limits with cross-section 
 
-RL.getlimitScaled_1D(rtc_,0.01) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
+# set to 1 not to have any additional scales (before it was 0.01 - see below)
+RL.getlimitScaled_1D(rtc_,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
 
 ### convert text file to root file 
 RL.TextFileToRootGraphs()
