@@ -82,6 +82,10 @@ for iyear in years:
 
 Process_Categories = sample_names[iyear].keys()
 
+#First remove the output folder for the era to be processed
+print("rm -rf "+outputdir+"/"+iyear) 
+os.system("rm -rf "+outputdir+"/"+iyear)
+
 for imass in masses: 
     for ir in regions:
         for iyear in years:
