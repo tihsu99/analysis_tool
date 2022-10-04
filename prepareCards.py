@@ -223,7 +223,8 @@ for reg in regions:
     fout.write(p0+'\n')
     fout.write(p1+'\n')
     fout.write("* autoMCStats 10 0 1  "+'\n')
-    fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
+#   Since we have proper cross sections taken into account in the inputs we do not need this line below.    
+#    fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
     # fout.write(p1+'\n')
     
     #fout.write('------------'+'\n')
