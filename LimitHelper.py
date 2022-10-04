@@ -328,8 +328,8 @@ class RunLimits:
         print(limits)
         limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
         print(limits_merged)
-        for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
-            limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
+#        for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
+#            limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
             
         print(limits_merged)
         limits_merged.drop(axis=1,
