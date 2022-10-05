@@ -35,7 +35,7 @@ git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
 ### Initialization
 
-
+Note: the initialization is to be done only once. 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 
@@ -50,12 +50,12 @@ Note: at this moment, you also need to drop the corresponding term in ttc.yaml f
 
 ### Rebin and merging of processes 
 
-Move into LimitModel
 ```
-cd LimitModel; cmsenv 
+cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/ 
+cmsenv 
 ```
 
-Once input from Meng/others are ready in the form of plain histograms, normalised to cross-section x Lumi, use the ReBin.py macro to perform two main tasks: 
+Use the ReBin.py macro to perform two main tasks: 
 
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
 
