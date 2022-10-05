@@ -37,10 +37,12 @@ git clone git@github.com:ExtraYukawa/LimitModel.git
 
 
 ```
+cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 
 ```
 If you don't want _chargeflipYEAR nuisances, you can remove it through the argument --blacklist
 ```
+cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --blacklist _chargefilpYEAR  
 ```
 
