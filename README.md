@@ -63,7 +63,7 @@ Use the ReBin.py macro to perform two main tasks:
 
 Normally, you should use the following commands.
 ```
-python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output --outputdir ./FinalInputs
+python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output --outputdir ./FinalInputs
 
 ```
 
@@ -81,7 +81,7 @@ python ReBin.py -c all --Couplings 0p4 --y 2018
 Ex: For coupings values from 0.1 to 1.0 for all the dilepton channels in 2016postapv samples:
 ```
 
-python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2018 --Masses 200 300 350 400 500 600 700
+python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000
 
 ```
 
@@ -145,32 +145,32 @@ cd datacards_ttc_run2; combineCards.py d2016=../datacards_ttc_2016/ttc_datacard_
 
 #### 2016postapv
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c em --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
 ```
 
 #### 2016 apv 
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c em --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
 ```
 #### 2017
 ```
-python runlimits.py -c em --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c em --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c C --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
 ```
 #### 2018
 ```
-python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder 
-python runlimits.py -c C  --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 --outputdir your/favoured/output/folder
+python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder 
+python runlimits.py -c C  --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
 ```
 ```
 python runlimits.py -c em --rtc rtc08 -y 2018 
