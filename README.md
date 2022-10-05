@@ -30,6 +30,7 @@ source envsetter.sh
 ### Install the code 
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
+cd $CMSSW_BASE/src/HiggsAnalysis
 git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
 ### Initialization
