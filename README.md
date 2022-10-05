@@ -63,7 +63,7 @@ Use the ReBin.py macro to perform two main tasks:
 
 Normally, you should use the following commands.
 ```
-python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output --outputdir ./FinalInputs
+python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents --outputdir ./FinalInputs
 
 ```
 
