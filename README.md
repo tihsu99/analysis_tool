@@ -140,7 +140,12 @@ cd datacards_ttc_2018; combineCards.py em=ttc_datacard_2018_SR_em_em_template.tx
 
 rm -rf datacards_ttc_run2
 mkdir datacards_ttc_run2 
-cd datacards_ttc_run2; combineCards.py d2016=../datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_C_C_template.txt d2016apv=../datacards_ttc_2016apv/ttc_datacard_2016apv_SR_C_C_template.txt d2017=../datacards_ttc_2017/ttc_datacard_2017_SR_C_C_template.txt d2018=../datacards_ttc_2018/ttc_datacard_2018_SR_C_C_template.txt > ttc_datacard_run2_SR_C_C_template.txt; cd -
+cp datacards_ttc_2016apv/ttc_datacard_2016apv_SR_C_C_template.txt datacards_ttc_run2
+cp datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_C_C_template.txt datacards_ttc_run2
+cp datacards_ttc_2017/ttc_datacard_2017_SR_C_C_template.txt datacards_ttc_run2
+cp datacards_ttc_2018/ttc_datacard_2018_SR_C_C_template.txt datacards_ttc_run2
+cd datacards_ttc_run2
+combineCards.py year2016apv=ttc_datacard_2016apv_SR_C_C_template.txt year2016postapv=ttc_datacard_2016postapv_SR_C_C_template.txt year2017=ttc_datacard_2017_SR_C_C_template.txt year2018=ttc_datacard_2018_SR_C_C_template.txt > ttc_datacard_run2_SR_C_C_template.txt; cd -;
 ```
 
 ### Run the cards 
