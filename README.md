@@ -180,6 +180,10 @@ python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 7
 python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder 
 python runlimits.py -c C  --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
 ```
+### Run2
+```
+python runlimits.py -c C --rtc rtc04 -y run2 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir /eos/user/z/zhenggan/www/run2/2018 --plot_y_max 1000;
+```
 ```
 python runlimits.py -c em --rtc rtc08 -y 2018 
 python runlimits.py -c mm --rtc rtc08 -y 2018
