@@ -130,20 +130,12 @@ python prepareCards.py -y 2018 -c em -reg 'SR_em' --reset
 
 ### Combine the cards for all regions to make a jumbo card 
 ```
-rm -rf datacards_ttc_2016postapv;
-mkdir datacards_ttc_2016postapv; 
 cd datacards_ttc_2016postapv; combineCards.py em=ttc_datacard_2016postapv_SR_em_em_template.txt ee=ttc_datacard_2016postapv_SR_ee_ee_template.txt mm=ttc_datacard_2016postapv_SR_mm_mm_template.txt > ttc_datacard_2016postapv_SR_C_C_template.txt ; cd -
 
-rm -rf datacards_ttc_2016apv;
-mkdir datacards_ttc_2016apv; 
 cd datacards_ttc_2016apv; combineCards.py em=ttc_datacard_2016apv_SR_em_em_template.txt ee=ttc_datacard_2016apv_SR_ee_ee_template.txt mm=ttc_datacard_2016apv_SR_mm_mm_template.txt > ttc_datacard_2016apv_SR_C_C_template.txt ; cd -
 
-rm -rf datacards_ttc_2017;
-mkdir datacards_ttc_2017; 
 cd datacards_ttc_2017; combineCards.py em=ttc_datacard_2017_SR_em_em_template.txt ee=ttc_datacard_2017_SR_ee_ee_template.txt mm=ttc_datacard_2017_SR_mm_mm_template.txt > ttc_datacard_2017_SR_C_C_template.txt ; cd -
 
-rm -rf datacards_ttc_2018;
-mkdir datacards_ttc_2018; 
 cd datacards_ttc_2018; combineCards.py em=ttc_datacard_2018_SR_em_em_template.txt ee=ttc_datacard_2018_SR_ee_ee_template.txt mm=ttc_datacard_2018_SR_mm_mm_template.txt > ttc_datacard_2018_SR_C_C_template.txt ; cd -
 
 rm -rf datacards_ttc_run2
