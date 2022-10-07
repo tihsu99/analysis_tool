@@ -7,3 +7,4 @@ roostats-*.root
 *.root
 *.json
 *.pyc
+bin
