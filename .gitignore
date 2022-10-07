@@ -6,3 +6,4 @@ higgsCombine_C_201*_asimov_t_0_SignalExtractionChecks201*.FitDiagnostics.mH120.r
 roostats-*.root
 *.root
 *.json
+*.pyc
