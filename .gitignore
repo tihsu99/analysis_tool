@@ -13,3 +13,4 @@ JobList
 output
 err
 log
+*.cc
