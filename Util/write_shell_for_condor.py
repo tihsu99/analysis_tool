@@ -63,9 +63,12 @@ if args.mode=='Impact':
     f.write('year={}\n'.format(args.year))
     f.write('channel={}\n'.format(args.channel))
     f.write('datacard=datacards_ttc_{}/ttc_datacard_{}_SR_{}_{}_M{}{}_{}.txt\n'.format(args.year,args.year,args.channel,args.channel,args.higgs,args.mass_point,args.coupling_value))
+    f.write('start=$(date +%s)\n')
     f.write('\n\nsource runallchecks.sh $dirname $year $channel $datacard\n')
+    f.write('end=$(date +%s)\n')
+    f.write('echo "Elapsed Time: $(($end-$start)) seconds"\n')
     f.write('mv {}/* {}\n'.format(relative_outputdir,abs_outputdir))
-    f.write('rm -ifr {}'.format(relative_outputdir))
+    f.write('rm -ifr {}\n'.format(relative_outputdir))
 elif args.mode=='LimitPlot':
     massess_string = ''
     for mass_point in  args.Masses:
