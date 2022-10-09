@@ -39,17 +39,36 @@ if os.path.isfile(Script_File_path):
     os.system('rm -f {}'.format(Script_File_path))
 else:pass
 
-
 f= open(Script_File_path,'w') 
-f.write('source /cvmfs/cms.cern.ch/cmsset_default.sh \n\n')
-f.write('\ncd $WorkSpace\n\n')
-f.write('eval $(scram runtime -sh)')
 
-datacards = 'datacards_ttc_{}/ttc_datacard_{}_SR_{}_{}_M{}{}_{}.txt'.format(args.year,args.year,args.channel,args.channel,args.higgs,args.mass_point,args.coupling_value)
+f.write('source /cvmfs/cms.cern.ch/cmsset_default.sh \n\n')
+f.write('WorkDir={}\n\n'.format(WorkDir))
+f.write('\ncd $WorkDir\n\n')
+f.write('eval $(scram runtime -sh)\n')
+
+if args.mode =='Impact':
+    args.outputdir = os.path.join(args.outputdir,'SignalExtractionChecks{}'.format(args.year))
+    
+    if os.path.isdir(args.outputdir):
+        Result_Impact = os.path.join(args.outputdir,'impacts_t0_SignalExtractionChecks{}_{}.pdf'.format(args.year,args.channel))
+        if os.path.isfile(Result_Impact):
+            f.write("rm -f {}\n".format(Result_Impact))
+
+
+
+
+
+f.write('dirname={}\n'.format(args.outputdir))
+f.write('year={}\n'.format(args.year))
+f.write('channel={}\n'.format(args.channel))
+f.write('datacard=datacards_ttc_{}/ttc_datacard_{}_SR_{}_{}_M{}{}_{}.txt\n'.format(args.year,args.year,args.channel,args.channel,args.higgs,args.mass_point,args.coupling_value))
+
 
 if args.mode=='Impact':
-    f.write('\n\nsource runallchecks.sh {} {} {} {}'.format(args.outputdir,args.year,args.channel,datacards))
+    f.write('\n\nsource runallchecks.sh $dirname $year $channel $datacard')
 
 else:pass
+f.close()
 
-print('File Create -> '+Script_File_path)
+print('A new script file is created -> {}\n'.format(Script_File_path))
+print('Your {} result(s) will be saved under {}\n'.format(args.mode,args.outputdir))
