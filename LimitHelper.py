@@ -87,7 +87,7 @@ class RunLimits:
         print ("logname: ",logname)
         
         
-        command_ = "combine -M AsymptoticLimits "+dc+" " 
+        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_rtc"+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" > "+logname)
