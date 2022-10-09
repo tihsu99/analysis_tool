@@ -14,3 +14,4 @@ output
 err
 log
 *.cc
+combo.txt
