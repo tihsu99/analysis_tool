@@ -9,3 +9,7 @@ roostats-*.root
 *.pyc
 bin
 scripts
+JobList
+output
+err
+log
