@@ -41,7 +41,7 @@ f.write('log = ./log/$(ClusterId).$(ProcId).log\n')
 f.write('initialdir= {} \n'.format(WorkDir))
 f.write('when_to_transfer_output = ON_EXIT\n')
 f.write('request_cpus   = 10\n')
-f.write('+JobFlavour = "workday"\n')
+f.write('+JobFlavour = "tomorrow"\n')
 f.write('queue\n')
 
 
