@@ -36,10 +36,11 @@ parser.add_argument('-c','--category',help='List of dilepton channels. Default v
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
 parser.add_argument('--unblind',action='store_true')
-
+parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'])
 args = parser.parse_args()
 
-args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
+name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
+args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
 
 with open('./data_info/nuisance_list.json'.format(args.year),'r') as f:
     nuisances = json.load(f)
@@ -71,7 +72,7 @@ filename="TMVApp_{}_{}.root"
 ##print (filename_)
 
 
-signal_="TAToTTQ_rtcCOUPLIING_MAMASS"
+signal_="TAToTTQ_{}COUPLIING_MAMASS".format(args.Coupling_Name)
 
 sample_names = dict()
 
