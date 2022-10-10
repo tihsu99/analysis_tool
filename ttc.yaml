@@ -69,7 +69,7 @@ SR_em:
     - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
-    - fakeYEAR: [TTTo1L]
+    - fake: [TTTo1L]
 
   UnclnN:
     - lumiYEAR: shape
@@ -97,7 +97,7 @@ SR_em:
     - metYEARunclusterE: shape
     - jesYEAR: shape
     - jerYEAR: shape 
-    - fakeYEAR: 1.30
+    - fake: 1.30
 
 
 ## Signal Region ee
@@ -170,7 +170,7 @@ SR_ee:
     - chargeflipYEAR: [TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
-    - fakeYEAR: [TTTo1L]
+    - fake: [TTTo1L]
 
 
   UnclnN:
@@ -199,7 +199,7 @@ SR_ee:
     - chargeflipYEAR: shape
     - jesYEAR: shape
     - jerYEAR: shape 
-    - fakeYEAR: 1.30
+    - fake: 1.30
 
 
 ## Signal Region mm
@@ -271,7 +271,7 @@ SR_mm:
     - metYEARunclusterE: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
-    - fakeYEAR: [TTTo1L]
+    - fake: [TTTo1L]
 
 
 
@@ -301,4 +301,4 @@ SR_mm:
     - metYEARunclusterE: shape
     - jesYEAR: shape
     - jerYEAR: shape 
-    - fakeYEAR: 1.30
+    - fake: 1.30
