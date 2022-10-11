@@ -19,7 +19,6 @@ parser.add_argument('-y','--year',help='Years of data.',default='2017')
 parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=[''],nargs='*')
 
 #if os.path.isdir('')
-print(CURRENT_WORKDIR)
 if os.path.isdir(os.path.join(CURRENT_WORKDIR,'data_info')):pass
 else:
     print("You don't have directory: `{}` under {}".format('data_info', CURRENT_WORKDIR))
