@@ -46,6 +46,9 @@ SR_em:
   NuisForProc: 
     - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - sigYEARscale: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARpdf: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARps: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
     - muIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - muIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - eleIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
@@ -70,10 +73,24 @@ SR_em:
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - fake: [TTTo1L]
+    - norm_ttW: [ttWtoLNu]
+    - norm_TTTo1L: [TTTo1L]
+    - norm_TTTo2L: [TTTo2L]
+    - norm_TTToZZ: [ttVV]
+    - norm_TTToWW: [ttVV]
+    - norm_TTToZ: [ttV]
+    - norm_TTToW: [ttV]
+    - norm_tZq: [tzq]
+    - norm_tttW: [tttX]
+    - norm_tttt: [tttX]
+    - norm_WWW: [VVV]
 
   UnclnN:
     - lumiYEAR: shape
     - pileup: shape
+    - sigYEARscale: shape
+    - sigYEARpdf: shape
+    - sigYEARps: shape
     - muIDYEARsys: shape 
     - muIDYEARstat: shape
     - eleIDYEARsys: shape
@@ -98,6 +115,16 @@ SR_em:
     - jesYEAR: shape
     - jerYEAR: shape 
     - fake: 1.30
+    - norm_TTTo1L: 1.061
+    - norm_TTTo2L: 1.061
+    - norm_TTToZZ: 1.087
+    - norm_TTToWW: 1.114
+    - norm_TTToZ: 1.147
+    - norm_TTToW: 1.167
+    - norm_tZq: 1.10
+    - norm_tttW: 1.14
+    - norm_tttt: 1.264
+    - norm_WWW: 1.059
 
 
 ## Signal Region ee
@@ -147,6 +174,9 @@ SR_ee:
   NuisForProc: 
     - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - sigYEARscale: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARpdf: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARps: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
     - muIDYEARsys: []
     - muIDYEARstat: []
     - eleIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
@@ -171,11 +201,25 @@ SR_ee:
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L,ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT,TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - fake: [TTTo1L]
+    - norm_ttW: [ttWtoLNu]
+    - norm_TTTo1L: [TTTo1L]
+    - norm_TTTo2L: [TTTo2L]
+    - norm_TTToZZ: [ttVV]
+    - norm_TTToWW: [ttVV]
+    - norm_TTToZ: [ttV]
+    - norm_TTToW: [ttV]
+    - norm_tZq: [tzq]
+    - norm_tttW: [tttX]
+    - norm_tttt: [tttX]
+    - norm_WWW: [VVV]
 
 
   UnclnN:
     - lumiYEAR: shape
     - pileup: shape
+    - sigYEARscale: shape
+    - sigYEARpdf: shape
+    - sigYEARps: shape
     - muIDYEARsys: shape 
     - muIDYEARstat: shape
     - eleIDYEARsys: shape
@@ -200,6 +244,16 @@ SR_ee:
     - jesYEAR: shape
     - jerYEAR: shape 
     - fake: 1.30
+    - norm_TTTo1L: 1.061
+    - norm_TTTo2L: 1.061
+    - norm_TTToZZ: 1.087
+    - norm_TTToWW: 1.114
+    - norm_TTToZ: 1.147
+    - norm_TTToW: 1.167
+    - norm_tZq: 1.10
+    - norm_tttW: 1.14
+    - norm_tttt: 1.264
+    - norm_WWW: 1.059
 
 
 ## Signal Region mm
@@ -248,6 +302,9 @@ SR_mm:
   NuisForProc: 
     - lumiYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - pileup: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
+    - sigYEARscale: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARpdf: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
+    - sigYEARps: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT]
     - muIDYEARsys: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - muIDYEARstat: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - eleIDYEARsys: []
@@ -272,12 +329,25 @@ SR_mm:
     - jesYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - jerYEAR: [TAToTTQ_COUPLINGVALUE_MAMASSPOINT, TTTo2L, ttWtoLNu, ttVV, ttV, tttX, VVV, t_tbar_W, tt_V_H, DY, tzq]
     - fake: [TTTo1L]
-
+    - norm_ttW: [ttWtoLNu]
+    - norm_TTTo1L: [TTTo1L]
+    - norm_TTTo2L: [TTTo2L]
+    - norm_TTToZZ: [ttVV]
+    - norm_TTToWW: [ttVV]
+    - norm_TTToZ: [ttV]
+    - norm_TTToW: [ttV]
+    - norm_tZq: [tzq]
+    - norm_tttW: [tttX]
+    - norm_tttt: [tttX]
+    - norm_WWW: [VVV]
 
 
   UnclnN:
     - lumiYEAR: shape
     - pileup: shape
+    - sigYEARscale: shape
+    - sigYEARpdf: shape
+    - sigYEARps: shape
     - muIDYEARsys: shape 
     - muIDYEARstat: shape
     - eleIDYEARsys: shape
@@ -302,3 +372,14 @@ SR_mm:
     - jesYEAR: shape
     - jerYEAR: shape 
     - fake: 1.30
+    - norm_TTTo1L: 1.061
+    - norm_TTTo2L: 1.061
+    - norm_TTToZZ: 1.087
+    - norm_TTToWW: 1.114
+    - norm_TTToZ: 1.147
+    - norm_TTToW: 1.167
+    - norm_tZq: 1.10
+    - norm_tttW: 1.14
+    - norm_tttt: 1.264
+    - norm_WWW: 1.059
+
