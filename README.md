@@ -38,15 +38,18 @@ git clone git@github.com:ExtraYukawa/LimitModel.git
 Note: the initialization is to be done only once. 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
-python Init.py --year 2017 
+python Init.py --year 2017 --channel all
+python Init.py --year 2018 --channel all
+python Init.py --year 2016apv --channel all
+python Init.py --year 2016postapv --channel all
+
 ```
-If you don't want _chargeflipYEAR nuisances, you can remove it through the argument --blacklist
+If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
-python Init.py --year 2017 --blacklist _chargefilpYEAR  
+python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
 
-Note: at this moment, you also need to drop the corresponding term in ttc.yaml for sure. -> This will be made automatically as soon as possible.
 
 ### Rebin and merging of processes 
 
@@ -63,33 +66,23 @@ Use the ReBin.py macro to perform two main tasks:
 
 Normally, you should use the following commands.
 ```
-python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents --outputdir ./FinalInputs
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents; 
 
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents;
+
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents;
+
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents;`
 ```
 
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
+If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
+```
+python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents -q; 
+```
+
 And once this step is done, there are several rebined root files under FinalInputs or your favoured output directory.
 
-
-
-Ex: For coupling value 0.4 for all the dilepton channels in 2016postapv samples:
-
-```
-python ReBin.py -c all --Couplings 0p4 --y 2018
-
-``` 
-Ex: For coupings values from 0.1 to 1.0 for all the dilepton channels in 2016postapv samples:
-```
-
-python ReBin.py -c all --Couplings 0p1 0p4 0p8 1p0 --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000
-
-```
-
-
-You can see the rough description through the following commands
-```
-python ReBin.py --h
-```
 
 
 #Before running the macro, some values needs to be set, specially the input and output paths. 
@@ -152,92 +145,49 @@ combineCards.py year2016apv=ttc_datacard_2016apv_SR_C_C_template.txt year2016pos
 
 #### 2016postapv
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c mm --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c ee --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c C --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
 ```
 
 #### 2016 apv 
 ```
-python runlimits.py -c em --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c em --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c mm --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c ee --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c C --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
 ```
 #### 2017
 ```
-python runlimits.py -c em --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c C --rtc rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c em --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c mm --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c ee --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c C --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
 ```
 #### 2018
 ```
-python runlimits.py -c em --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c mm --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
-python runlimits.py -c ee --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder 
-python runlimits.py -c C  --rtc rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder
+python runlimits.py -c em --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c mm --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c ee --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder] 
+python runlimits.py -c C  --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
 ```
 ### Run2
 ```
-python runlimits.py -c C --rtc rtc04 -y run2 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir your/favoured/output/folder ;
+python runlimits.py -c C --Couplings rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
+python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
+python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
+python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
 ```
-```
-python runlimits.py -c em --rtc rtc08 -y 2018 
-python runlimits.py -c mm --rtc rtc08 -y 2018
-python runlimits.py -c ee --rtc rtc08 -y 2018
-python runlimits.py -c C --rtc rtc08 -y 2018
-```
-
-
-#### run 2 
-```
-python runlimits.py -c C --rtc rtc01 -y run2	
-python runlimits.py -c C --rtc rtc04 -y run2	
-python runlimits.py -c C --rtc rtc08 -y run2	
-python runlimits.py -c C --rtc rtc10 -y run2	
-```
-
+But, generally, it would take about 8 hrs to finish the calculation for full run2 limit plots, thus, it would be good to run it on condor, and here we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for example:
 
 ```
-python runlimits.py -c em --rtc rtc01 -y 2017 
-python runlimits.py -c mm --rtc rtc01 -y 2017
-python runlimits.py -c ee --rtc rtc01 -y 2017
-python runlimits.py -c C --rtc rtc01 -y 2017
+python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --Masses 200 300 350 400 500 600 700 --higgs A --mode LimitPlot --outputdir [your/favoured/output/folder]
+python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_LimitPlot_for_C_run2.sh 
+condor_submit ./scripts/condor.sub 
 ```
-```
-python runlimits.py -c em --rtc rtc08 -y 2017 
-python runlimits.py -c mm --rtc rtc08 -y 2017
-python runlimits.py -c ee --rtc rtc08 -y 2017
-python runlimits.py -c C --rtc rtc08 -y 2017
-```
-```
-python runlimits.py -c em --rtc rtc10 -y 2017 
-python runlimits.py -c mm --rtc rtc10 -y 2017
-python runlimits.py -c ee --rtc rtc10 -y 2017
-python runlimits.py -c C --rtc rtc10 -y 2017
-```
-```
-python runlimits.py -c em --rtc rtc01 
-python runlimits.py -c mm --rtc rtc01
-python runlimits.py -c ee --rtc rtc01
-python runlimits.py -c C --rtc rtc01
+####
 
-```
-
-```
-python runlimits.py -c em --rtc rtc08
-python runlimits.py -c mm --rtc rtc08
-python runlimits.py -c ee --rtc rtc08
-python runlimits.py -c C --rtc rtc08
-```
-```
-python runlimits.py -c em --rtc rtc10
-python runlimits.py -c mm --rtc rtc10
-python runlimits.py -c ee --rtc rtc10
-python runlimits.py -c C --rtc rtc10
-```
 
 ## For impacts and pulls 
 source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
@@ -245,6 +195,12 @@ source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/
 source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
 * autoMCStats 10 0 1
 
+Same as the case for combined one in limit plot calculation ,condor job is strongly suggested. And here, we take rtc0p4 full run2 limit plot for example as well:
+```
+python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --mass_point 300 --higgs A --mode Impact --outputdir /eos/user/z/zhenggan/www/run2/Impacts/
+python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
+condor_submit ./scripts/condor.sub
+```
 
 ## For signal shape comparison 
 python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
