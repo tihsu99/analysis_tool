@@ -17,19 +17,19 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling=0.1, model="extYukawa"):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa"):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
         self.postfix_              = postfix
         self.model_                = model
-        self.coupling_             = coupling
+        self.coupling_             = coupling_value
         self.coupling_str_         = str(self.coupling_).replace(".","p")
         
-        self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_rtc"+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
+        self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
         self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
         self.limit_root_file       = self.limitlog_scaled.replace(".txt",".root")
-
+        self.Coupling = coupling
         #self.runmode = runmode
         print "class instantiation done"
         
@@ -87,7 +87,7 @@ class RunLimits:
         print ("logname: ",logname)
         
         
-        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_rtc"+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
+        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" > "+logname)
@@ -283,7 +283,7 @@ class RunLimits:
         
         latex.DrawLatex(0.20, 0.7, "ttc  "+self.analysisbin_);
         latex.DrawLatex(0.20, 0.64, "Extra Yukawa");
-        latex.DrawLatex(0.15, 0.58, "rtc ="+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
+        latex.DrawLatex(0.15, 0.58, "{} =".format(self.Coupling)+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
@@ -316,15 +316,37 @@ class RunLimits:
         
         df = pd.read_fwf("ttc_cross_sections.txt")
         xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
-        xs.drop(axis=1,labels=["PID","rhotu","rhott","Err_cross_section"], inplace=True)
-        
-        limits = pd.read_csv(limit_file_in, delimiter=" ", names=["rhotc","Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
-        limits["rtc"] = 0.4 ## this is dummy value
-        
-        xs_skim_ = xs[xs.rhotc==rtc_]
-        xs_rtc_  = xs_skim_.set_index(["rhotc","Mass"])
-        limits.rhotc = limits.rhotc*0.1
-        limits=limits.set_index(["rhotc","Mass"])
+        xs.drop(axis=1,labels=["PID","Err_cross_section"], inplace=True)
+        Drop_index = []
+        if self.Coupling =='rtc':
+            index_name = 'rhotc'
+            Drop_index.append('rhotu')
+            Drop_index.append('rhott')
+        elif self.Coupling =='rtu':
+            index_name = 'rhotu'
+            Drop_index.append('rhotc')
+            Drop_index.append('rhott')
+        elif self.Coupling =='rtt':
+            index_name = 'rhott'
+            Drop_index.append('rhotu')
+            Drop_index.append('rhotc')
+        else:raise ValueError('')
+        limits = pd.read_csv(limit_file_in, delimiter=" ", names=[index_name,"Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
+        #limits[self.Coupling] = 0.4 ## this is dummy value
+        print(limits) 
+        #print(limits['rhotc'])
+        if self.Coupling =='rtc':
+            xs_skim_ = xs[xs.rhotc==rtc_]
+            limits.rhotc = limits.rhotc
+        elif self.Coupling =='rtu':
+            limits.rhotu = limits.rhotu
+            xs_skim_ = xs[xs.rhotu==rtc_]
+        elif self.Coupling =='rtt':
+            limits.rhott = limits.rhott
+            xs_skim_ = xs[xs.rhott==rtc_]
+        else:raise ValueError('')
+        xs_rtc_  = xs_skim_.set_index([index_name,"Mass"])
+        limits=limits.set_index([index_name,"Mass"])
         print(limits)
         limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
         print(limits_merged)
@@ -333,7 +355,7 @@ class RunLimits:
             
         print(limits_merged)
         limits_merged.drop(axis=1,
-                           labels=["rtc","cross_section"],
+                           labels=[Drop_index[0],Drop_index[1],"cross_section"],
                            inplace=True)
         
         limits_scaled = limits_merged
