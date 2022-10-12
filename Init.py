@@ -10,16 +10,18 @@ sys.path.append(CURRENT_WORKDIR)
 
 from Init_Tool.Sample_Name_Producer import Bkg_MC_SAMPLE_NAME
 from Init_Tool.Nuisance_Producer import nui_producer
+from Init_Tool.Datacards_Input import Datacard_Input_Producer
+from Util.General_Tool import CheckDir 
 
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-y','--year',help='Years of data.',default='2017')
+parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=['ee','mm','em',"all"])
 
 parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=[''],nargs='*')
 
 #if os.path.isdir('')
-print(CURRENT_WORKDIR)
 if os.path.isdir(os.path.join(CURRENT_WORKDIR,'data_info')):pass
 else:
     print("You don't have directory: `{}` under {}".format('data_info', CURRENT_WORKDIR))
@@ -27,5 +29,28 @@ else:
     print("Dir: data_info is made now.")
 
 args = parser.parse_args()
-Bkg_MC_SAMPLE_NAME(year=args.year)
-nui_producer(year=args.year,blacklist=args.blacklist)
+### Write MC samples name ########################
+CheckDir("data_info/Sample_Names/",MakeDir=True)
+Bkg_MC_SAMPLE_NAME(year=args.year,outputdir="data_info/Sample_Names/")
+####Write Nuisances List #########################
+CheckDir("./data_info/NuisanceList",MakeDir=True)
+nuisances_for_data_card = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList')
+
+####Datacard Input #################################
+CheckDir("data_info/Datacard_Input/{}/".format(args.year),MakeDir=True)
+
+
+
+
+with open('./data_info/Sample_Names/process_name_{}.json'.format(args.year),'r') as f:
+    NAME = json.load(f)
+
+process = NAME.keys()
+
+if args.channel=='all':
+    for channel in ['ee','mm','em']:
+        Datacard_Input_Producer(year=args.year,channel=channel,nuisances=nuisances_for_data_card,process=process)
+else:
+    Datacard_Input_Producer(year=args.year,channel=args.channel,nuisances=nuisances_for_data_card,process=process)
+############################
+

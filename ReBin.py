@@ -36,21 +36,14 @@ parser.add_argument('-c','--category',help='List of dilepton channels. Default v
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
 parser.add_argument('--unblind',action='store_true')
-
+parser.add_argument('-q','--quiet',action='store_true')
+parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'])
 args = parser.parse_args()
 
-args.inputdir=args.inputdir+'/{}/ttc_a_rtc{}_MA{}'
-
-with open('./data_info/nuisance_list.json'.format(args.year),'r') as f:
-    nuisances = json.load(f)
-
-print(nuisances)
+name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
+args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
 
 
-variations=["Up", "Down"]
-
-allvariations= [inuis+iv for iv in variations for inuis in nuisances]
-allvariations.append("")
 #print ("allvariations: ", allvariations)
 if 'all' in args.category:
     regions = ["ee","mm","em"]
@@ -71,14 +64,19 @@ filename="TMVApp_{}_{}.root"
 ##print (filename_)
 
 
-signal_="TAToTTQ_rtcCOUPLIING_MAMASS"
+signal_="TAToTTQ_{}COUPLIING_MAMASS".format(args.Coupling_Name)
 
 sample_names = dict()
-
+nuisances = dict()
 for iyear in years:
-    with open('./data_info/process_name_{}.json'.format(iyear),'r') as f:
+    with open('./data_info/Sample_Names/process_name_{}.json'.format(iyear),'r') as f:
         sample_names[iyear] = json.load(f)
-
+    with open('./data_info/NuisanceList/nuisance_list_{}.json'.format(iyear),'r') as f:
+        
+        Nuisances_dict = json.load(f)
+    nuisances[iyear] = []
+    for key in Nuisances_dict.keys():
+        nuisances[iyear].append(str(Nuisances_dict[key]))
 
 Process_Categories = sample_names[iyear].keys()
 
@@ -86,9 +84,15 @@ Process_Categories = sample_names[iyear].keys()
 print("rm -rf "+outputdir+"/"+iyear) 
 os.system("rm -rf "+outputdir+"/"+iyear)
 
-for imass in masses: 
+for iyear in years:
+    print(nuisances)
+
+    variations=["Up", "Down"]
+
+    allvariations= [inuis+iv for iv in variations for inuis in nuisances[iyear]]
+    allvariations.append("")
     for ir in regions:
-        for iyear in years:
+        for imass in masses: 
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
                 ic_ = ic.replace("p","")
@@ -125,7 +129,7 @@ for imass in masses:
                         
                         Category = str(Category)
                         f_in.cd()
-                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear)
+                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear,q=args.quiet)
                         if Hist[Category] is None:pass
                         else:
                             fout.cd()

@@ -67,7 +67,9 @@ if args.mode=='Impact':
     f.write('\n\nsh runallchecks.sh $dirname $year $channel $datacard\n')
     f.write('end=$(date +%s)\n')
     f.write('echo "Elapsed Time: $(($end-$start)) seconds"\n')
-    f.write('mv {} {}\n'.format(relative_outputdir,args.outputdir))
+    f.write('rm -ifr {}/{}\n'.format(args.outputdir,relative_outputdir))
+    f.write('mkdir {}/{}\n'.format(args.outputdir,relative_outputdir))
+    f.write('mv -r {} {}/{}\n'.format(relative_outputdir,args.outputdir,relative_outputdir))
     f.write('rm -ifr {}\n'.format(relative_outputdir))
 elif args.mode=='LimitPlot':
     massess_string = ''
@@ -78,7 +80,7 @@ elif args.mode=='LimitPlot':
     #coupling_value = args.coupling_value.split('rtc')[-1]
     #####################
 
-    f.write('python runlimits.py -c {} --rtc {} -y {} --Masses {} --outputdir {}\n'.format(args.channel,args.coupling_value,args.year,massess_string,args.outputdir))
+    f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --outputdir {}\n'.format(args.channel,args.coupling_value,args.year,massess_string,args.outputdir))
 else:pass
 f.close()
 

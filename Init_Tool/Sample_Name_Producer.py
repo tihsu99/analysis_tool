@@ -1,17 +1,23 @@
 import json 
+from Util.General_Tool import CheckFile
 '''
 You need to fill in the process name for MC sample in root file manually.
 
 '''
 
-def Bkg_MC_SAMPLE_NAME(year=''):
+def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     SAMPLE=dict()
     SAMPLE['DY'] = []
     SAMPLE['TTTo1L'] = []
     SAMPLE['TTTo2L'] = []
     SAMPLE['ttWtoLNu'] = []
-    SAMPLE['ttVV'] = []
-    SAMPLE['ttV'] = []
+    #SAMPLE['ttVV'] = []
+    #SAMPLE['ttV'] = []
+    SAMPLE['ttZ'] = []
+    SAMPLE['ttWW'] = []
+    SAMPLE['ttWZ'] = []
+    SAMPLE['ttZZ'] = []
+    
     SAMPLE['tttX'] = []
     SAMPLE['VVV'] = []
     SAMPLE['t_tbar_W'] = []
@@ -37,16 +43,16 @@ def Bkg_MC_SAMPLE_NAME(year=''):
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     ## ttVV ##
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttVV'].append('ttWW')
-        SAMPLE['ttVV'].append('ttWZ')
-        SAMPLE['ttVV'].append('ttZZ')
+        SAMPLE['ttWW'].append('ttWW')
+        SAMPLE['ttWZ'].append('ttWZ')
+        SAMPLE['ttZZ'].append('ttZZ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### ttV ###
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttV'].append('ttZ')
-        SAMPLE['ttV'].append('ttZtoQQ')
-        SAMPLE['ttV'].append('ttWtoQQ')
+        SAMPLE['ttZ'].append('ttZ')
+        SAMPLE['ttZ'].append('ttZtoQQ')
+        SAMPLE['ttWtoLNu'].append('ttWtoQQ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tttX ###
@@ -106,7 +112,8 @@ def Bkg_MC_SAMPLE_NAME(year=''):
 #            SAMPLE['VV'].append('WZ')          
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
-    with open('./data_info/process_name_{}.json'.format(year),'w') as f:
+    CheckFile('{}/process_name_{}.json'.format(outputdir,year),True)
+    with open('{}/process_name_{}.json'.format(outputdir,year),'w') as f:
 
         json.dump(SAMPLE,f,indent=4)
 

@@ -4,7 +4,9 @@ import numpy as np
 from collections import OrderedDict
 import pandas as pd
 import sys, optparse,argparse
-
+from Util.Tool_In_prepareCard import *
+from Util.General_Tool import CheckFile
+import json
 ## ----- command line argument
 usage = "python prepareCards.py -y 2017 -c em -reg 'SR_em'"
 parser = argparse.ArgumentParser(description=usage)
@@ -26,7 +28,7 @@ regions  = args.reg
 
 
 #print (year,regions)#, category, regions, modelName)
-
+'''
 if category=='em' or category=='ee' or category=='mm':
     f = open('ttc.yaml')
 else:
@@ -34,7 +36,7 @@ else:
     exit 
 
 doc = yaml.safe_load(f)
-
+'''
 
 
 
@@ -61,7 +63,7 @@ jmax *  number of backgrounds
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 '''
 
-
+'''
 def getUpperPart2(reg,cat):
     ## old version to be kept
     #top_= 'shapes * '+reg+' ttc_'+year+'_WS.root ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS ws_ttc_'+cat+'_'+year+':ttc2017_'+cat+'_'+reg+'_$PROCESS_$SYSTEMATIC'+'\n'
@@ -112,10 +114,10 @@ def getProcSyst(lists):
 		else:values.append('lnN')
 		
 		for proc in procs:
-			# print nuis,NuisForProc[ij]
+			print nuis,NuisForProc[ij]
 
 			if proc in  (NuisForProc[ij])[nuis]:
-				if syst=='shape':
+                                if syst=='shape':
 					values.append(1)
 				else:
 					values.append(syst)
@@ -164,7 +166,7 @@ def getProcRate(lists):
     # print (lists['rateTest'])
     
     return binProcRate
-
+'''
 
 print("=======================")
 print("START WRITING DATACARDS")
@@ -174,6 +176,9 @@ print("=======================")
 for reg in regions:
     outputfile = 'ttc_datacard_'+year+'_'+reg+'_'+category+'_template.txt'
     #delete the datacard before creating
+    CheckFile('{}/{}'.format(outdir,outputfile),True)
+    
+    '''
     os.system('rm {}/ttc_datacard_{}_{}*'.format(outdir,year,category))    
 	
     #print ("reg:",reg)
@@ -231,6 +236,73 @@ for reg in regions:
     #fout.write(p+'\n')
     #fout.write(part4+'\n')
     fout.close()
+    '''
+    with open('./data_info/Datacard_Input/{}/Datacard_Input_{}.json'.format(year,category),'r') as f:
+        Datacards_Input = json.load(f)
+    with open('./data_info/NuisanceList/nuisance_list_{}.json'.format(year),'r') as f:
+        nuisance_ordered_list = json.load(f)
+
+    #print(len(nuisance_ordered_list.keys()))
+    
+    df0 = pd.DataFrame(Get_BinProcRate(Datacards_Input))
+    #delete the datacard before creating
+    #os.system('rm {}/ttc_datacard_{}_{}*'.format(outdir,year,category))    
+	
+    #print ("reg:",reg)
+    #print ("doc[reg]: {}".format(doc[reg]))
+    #print("getbinProcRate(doc[reg]): {}".format(getbinProcRate(doc[reg])))
+    
+    
+    #print(getbinProcRate(doc[reg]))
+    
+    
+    df0 = df0.rename(columns={"process1":"process"})   ## replacing process1 by process
+    df1 =  pd.DataFrame(Get_ProcSyst(Datacards_Input,nuisance_ordered_list))
+
+    
+    df1 =  df1.replace("LUMIVAL",doc_nuis["LUMIVAL"]["y"+str(year)])
+    df1.rename(columns=lambda s: s.replace("YEAR", year), inplace=True)
+    if (year=="2018"):
+        df1.rename(columns={"prefire2018":"###prefire2018"},inplace=True)
+    
+    fout = open(outdir+'/'+outputfile,'w')
+    p0 = df0.T.to_string(justify='right',index=True, header=False)
+    p1 = df1.T.to_string(justify='right',index=True, header=False)
+    
+    part1 = top_
+    part2 = getUpperPart2(reg,year)
+    part2 = part2.replace("CHANNELNAME",category)
+    #part2 = part2.replace("../datacards_ttc_2016","")
+    #part2 = part2.replace("../datacards_ttc_2017","")
+    #part2 = part2.replace("../datacards_ttc_2018","")
+    
+    print ("part2: ",part2)
+    part3 = getUpperPart3(reg)
+    #part4 = getEndPart(reg)
+    
+    fout.write(part1+'\n')
+    fout.write('------------'+'\n')
+    fout.write(part2+'\n')
+    fout.write('------------'+'\n')
+    fout.write(part3+'\n')
+    fout.write('observation -1'+'\n')
+    fout.write('------------'+'\n')
+    
+ 
+    fout.write(p0+'\n')
+    fout.write(p1+'\n')
+    fout.write("* autoMCStats 10 0 1  "+'\n')
+#   Since we have proper cross sections taken into account in the inputs we do not need this line below.    
+#    fout.write("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT 0.01 [0.009999,0.01111]"+'\n')
+    # fout.write(p1+'\n')
+    
+    #fout.write('------------'+'\n')
+    #fout.write(p+'\n')
+    #fout.write(part4+'\n')
+    fout.close()
+    print(outdir+'/'+outputfile+' is prepared!')
+    print("===================================================")
+    print("")
 
 
 '''
