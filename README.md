@@ -92,8 +92,9 @@ The new output files are then used for the limit extraction.
 
 ### Create template card for one region  datacards 
 The next step is to create the datacards. The input needed for making datacards are; 
-1. *.root file from previous step 
-2. ttc.yaml file which has all the information about the nuisnaces and processes. 
+1. data_info/Datacard_Input/{Year}/Datacard_Input_{channel}.json
+2. data_info/Sample_Names/process_name_{year}.json
+3. data_info/NuisanceList/nuisance_list_{year}_{channel}.json
 
 The datacards for each decay mode, each year can be created using following syntax, just copy paste them to terminal and wait for it to be over. 
 
