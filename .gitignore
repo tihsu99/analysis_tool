@@ -15,4 +15,4 @@ err
 log
 *.cc
 combo.txt
-#.log
+*.log
