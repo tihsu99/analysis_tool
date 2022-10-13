@@ -2,7 +2,7 @@ import os
 import numpy as np 
 import sys, optparse,argparse
 from LimitHelper import *
-
+from Util.General_Tool import CheckFile
 couplings_List = ['rtc','rtu','rtt']
 cp_values_List = ['01','04','08','09']
 coupling_value_choices=[]
@@ -26,8 +26,8 @@ parser.add_argument("--outputdir",help='Create your favour outputdir. (If the di
 
 args = parser.parse_args()
 
-category = args.category
-coupling_value=args.coupling_value
+category = args.category # i.e., channel: ee, em, mm
+coupling_value=args.coupling_value # e.g, rtc04
 year     = args.year
 
 print ("coupling: ",coupling_value)
@@ -48,30 +48,37 @@ _value = ''
 
 for cpling in couplings_List:
     if cpling in coupling_value:
-        _coupling = cpling
-        _value=int(coupling_value.split(cpling)[-1])*0.1
+        _coupling = cpling  # Gives coupling : rtc, rtu, rtt
+        _value=int(coupling_value.split(cpling)[-1])*0.1 # Gives coupling value in float: 0.1, 0.4, 0.8, 1.0
     else:pass
 print(_coupling,_value)
-RL  = RunLimits(year,"ttc", category, "asimov", coupling=_coupling,coupling_value=_value) 
+RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value) 
 
 print ("self.limitlog: ",RL.limitlog)
 
-counter=0
 import time
 
 
 start_time = time.time()
+if args.plot_only:
+    if not CheckFile(RL.limitlog,RemoveFile=False): raise ValueError("You don't have {} .".format(RL.limitlog))
+    if not CheckFile(RL.limitlog,RemoveFile=False): raise ValueError("You don't have {} .".format(RL.limit_root_file))
 
-if not args.plot_only:
+else:
+    CheckFile(RL.limitlog,True)
+    CheckFile(RL.limitlog_scaled,True)
+    CheckFile(RL.limit_root_file,True)
+    counter=0
     for imass in mass_points:
         mA = str(imass)
-        rtc = coupling_value.split("rtc")[-1]
+        rtc = coupling_value.split("rtc")[-1] # Gives coupling value in string with "." -> "p": 0p1, 0p4, 0p8, 1p0
         
         print ("{}: {}".format(_coupling,rtc))
-        parameters = "MA"+str(imass)+"_"+coupling_value
+        parameters = "MA"+str(imass)+"_"+coupling_value # MA200_rtc0p4, for example.
         card_name = template_card.replace("template",parameters)
-        print ("card_name: ", card_name)
+        Check_File(card_name,Remove_File=True)
         
+
         fout = open(card_name,'w')
         dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_tmplate] )
         dc_out =  ([iline.replace("COUPLINGVALUE",coupling_value) for iline in dc_out] ) ## mind that now it is dc_out
@@ -80,13 +87,14 @@ if not args.plot_only:
         
         fout.writelines(dc_out)
         fout.close()
+        print ("\nA new datacard: {} is created\n".format( card_name))
         
         logname = RL.getLimits(card_name)
         
         mode_ = "a"
         
         if counter==0: mode_="w"
-        param_list=(mA,_value)
+        param_list=(mA,_value) # e.g., (200,0.4)
         limitlogfile = RL.LogToLimitList(logname,param_list,mode_)
         counter=counter+1
 ## this is out of the for loop 
@@ -94,7 +102,7 @@ if not args.plot_only:
 ### scale the limits with cross-section 
 
 # set to 1 not to have any additional scales (before it was 0.01 - see below)
-RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
+#RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
 
 ### convert text file to root file 
 RL.TextFileToRootGraphs()
