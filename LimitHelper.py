@@ -27,8 +27,8 @@ class RunLimits:
         self.coupling_str_         = str(self.coupling_).replace(".","p")
         
         self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
-        self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
-        self.limit_root_file       = self.limitlog_scaled.replace(".txt",".root")
+        #self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
+        self.limit_root_file       = self.limitlog.replace(".txt",".root")
         self.Coupling = coupling
         #self.runmode = runmode
         print "class instantiation done"
@@ -134,7 +134,7 @@ class RunLimits:
 
 
     def TextFileToRootGraphs(self,med_idx=0):
-        filename = self.limitlog_scaled
+        filename = self.limitlog
         limit_root_file = filename.replace(".txt",".root")
         
         f = open(filename,"r")
@@ -292,7 +292,7 @@ class RunLimits:
         print(OUT_DIR)
         #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
 
-        self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin/",outputdir+"/plots_limit/")
+        self.limit_pdf_file  = rootfile.replace(".root",".pdf").replace("bin/",outputdir+"/plots_limit/")
         #self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin","plot_limit")
         #c.SetLogx(1)
         c.Update()
@@ -310,12 +310,24 @@ class RunLimits:
         
 
 
-    def getlimitScaled_1D(self, rtc_=0.1, divisionfactor=10000000000):
+    def getlimitScaled_1D(self, coupling_value=0.1, divisionfactor=10000000000):
         limit_file_in  = self.limitlog
         limit_file_out = self.limitlog_scaled
         
         df = pd.read_fwf("ttc_cross_sections.txt")
-        xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
+        
+        print('xs_before\n{}'.format(df))
+        
+        if self.Coupling == 'rtc': 
+            xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
+        elif self.Coupling =='rtu':
+            xs = df[(df.rhotc==0) & (df.rhott==0) & (df.PID=="a0")]
+        else:
+            xs = df[(df.rhotu==0) & (df.rhotc==0) & (df.PID=="a0")]
+
+        print('xs_after\n'.format(xs))
+
+
         xs.drop(axis=1,labels=["PID","Err_cross_section"], inplace=True)
         Drop_index = []
         if self.Coupling =='rtc':
@@ -330,30 +342,28 @@ class RunLimits:
             index_name = 'rhott'
             Drop_index.append('rhotu')
             Drop_index.append('rhotc')
-        else:raise ValueError('')
+        else:raise ValueError("We haven't set this coupling :{}".format(self.Coupling))
         limits = pd.read_csv(limit_file_in, delimiter=" ", names=[index_name,"Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
         #limits[self.Coupling] = 0.4 ## this is dummy value
         print(limits) 
         #print(limits['rhotc'])
         if self.Coupling =='rtc':
-            xs_skim_ = xs[xs.rhotc==rtc_]
-            limits.rhotc = limits.rhotc
+            xs_skim_ = xs[xs.rhotc==coupling_value]
+            limits.rhotc = limits.rhotc * 0.1
         elif self.Coupling =='rtu':
-            limits.rhotu = limits.rhotu
-            xs_skim_ = xs[xs.rhotu==rtc_]
+            limits.rhotu = limits.rhotu * 0.1
+            xs_skim_ = xs[xs.rhotu==coupling_value]
         elif self.Coupling =='rtt':
-            limits.rhott = limits.rhott
-            xs_skim_ = xs[xs.rhott==rtc_]
+            limits.rhott = limits.rhott * 0.1
+            xs_skim_ = xs[xs.rhott==coupling_value]
         else:raise ValueError('')
-        xs_rtc_  = xs_skim_.set_index([index_name,"Mass"])
+        xs_Mass_  = xs_skim_.set_index([index_name,"Mass"])
+        print('xs_Mass_\n{}'.format(xs_Mass_))
         limits=limits.set_index([index_name,"Mass"])
-        print(limits)
-        limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
-        print(limits_merged)
-#        for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
-#            limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
+        print('limits\n{}'.format(limits))
+        limits_merged = limits.merge(xs_Mass_, left_index=True, right_index=True, how='outer')
+        print('limits_merged\n{}'.format(limits_merged))
             
-        print(limits_merged)
         limits_merged.drop(axis=1,
                            labels=[Drop_index[0],Drop_index[1],"cross_section"],
                            inplace=True)
