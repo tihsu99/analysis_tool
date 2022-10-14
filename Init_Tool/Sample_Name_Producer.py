@@ -24,6 +24,14 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     SAMPLE['tt_V_H'] = []
     SAMPLE['tzq'] = []
     SAMPLE['VV'] = []
+    
+    ###VBS###
+    if year == '2018':
+        SAMPLE['VBS'] = []
+        SAMPLE['VBS'].append('WpWpJJ_EWK') 
+        SAMPLE['VBS'].append('WLLJJ')
+        SAMPLE['VBS'].append('ZZJJTo4L')
+        SAMPLE['VBS'].append('WpWpJJ_QCD')
 
     ### TTTo1L ###
     SAMPLE['TTTo1L'].append('TTTo1L')
