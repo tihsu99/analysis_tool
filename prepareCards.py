@@ -70,10 +70,16 @@ jmax *  number of backgrounds
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 '''
 
+if args.For == 'template':
 
-print("=======================")
-print("START WRITING TEMPLATE DATACARDS")
-print("=======================")
+    print("=======================")
+    print("START WRITING TEMPLATE DATACARDS")
+    print("=======================")
+
+elif args.For =='specific':
+    print("=======================")
+    print("START WRITING DATACARDS")
+    print("=======================")
 #print (regions)
 if category =='all':channels=['ee','em','mm','C']
 else:channels=[category]
