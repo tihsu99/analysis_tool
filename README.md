@@ -1,5 +1,15 @@
+# 0. Suit-up!
 
-# 0. Enviroment Setup
+In this section, you can just copy and past the command.
+
+## 0.1 Enviroment Setup
+
+Move to your workspace first or
+```
+mkdir workspace
+cd workspace
+```
+Then,
 ```
 export SCRAM_ARCH=slc7_amd64_gcc700
 cmsrel CMSSW_10_2_13
@@ -12,7 +22,8 @@ git fetch origin
 git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
-# 0. Install the CombineHarvester Tool
+## 0.2 Install the CombineHarvester Tool
+
 ```
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 cd $CMSSW_BASE/src
@@ -20,12 +31,14 @@ cd CombineHarvester
 scram b -j 8
 ```
 
-# 0. Install the code 
+## 0.3 Install the code 
+
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis
 git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
+
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
@@ -55,11 +68,12 @@ python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR
 # 2. Rebin and merging of processes 
 
 ## 2.1 Commands for histograms rebinning for original BDT_output files
+
 Use the ReBin.py macro to perform two main tasks: 
-
+```
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
-
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
+```
 
 Normally, you should use the following commands.
 ```
@@ -68,6 +82,7 @@ python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/r
 
 
 ## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time):
+
 ```
 python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents; 
 
@@ -80,11 +95,13 @@ python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses
 
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
 
+## 2.3 Quiet the thousands of warning message 
+
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
 python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents -q; 
 ```
-Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there are nuisances you do not set correctly.
+Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there is any nuisances you do not set correctly, like typo. 
 
 And once this step is done, there are several rebined root files under `FinalInputs`.
 
@@ -95,6 +112,7 @@ And once this step is done, there are several rebined root files under `FinalInp
 In this section is aimming to explain how to prepare the datacards by yourself. But for people who want to get datacard quickly can simply skip the things to section `3.3 Quick command-list for datacard productions`
 
 ## 3.1 Pre-requists for datacards template production 
+
 The next step is to create the datacards. The input needed for making datacards are:
 1. data_info/Datacard_Input/{Year}/Datacard_Input_{channel}.json
 2. data_info/Sample_Names/process_name_{year}.json
@@ -104,8 +122,8 @@ So make sure you already `have/update` them, otherwise the datacard would give t
 
 ## 3.2 Datacard production Explanation
 
-
 ### 3.2.1 Template Datacard production for certain year
+
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
 
 ``` 
@@ -138,6 +156,7 @@ So, to produce the template datacard for `full run2` in certain dilepton channel
 ```
 python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
 ```
+
 - Result: Datacard template for full run2 in certain channel.
 
 ### 3.2.4 Datacard production for each mass point with certain coupling value for run2
@@ -225,7 +244,8 @@ python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Ma
 
 
 # 4. Limit Plots
-The pre-requiest for this is the corresponding datacard.
+
+Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
 #### 2016postapv
@@ -267,11 +287,14 @@ python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls 
+
+```
 source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
 
 source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
+```
 
-Same as the case for combined one in limit plot calculation ,condor job is strongly suggested. You can see the instruction in next-next section.
+Condor job is strongly suggested, otherwise you would encounter lxplus shut-down issue very often in this way. You can see the instruction in next-next section.
 
 # 6. Condor Jobs
 
@@ -338,6 +361,7 @@ python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value
 python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
 condor_submit scripts/condor.sub
 ```
+
 # 7. Trouble Shooting 
 
 ## 7.1 Possible bugs in ReBin.py
@@ -387,6 +411,7 @@ You should tune the name of histogram you want to "get" and "rebin", instead of 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
 ### 8. Appendix from Raman
+
 ## For signal shape comparison 
 python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
 
