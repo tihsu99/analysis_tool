@@ -77,7 +77,7 @@ python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/r
 ```
 
 
-In practice:
+Quick command:
 ```
 python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents; 
 
@@ -110,6 +110,10 @@ The next step is to create the datacards. The input needed for making datacards 
 3. data_info/NuisanceList/nuisance_list_{year}_{channel}.json
 
 So make sure you already `have/update` them, otherwise the datacard would give the wrong references for combine tool.
+
+###Datacard production Explanation
+
+For people who want to get datacard quickly can simply skip these things to section `Quick command-list for datacard productions`
 
 #### Template Datacard production for certain year
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
@@ -171,7 +175,7 @@ python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0
 ```
 - Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
 
-#### Quick command-list for datacard productions
+### Quick command-list for datacard productions
 
 Example for rtc = 0.4 in low mass regime
 ```
