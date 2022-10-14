@@ -79,11 +79,11 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 if proc !='TTTo1L':
                     if channel=='ee':
                         if nuisance=='muIDYEARsys' or nuisance=='muIDYEARstat' or nuisance=='elemuTriggerYEAR' or nuisance=='dimuTriggerYEAR':continue
-                        elif nuisance=='chargeflipYEAR' and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
+                        elif 'chargeflipYEAR' in nuisance and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
                     elif channel=='em':
                         if nuisance=='dieleTriggerYEAR' or nuisance=='dimuTriggerYEAR' or nuisance=='chargeflipYEAR':continue
                     else:
-                        if nuisance=='eleIDYEARsys' or nuisance=='eleIDYEARstat' or nuisance=='dieleTriggerYEAR' or nuisance=='chargeflipYEAR' or nuisance=='elemuTriggerYEAR':continue
+                        if nuisance=='eleIDYEARsys' or nuisance=='eleIDYEARstat' or nuisance=='dieleTriggerYEAR' or 'chargeflipYEAR' in nuisance or nuisance=='elemuTriggerYEAR':continue
                     Input['NuisForProc'][nuisance].append(proc)
                 else:pass
             else:pass
