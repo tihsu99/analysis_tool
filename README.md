@@ -1,5 +1,5 @@
 
-# Enviroment Setup
+# 0. Enviroment Setup
 ```
 export SCRAM_ARCH=slc7_amd64_gcc700
 cmsrel CMSSW_10_2_13
@@ -12,7 +12,7 @@ git fetch origin
 git checkout v8.2.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
-# Install the CombineHarvester Tool
+# 0. Install the CombineHarvester Tool
 ```
 bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
 cd $CMSSW_BASE/src
@@ -20,21 +20,15 @@ cd CombineHarvester
 scram b -j 8
 ```
 
-## Higgs Combination Tool Installation(Only For Raman) 
-Follow the Higgs Combination Twiki to install the combine package and compile it, 
- (add the link to combine Twiki  here )
-```
-source envsetter.sh
-```
-
-### Install the code 
+# 0. Install the code 
 The code is part of the repository ttcbar, to get it simply do git clone: 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis
 git clone git@github.com:ExtraYukawa/LimitModel.git
 ```
-### Initialization
+# 1. Initialization
 
+## 1.1 Commands for Input files preparing for datacard production
 Note: the initialization is to be done only once. 
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
@@ -49,7 +43,7 @@ After this step, a folder, data_info, is created. And under this folder, you can
 - data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
 - data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
 
-#### You can skip this
+## 1.2 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
@@ -58,13 +52,9 @@ python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR
 ```
 
 
-### Rebin and merging of processes 
+# 2. Rebin and merging of processes 
 
-```
-cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/ 
-cmsenv 
-```
-
+## 2.1 Commands for histograms rebinning for original BDT_output files
 Use the ReBin.py macro to perform two main tasks: 
 
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
@@ -77,7 +67,7 @@ python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/r
 ```
 
 
-Quick command:
+## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time):
 ```
 python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents; 
 
@@ -100,10 +90,11 @@ And once this step is done, there are several rebined root files under `FinalInp
 
 
 
+# 3. Datacard preparation
 
-The new output files are then used for the limit extraction. 
+In this section is aimming to explain how to prepare the datacards by yourself. But for people who want to get datacard quickly can simply skip the things to section `3.3 Quick command-list for datacard productions`
 
-### Create template card for one region  datacards 
+## 3.1 Pre-requists for datacards template production 
 The next step is to create the datacards. The input needed for making datacards are:
 1. data_info/Datacard_Input/{Year}/Datacard_Input_{channel}.json
 2. data_info/Sample_Names/process_name_{year}.json
@@ -111,11 +102,10 @@ The next step is to create the datacards. The input needed for making datacards 
 
 So make sure you already `have/update` them, otherwise the datacard would give the wrong references for combine tool.
 
-###Datacard production Explanation
+## 3.2 Datacard production Explanation
 
-For people who want to get datacard quickly can simply skip these things to section `Quick command-list for datacard productions`
 
-#### Template Datacard production for certain year
+### 3.2.1 Template Datacard production for certain year
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
 
 ``` 
@@ -128,7 +118,7 @@ And after you repeat this command for all the dilepton channels, you can manage 
 python prepareCards.py -y {year} -c C --For template
 ```
 
-#### Datacard production for each mass point with certain coupling value for certain year
+### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
 
 Once you have the datacard template for certain channel, you can use the following command to produce the datacard for certain mass points:
 ```
@@ -142,7 +132,7 @@ python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c C --For specif
 ```
 - Result: Datacard for certain mass point of certain year in combined-channel.
 
-#### Template Datacard production for run2 for certain dilepton channel
+### 3.2.3 Template Datacard production for run2 for certain dilepton channel
 
 So, to produce the template datacard for `full run2` in certain dilepton channels, you need the template datacard of all the years for this certain channel, and with the following command:
 ```
@@ -150,7 +140,7 @@ python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}
 ```
 - Result: Datacard template for full run2 in certain channel.
 
-#### Datacard production for each mass point with certain coupling value for run2
+### 3.2.4 Datacard production for each mass point with certain coupling value for run2
 
 You should already have run2 datacard template for certain channel, and  
 ```
@@ -158,7 +148,7 @@ python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}
 ```
 - Result: Datacard for certain mass point with certain coupling value for run2.
 
-#### Template Datacard production for full run2 in combined-channel
+### 3.2.5 Template Datacard production for full run2 in combined-channel
 
 You should already have run2 datacard template for all dilepton channels, and
 ```
@@ -167,7 +157,7 @@ python prepareCards.py -y run2 -c C  --For template
 ```
 - Result: Datacard template for full run2 with channels combined.
 
-#### Datacard production for each mass point for certain coupling value for full run2 in combined-channel
+### 3.2.6 Datacard production for each mass point for certain coupling value for full run2 in combined-channel
 
 Once you have the datacard template for full run2 with channels combined, then you can obtain the datacard for each mass point for full run2 in combined-channel with
 ```
@@ -175,7 +165,7 @@ python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0
 ```
 - Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
 
-### Quick command-list for datacard productions
+## 3.3 Quick command-list for datacard productions
 
 Example for rtc = 0.4 in low mass regime
 ```
@@ -234,9 +224,10 @@ python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Ma
 ```
 
 
-### Limit Plots
+# 4. Limit Plots
 The pre-requiest for this is the corresponding datacard.
-You can try following commands to produce the limit plots, but you would find it will take century to finish per command :). 
+
+You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
 #### 2016postapv
 ```
 python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
@@ -273,16 +264,18 @@ python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500
 python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
 python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
 ```
-Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots, thus, it would be good to run it on condor, and in the next-next section, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
+Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
-## For impacts and pulls 
+# 5. For impacts and pulls 
 source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
 
 source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
 
 Same as the case for combined one in limit plot calculation ,condor job is strongly suggested. You can see the instruction in next-next section.
 
-#### Condor Jobs for limit plots
+# 6. Condor Jobs
+
+## 6.1 Condor Jobs for limit plots
 The first step is create a Job_bus file (just a text file) with
 
 ```
@@ -336,7 +329,7 @@ Now, please submit it with condor_submit
 condor_submit scripts/condor.sub
 ```
 
-#### Condor Jobs for limit plots
+## 6.2 Condor Jobs for limit plots
 
 The steps are very simple. The pre-requiest for this is the corresponding datacard.
 For channel-combined in run2 with rtc04, MA=300GeV
@@ -345,29 +338,9 @@ python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value
 python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
 condor_submit scripts/condor.sub
 ```
+# 7. Trouble Shooting 
 
-## For signal shape comparison 
-python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
-
-
-## for rescaling signal
-sigscale rateParam * TAToTTQ_rtc01_MA350 0.01 [0.009999,0.01111]
-
-
-## Stack plots 
-python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root ee asimov 20161718
-python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root em asimov 20161718
-python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root mm asimov 20161718
-
-nuisance edit rename * * jes2016 jes2017
-nuisance edit rename * * jes2018 jes2017
-nuisance edit rename * * jes2016apv jes2017
-
-page 124 of the AN for theory cross-section uncertainty 
-
-## Trouble Shooting 
-
-### For ReBin.py
+## 7.1 Possible bugs in ReBin.py
 
 If you encounter the error message like
 ```
@@ -386,7 +359,7 @@ TypeError: none of the 3 overloaded methods succeeded. Full details:
 You should tune the name of histogram you want to "get" and "rebin", instead of "naming", to be consistent with the histograms names in input file.
 For this case, ttZtoQQ->ttZToQQ in line 142 for year2016postapv.
 
-### For runlimits.py
+## 7.1 Possible bugs in runlimit.py
 
 If you encounter the error message like
 ```
@@ -412,6 +385,26 @@ allparameters: ('500', '04')
 You should tune the name of histogram you want to "get" and "rebin", instead of "naming",to be consistent with the histograms names in input file.
 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
+
+### 8. Appendix from Raman
+## For signal shape comparison 
+python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
+
+
+## for rescaling signal
+sigscale rateParam * TAToTTQ_rtc01_MA350 0.01 [0.009999,0.01111]
+
+
+## Stack plots 
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root ee asimov 20161718
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root em asimov 20161718
+python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root mm asimov 20161718
+
+nuisance edit rename * * jes2016 jes2017
+nuisance edit rename * * jes2018 jes2017
+nuisance edit rename * * jes2016apv jes2017
+
+page 124 of the AN for theory cross-section uncertainty 
 
 
 
