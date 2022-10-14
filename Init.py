@@ -15,9 +15,10 @@ from Util.General_Tool import CheckDir
 
 
 parser = argparse.ArgumentParser()
+channel_choices=['all','ee','em','mm']
 
 parser.add_argument('-y','--year',help='Years of data.',default='2017')
-parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=['ee','mm','em',"all"])
+parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=channel_choices)
 
 parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=[''],nargs='*')
 
@@ -34,11 +35,17 @@ CheckDir("data_info/Sample_Names/",MakeDir=True)
 Bkg_MC_SAMPLE_NAME(year=args.year,outputdir="data_info/Sample_Names/")
 ####Write Nuisances List #########################
 CheckDir("./data_info/NuisanceList",MakeDir=True)
-nuisances_for_data_card = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList')
+
+if args.channel =='all':
+    nuisances_for_data_card = dict()
+    for channel in channel_choices:
+        if channel=='all':continue
+        nuisances_for_data_card[channel] = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=channel)
+else:
+    nuisances_for_data_card = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=args.channel)
 
 ####Datacard Input #################################
 CheckDir("data_info/Datacard_Input/{}/".format(args.year),MakeDir=True)
-
 
 
 
@@ -49,7 +56,8 @@ process = NAME.keys()
 
 if args.channel=='all':
     for channel in ['ee','mm','em']:
-        Datacard_Input_Producer(year=args.year,channel=channel,nuisances=nuisances_for_data_card,process=process)
+        print(nuisances_for_data_card[channel])
+        Datacard_Input_Producer(year=args.year,channel=channel,nuisances=nuisances_for_data_card[channel],process=process)
 else:
     Datacard_Input_Producer(year=args.year,channel=args.channel,nuisances=nuisances_for_data_card,process=process)
 ############################
