@@ -41,7 +41,7 @@ def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,output
         f.write('channel={}\n'.format(channel))
         datacard_location = 'datacards_ttc_{}/ttc_datacard_{}_SR_{}_{}_M{}{}_{}.txt'.format(year,year,channel,channel,higgs,mass_point,coupling_value)
         if not CheckFile(datacard_location,False,True): raise ValueError('\nMake sure {} exists. Please prepare this datacards\n'.format(datacard_location))
-        f.write(datacard_location+'\n')
+        f.write("datacard={}".format(datacard_location)+'\n')
         f.write('start=$(date +%s)\n')
         f.write('\n\nsh runallchecks.sh $dirname $year $channel $datacard\n')
         f.write('end=$(date +%s)\n')
