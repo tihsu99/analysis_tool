@@ -1,6 +1,5 @@
-import sys
+import sys, ROOT, os
 
-import ROOT 
 ROOT.gROOT.SetBatch(True)
 #sys.argv.append( '-b-' )
 
@@ -14,8 +13,14 @@ from ROOT import TMath
 from ROOT import TPaveText
 from ROOT import TLatex
 
-import os
-mass = str(200)
+
+mass = '700'
+particle = 'a' #or s0
+coupling = 'rtc'
+cval = "04"
+chan = "mm"
+year = "2018"
+
 colors=[4,3,2,1,6,9,41,46,30,12,28,20,32]
 gStyle.SetOptTitle(0)
 gStyle.SetOptStat(0)
@@ -42,10 +47,14 @@ c.SetBottomMargin(0.15)
 #c.SetLogx()
 c.cd()
 inputfile={}
+inputfilelist = {}
 histo={}
-inputfilelist = ['bdtoutputsforplots/TMVApp_'+mass+'_mm_rtc01.root','bdtoutputsforplots/TMVApp_'+mass+'_mm_rtc04.root',
-'bdtoutputsforplots/TMVApp_'+mass+'_mm_rtc08.root','bdtoutputsforplots/TMVApp_'+mass+'_mm_rtc10.root']
-histonames = ['ttc2018_TAToTTQ_rtc01_MA'+mass,'ttc2018_TAToTTQ_rtc04_MA'+mass,'ttc2018_TAToTTQ_rtc08_MA'+mass,'ttc2018_TAToTTQ_rtc10_MA'+mass]
+histonames = {}
+couplist = ['01','04','08','10']
+for i in range(0,4):
+    inputdir = '/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output_meng/'+year+'/ttc_'+particle+'_'+coupling+couplist[i]+'_M'+particle.upper()+mass
+    inputfilelist[i] = inputdir+'/TMVApp_'+mass+'_'+chan+'.root'
+    histonames[i] = 'ttc'+year+'_TAToTTQ_'+coupling+couplist[i]+'_M'+particle.upper()+mass
 legendtext=[ 'rtc0.1','rtc0.4','rtc0.8','rtc1.0']
 for i in range(len(inputfilelist)):
     print(inputfilelist[i])
@@ -77,9 +86,8 @@ pt.SetTextSize(0.046)
 #text = pt.AddText(0.6,0.5,"41.5 fb^{-1} (2017) ")
 pt.Draw()
 leg.Draw()
-c.SaveAs(mass+".png") 
-c.SaveAs(mass+".pdf") 
+c.SaveAs(year+'_'+mass+".png") 
+c.SaveAs(year+'_'+mass+".pdf") 
     
-print("hobereey")
 
 #leg.Draw()
