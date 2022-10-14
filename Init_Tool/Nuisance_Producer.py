@@ -25,7 +25,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info'):
             "_ctagJES",
             "_chargeflipYEARstat",
             "_chargeflipYEARsyst",
-            "_prefire"
+            "_prefire",
             "_metYEARunclusterE", 
             "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
             #"_prefireYEAR", 
