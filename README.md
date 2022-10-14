@@ -42,8 +42,15 @@ python Init.py --year 2017 --channel all
 python Init.py --year 2018 --channel all
 python Init.py --year 2016apv --channel all
 python Init.py --year 2016postapv --channel all
-
 ```
+After this step, a folder, data_info, is created. And under this folder, you can find three main different files under data_info:
+
+- data_info/Sample_Names/process_name_{year}.json # Contain the sample names sorting with certain physics process category
+- data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
+- data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
+
+#### You can skip this
+
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
@@ -66,6 +73,12 @@ Use the ReBin.py macro to perform two main tasks:
 
 Normally, you should use the following commands.
 ```
+python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/rtt] --y [year: 2016apv/2016postapv/2017/2018] --Masses [Mass points you want to take into account] --inputdir [input/provided/by/Gouranga]; 
+```
+
+
+In practice:
+```
 python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents; 
 
 python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents;
@@ -76,74 +89,150 @@ python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses
 ```
 
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
+
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
 python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents -q; 
 ```
+Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there are nuisances you do not set correctly.
 
-And once this step is done, there are several rebined root files under FinalInputs or your favoured output directory.
+And once this step is done, there are several rebined root files under `FinalInputs`.
 
 
-
-#Before running the macro, some values needs to be set, specially the input and output paths. 
 
 
 The new output files are then used for the limit extraction. 
 
 ### Create template card for one region  datacards 
-The next step is to create the datacards. The input needed for making datacards are; 
+The next step is to create the datacards. The input needed for making datacards are:
 1. data_info/Datacard_Input/{Year}/Datacard_Input_{channel}.json
 2. data_info/Sample_Names/process_name_{year}.json
 3. data_info/NuisanceList/nuisance_list_{year}_{channel}.json
 
-The datacards for each decay mode, each year can be created using following syntax, just copy paste them to terminal and wait for it to be over. 
+So make sure you already `have/update` them, otherwise the datacard would give the wrong references for combine tool.
 
+#### Template Datacard production for certain year
+If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
+
+``` 
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
 ```
-python prepareCards.py -y 2016apv -c em -reg 'SR_em'
-python prepareCards.py -y 2016apv -c ee -reg 'SR_ee'
-python prepareCards.py -y 2016apv -c mm -reg 'SR_mm'
+- Result: Datacard template for certain channel in certain year
 
-
-python prepareCards.py -y 2016postapv -c em -reg 'SR_em'
-python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee'
-python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm'
-
-python prepareCards.py -y 2017 -c em -reg 'SR_em'
-python prepareCards.py -y 2017 -c ee -reg 'SR_ee'
-python prepareCards.py -y 2017 -c mm -reg 'SR_mm'
-
-
-python prepareCards.py -y 2018 -c em -reg 'SR_em'
-python prepareCards.py -y 2018 -c ee -reg 'SR_ee'
-python prepareCards.py -y 2018 -c mm -reg 'SR_mm'
+And after you repeat this command for all the dilepton channels, you can manage to get the combined-channel datacards:
 ```
-Note: If you want to prepare the template datacard again, you can add as following
-```
-python prepareCards.py -y 2018 -c em -reg 'SR_em' --reset
+python prepareCards.py -y {year} -c C --For template
 ```
 
-### Combine the cards for all regions to make a jumbo card 
+#### Datacard production for each mass point with certain coupling value for certain year
+
+Once you have the datacard template for certain channel, you can use the following command to produce the datacard for certain mass points:
 ```
-cd datacards_ttc_2016postapv; combineCards.py em=ttc_datacard_2016postapv_SR_em_em_template.txt ee=ttc_datacard_2016postapv_SR_ee_ee_template.txt mm=ttc_datacard_2016postapv_SR_mm_mm_template.txt > ttc_datacard_2016postapv_SR_C_C_template.txt ; cd -
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel: em/mm/ee} --For specific -reg 'SR_{channel:ee/em/mm}' --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for certain channel
+```
+- Result: Datacard for certain mass point of certain year in certain channel.
 
-cd datacards_ttc_2016apv; combineCards.py em=ttc_datacard_2016apv_SR_em_em_template.txt ee=ttc_datacard_2016apv_SR_ee_ee_template.txt mm=ttc_datacard_2016apv_SR_mm_mm_template.txt > ttc_datacard_2016apv_SR_C_C_template.txt ; cd -
+And for channel-combined one, the command is similar:
+```
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for combined-channel
+```
+- Result: Datacard for certain mass point of certain year in combined-channel.
 
-cd datacards_ttc_2017; combineCards.py em=ttc_datacard_2017_SR_em_em_template.txt ee=ttc_datacard_2017_SR_ee_ee_template.txt mm=ttc_datacard_2017_SR_mm_mm_template.txt > ttc_datacard_2017_SR_C_C_template.txt ; cd -
+#### Template Datacard production for run2 for certain dilepton channel
 
-cd datacards_ttc_2018; combineCards.py em=ttc_datacard_2018_SR_em_em_template.txt ee=ttc_datacard_2018_SR_ee_ee_template.txt mm=ttc_datacard_2018_SR_mm_mm_template.txt > ttc_datacard_2018_SR_C_C_template.txt ; cd -
+So, to produce the template datacard for `full run2` in certain dilepton channels, you need the template datacard of all the years for this certain channel, and with the following command:
+```
+python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
+```
+- Result: Datacard template for full run2 in certain channel.
 
-rm -rf datacards_ttc_run2
-mkdir datacards_ttc_run2 
-cp datacards_ttc_2016apv/ttc_datacard_2016apv_SR_C_C_template.txt datacards_ttc_run2
-cp datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_C_C_template.txt datacards_ttc_run2
-cp datacards_ttc_2017/ttc_datacard_2017_SR_C_C_template.txt datacards_ttc_run2
-cp datacards_ttc_2018/ttc_datacard_2018_SR_C_C_template.txt datacards_ttc_run2
-cd datacards_ttc_run2
-combineCards.py year2016apv=ttc_datacard_2016apv_SR_C_C_template.txt year2016postapv=ttc_datacard_2016postapv_SR_C_C_template.txt year2017=ttc_datacard_2017_SR_C_C_template.txt year2018=ttc_datacard_2018_SR_C_C_template.txt > ttc_datacard_run2_SR_C_C_template.txt; cd -;
+#### Datacard production for each mass point with certain coupling value for run2
+
+You should already have run2 datacard template for certain channel, and  
+```
+python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700};
+```
+- Result: Datacard for certain mass point with certain coupling value for run2.
+
+#### Template Datacard production for full run2 in combined-channel
+
+You should already have run2 datacard template for all dilepton channels, and
+```
+python prepareCards.py -y run2 -c C  --For template 
+
+```
+- Result: Datacard template for full run2 with channels combined.
+
+#### Datacard production for each mass point for certain coupling value for full run2 in combined-channel
+
+Once you have the datacard template for full run2 with channels combined, then you can obtain the datacard for each mass point for full run2 in combined-channel with
+```
+python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700};
+```
+- Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
+
+#### Quick command-list for datacard productions
+
+Example for rtc = 0.4 in low mass regime
+```
+python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For template
+python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For template
+python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For template
+python prepareCards.py -y 2016apv -c C  --For template 
+
+python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For template
+python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For template
+python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For template
+python prepareCards.py -y 2016postapv -c C  --For template 
+
+
+python prepareCards.py -y 2017 -c em -reg 'SR_em' --For template
+python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For template
+python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For template
+python prepareCards.py -y 2017 -c C  --For template 
+
+python prepareCards.py -y 2018 -c em -reg 'SR_em' --For template
+python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For template
+python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For template
+python prepareCards.py -y 2018 -c C  --For template 
+
+python prepareCards.py -y run2 -c C --For template  
+python prepareCards.py -y run2 -c em -reg 'SR_em' --For template 
+python prepareCards.py -y run2 -c ee -reg 'SR_ee' --For template 
+python prepareCards.py -y run2 -c mm -reg 'SR_mm' --For template 
+
+
+python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016apv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+
+python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2016postapv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+
+python prepareCards.py -y 2017 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2017 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+
+python prepareCards.py -y 2018 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
+python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
+
+python prepareCards.py -y run2 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y run2 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y run2 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
+
 ```
 
-### Run the cards 
 
+### Limit Plots
+The pre-requiest for this is the corresponding datacard.
+You can try following commands to produce the limit plots, but you would find it will take century to finish per command :). 
 #### 2016postapv
 ```
 python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
@@ -180,27 +269,77 @@ python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500
 python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
 python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
 ```
-But, generally, it would take about 8 hrs to finish the calculation for full run2 limit plots, thus, it would be good to run it on condor, and here we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for example:
-
-```
-python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --Masses 200 300 350 400 500 600 700 --higgs A --mode LimitPlot --outputdir [your/favoured/output/folder]
-python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_LimitPlot_for_C_run2.sh 
-condor_submit ./scripts/condor.sub 
-```
-####
-
+Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots, thus, it would be good to run it on condor, and in the next-next section, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 ## For impacts and pulls 
 source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
 
 source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
-* autoMCStats 10 0 1
 
-Same as the case for combined one in limit plot calculation ,condor job is strongly suggested. And here, we take rtc0p4 full run2 limit plot for example as well:
+Same as the case for combined one in limit plot calculation ,condor job is strongly suggested. You can see the instruction in next-next section.
+
+#### Condor Jobs for limit plots
+The first step is create a Job_bus file (just a text file) with
+
 ```
-python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --mass_point 300 --higgs A --mode Impact --outputdir /eos/user/z/zhenggan/www/run2/Impacts/
+python ./Util/prepareJobs.py --mode write
+```
+
+And you will see something like 
+```
+You Job_bus file with name -> Job_bus/lqhAti.txt is created.
+Use [--mode append] and [--Job_bus_Name filename] to append the following task.
+```
+In this example, Job_bus file name is `Job_bus/lqhAti.txt`
+
+Then the next step is to add the job into the Job_bus file, so in our case, we want to calculate the limits value in low mass regime for higgs A for run2 channel-conbined, then
+```
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 300 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 350 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 400 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 500 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 600 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
+```
+And you can use 
+```
+python Util/prepareJobs.py --mode read -i Job_bus/lqhAti.txt
+```
+to read the content of Job_bus/lqhAti.txt.
+
+Also, you can use 
+```
+python Util/prepareJobs.py --mode reset -i Job_bus/lqhAti.txt
+```
+to reset the content.
+
+Now, you should produce the shell script for each job:
+
+```
+python Util/write_shell_for_condor.py --Job_bus_Name Job_bus/lqhAti.txt
+```
+Then you would see the output information on your terminal
+
+Feed your Job_bus file again into  Util/write_condor_job.py
+```
+python Util/write_condor_job.py --Job_bus_Name Job_bus/lqhAti.txt
+```
+And a condor script named `scripts/condor.sub` is created.
+
+Now, please submit it with condor_submit
+```
+condor_submit scripts/condor.sub
+```
+
+#### Condor Jobs for limit plots
+
+The steps are very simple. The pre-requiest for this is the corresponding datacard.
+For channel-combined in run2 with rtc04, MA=300GeV
+```
+python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --mass_point 300 --higgs A --mode Impact --outputdir [Your/output/folder/ForImpacts]
 python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
-condor_submit ./scripts/condor.sub
+condor_submit scripts/condor.sub
 ```
 
 ## For signal shape comparison 
