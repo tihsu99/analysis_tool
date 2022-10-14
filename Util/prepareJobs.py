@@ -59,8 +59,6 @@ else:
 
         with open(Job_bus_name,'w') as f:
             f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,outputdir\n")
-            print("Sequence -> {},{},{},{},{},{},{} written into {}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,args.output_dir,Job_bus_name))
-            f.write("{},{},{},{},{},{},{}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,args.output_dir))
 
         print("You Job_bus file with name -> "+Job_bus_name+" is created.")
         print("Use [--mode append] and [--Job_bus_Name filename] to append the following task.")
