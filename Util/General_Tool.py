@@ -37,22 +37,25 @@ def MakePositive_Hist(Hist,value=0.0001):
             H.SetBinContent(ibin+1,value) #this is up to user
         else:pass
     return H
-def CheckDir(Dir_to_check="",MakeDir=True):
+def CheckDir(Dir_to_check="",MakeDir=True,quiet=False):
     '''
     Just check whether a folder is existed or not. If it is not, then create a new one.
     '''
     
     if os.path.isdir(Dir_to_check): return True
     else:
-        print("Warning: You don't have directory: `{}` under {}\n".format(Dir_to_check, CURRENT_WORKDIR))
+        if not quiet:
+            print("\nWarning: You don't have directory: `{}` under {}\n".format(Dir_to_check, CURRENT_WORKDIR))
         if MakeDir:
             os.system('mkdir -p {}'.format(os.path.join(CURRENT_WORKDIR,Dir_to_check)))
-            print("Warning: Dir-> ./{} is made now.\n".format(Dir_to_check))
+            if not quiet:
+                print("\nWarning: Dir-> ./{} is made now.\n".format(Dir_to_check))
         else:pass
-        print("")
+        if not quiet:
+            print("")
         return False
 
-def CheckFile(File_to_check='',RemoveFile=False):
+def CheckFile(File_to_check='',RemoveFile=False,quiet=False):
 
     '''
     Just check if file is existed or not. Here the function provides a further option
@@ -60,14 +63,17 @@ def CheckFile(File_to_check='',RemoveFile=False):
     '''
     
     if os.path.isfile(File_to_check): 
-        print('Warning: File-> {} exists'.format(File_to_check))
+        if not quiet:
+            print('\nWarning: File-> {} exists\n'.format(File_to_check))
         if RemoveFile:
-            print('Warning: Remove File-> {}\n'.format(File_to_check))
+            if not quiet:
+                print('\nWarning: Remove File-> {}\n'.format(File_to_check))
             os.system('rm -f {}'.format(File_to_check))
         return True
     else:
+        if not quiet:
 
-        print('Warning: File-> {} does not exist\n'.format(File_to_check))
+            print('\nWarning: File-> {} does not exist\n'.format(File_to_check))
 
         return False
 

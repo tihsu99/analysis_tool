@@ -1,12 +1,14 @@
 import os 
 import  sys 
+CURRENT_WORKDIR = os.getcwd()
+sys.path.append(CURRENT_WORKDIR)
 from array import  array
 from ROOT import TGraph, TFile, TGraphAsymmErrors
 import ROOT as rt
 import argparse
 import csv 
 import pandas as pd
-
+from Util.General_Tool import CheckDir,CheckFile
 #import yaml
 #f = open('systematicsDict.yaml') 
 #doc = yaml.safe_load(f)
@@ -26,9 +28,20 @@ class RunLimits:
         self.coupling_             = coupling_value
         self.coupling_str_         = str(self.coupling_).replace(".","p")
         
-        self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
-        self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
-        self.limit_root_file       = self.limitlog_scaled.replace(".txt",".root")
+        #self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
+        #self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
+        #self.limit_root_file       = self.limitlog.replace(".txt",".root")
+        
+        self.limit_dir = "bin/"+self.year_+"/"+analysisbin
+        if CheckDir(self.limit_dir,MakeDir=True):pass
+        else:pass
+
+
+        self.limitlog = os.path.join(self.limit_dir,"limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt")
+        self.limit_root_file = self.limitlog.replace(".txt",".root")
+        self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
+        self.limit_pdf_file = "limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+"_"+analysisbin+".txt"
+        self.limit_pdf_file = self.limit_pdf_file.replace(".txt",".pdf") 
         self.Coupling = coupling
         #self.runmode = runmode
         print "class instantiation done"
@@ -80,14 +93,14 @@ class RunLimits:
             return ([mparameters_[1], mparameters_[3] ])
             
 
-    def getLimits(self, dc, asimov=True):
+    def getLimits(self, dc, asimov=True,mass_point='MA200'):
         asimovstr = "-t -1"
         logname = dc.replace(".txt",".log")
         logname = logname.replace( logname.split("/")[-1], os.path.join("log",logname.split("/")[-1] ) )
         print ("logname: ",logname)
         
         
-        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
+        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" > "+logname)
@@ -117,13 +130,13 @@ class RunLimits:
         
         #allparameters  = self.datacard_to_mparameters(logfile)
         print "allparameters:", allparameters
-        towrite =  str(allparameters[1])+" "+str(allparameters[0])+" "+expected25_+" "+expected16_+" "+ expected50_+" "+ expected84_+" "+ expected975_+" "+ observed_+"\n"
+        towrite =  str(allparameters[2])+" "+str(allparameters[1])+" "+expected25_+" "+expected16_+" "+ expected50_+" "+ expected84_+" "+ expected975_+" "+ observed_+"\n"
         
         print towrite
-        os.system ("mkdir -p bin/"+self.postfix_)
-        os.system ("mkdir -p plots_limit/"+self.postfix_)
-        outfile=self.limitlog 
-        self.limit_text_file = outfile
+        #os.system ("mkdir -p bin/"+self.postfix_)
+        #os.system ("mkdir -p plots_limit/"+self.postfix_)
+        outfile=self.limitlog_tmp_node.format(allparameters[0]+allparameters[1]) 
+
 
         
         fout = open(outfile,mode)
@@ -133,11 +146,9 @@ class RunLimits:
     
 
 
-    def TextFileToRootGraphs(self,med_idx=0):
-        filename = self.limitlog_scaled
-        limit_root_file = filename.replace(".txt",".root")
+    def TextFileToRootGraphs(self,med_idx=0,Masses=[],Higgs="MA"):
+        #limit_root_file = filename.replace(".txt",".root")
         
-        f = open(filename,"r")
         med=array('f')
         mchi=array('f')
         expm2=array('f')
@@ -147,42 +158,56 @@ class RunLimits:
         expp2=array('f')
         obs=array('f')
         errx=array('f')
-        
-        counter = 0
-        for line in f:
-            if len(line.rsplit())<7: continue
-            counter +=1
-            med.append(float(line.rstrip().split()[1]))
-            mchi.append(float(line.rstrip().split()[0]))
-            
-            expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
-            expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
-            expmed.append(float(line.rstrip().split()[4]))
-            expp1.append(float(line.rstrip().split()[5]) - float(line.rstrip().split()[4]) )
-            expp2.append(float(line.rstrip().split()[6]) - float(line.rstrip().split()[4]) )
 
-            obs.append(float(line.rstrip().split()[7]))
-            errx.append(0.0)
-        print(int(len(med)))
-        print ('expm2: ', expm2)
-        print ('expm1: ', expm1)
-        print ('expmed: ', expmed)
-        print ('expp1: ', expp1)
-        print ('expp2: ', expp2)
-    
+        counter = 0
+        Merged_txt_file = open(self.limitlog,'w')
+        for imass in Masses:
+            input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
+            
+            if CheckFile(input_file):pass
+            else:
+                raise ValueError('Make sure you have this file: {}'.format(input_file))
+            
+            f = open(input_file,"r")
+            for line in f:
+                if len(line.rsplit())<7: continue
+                med.append(float(line.rstrip().split()[1]))
+                mchi.append(float(line.rstrip().split()[0]))
+                
+                expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
+                expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
+                expmed.append(float(line.rstrip().split()[4]))
+                expp1.append(float(line.rstrip().split()[5]) - float(line.rstrip().split()[4]) )
+                expp2.append(float(line.rstrip().split()[6]) - float(line.rstrip().split()[4]) )
+
+                obs.append(float(line.rstrip().split()[7]))
+                errx.append(0.0)
+                print('imass: {}->{} GeV'.format(Higgs,imass))
+                print ('expm2: ', expm2[counter])
+                print ('expm1: ', expm1[counter])
+                print ('expmed: ', expmed[counter])
+                print ('expp1: ', expp1[counter])
+                print ('expp2: ', expp2[counter])
+                print('')
+                Merged_txt_file.write(line)
+
+                counter +=1
+        Merged_txt_file.close()
+        print('-----------------------------------------------------------------------------------------------------------')
+        print("Merged Information for Limit is written into {} .".format(self.limitlog))
         g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
         g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
         g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
         g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
     
-        f1 = TFile(limit_root_file,'RECREATE')
+        f1 = TFile(self.limit_root_file,'RECREATE')
         g_exp2.Write()
         g_exp1.Write()
         g_expmed.Write()
         g_obs.Write()
         f1.Write()
         f1.Close()
-        return limit_root_file
+        return self.limit_root_file
 
     def SaveLimitPdf1D(self,outputdir='./',y_max=1000):
         rootfile = self.limit_root_file
@@ -255,7 +280,7 @@ class RunLimits:
     
         leg.Draw("same")
         c.Update()
-        print (c.GetUxmin(),c.GetUxmax())
+        #print (c.GetUxmin(),c.GetUxmax())
         line = rt.TLine(c.GetUxmin(),1.0,c.GetUxmax(),1.0);
         line.SetLineColor(rt.kRed)
         line.SetLineWidth(2)
@@ -287,35 +312,50 @@ class RunLimits:
         #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
-        OUT_DIR = os.path.join(outputdir,"plot_limit")
+        OUT_DIR = os.path.join(outputdir,"plots_limit")
         
-        print(OUT_DIR)
         #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
 
-        self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin/",outputdir+"/plots_limit/")
         #self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin","plot_limit")
         #c.SetLogx(1)
         c.Update()
         #c.SaveAs(name+".png")
-        print(self.limit_pdf_file) 
-        if os.path.isdir(outputdir+"/plots_limit/"):pass
-        else: os.system("mkdir -p {}".format(outputdir+"/plots_limit/"))
+        
+        CheckDir(OUT_DIR,True)
+        self.limit_pdf_file  = os.path.join(OUT_DIR,self.limit_pdf_file)
+        
+        CheckFile(self.limit_pdf_file,True)
         
         c.SaveAs(self.limit_pdf_file)
-        os.system("rm {}".format(self.limit_pdf_file.replace(".pdf",".png")))
-        c.SaveAs(self.limit_pdf_file.replace(".pdf",".png"))
+        self.limit_png_file = self.limit_pdf_file.replace(".pdf",".png")
+
+        CheckFile(self.limit_png_file,True)
+        c.SaveAs(self.limit_png_file)
+        
         c.Close()
         
         return "pdf file is saved"
         
 
 
-    def getlimitScaled_1D(self, rtc_=0.1, divisionfactor=10000000000):
+    def getlimitScaled_1D(self, coupling_value=0.1, divisionfactor=10000000000):
         limit_file_in  = self.limitlog
         limit_file_out = self.limitlog_scaled
         
         df = pd.read_fwf("ttc_cross_sections.txt")
-        xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
+        
+        print('xs_before\n{}'.format(df))
+        
+        if self.Coupling == 'rtc': 
+            xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
+        elif self.Coupling =='rtu':
+            xs = df[(df.rhotc==0) & (df.rhott==0) & (df.PID=="a0")]
+        else:
+            xs = df[(df.rhotu==0) & (df.rhotc==0) & (df.PID=="a0")]
+
+        print('xs_after\n'.format(xs))
+
+
         xs.drop(axis=1,labels=["PID","Err_cross_section"], inplace=True)
         Drop_index = []
         if self.Coupling =='rtc':
@@ -330,30 +370,28 @@ class RunLimits:
             index_name = 'rhott'
             Drop_index.append('rhotu')
             Drop_index.append('rhotc')
-        else:raise ValueError('')
+        else:raise ValueError("We haven't set this coupling :{}".format(self.Coupling))
         limits = pd.read_csv(limit_file_in, delimiter=" ", names=[index_name,"Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
         #limits[self.Coupling] = 0.4 ## this is dummy value
         print(limits) 
         #print(limits['rhotc'])
         if self.Coupling =='rtc':
-            xs_skim_ = xs[xs.rhotc==rtc_]
-            limits.rhotc = limits.rhotc
+            xs_skim_ = xs[xs.rhotc==coupling_value]
+            limits.rhotc = limits.rhotc * 0.1
         elif self.Coupling =='rtu':
-            limits.rhotu = limits.rhotu
-            xs_skim_ = xs[xs.rhotu==rtc_]
+            limits.rhotu = limits.rhotu * 0.1
+            xs_skim_ = xs[xs.rhotu==coupling_value]
         elif self.Coupling =='rtt':
-            limits.rhott = limits.rhott
-            xs_skim_ = xs[xs.rhott==rtc_]
+            limits.rhott = limits.rhott * 0.1
+            xs_skim_ = xs[xs.rhott==coupling_value]
         else:raise ValueError('')
-        xs_rtc_  = xs_skim_.set_index([index_name,"Mass"])
+        xs_Mass_  = xs_skim_.set_index([index_name,"Mass"])
+        print('xs_Mass_\n{}'.format(xs_Mass_))
         limits=limits.set_index([index_name,"Mass"])
-        print(limits)
-        limits_merged = limits.merge(xs_rtc_, left_index=True, right_index=True, how='outer')
-        print(limits_merged)
-#        for ivar in ["expm2","expm1","exp","expp1","expp2","obs"]:
-#            limits_merged[ivar] = limits_merged[ivar] / limits_merged["cross_section"] * divisionfactor
+        print('limits\n{}'.format(limits))
+        limits_merged = limits.merge(xs_Mass_, left_index=True, right_index=True, how='outer')
+        print('limits_merged\n{}'.format(limits_merged))
             
-        print(limits_merged)
         limits_merged.drop(axis=1,
                            labels=[Drop_index[0],Drop_index[1],"cross_section"],
                            inplace=True)

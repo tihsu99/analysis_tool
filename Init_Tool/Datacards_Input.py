@@ -27,7 +27,8 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         nuisance=str(nuisance.split('_')[-1])
         Input['NuisForProc'][nuisance] = []
         
-        lnN_nuisance = ['fake','normTTTo2L','normTTTo1L','normttWW','normttZZ','normttWZ','normttZ','normttW','normtZq','normtttX','normVVV']
+
+        lnN_nuisance = ['fake','normTTTo2L','normttWW','normttZZ','normttWZ','normttZ','normttW','normtZq','normtttX','normVVV']
         sig_nuisance = ['sigYEARpdf','sigYEARscale','sigYEARps']
         if nuisance not in lnN_nuisance:
             Input['UnclnN'][nuisance]='shape'
@@ -72,17 +73,19 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
             else:
                 raise ValueError('Fix me. ')
         for proc in process:
-            if year=='2018' and nuisance =='prefire':continue
-            
+            if year=='2018':
+                if nuisance =='prefire' or nuisance =='muonYEARptCorrection':continue
+                else:pass
+            else:pass
             if nuisance not in lnN_nuisance and nuisance not in sig_nuisance:
                 if proc !='TTTo1L':
                     if channel=='ee':
                         if nuisance=='muIDYEARsys' or nuisance=='muIDYEARstat' or nuisance=='elemuTriggerYEAR' or nuisance=='dimuTriggerYEAR':continue
-                        elif nuisance=='chargeflipYEAR' and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
+                        elif 'chargeflipYEAR' in nuisance and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
                     elif channel=='em':
                         if nuisance=='dieleTriggerYEAR' or nuisance=='dimuTriggerYEAR' or nuisance=='chargeflipYEAR':continue
                     else:
-                        if nuisance=='eleIDYEARsys' or nuisance=='eleIDYEARstat' or nuisance=='dieleTriggerYEAR' or nuisance=='chargeflipYEAR' or nuisance=='elemuTriggerYEAR':continue
+                        if nuisance=='eleIDYEARsys' or nuisance=='eleIDYEARstat' or nuisance=='dieleTriggerYEAR' or 'chargeflipYEAR' in nuisance or nuisance=='elemuTriggerYEAR':continue
                     Input['NuisForProc'][nuisance].append(proc)
                 else:pass
             else:pass

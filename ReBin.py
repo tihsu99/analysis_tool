@@ -71,12 +71,13 @@ nuisances = dict()
 for iyear in years:
     with open('./data_info/Sample_Names/process_name_{}.json'.format(iyear),'r') as f:
         sample_names[iyear] = json.load(f)
-    with open('./data_info/NuisanceList/nuisance_list_{}.json'.format(iyear),'r') as f:
-        
-        Nuisances_dict = json.load(f)
-    nuisances[iyear] = []
-    for key in Nuisances_dict.keys():
-        nuisances[iyear].append(str(Nuisances_dict[key]))
+    nuisances[iyear] = dict()
+    for ichannel in regions:
+        with open('./data_info/NuisanceList/nuisance_list_{}_{}.json'.format(iyear,ichannel),'r') as f:
+            Nuisances_dict = json.load(f)
+        nuisances[iyear][ichannel] =[]
+        for key in Nuisances_dict.keys():
+            nuisances[iyear][ichannel].append(str(Nuisances_dict[key]))
 
 Process_Categories = sample_names[iyear].keys()
 
@@ -85,13 +86,12 @@ print("rm -rf "+outputdir+"/"+iyear)
 os.system("rm -rf "+outputdir+"/"+iyear)
 
 for iyear in years:
-    print(nuisances)
 
-    variations=["Up", "Down"]
-
-    allvariations= [inuis+iv for iv in variations for inuis in nuisances[iyear]]
-    allvariations.append("")
     for ir in regions:
+        print(nuisances[iyear][ir])
+        variations=["Up", "Down"]
+        allvariations= [inuis+iv for iv in variations for inuis in nuisances[iyear][ir]]
+        allvariations.append("")
         for imass in masses: 
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
@@ -113,7 +113,7 @@ for iyear in years:
                 print (rootfiilename.split("/")[-2], rootfiilename.split("/")[-1])
                 os.system("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2])
                 outputfilename=outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2]+"/"+rootfiilename.split("/")[-1]
-                print (outputfilename)
+                print ("Output file -> : {}\n\n".format(outputfilename))
                 fout = TFile(outputfilename,"RECREATE")
 
                 

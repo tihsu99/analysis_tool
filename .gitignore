@@ -15,3 +15,5 @@ err
 log
 *.cc
 combo.txt
+*.log
+Job_bus/

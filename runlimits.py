@@ -2,7 +2,7 @@ import os
 import numpy as np 
 import sys, optparse,argparse
 from LimitHelper import *
-
+from Util.General_Tool import CheckFile
 couplings_List = ['rtc','rtu','rtt']
 cp_values_List = ['01','04','08','09']
 coupling_value_choices=[]
@@ -23,11 +23,11 @@ parser.add_argument("--plot_only",help='Plot Only',action="store_true")
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
-
+parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
 args = parser.parse_args()
 
-category = args.category
-coupling_value=args.coupling_value
+category = args.category # i.e., channel: ee, em, mm
+coupling_value=args.coupling_value # e.g, rtc04
 year     = args.year
 
 print ("coupling: ",coupling_value)
@@ -36,8 +36,6 @@ cat_str = category+"_"+category
 
 mass_points = args.Masses
 #coupling    = "rtc01"
-template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
-dc_tmplate=open(template_card).readlines()
 
 if os.path.isdir("datacards_ttc_"+year+"/log"):pass
 else:os.system("mkdir -p datacards_ttc_{}/log".format(year))
@@ -48,45 +46,50 @@ _value = ''
 
 for cpling in couplings_List:
     if cpling in coupling_value:
-        _coupling = cpling
-        _value=int(coupling_value.split(cpling)[-1])*0.1
+        _coupling = cpling  # Gives coupling : rtc, rtu, rtt
+        _value=int(coupling_value.split(cpling)[-1])*0.1 # Gives coupling value in float: 0.1, 0.4, 0.8, 1.0
     else:pass
 print(_coupling,_value)
-RL  = RunLimits(year,"ttc", category, "asimov", coupling=_coupling,coupling_value=_value) 
 
-print ("self.limitlog: ",RL.limitlog)
 
-counter=0
 import time
 
 
 start_time = time.time()
+RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value) 
+if args.reset_outputfiles:
+    CheckFile(RL.limitlog,True)
+    CheckFile(RL.limit_root_file,True)
+else:pass
 
-if not args.plot_only:
+
+
+#print ("self.limitlog: ",RL.limitlog)
+
+if args.plot_only:
+
+    RL.TextFileToRootGraphs(Masses=mass_points)
+    CheckDir(args.outputdir,True)
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max)
+else:
+    counter=0
+    template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
     for imass in mass_points:
         mA = str(imass)
-        rtc = coupling_value.split("rtc")[-1]
+        rtc = coupling_value.split("rtc")[-1] # Gives coupling value in string with "." -> "p": 0p1, 0p4, 0p8, 1p0
         
         print ("{}: {}".format(_coupling,rtc))
-        parameters = "MA"+str(imass)+"_"+coupling_value
+        parameters = "MA"+str(imass)+"_"+coupling_value # MA200_rtc0p4, for example.
         card_name = template_card.replace("template",parameters)
-        print ("card_name: ", card_name)
         
-        fout = open(card_name,'w')
-        dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_tmplate] )
-        dc_out =  ([iline.replace("COUPLINGVALUE",coupling_value) for iline in dc_out] ) ## mind that now it is dc_out
-        dc_out =  ([iline.replace("../datacards_ttc_{}/".format(year),"") for iline in dc_out] )
-
-        
-        fout.writelines(dc_out)
-        fout.close()
-        
-        logname = RL.getLimits(card_name)
+        logname = RL.getLimits(card_name,asimov=True,mass_point="MA"+imass)
         
         mode_ = "a"
         
         if counter==0: mode_="w"
-        param_list=(mA,_value)
+        Higgs = "MA"
+        
+        param_list=(Higgs,mA,_value) # e.g., (200,0.4)
         limitlogfile = RL.LogToLimitList(logname,param_list,mode_)
         counter=counter+1
 ## this is out of the for loop 
@@ -94,16 +97,13 @@ if not args.plot_only:
 ### scale the limits with cross-section 
 
 # set to 1 not to have any additional scales (before it was 0.01 - see below)
-RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
+#RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
 
 ### convert text file to root file 
-RL.TextFileToRootGraphs()
 
 
 ### save the .root file into a pdf file for presentations  
-if os.path.isdir(args.outputdir):pass
-else:os.system('mkdir -p {}'.format(args.outputdir))
-RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max)
+
     
 print("Run time for the current program is : {}".format(time.time()-start_time))
     
