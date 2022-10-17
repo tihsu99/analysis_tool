@@ -73,8 +73,10 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
             else:
                 raise ValueError('Fix me. ')
         for proc in process:
-            if year=='2018' and nuisance =='prefire':continue
-            
+            if year=='2018':
+                if nuisance =='prefire' or nuisance =='muonYEARptCorrection':continue
+                else:pass
+            else:pass
             if nuisance not in lnN_nuisance and nuisance not in sig_nuisance:
                 if proc !='TTTo1L':
                     if channel=='ee':
