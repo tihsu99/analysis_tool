@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--shell_script',type=str,default='__default__')
 
 parser.add_argument('--Job_bus_Name',type=str,default='__default__')
-parser.add_argument('--JobFlavour',type=str,default='tomorrow',choices=['workday','tomorrow','testmatch','espresso','microcentury','longlunch','nextweek'])
+parser.add_argument('--JobFlavour',type=str,default='nextweek',choices=['workday','tomorrow','testmatch','espresso','microcentury','longlunch','nextweek'])
 
 args = parser.parse_args()
 import os
