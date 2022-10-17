@@ -34,6 +34,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_dimuTriggerYEAR",
             "_dieleTriggerYEAR",
             "_fake",
+            "_muonYEARptCorrection",
             "_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
 
     nuis_Final = {}
