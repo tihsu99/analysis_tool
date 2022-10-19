@@ -3,39 +3,76 @@ from Util.General_Tool import CheckFile
 
 def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all'):
 
-    nuis_Init=[
-            "_lumiYEAR", 
-            "_pileup",
-            "_muIDYEARsys", 
-            "_muIDYEARstat",
-            "_eleIDYEARsys",
-            "_eleIDYEARstat",
-            "_ctagYEARstat",
-            "_ctagYEARExtrap",
-            "_ctagYEARLHEmuF",
-            "_ctagYEARLHEmuR",
-            "_ctagYEARInterp",
-            "_ctagYEARPSFSR",
-            "_ctagYEARPSISR",
-            "_ctagYEARPU",
-            "_ctagDYXSb",
-            "_ctagDYXSc",
-            "_ctagWJetsXSc",
-            "_ctagJER",
-            "_ctagJES",
-            "_chargeflipYEARstat",
-            "_chargeflipYEARsyst",
-            "_prefire",
-            "_metYEARunclusterE", 
-            "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
-            "_jesYEAR",
-            "_jerYEAR", 
-            "_elemuTriggerYEAR" ,
-            "_dimuTriggerYEAR",
-            "_dieleTriggerYEAR",
-            "_fake",
-            "_muonYEARptCorrection",
-            "_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
+    if year =='2018':
+    
+        nuis_Init=[
+                "_lumiYEAR", 
+                "_pileup",
+                "_muIDYEARsys", 
+                "_muIDYEARstat",
+                "_eleIDYEARsys",
+                "_eleIDYEARstat",
+                "_ctagYEARstat",
+                "_ctagYEARExtrap",
+                "_ctagYEARLHEmuF",
+                "_ctagYEARLHEmuR",
+                "_ctagYEARInterp",
+                "_ctagYEARPSFSR",
+                "_ctagYEARPSISR",
+                "_ctagYEARPU",
+                "_ctagDYXSb",
+                "_ctagDYXSc",
+                "_ctagWJetsXSc",
+                "_ctagJER",
+                "_ctagJES",
+                "_chargeflipYEARstat",
+                "_chargeflipYEARsyst",
+                "_prefire",
+                "_metYEARunclusterE", 
+                "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
+                "_jesYEAR",
+                "_jerYEAR", 
+                "_elemuTriggerYEAR" ,
+                "_dimuTriggerYEAR",
+                "_dieleTriggerYEAR",
+                "_fake",
+                "_muonYEARptCorrection",
+                "_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
+    
+    else:
+        
+        nuis_Init=[
+                "_lumiYEAR", 
+                "_pileup", 
+                "_muIDYEARsys", 
+                "_muIDYEARstat",
+                "_eleIDYEARsys",
+                "_eleIDYEARstat",
+                "_ctagYEARstat", 
+                "_ctagYEAREleID", 
+                "_ctagYEARLHEmuF", 
+                "_ctagYEARLHEmuR", 
+                "_ctagYEARmuID", 
+                "_ctagYEARPSFSR", 
+                "_ctagYEARPU", 
+                "_ctagDYXS",
+                "_ctagSTXS",
+                "_ctagVVXS",
+                "_ctagWJetXS", 
+                "_ctagTTXS", 
+                "_ctagJER", 
+                "_ctagJES",
+                "_chargeflipYEAR",
+                "_sigYEARpdf",  ## only signal 
+                "_metYEARunclusterE", 
+                "_jesYEAR",
+                "_jerYEAR",
+                "_elemuTriggerYEAR", 
+                "_dieleTriggerYEAR",
+                "_dimuTriggerYEAR"]
+
+
+
 
     nuis_Final = {}
     nuis_Final_return = []
@@ -52,9 +89,9 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             else:
                 if "dieleTriggerYEAR" in nui or 'dimuTriggerYEAR' in nui or "chargeflipYEAR" in nui:continue
                 else:pass
-            if year=='2018':
-                if 'prefireYEAR' in nui:continue
-                else:pass
+            #if year=='2018':
+            #    if 'prefireYEAR' in nui:continue
+            #    else:pass
 
             nuis_Final[Index] = nui
             nuis_Final_return.append(nui)
