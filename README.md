@@ -250,40 +250,48 @@ Note!!!: The pre-requiest for this is the corresponding datacard.
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
 #### 2016postapv
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c mm --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c ee --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c C --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c mm --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c ee --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c C --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
 ```
 
 #### 2016 apv 
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c mm --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c ee --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
-python runlimits.py -c C --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  --outputdir [your/favoured/output/folder]
+python runlimits.py -c em --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c mm --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c ee --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c C --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
 ```
 #### 2017
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
-python runlimits.py -c mm --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
-python runlimits.py -c ee --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
-python runlimits.py -c C --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c em --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c mm --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c ee --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c C --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
 ```
 #### 2018
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
-python runlimits.py -c mm --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
-python runlimits.py -c ee --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder] 
-python runlimits.py -c C  --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]
+python runlimits.py -c em --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c mm --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c ee --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C  --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
 ```
 ### Run2
 ```
-python runlimits.py -c C --Couplings rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
-python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
-python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
-python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favoured/output/folder]	
+python runlimits.py -c C --Couplings rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
 ```
+#### Plot Limits 
+
+After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
+```
+python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016apv,2016postapv,2017,2018] --Masses [Mass list] --outputdir [your/favoured/output/folder] --plot_only ;
+```
+
+
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls 
@@ -361,6 +369,8 @@ python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value
 python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
 condor_submit scripts/condor.sub
 ```
+Note: After you collect result, you need to plot them! Please see the corresponding command in section 4.
+
 
 # 7. Trouble Shooting 
 
