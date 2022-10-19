@@ -250,39 +250,39 @@ Note!!!: The pre-requiest for this is the corresponding datacard.
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
 #### 2016postapv
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c mm --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c ee --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c C --Couplings rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c em --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c mm --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c ee --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c C --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
 ```
 
 #### 2016 apv 
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c mm --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c ee --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c C --Couplings rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c em --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  
+python runlimits.py -c mm --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c ee --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
+python runlimits.py -c C --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
 ```
 #### 2017
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c mm --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c ee --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c C --Couplings rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c em --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c mm --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c ee --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
+python runlimits.py -c C --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
 ```
 #### 2018
 ```
-python runlimits.py -c em --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c mm --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c ee --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C  --Couplings rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c em --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c mm --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c ee --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C  --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
 ```
 ### Run2
 ```
-python runlimits.py -c C --Couplings rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --Couplings rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --Couplings rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --Couplings rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
+python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
 ```
 #### Plot Limits 
 
