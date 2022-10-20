@@ -235,9 +235,6 @@ python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For specific --coupling_valu
 python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
 python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
 
-python prepareCards.py -y run2 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y run2 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y run2 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
 python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
 
 ```
