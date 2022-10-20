@@ -1,5 +1,4 @@
-PID   Mass  rhotu    rhotc    rhott        cross-section [pb]      Err(cross-section) 
-      [GeV]                                   [pb]                   [pb]
+PID   Mass  rhotu    rhotc    rhott        cross_section       Err(cross-section) 
 a0    200    0.1      0.0      0.0          2.043e-03              2.856e-04
 a0    200    0.4      0.0      0.0          3.625e-02              4.689e-03
 a0    200    0.8      0.0      0.0          1.904e-01              2.366e-02
