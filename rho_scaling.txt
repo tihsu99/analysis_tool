@@ -1,13 +1,13 @@
-# particle rho-type rho-value scale-w.r.t.rho0.4 
-s0          rtu       0.1          0.058
-s0          rtu       0.8          5.730
-s0          rtu       1.0          9.698
-s0          rtc       0.1          0.065
-s0          rtc       0.8          4.364
-s0          rtc       1.0          7.178
-a0          rtu       0.1          0.065
-a0          rtu       0.8          5.452
-a0          rtu       1.0          9.604
-a0          rtc       0.1          0.057
-a0          rtc       0.8          4.144
-a0          rtc       1.0          6.897
+# particle rho-type rho-value scale-w.r.t.rho0.4      delta(scale)
+s0          rtu       0.1          0.058               0.012
+s0          rtu       0.8          5.730               1.092
+s0          rtu       1.0          9.698               1.872
+s0          rtc       0.1          0.065               0.013
+s0          rtc       0.8          4.364               0.864
+s0          rtc       1.0          7.178               1.406
+a0          rtu       0.1          0.065               0.013
+a0          rtu       0.8          5.452               1.061
+a0          rtu       1.0          9.604               1.870
+a0          rtc       0.1          0.057               0.011
+a0          rtc       0.8          4.144               0.800
+a0          rtc       1.0          6.897               1.323
