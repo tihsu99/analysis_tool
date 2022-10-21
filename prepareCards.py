@@ -208,7 +208,7 @@ for reg in regions:
             dc_tmplate=open(template_card).readlines()
 
             if(args.scale):
-              df = pd.read_fwf("rho_staling.txt")
+              df = pd.read_fwf("rho_scaling.txt")
               cp_value = int(cp_scaleTo.replace('rtc','').replace('rtt','').replace('rtu','').replace('p',''))*0.1
               for i in range(len(df)):
                 if df['# particle'][i] == 'a0' and df['rho-type'][i] in cp_scaleTo and df['rho-value'][i]==cp_value:
