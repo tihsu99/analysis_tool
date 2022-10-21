@@ -62,7 +62,17 @@ def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,output
 
         #coupling_value = coupling_value.split('rtc')[-1]
         #####################
-        datacard_location = 'datacards_ttc_{}/ttc_datacard_{}_SR_{}_{}_M{}{}_{}.txt'.format(year,year,channel,channel,higgs,mass_point,coupling_value)
+        if "rtc" in coupling_value:
+            signal_process_name = "ttc"
+        elif "rtu" in coupling_value:
+            signal_process_name = "ttu"
+        elif "rtt" in coupling_value:
+            signal_process_name = "ttt"
+        else:raise ValueError("No such channel: {}".format(signal_process_name))
+        
+        
+        #datacards_run2_ttu/ttu_rtu04_datacard_run2_SR_em_em_MA200.txt
+        datacard_location = 'datacards_{year}_{sig}/{sig}_{cp_value}_datacard_{year}_SR_{channel}_{channel}_M{H}{Mass}.txt'.format(year=year,sig=signal_process_name,channel=channel,H=higgs,Mass = mass_point,cp_value = coupling_value)
         if not CheckFile(datacard_location,False,True): raise ValueError('\nMake sure {} exists. Please prepare this datacards\n'.format(datacard_location))
 
         f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))

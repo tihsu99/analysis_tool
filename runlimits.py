@@ -37,8 +37,6 @@ cat_str = category+"_"+category
 mass_points = args.Masses
 #coupling    = "rtc01"
 
-if os.path.isdir("datacards_ttc_"+year+"/log"):pass
-else:os.system("mkdir -p datacards_ttc_{}/log".format(year))
 
 
 _coupling =''
@@ -51,6 +49,17 @@ for cpling in couplings_List:
     else:pass
 print(_coupling,_value)
 
+
+if _coupling == 'rtc':
+    signal_process_name = 'ttc'
+elif _coupling == 'rtu':
+    signal_process_name = 'ttu'
+elif _coupling == 'rtt':
+    signal_process_name = 'ttt'
+else:raise ValueError("No such coupling:{coupling}".format(coupling=_coupling))
+
+print("datacards_{}_{}/log".format(year,signal_process_name))
+CheckDir("datacards_{}_{}/log".format(year,signal_process_name),True)
 
 import time
 
@@ -73,13 +82,14 @@ if args.plot_only:
     RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max)
 else:
     counter=0
-    template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
+    template_card = "datacards_{year}_{signal_process_name}".format(year=year,signal_process_name=signal_process_name)+"/{signal_process_name}_{coupling_value}_datacard_".format(signal_process_name=signal_process_name,coupling_value=coupling_value)+year+"_SR_"+cat_str+"_template.txt"
+    #datacards_2016apv_ttu/ttu_rtu04_datacard_2016apv_SR_em_em_MA1000.txt
     for imass in mass_points:
         mA = str(imass)
         rtc = coupling_value.split("rtc")[-1] # Gives coupling value in string with "." -> "p": 0p1, 0p4, 0p8, 1p0
         
         print ("{}: {}".format(_coupling,rtc))
-        parameters = "MA"+str(imass)+"_"+coupling_value # MA200_rtc0p4, for example.
+        parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
         card_name = template_card.replace("template",parameters)
         
         logname = RL.getLimits(card_name,asimov=True,mass_point="MA"+imass)

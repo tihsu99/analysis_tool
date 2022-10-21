@@ -20,7 +20,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 #print(sys.path)
 import json
-from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -39,6 +39,15 @@ parser.add_argument('--unblind',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
 parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'])
 args = parser.parse_args()
+
+
+if args.Coupling_Name == 'rtc':
+    signal_process_name = 'ttc'
+elif args.Coupling_Name == 'rtu':
+    signal_process_name = 'ttu'
+elif args.Coupling_Name == 'rtt':
+    signal_process_name = 'ttt'
+else:raise ValueError("No such signal process: {}".format(signal_process_name))
 
 name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
 args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
@@ -82,11 +91,22 @@ for iyear in years:
 Process_Categories = sample_names[iyear].keys()
 
 #First remove the output folder for the era to be processed
-print("rm -rf "+outputdir+"/"+iyear) 
-os.system("rm -rf "+outputdir+"/"+iyear)
+for iyear in years:
+    for ir in regions:
+        for imass in masses: 
+            for ic in couplings:
+                filename_ = filename.format(str(imass), ir)
+                ic_ = ic.replace("p","")
+                inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                
+                print (" filename: ", inputdir_+"/"+filename_)
+                # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
+                rootfiilename=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                #./FinalInputs/2016apv/ttc_a_rtu04_MA600/TMVApp_600_ee.root
+                print("rm -rf " + outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
+                #os.system("rm -rf "+outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
 
 for iyear in years:
-
     for ir in regions:
         print(nuisances[iyear][ir])
         variations=["Up", "Down"]
@@ -100,8 +120,8 @@ for iyear in years:
                 print (" fiilename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
                 print (inputdir_+"/"+filename_)
-                rootfiilename=inputdir_+"/"+filename_
-                f_in = TFile(rootfiilename,"R")
+                rootfiilename_IN=inputdir_+"/"+filename_
+                f_in = TFile(rootfiilename_IN,"R")
                 
                 f_in.cd()
                 #f_in.ls()
@@ -109,10 +129,13 @@ for iyear in years:
                 prefix="ttc"+iyear+"_"
                 
                 rebin_=5
-                ## create the output file in EOS 
-                print (rootfiilename.split("/")[-2], rootfiilename.split("/")[-1])
-                os.system("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2])
-                outputfilename=outputdir+"/"+iyear+"/"+rootfiilename.split("/")[-2]+"/"+rootfiilename.split("/")[-1]
+                rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                print(rootfiilename_OUT.split("/")[-2])
+
+                print("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2])
+                
+                CheckDir(outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2],True,True)
+                outputfilename=outputdir+"/"+iyear+"/"+rootfiilename_OUT
                 print ("Output file -> : {}\n\n".format(outputfilename))
                 fout = TFile(outputfilename,"RECREATE")
 
