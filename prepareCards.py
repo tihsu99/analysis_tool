@@ -24,6 +24,7 @@ parser.add_argument("-c", "--category",  dest="category",default="all",choices=[
 parser.add_argument("-reg", nargs="+", default=["a", "b"])
 parser.add_argument("--reset",action="store_true")
 parser.add_argument("--coupling_value",default='rtc0p4',type=str,choices=coupling_value_choices)
+parser.add_argument("--scale", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 
@@ -34,7 +35,13 @@ args = parser.parse_args()
 year     = args.year
 category = args.category
 regions  = args.reg
+cp_scaleTo = args.coupling_value
+
+if(args.scale):
+  args.coupling_value = 'rtc0p4'
+
 args.coupling_value = args.coupling_value.replace("p","")
+args.scale = args.scale and not (cp_scaleTo == 'rtc0p4')
 #modelName = args.model
 
 
@@ -186,10 +193,23 @@ for reg in regions:
             cat_str = channel+"_"+channel
             template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
             dc_tmplate=open(template_card).readlines()
+
+            if(args.scale):
+              df = pd.read_fwf("rho_scaling.txt")
+              cp_value = int(cp_scaleTo.replace('rtc','').replace('rtu','').replace('p',''))*0.1
+              for i in range(len(df)):
+                if df['# particle'][i] == 'a0' and df['rho-type'][i] in cp_scaleTo and df['rho-value'][i]==cp_value:
+                  scale = df['scale-w.r.t.rho0.4'][i]
+                  scale_sigma = df['delta(scale)'][i]
+              dc_tmplate.append("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT %f [%f,%f]"%(scale,scale-scale_sigma,scale+scale_sigma)+'\n')
+
+
             for imass in args.Masses:
                 mA = str(imass)
                 parameters = "MA"+str(imass)+"_"+args.coupling_value # MA200_rtc0p4, for example.
                 card_name = template_card.replace("template",parameters)
+                if(args.scale):
+                  card_name = card_name.replace(args.coupling_value,cp_scaleTo.replace('p',''))
                 CheckFile(card_name,RemoveFile=True)
                 
 
