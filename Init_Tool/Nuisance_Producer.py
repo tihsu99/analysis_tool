@@ -2,74 +2,78 @@ import json
 from Util.General_Tool import CheckFile
 
 def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all'):
+    """
 
-    if year =='2018':
+    Uncorrelated sources (they need to be kept in the datacard):
+    ------------------------------------------------------------
+    ExtrapDown,
+    ExtrapUp, 
+    InterpDown ,
+    InterpUp , 
+    StatDown, 
+    StatUp, 
+    XSec_BRUnc_DYJets_bDown,
+    XSec_BRUnc_DYJets_bUp, 
+    XSec_BRUnc_DYJets_cDown, 
+    XSec_BRUnc_DYJets_cUp, 
+    XSec_BRUnc_WJets_cDown ,
+    XSec_BRUnc_WJets_cUp,
+
+    Correlated sources (they should not appear in the datacard but will be in the inputs already):
+    ----------------------------------------------------------------------------------------------
+    The following ones should be correlated to sig201Xscale:
+        LHEScaleWeight_muFDown, 
+        LHEScaleWeight_muFUp,
+        LHEScaleWeight_muRDown, 
+        LHEScaleWeight_muRUp, 
+
+    The following ones should be correlated to sig201Xps:
+        PSWeightFSRDown, 
+        PSWeightFSRUp, 
+        PSWeightISRDown,
+        PSWeightISRUp, 
+
+    The following should be correlated to pileup:
+        PUWeightDown, 
+        PUWeightUp, 
+
+    The following should be correlated to jer201X:
+        jerUp, 
+        jerDown, 
+
+    The following should be correlated to jes201X:
+        jesTotalUp, 
+        jesTotalDown
+
+    """
     
-        nuis_Init=[
-                "_lumiYEAR", 
-                "_pileup",
-                "_muIDYEARsys", 
-                "_muIDYEARstat",
-                "_eleIDYEARsys",
-                "_eleIDYEARstat",
-                "_ctagYEARstat",
-                "_ctagYEARExtrap",
-                "_ctagYEARLHEmuF",
-                "_ctagYEARLHEmuR",
-                "_ctagYEARInterp",
-                "_ctagYEARPSFSR",
-                "_ctagYEARPSISR",
-                "_ctagYEARPU",
-                "_ctagDYXSb",
-                "_ctagDYXSc",
-                "_ctagWJetsXSc",
-                "_ctagJER",
-                "_ctagJES",
-                "_chargeflipYEARstat",
-                "_chargeflipYEARsyst",
-                "_prefire",
-                "_metYEARunclusterE", 
-                "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
-                "_jesYEAR",
-                "_jerYEAR", 
-                "_elemuTriggerYEAR" ,
-                "_dimuTriggerYEAR",
-                "_dieleTriggerYEAR",
-                "_fake",
-                "_muonYEARptCorrection",
-                "_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
+    nuis_Init=[
+            "_lumiYEAR", 
+            "_pileup",
+            "_muIDYEARsys", 
+            "_muIDYEARstat",
+            "_eleIDYEARsys",
+            "_eleIDYEARstat",
+            "_ctagYEARstat",
+            "_ctagYEARExtrap",
+            "_ctagYEARInterp",
+            "_ctagDYXSb",
+            "_ctagDYXSc",
+            "_ctagWJetsXSc",
+            "_chargeflipYEARstat",
+            "_chargeflipYEARsyst",
+            "_prefire",
+            "_metYEARunclusterE", 
+            "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
+            "_jesYEAR",
+            "_jerYEAR", 
+            "_elemuTriggerYEAR" ,
+            "_dimuTriggerYEAR",
+            "_dieleTriggerYEAR",
+            "_fake",
+            "_muonYEARptCorrection",
+            "_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
     
-    else:
-        
-        nuis_Init=[
-                "_lumiYEAR", 
-                "_pileup", 
-                "_muIDYEARsys", 
-                "_muIDYEARstat",
-                "_eleIDYEARsys",
-                "_eleIDYEARstat",
-                "_ctagYEARstat", 
-                "_ctagYEAREleID", 
-                "_ctagYEARLHEmuF", 
-                "_ctagYEARLHEmuR", 
-                "_ctagYEARmuID", 
-                "_ctagYEARPSFSR", 
-                "_ctagYEARPU", 
-                "_ctagDYXS",
-                "_ctagSTXS",
-                "_ctagVVXS",
-                "_ctagWJetXS", 
-                "_ctagTTXS", 
-                "_ctagJER", 
-                "_ctagJES",
-                "_chargeflipYEAR",
-                "_sigYEARpdf",  ## only signal 
-                "_metYEARunclusterE", 
-                "_jesYEAR",
-                "_jerYEAR",
-                "_elemuTriggerYEAR", 
-                "_dieleTriggerYEAR",
-                "_dimuTriggerYEAR"]
 
 
 
