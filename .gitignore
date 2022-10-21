@@ -1,9 +1,9 @@
 plots_limit*
-datacards_ttc_*
 SignalExtractionChecks2018
 FinalInputs
 higgsCombine_C_201*_asimov_t_0_SignalExtractionChecks201*.FitDiagnostics.mH120.root
 roostats-*.root
+datacards_*/
 *.root
 *.json
 *.pyc
@@ -17,3 +17,4 @@ log
 combo.txt
 *.log
 Job_bus/
+*pdf
