@@ -4,7 +4,7 @@ import sys, optparse,argparse
 from LimitHelper import *
 from Util.General_Tool import CheckFile
 couplings_List = ['rtc','rtu','rtt']
-cp_values_List = ['01','04','08','09']
+cp_values_List = ['01','04','08','10']
 coupling_value_choices=[]
 for coupling in couplings_List:
     for value in cp_values_List:
