@@ -239,6 +239,17 @@ python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Ma
 
 ```
 
+## 3.3.1 Quick command-list for datacard productions with scaling
+
+Take 2018 for example, just add `--scale` in the command line. Code automatically take rtc0p4 as scaling reference.
+```
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 200 300 350 400 500 600 700 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 200 300 350 400 500 600 700 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 200 300 350 400 500 600 700 --scale;
+
+```
+
 
 # 4. Limit Plots
 
