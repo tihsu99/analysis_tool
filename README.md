@@ -239,7 +239,7 @@ python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Ma
 
 ```
 
-## 3.3.1 Quick command-list for datacard productions with scaling
+### 3.3.1 Quick command-list for datacard productions with scaling
 
 Take 2018 for example, just add `--scale` in the command line. Code automatically take rtc0p4 as scaling reference.
 ```
