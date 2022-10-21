@@ -37,11 +37,27 @@ category = args.category
 regions  = args.reg
 cp_scaleTo = args.coupling_value
 
-if(args.scale):
-  args.coupling_value = 'rtc0p4'
 
 args.coupling_value = args.coupling_value.replace("p","")
-args.scale = args.scale and not (cp_scaleTo == 'rtc0p4')
+if "rtc" in args.coupling_value:
+    signal_process_name = "ttc"
+elif "rtu" in args.coupling_value:
+    signal_process_name = "ttu"
+elif "rtt" in args.coupling_value:
+    signal_process_name = "ttt"
+else:raise ValueError("No such coupling value {}".format(args.coupling_value))
+
+if(args.scale):
+    if signal_process_name=="ttc":
+        args.coupling_value = 'rtc0p4'
+    elif signal_process_name=="ttu":
+        args.coupling_value = 'rtu0p4'
+    elif signal_process_name=="ttu":
+        args.coupling_value = 'rtt0p4'
+    else:raise ValueError("No such coupling value {}".format(args.coupling_value))
+
+
+args.scale = args.scale and not (cp_scaleTo == args.coupling_value)
 #modelName = args.model
 
 
@@ -63,11 +79,9 @@ f_nuis = open('nuisances.yaml')
 doc_nuis   = yaml.safe_load(f_nuis)
 
 
-outdir = 'datacards_ttc_'+year
+if args.For == 'template':
+    CheckDir('datacards_{}_template'.format(year),True,True)
 
-
-
-os.system('mkdir -p '+ outdir)
 
 
 top_ = '''
@@ -97,27 +111,25 @@ for reg in regions:
      
     if args.For == 'template':
         if year=='run2' :
-            if CheckDir('datacards_ttc_run2',False):
-                os.system('rm -ifr datacards_ttc_run2')
-            print('mkdir datacards_ttc_run2') 
-            os.system('mkdir datacards_ttc_run2')
+            CheckDir('datacards_run2_template',True)
             for channel in channels:
-            
-                print('cp ./datacards_ttc_2016apv/ttc_datacard_2016apv_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                os.system('cp ./datacards_ttc_2016apv/ttc_datacard_2016apv_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                print('cp ./datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                os.system('cp ./datacards_ttc_2016postapv/ttc_datacard_2016postapv_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                print('cp ./datacards_ttc_2017/ttc_datacard_2017_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                os.system('cp ./datacards_ttc_2017/ttc_datacard_2017_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                print('cp ./datacards_ttc_2018/ttc_datacard_2018_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                os.system('cp ./datacards_ttc_2018/ttc_datacard_2018_SR_{}_{}_template.txt ./datacards_ttc_run2'.format(channel,channel))
-                print('combineCards.py year2016apv=./datacards_ttc_run2/ttc_datacard_2016apv_SR_{}_{}_template.txt year2016postapv=./datacards_ttc_run2/ttc_datacard_2016postapv_SR_{}_{}_template.txt year2017=./datacards_ttc_run2/ttc_datacard_2017_SR_{}_{}_template.txt year2018=./datacards_ttc_run2/ttc_datacard_2018_SR_{}_{}_template.txt > ./datacards_ttc_run2/ttc_datacard_run2_SR_{}_{}_template.txt'.format(channel,channel,channel,channel,channel,channel,channel,channel,channel,channel))
-                os.system('combineCards.py year2016apv=./datacards_ttc_run2/ttc_datacard_2016apv_SR_{}_{}_template.txt year2016postapv=./datacards_ttc_run2/ttc_datacard_2016postapv_SR_{}_{}_template.txt year2017=./datacards_ttc_run2/ttc_datacard_2017_SR_{}_{}_template.txt year2018=./datacards_ttc_run2/ttc_datacard_2018_SR_{}_{}_template.txt > ./datacards_ttc_run2/ttc_datacard_run2_SR_{}_{}_template.txt'.format(channel,channel,channel,channel,channel,channel,channel,channel,channel,channel,))
-                print('\n./datacards_ttc_run2/ttc_datacard_run2_SR_{}_{}_template.txt is prepared.'.format(channel,channel))
+                for i_year in ["2016apv","2016postapv","2017","2018"]:
+                    CheckFile("datacards_run2_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt".format(year=i_year,channel=channel))
+                    print('cp ./datacards_{year}_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt ./datacards_run2_template'.format(year=i_year,channel=channel))
+                    os.system('cp ./datacards_{year}_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt ./datacards_run2_template'.format(year=i_year,channel=channel))
+
+
+                print('cd datacards_run2_template;combineCards.py year2016apv=template_couplingvalue_datacard_2016apv_SR_{channel}_{channel}_parameters.txt year2016postapv=template_couplingvalue_datacard_2016postapv_SR_{channel}_{channel}_parameters.txt year2017=template_couplingvalue_datacard_2017_SR_{channel}_{channel}_parameters.txt year2018=template_couplingvalue_datacard_2018_SR_{channel}_{channel}_parameters.txt > template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt'.format(channel=channel))
+                os.system('cd datacards_run2_template;combineCards.py year2016apv=template_couplingvalue_datacard_2016apv_SR_{channel}_{channel}_parameters.txt year2016postapv=template_couplingvalue_datacard_2016postapv_SR_{channel}_{channel}_parameters.txt year2017=template_couplingvalue_datacard_2017_SR_{channel}_{channel}_parameters.txt year2018=template_couplingvalue_datacard_2018_SR_{channel}_{channel}_parameters.txt > template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt'.format(channel=channel))
+                print('\n./datacards_run2_template/template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt is prepared.'.format(channel=channel))
+                
+                for i_year in ["2016apv","2016postapv","2017","2018"]:
+                    print('rm ./datacards_run2_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt'.format(year=i_year,channel=channel))
+                    os.system('rm ./datacards_run2_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt'.format(year=i_year,channel=channel))
         else:
             for channel in channels:
                 cat_str = channel+"_"+channel
-                template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
+                template_card = "datacards_"+year+"_template/template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
                 
                 outputfile = template_card
                 #delete the datacard before creating
@@ -186,17 +198,18 @@ for reg in regions:
                     print("===================================================")
                     print("")
                 else:    
-                    os.system('combineCards.py em=datacards_ttc_{}/ttc_datacard_{}_SR_em_em_template.txt ee=datacards_ttc_{}/ttc_datacard_{}_SR_ee_ee_template.txt  mm=datacards_ttc_{}/ttc_datacard_{}_SR_mm_mm_template.txt > datacards_ttc_{}/ttc_datacard_{}_SR_C_C_template.txt'.format(year,year,year,year,year,year,year,year))
+                    os.system('cd datacards_{y}_template/;combineCards.py em=template_couplingvalue_datacard_{y}_SR_em_em_parameters.txt ee=template_couplingvalue_datacard_{y}_SR_ee_ee_parameters.txt  mm=template_couplingvalue_datacard_{y}_SR_mm_mm_parameters.txt > template_couplingvalue_datacard_{y}_SR_C_C_parameters.txt'.format(y=year))
                     print(template_card+ ' is prepared')
     elif args.For == 'specific':
+        CheckDir("datacards_"+year+"_"+signal_process_name,True,True)
         for channel in channels:
             cat_str = channel+"_"+channel
-            template_card = "datacards_ttc_"+year+"/ttc_datacard_"+year+"_SR_"+cat_str+"_template.txt"
+            template_card = "datacards_"+year+"_template/template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
             dc_tmplate=open(template_card).readlines()
 
             if(args.scale):
-              df = pd.read_fwf("rho_scaling.txt")
-              cp_value = int(cp_scaleTo.replace('rtc','').replace('rtu','').replace('p',''))*0.1
+              df = pd.read_fwf("rho_staling.txt")
+              cp_value = int(cp_scaleTo.replace('rtc','').replace('rtt','').replace('rtu','').replace('p',''))*0.1
               for i in range(len(df)):
                 if df['# particle'][i] == 'a0' and df['rho-type'][i] in cp_scaleTo and df['rho-value'][i]==cp_value:
                   scale = df['scale-w.r.t.rho0.4'][i]
@@ -206,21 +219,26 @@ for reg in regions:
 
             for imass in args.Masses:
                 mA = str(imass)
-                parameters = "MA"+str(imass)+"_"+args.coupling_value # MA200_rtc0p4, for example.
-                card_name = template_card.replace("template",parameters)
+                parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+                card_name = template_card.replace("template",signal_process_name)
+                card_name = card_name.replace("parameters",parameters)
+                coupling_value = args.coupling_value.split(signal_process_name)[-1]
+                card_name = card_name.replace("couplingvalue",coupling_value)
                 if(args.scale):
                   card_name = card_name.replace(args.coupling_value,cp_scaleTo.replace('p',''))
                 CheckFile(card_name,RemoveFile=True)
                 
 
                 fout = open(card_name,'w')
-                dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_tmplate] )
+                dc_out =  ([iline.replace("SIGNALPROCESS",str(signal_process_name)) for iline in dc_tmplate] )
+                
+                dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_out] )
                 dc_out =  ([iline.replace("COUPLINGVALUE",args.coupling_value) for iline in dc_out] ) ## mind that now it is dc_out
                 if year =='run2':
                     for y in ['2016apv','2016postapv','2017','2018','run2']:
-                        dc_out =  ([iline.replace("datacards_ttc_{}/".format(y),"") for iline in dc_out] )
+                        dc_out =  ([iline.replace("datacards_{}_{}/".format(signal_process_name,y),"") for iline in dc_out] )
                 else:
-                    dc_out =  ([iline.replace("datacards_ttc_{}/".format(year),"") for iline in dc_out] )
+                    dc_out =  ([iline.replace("datacards_{}_{}/".format(signal_process_name,year),"") for iline in dc_out] )
                 
 
                 
