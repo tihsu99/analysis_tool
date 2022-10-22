@@ -5,14 +5,14 @@ jmax *  number of backgrounds
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 
 ------------
-shapes * SR_em FinalInputs/2017/ttu_a_rtu0p4_MA200/TMVApp_200_em.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC
+shapes * SR_em FinalInputs/2017/ttu_a_rtu04_MA200/TMVApp_200_em.root ttc2017_$PROCESS ttc2017_$PROCESS_$SYSTEMATIC
 
 ------------
 bin SR_em
 observation -1
 ------------
 bin                                  SR_em  SR_em  SR_em  SR_em     SR_em     SR_em   SR_em   SR_em  SR_em  SR_em  SR_em  SR_em  SR_em   SR_em  SR_em
-process  TAToTTQ_rtu0p4_MA200    tzq    ttZ    VVV  t_tbar_W  ttWtoLNu  tt_V_H  TTTo2L   ttZZ   ttWZ     VV     DY   tttX  TTTo1L   ttWW
+process  TAToTTQ_rtu04_MA200    tzq    ttZ    VVV  t_tbar_W  ttWtoLNu  tt_V_H  TTTo2L   ttZZ   ttWZ     VV     DY   tttX  TTTo1L   ttWW
 process                                  0      1      2      3         4         5       6       7      8      9     10     11     12      13     14
 rate                                    -1     -1     -1     -1        -1        -1      -1      -1     -1     -1     -1     -1     -1      -1     -1
 lumi2017              shape  1     1      1     1  1      1  1      1      1      1  1  1     1     -      1
@@ -47,4 +47,4 @@ normtZq                 lnN  -  1.10      -     -  -      -  -      -      -    
 normtttX                lnN  -     -      -     -  -      -  -      -      -      -  -  -  1.30     -      -
 normVVV                 lnN  -     -      -  1.20  -      -  -      -      -      -  -  -     -     -      -
 * autoMCStats 10 0 1  
-sigscale rateParam * TAToTTQ_rtu0p4_MA200 5.452000 [4.391000,6.513000]
+sigscale rateParam * TAToTTQ_rtu04_MA200 5.452000 [4.391000,6.513000]

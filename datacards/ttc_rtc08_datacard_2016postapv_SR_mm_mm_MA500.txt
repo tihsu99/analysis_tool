@@ -5,14 +5,14 @@ jmax *  number of backgrounds
 kmax *  number of nuisance parameterS (sources of systematical uncertainties)
 
 ------------
-shapes * SR_mm FinalInputs/2016postapv/ttc_a_rtc0p4_MA500/TMVApp_500_mm.root ttc2016postapv_$PROCESS ttc2016postapv_$PROCESS_$SYSTEMATIC
+shapes * SR_mm FinalInputs/2016postapv/ttc_a_rtc04_MA500/TMVApp_500_mm.root ttc2016postapv_$PROCESS ttc2016postapv_$PROCESS_$SYSTEMATIC
 
 ------------
 bin SR_mm
 observation -1
 ------------
 bin                                  SR_mm  SR_mm  SR_mm  SR_mm     SR_mm     SR_mm   SR_mm   SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm   SR_mm  SR_mm
-process  TAToTTQ_rtc0p4_MA500    tzq    ttZ    VVV  t_tbar_W  ttWtoLNu  tt_V_H  TTTo2L   ttZZ   ttWZ     VV     DY   tttX  TTTo1L   ttWW
+process  TAToTTQ_rtc04_MA500    tzq    ttZ    VVV  t_tbar_W  ttWtoLNu  tt_V_H  TTTo2L   ttZZ   ttWZ     VV     DY   tttX  TTTo1L   ttWW
 process                                  0      1      2      3         4         5       6       7      8      9     10     11     12      13     14
 rate                                    -1     -1     -1     -1        -1        -1      -1      -1     -1     -1     -1     -1     -1      -1     -1
 lumi2016postapv              shape  1     1      1     1  1      1  1      1      1      1  1  1     1     -      1
@@ -45,4 +45,4 @@ normtZq                        lnN  -  1.10      -     -  -      -  -      -    
 normtttX                       lnN  -     -      -     -  -      -  -      -      -      -  -  -  1.30     -      -
 normVVV                        lnN  -     -      -  1.20  -      -  -      -      -      -  -  -     -     -      -
 * autoMCStats 10 0 1  
-sigscale rateParam * TAToTTQ_rtc0p4_MA500 4.144000 [3.344000,4.944000]
+sigscale rateParam * TAToTTQ_rtc04_MA500 4.144000 [3.344000,4.944000]
