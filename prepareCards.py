@@ -38,7 +38,6 @@ regions  = args.reg
 cp_scaleTo = args.coupling_value
 
 
-args.coupling_value = args.coupling_value.replace("p","")
 if "rtc" in args.coupling_value:
     signal_process_name = "ttc"
 elif "rtu" in args.coupling_value:
@@ -55,6 +54,7 @@ if(args.scale):
     elif signal_process_name=="ttu":
         args.coupling_value = 'rtt0p4'
     else:raise ValueError("No such coupling value {}".format(args.coupling_value))
+args.coupling_value = args.coupling_value.replace("p","")
 
 
 args.scale = args.scale and not (cp_scaleTo == args.coupling_value)
