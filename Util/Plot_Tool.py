@@ -34,7 +34,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.6, .65, .88, .890);
+    leg = rt.TLegend(.5, .65, .78, .890);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
@@ -45,11 +45,10 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     colors = [2,4,6,28]     
     
     mg =ROOT.TMultiGraph("mg","mg")
-    ROOT.gPad.Modified()
-    mg.SetTitle(";M_{A} [GeV]; #mu=#sigma/#sigma_{theory}")
+    mg.SetTitle(";M_{A} [GeV];95% C.L. #mu=#sigma/#sigma_{theory}")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
-     
+    end_point = len(coupling_values) -1
     for idx,coupling_value in enumerate(coupling_values):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
@@ -109,7 +108,11 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
         
-        leg.AddEntry(exp, Limit_Name+" CL_{S}  Expected ", "LP");
+        leg.AddEntry(exp, Limit_Name+" CL_{S} Exp 95% Upper Limit", "LP");
+        if idx==end_point:
+            leg.AddEntry(exp1s,"Expected limit #pm 1 std. deviation","F")
+            leg.AddEntry(exp2s,"Expected limit #pm 2 std. deviation","F")
+        else:pass
     c.cd()
     #mg.SetTitleName(";Mass[GeV];#mu=#sigma/#sigma_{theory}")
     mg.Draw("same") 
