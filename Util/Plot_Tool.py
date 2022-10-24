@@ -70,7 +70,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
         
         exp2s =  File_per_coupling_value.Get("exp2")
-        print(type(exp2s))
         exp2s.SetMarkerStyle(20)
         exp2s.SetMarkerSize(1.1)
         exp2s.SetLineWidth(2)
@@ -137,9 +136,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     line.Draw('same ')
 
     latex =  rt.TLatex();
-    #latex.DrawLatex(0.20, 0.7, sig_process_name+self.analysisbin_);
-    latex.DrawLatex(300, 100, "Extra Yukawa");
-    #latex.DrawLatex(0.15, 0.58, "{} =".format(self.Coupling)+str(self.coupling_))
     latex.SetNDC();
     latex.SetTextFont(42);
     latex.SetTextSize(0.03);
