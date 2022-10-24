@@ -19,7 +19,7 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa"):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
@@ -43,6 +43,7 @@ class RunLimits:
         self.limit_pdf_file = "limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+"_"+analysisbin+".txt"
         self.limit_pdf_file = self.limit_pdf_file.replace(".txt",".pdf") 
         self.Coupling = coupling
+        self.__unblind = unblind
         #self.runmode = runmode
         print "class instantiation done"
         
@@ -100,10 +101,11 @@ class RunLimits:
         print ("logname: ",logname)
         
         
-        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' ' 
+        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' '+'--run blind  '
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" > "+logname)
+        print(command_+" > "+logname)
         return logname
         
     ## category can be merged/resolved/combined
@@ -161,6 +163,9 @@ class RunLimits:
 
         counter = 0
         Merged_txt_file = open(self.limitlog,'w')
+        
+        
+        
         for imass in Masses:
             input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
             
@@ -180,7 +185,8 @@ class RunLimits:
                 expp1.append(float(line.rstrip().split()[5]) - float(line.rstrip().split()[4]) )
                 expp2.append(float(line.rstrip().split()[6]) - float(line.rstrip().split()[4]) )
 
-                obs.append(float(line.rstrip().split()[7]))
+                if self.__unblind:
+                    obs.append(float(line.rstrip().split()[7]))
                 errx.append(0.0)
                 print('imass: {}->{} GeV'.format(Higgs,imass))
                 print ('expm2: ', expm2[counter])
@@ -198,21 +204,25 @@ class RunLimits:
         g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
         g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
         g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
-        g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
+        
+        if self.__unblind:
+            g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
     
         f1 = TFile(self.limit_root_file,'RECREATE')
         g_exp2.Write()
         g_exp1.Write()
         g_expmed.Write()
-        g_obs.Write()
+        if self.__unblind:
+            g_obs.Write()
         f1.Write()
         f1.Close()
         return self.limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./',y_max=1000):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1):
         rootfile = self.limit_root_file
         setlogX=0
         y_max=y_max # scale of y axis 
+        y_min=y_min # scale of y axis 
         
         
         rt.gStyle.SetOptTitle(0)
@@ -232,7 +242,7 @@ class RunLimits:
         exp2s.SetFillColor(rt.kYellow);
         exp2s.SetLineColor(rt.kYellow)
         exp2s.GetXaxis().SetTitle("m_{A} (GeV)");
-        exp2s.GetYaxis().SetRangeUser(0.1,y_max)
+        exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         #exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
         exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
@@ -258,14 +268,14 @@ class RunLimits:
         exp.SetLineStyle(2)
         exp.SetLineWidth(3)
         exp.Draw("L same")
-
-        obs =  f.Get("obs")
-        obs.SetMarkerStyle(20)
-        #obs.SetMarkerColor(4)
-        obs.SetMarkerSize(1.1)
-        #obs.SetLineColor(2)
-        obs.SetLineWidth(3)
-        #obs.Draw("L same")
+        if self.__unblind:
+            obs =  f.Get("obs")
+            obs.SetMarkerStyle(20)
+            #obs.SetMarkerColor(4)
+            obs.SetMarkerSize(1.1)
+            #obs.SetLineColor(2)
+            obs.SetLineWidth(3)
+            #obs.Draw("L same")
     
         leg = rt.TLegend(.6, .65, .88, .890);
         leg.SetBorderSize(0);
@@ -304,9 +314,16 @@ class RunLimits:
 
         CMS_lumi.CMS_lumi(c, iPeriod, iPos)
 
+        if self.Coupling =='rtc':
+            sig_process_name = 'tt#bar{c}  '
+        elif self.Coupling =='rtu':
+            sig_process_name = 'tt#bar{u}  '
+        elif self.Coupling =='rtt':
+            sig_process_name = 'tt#bar{t}  '
+
+
         
-        
-        latex.DrawLatex(0.20, 0.7, "ttc  "+self.analysisbin_);
+        latex.DrawLatex(0.20, 0.7, sig_process_name+self.analysisbin_);
         latex.DrawLatex(0.20, 0.64, "Extra Yukawa");
         latex.DrawLatex(0.15, 0.58, "{} =".format(self.Coupling)+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");

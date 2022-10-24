@@ -21,6 +21,7 @@ parser.add_argument("-coupling_value", "--coupling_value", dest="coupling_value"
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument("--plot_only",help='Plot Only',action="store_true")
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
+parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
 
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
@@ -79,7 +80,7 @@ if args.plot_only:
 
     RL.TextFileToRootGraphs(Masses=mass_points)
     CheckDir(args.outputdir,True)
-    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max)
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
 else:
     counter=0
     template_card = "datacards_{year}_{signal_process_name}".format(year=year,signal_process_name=signal_process_name)+"/{signal_process_name}_{coupling_value}_datacard_".format(signal_process_name=signal_process_name,coupling_value=coupling_value)+year+"_SR_"+cat_str+"_template.txt"

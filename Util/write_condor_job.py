@@ -52,6 +52,10 @@ elif args.Job_bus_Name=='__default__':
 
 elif args.shell_script=='__default__':
 
+    for condor_message_dir in ['log','err','output']:
+        if os.path.isdir(condor_message_dir):pass
+        else:
+            os.system('mkdir {}'.format(condor_message_dir))
     df = pd.read_csv(args.Job_bus_Name,sep=',') 
     nrow = len(df.index)
     print(df)
