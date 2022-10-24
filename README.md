@@ -379,10 +379,17 @@ condor_submit scripts/condor.sub
 ```
 Note: After you collect result, you need to plot them! Please see the corresponding command in section 4.
 
+### 7. Multiple Limit Plots
 
-# 7. Trouble Shooting 
+Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
+```
+python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
+```
 
-## 7.1 Possible bugs in ReBin.py
+
+# 8. Trouble Shooting 
+
+## 8.1 Possible bugs in ReBin.py
 
 If you encounter the error message like
 ```
@@ -401,7 +408,7 @@ TypeError: none of the 3 overloaded methods succeeded. Full details:
 You should tune the name of histogram you want to "get" and "rebin", instead of "naming", to be consistent with the histograms names in input file.
 For this case, ttZtoQQ->ttZToQQ in line 142 for year2016postapv.
 
-## 7.1 Possible bugs in runlimit.py
+## 8.2 Possible bugs in runlimit.py
 
 If you encounter the error message like
 ```
@@ -427,13 +434,6 @@ allparameters: ('500', '04')
 You should tune the name of histogram you want to "get" and "rebin", instead of "naming",to be consistent with the histograms names in input file.
 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
-
-### 8. Multiple Limit Plots
-
-Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
-```
-python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu01 rtu04 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
-```
 
 
 ### 9. Appendix from Raman
