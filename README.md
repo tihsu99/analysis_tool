@@ -428,7 +428,15 @@ You should tune the name of histogram you want to "get" and "rebin", instead of 
 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
-### 8. Appendix from Raman
+### 8. Multiple Limit Plots
+
+Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
+```
+python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu01 rtu04 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
+```
+
+
+### 9. Appendix from Raman
 
 ## For signal shape comparison 
 python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
