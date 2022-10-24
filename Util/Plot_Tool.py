@@ -34,7 +34,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.5, .65, .78, .890);
+    leg = rt.TLegend(.45, .65, .68, .890);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
