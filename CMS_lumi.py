@@ -138,7 +138,7 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
   
     pad.cd()
 
-    posX_ = 0
+    posX_ = 1
     if( iPosX%10<=1 ):
         posX_ =   l + relPosX*(1-l-r)
     elif( iPosX%10==2 ):
@@ -155,29 +155,31 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
             xl_0 = posX_
             yl_0 = posY_ - 0.15
             xl_1 = posX_ + 0.15*H/W
-            yl_1 = posY_
+            yl_1 = posY_ 
             CMS_logo = rt.TASImage("CMS-BW-label.png")
             pad_logo =  rt.TPad("logo","logo", xl_0, yl_0, xl_1, yl_1 )
             pad_logo.Draw()
             pad_logo.cd()
             CMS_logo.Draw("X")
             pad_logo.Modified()
-            pad.cd()          
+            pad.cd()      
         else:
             latex.SetTextFont(cmsTextFont)
             latex.SetTextSize(cmsTextSize*t)
             latex.SetTextAlign(align_)
-            latex.DrawLatex(posX_, posY_, cmsText)
+            latex.DrawLatex(posX_-0.05, posY_+0.1, cmsText)
             if( writeExtraText ) :
                 latex.SetTextFont(extraTextFont)
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
-                latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText)
+                latex.DrawLatex(posX_+0.10, posY_+0.08, extraText)
+                print(extraText)
     elif( writeExtraText ):
         if( iPosX==0):
             posX_ =   l +  relPosX*(1-l-r)
             posY_ =   1-t+lumiTextOffset*t
 
+        print(extraText)
         latex.SetTextFont(extraTextFont)
         latex.SetTextSize(extraTextSize*t)
         latex.SetTextAlign(align_)
