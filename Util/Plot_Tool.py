@@ -55,13 +55,13 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         #### Set the Name in legend ####
         if 'rtc' in coupling_value :
             value = coupling_value.split('rtc')[-1]
-            prefix = '#rhctu={}'.format(value)
+            prefix = '#rho_{tc}=%s'%(value)
         elif 'rtu' in coupling_value :
             value = coupling_value.split('rtu')[-1]
-            prefix = '#rhotu={}'.format(value)
+            prefix = '#rho_{tu}=%s'%(value)
         elif 'rtt' in coupling_value :
             value = coupling_value.split('rtt')[-1]
-            prefix = '#rhott={}'.format(value)
+            prefix = '#rho_{tt}=%s'%(value)
         else:
             raise ValueError("No such coupling: {}".format(coupling_value))
         Limit_Name = prefix 
