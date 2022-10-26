@@ -18,3 +18,10 @@ combo.txt
 *.log
 Job_bus/
 *pdf
+*.err
+*.out
+*.log
+condor_*.sh
+condor_*.sub
+*.png
+combine_logger.out
