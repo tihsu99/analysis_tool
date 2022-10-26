@@ -36,6 +36,7 @@ parser.add_argument('-c','--category',help='List of dilepton channels. Default v
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
 parser.add_argument('--unblind',action='store_true')
+parser.add_argument('--interference',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
 parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'])
 args = parser.parse_args()
@@ -49,8 +50,13 @@ elif args.Coupling_Name == 'rtt':
     signal_process_name = 'ttt'
 else:raise ValueError("No such signal process: {}".format(signal_process_name))
 
-name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
-args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
+if not args.interference:
+  name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
+  args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
+
+if args.interference:
+  name_fix = 'ttc_a_{}_s_{}_' + args.Coupling_Name + '{}'
+  args.inputdir = args.inputdir + '/{}/'+name_fix
 
 
 #print ("allvariations: ", allvariations)
@@ -72,8 +78,10 @@ filename="TMVApp_{}_{}.root"
 ##filename_ = filename.format("400","ee")
 ##print (filename_)
 
-
-signal_="TAToTTQ_{}COUPLIING_MAMASS".format(args.Coupling_Name)
+if not args.interference:
+  signal_="TAToTTQ_{}COUPLIING_MAMASS".format(args.Coupling_Name)
+else:
+  signal_="TAToTTQ_MAMASS_s_MSMASS_{}COUPLIING".format(args.Coupling_Name)
 
 sample_names = dict()
 nuisances = dict()
@@ -97,11 +105,17 @@ for iyear in years:
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
                 ic_ = ic.replace("p","")
-                inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                if not args.interference:
+                  inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                else:
+                  inputdir_ = inputdir.format(iyear, str(imass), str(int(imass)-50), ic_)
                 
                 print (" filename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
-                rootfiilename=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                if not args.interference:
+                  rootfiilename=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                else:
+                  rootfiilename=signal_process_name+'_a_'+imass+'_s_'+str(int(imass)-50)+'_'+args.Coupling_Name+ic.replace("p","")+'/'+filename_
                 #./FinalInputs/2016apv/ttc_a_rtu04_MA600/TMVApp_600_ee.root
                 print("rm -rf " + outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
                 #os.system("rm -rf "+outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
@@ -116,7 +130,10 @@ for iyear in years:
             for ic in couplings:
                 filename_ = filename.format(str(imass), ir)
                 ic_ = ic.replace("p","")
-                inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
+                if not args.interference:
+                  inputdir_ = inputdir.format(iyear, ic_, str(imass))
+                else:
+                  inputdir_ = inputdir.format(iyear, str(imass), str(int(imass)-50), ic_)
                 print (" fiilename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
                 print (inputdir_+"/"+filename_)
@@ -129,7 +146,11 @@ for iyear in years:
                 prefix="ttc"+iyear+"_"
                 
                 rebin_=5
-                rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                if not args.interference:
+                  rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
+                else:
+                  rootfiilename_OUT=signal_process_name+'_a_'+imass+'_s_'+str(int(imass)-50)+'_'+args.Coupling_Name+ic.replace("p","")+'/'+filename_
+
                 print(rootfiilename_OUT.split("/")[-2])
 
                 print("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2])
@@ -179,7 +200,10 @@ for iyear in years:
                         fout.cd()
                         h_data_obs.Write()
                     ### Signal Sample ####
-                    sig_name_ = prefix+(signal_.replace("MASS",str(imass))).replace("COUPLIING",ic_)
+                    if not args.interference:
+                      sig_name_ = prefix+(signal_.replace("MASS",str(imass))).replace("COUPLIING",ic_)
+                    else:
+                      sig_name_ = prefix+(signal_.replace("MAMASS",str(imass))).replace("MSMASS",str(int(imass)-50)).replace("COUPLIING",ic_)
                     f_in.cd()
                     if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
                         h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+inuis), str(sig_name_+inuis))
