@@ -379,7 +379,7 @@ condor_submit scripts/condor.sub
 ```
 Note: After you collect result, you need to plot them! Please see the corresponding command in section 4.
 
-### 7. Multiple Limit Plots
+# 7. Multiple Limit Plots
 
 Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
 ```
