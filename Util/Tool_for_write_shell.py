@@ -69,6 +69,7 @@ def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,output
         elif "rtt" in coupling_value:
             signal_process_name = "ttt"
         else:raise ValueError("No such channel: {}".format(signal_process_name))
+        signal_process_name = "ttc"
         
         
         #datacards_run2_ttu/ttu_rtu04_datacard_run2_SR_em_em_MA200.txt
