@@ -7,6 +7,7 @@ import sys, optparse,argparse
 from Util.Tool_In_prepareCard import *
 from Util.General_Tool import CheckFile,CheckDir
 import json
+import copy
 ## ----- command line argument
 couplings_List = ['rtc','rtu','rtt']
 cp_values_List = ['0p1','0p4','0p8','1p0']
@@ -25,6 +26,7 @@ parser.add_argument("-reg", nargs="+", default=["a", "b"])
 parser.add_argument("--reset",action="store_true")
 parser.add_argument("--coupling_value",default='rtc0p4',type=str,choices=coupling_value_choices)
 parser.add_argument("--scale", action="store_true")
+parser.add_argument("--interference", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 
@@ -39,10 +41,13 @@ cp_scaleTo = args.coupling_value
 
 if "rtc" in args.coupling_value:
     signal_process_name = "ttc"
+    coupling_name       = "rhotc"
 elif "rtu" in args.coupling_value:
     signal_process_name = "ttu"
+    coupling_name       = "rhotu"
 elif "rtt" in args.coupling_value:
     signal_process_name = "ttt"
+    coupling_name       = "rhott"
 else:raise ValueError("No such coupling value {}".format(args.coupling_value))
 
 if(args.scale):
@@ -57,7 +62,7 @@ args.coupling_value = args.coupling_value.replace("p","")
 
 signal_process_name = 'ttc' #Keep the naming rule, suggested by Gouranga.
 
-args.scale = args.scale and not (cp_scaleTo == args.coupling_value)
+args.scale = args.scale and not (cp_scaleTo.replace("p","") == args.coupling_value)
 #modelName = args.model
 
 
@@ -207,19 +212,31 @@ for reg in regions:
             template_card = "datacards_"+year+"_template/template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
             dc_tmplate=open(template_card).readlines()
 
-            if(args.scale):
-              df = pd.read_fwf("rho_scaling.txt")
-              cp_value = int(cp_scaleTo.replace('rtc','').replace('rtt','').replace('rtu','').replace('p',''))*0.1
-              for i in range(len(df)):
-                if df['# particle'][i] == 'a0' and df['rho-type'][i] in cp_scaleTo and df['rho-value'][i]==cp_value:
-                  scale = df['scale-w.r.t.rho0.4'][i]
-                  scale_sigma = df['delta(scale)'][i]
-              dc_tmplate.append("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT %f [%f,%f]"%(scale,scale-scale_sigma,scale+scale_sigma)+'\n')
 
 
             for imass in args.Masses:
-                mA = str(imass)
-                parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+                dc_out = copy.deepcopy(dc_tmplate)
+                mA = str(imass+"_COUPLINGVALUE")
+                if not args.interference:
+                  parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+                else:
+                  parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
+         
+                if args.scale:
+                  df = pd.read_fwf("ttc_cross_sections.txt")
+                  cp_value = int(cp_scaleTo.replace('rtc','').replace('rtt','').replace('rtu','').replace('p',''))*0.1
+                  for i in range(len(df)):
+                    if df['PID'][i] == 'a0' and df['Mass'][i] == int(imass) and df[coupling_name][i] == cp_value:
+                      xs_scaleTo       = float(df["cross_section"][i])
+                      xs_scaleTo_err   = float(df["Err(cross-section)"][i])
+                    if df['PID'][i] == 'a0' and df['Mass'][i] == int(imass) and df[coupling_name][i] == 0.4:
+                      xs_reference     = float(df["cross_section"][i])
+                      xs_reference_err = float(df["Err(cross-section)"][i])
+                  scale       = xs_scaleTo/xs_reference
+                  scale_sigma = (xs_scaleTo_err**2/(xs_reference**2) + (xs_reference_err**2)*(xs_scaleTo**2)/(xs_reference**4))**0.5
+
+                  dc_out.append("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT %f [%f,%f]"%(scale,scale-scale_sigma,scale+scale_sigma)+'\n')
+
                 card_name = template_card.replace("template",signal_process_name)
                 card_name = card_name.replace("parameters",parameters)
                 coupling_value = args.coupling_value.split(signal_process_name)[-1]
@@ -230,7 +247,12 @@ for reg in regions:
                 
 
                 fout = open(card_name,'w')
-                dc_out =  ([iline.replace("SIGNALPROCESS",str(signal_process_name)) for iline in dc_tmplate] )
+
+                if args.interference:
+                  dc_out = ([iline.replace("SIGNALPROCESS_a_COUPLINGVALUE_MAMASSPOINT", str(signal_process_name + "_a_" + str(imass) + "_s_" + str(int(imass)-50) + "_COUPLINGVALUE")) for iline in dc_out])
+                  dc_out =  ([iline.replace("TAToTTQ_COUPLINGVALUE_MAMASSPOINT", "TAToTTQ_" + str(imass) + "_s_" + str(int(imass)-50)+"_COUPLINGVALUE") for iline in dc_out])
+
+                dc_out =  ([iline.replace("SIGNALPROCESS",str(signal_process_name)) for iline in dc_out] )
                 
                 dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_out] )
                 dc_out =  ([iline.replace("COUPLINGVALUE",args.coupling_value) for iline in dc_out] ) ## mind that now it is dc_out
