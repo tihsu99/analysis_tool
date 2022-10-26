@@ -56,7 +56,9 @@ else:
     
     if args.mode=='write':
         if CheckFile(Job_bus_name,quiet=True):raise ValueError("\n\nFile exists! -> {} .\nIf you want to reset the file, please use --mode reset. And if you want to append another job into this bus file, please use --mode append. ".format(Job_bus_name))
-
+        os.system('mkdir -p output')
+        os.system('mkdir -p err')
+        os.system('mkdir -p log')
         with open(Job_bus_name,'w') as f:
             f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,outputdir\n")
 
