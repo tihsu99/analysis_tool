@@ -39,7 +39,6 @@ category = args.category
 regions  = args.reg
 cp_scaleTo = args.coupling_value
 
-
 if "rtc" in args.coupling_value:
     signal_process_name = "ttc"
     coupling_name       = "rhotc"
@@ -61,6 +60,7 @@ if(args.scale):
     else:raise ValueError("No such coupling value {}".format(args.coupling_value))
 args.coupling_value = args.coupling_value.replace("p","")
 
+signal_process_name = 'ttc' #Keep the naming rule, suggested by Gouranga.
 
 args.scale = args.scale and not (cp_scaleTo.replace("p","") == args.coupling_value)
 #modelName = args.model

@@ -59,6 +59,7 @@ elif _coupling == 'rtu':
 elif _coupling == 'rtt':
     signal_process_name = 'ttt'
 else:raise ValueError("No such coupling:{coupling}".format(coupling=_coupling))
+signal_process_name = 'ttc' #Keep the naming rule, suggested by Gouranga.
 
 print("datacards_{}_{}/log".format(year,signal_process_name))
 CheckDir("datacards_{}_{}/log".format(year,signal_process_name),True)
