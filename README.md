@@ -302,15 +302,41 @@ python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016a
 
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
-# 5. For impacts and pulls 
+# 5. For impacts and pulls and post-fit distribution
 
+Step1
 ```
-source runallchecks.sh SignalExtractionChecks2017 20161718 C datacards_ttc_run2/ttc_datacard_run2_SR_C_C_MA200_rtc04.txt 
-
-source runallchecks.sh SignalExtractionChecks2017 2017 C datacards_ttc_2017/ttc_datacard_2017_SR_C_C_MA200_rtc04.txt
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
 ```
-
-Condor job is strongly suggested, otherwise you would encounter lxplus shut-down issue very often in this way. You can see the instruction in next-next section.
+This would give your the workspace root file of datacards.
+Step2: After this, you would get the FitDiagnostics root file.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
+```
+Step3: After this, you would get the postFit distribution
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
+```
+Step4: Calculating Pulls for each nuisances and background.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PullCalculation --coupling_value rtu04 --mass_point 800
+```
+Step5: Plot the pulls.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
+```
+Step6: Init Fit for Impact -> You need to wait the job completed.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
+```
+Step7: Do Fits for Impacts -> You need to wait all the jobs completed.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
+```
+Step8: Plot Impacts.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
+```
 
 # 6. Condor Jobs
 
@@ -379,7 +405,7 @@ condor_submit scripts/condor.sub
 ```
 Note: After you collect result, you need to plot them! Please see the corresponding command in section 4.
 
-### 7. Multiple Limit Plots
+# 7. Multiple Limit Plots
 
 Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
 ```
