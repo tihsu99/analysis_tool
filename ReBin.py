@@ -41,13 +41,7 @@ parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'
 args = parser.parse_args()
 
 
-if args.Coupling_Name == 'rtc':
-    signal_process_name = 'ttc'
-elif args.Coupling_Name == 'rtu':
-    signal_process_name = 'ttu'
-elif args.Coupling_Name == 'rtt':
-    signal_process_name = 'ttt'
-else:raise ValueError("No such signal process: {}".format(signal_process_name))
+signal_process_name = 'ttc' #Keep the name rule, instead of ttu/ttt. Suggested by Gouranga.
 
 name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
 args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
