@@ -64,13 +64,10 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tttX ###
-    if year =='2018' or year=='2017' or year =='2016apv':
+    if year =='2018' or year=='2017' or year =='2016postapv' or year == '2016apv':
         SAMPLE['tttX'].append('tttW')
         SAMPLE['tttX'].append('tttt')
         SAMPLE['tttX'].append('tttJ')
-    elif year == "2016postapv":
-        SAMPLE['tttX'].append('tttt')
-        SAMPLE['tttX'].append('tttJ')        
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
 
