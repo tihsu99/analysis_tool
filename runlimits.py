@@ -20,6 +20,7 @@ parser.add_argument("-coupling_value", "--coupling_value", dest="coupling_value"
 
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument("--plot_only",help='Plot Only',action="store_true")
+parser.add_argument("--interference",help="use interference sample or not", action="store_true")
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
 
@@ -66,7 +67,7 @@ import time
 
 
 start_time = time.time()
-RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value) 
+RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value,interference = args.interference) 
 if args.reset_outputfiles:
     CheckFile(RL.limitlog,True)
     CheckFile(RL.limit_root_file,True)
@@ -90,7 +91,10 @@ else:
         rtc = coupling_value.split("rtc")[-1] # Gives coupling value in string with "." -> "p": 0p1, 0p4, 0p8, 1p0
         
         print ("{}: {}".format(_coupling,rtc))
-        parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+        if not args.interference:
+          parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+        else:
+          parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
         card_name = template_card.replace("template",parameters)
         
         logname = RL.getLimits(card_name,asimov=True,mass_point="MA"+imass)
