@@ -58,8 +58,10 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     ### ttWtoLNu ###
     if year == '2018' or year=='2017':
         SAMPLE['ttW'].append('ttWtoLNu')
+        SAMPLE['ttW'].append('ttWtoQQ')
     elif year=='2016postapv' or year=='2016apv': 
         SAMPLE['ttW'].append('ttW')
+        SAMPLE['ttW'].append('ttWToQQ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     ## ttVV ##
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
@@ -69,10 +71,12 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### ttV ###
-    if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
+    if year =='2018' or year=='2017':
         SAMPLE['ttZ'].append('ttZ')
         SAMPLE['ttZ'].append('ttZtoQQ')
-        SAMPLE['ttW'].append('ttWtoQQ')
+    elif  year =='2016postapv' or year =='2016apv':
+        SAMPLE['ttZ'].append('ttZ')
+        SAMPLE['ttZ'].append('ttZToQQ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tttX ###
