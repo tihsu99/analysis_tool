@@ -7,6 +7,7 @@ import sys, optparse,argparse
 from Util.Tool_In_prepareCard import *
 from Util.General_Tool import CheckFile,CheckDir
 import json
+import copy
 ## ----- command line argument
 couplings_List = ['rtc','rtu','rtt']
 cp_values_List = ['0p1','0p4','0p8','1p0']
@@ -25,6 +26,7 @@ parser.add_argument("-reg", nargs="+", default=["a", "b"])
 parser.add_argument("--reset",action="store_true")
 parser.add_argument("--coupling_value",default='rtc0p4',type=str,choices=coupling_value_choices)
 parser.add_argument("--scale", action="store_true")
+parser.add_argument("--interference", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 
@@ -57,7 +59,7 @@ if(args.scale):
 args.coupling_value = args.coupling_value.replace("p","")
 
 
-args.scale = args.scale and not (cp_scaleTo == args.coupling_value)
+args.scale = args.scale and not (cp_scaleTo.replace("p","") == args.coupling_value)
 #modelName = args.model
 
 
@@ -218,8 +220,11 @@ for reg in regions:
 
 
             for imass in args.Masses:
-                mA = str(imass)
-                parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+                mA = str(imass+"_COUPLINGVALUE")
+                if not args.interference:
+                  parameters = "MA"+str(imass) # MA200_rtc0p4, for example.
+                else:
+                  parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
                 card_name = template_card.replace("template",signal_process_name)
                 card_name = card_name.replace("parameters",parameters)
                 coupling_value = args.coupling_value.split(signal_process_name)[-1]
@@ -230,7 +235,13 @@ for reg in regions:
                 
 
                 fout = open(card_name,'w')
-                dc_out =  ([iline.replace("SIGNALPROCESS",str(signal_process_name)) for iline in dc_tmplate] )
+
+                dc_out = copy.deepcopy(dc_tmplate)
+                if args.interference:
+                  dc_out = ([iline.replace("SIGNALPROCESS_a_COUPLINGVALUE_MAMASSPOINT", str(signal_process_name + "_a_" + str(imass) + "_s_" + str(int(imass)-50) + "_COUPLINGVALUE")) for iline in dc_out])
+                  dc_out =  ([iline.replace("TAToTTQ_COUPLINGVALUE_MAMASSPOINT", "TAToTTQ_" + str(imass) + "_s_" + str(int(imass)-50)+"_COUPLINGVALUE") for iline in dc_out])
+
+                dc_out =  ([iline.replace("SIGNALPROCESS",str(signal_process_name)) for iline in dc_out] )
                 
                 dc_out =  ([iline.replace("MASSPOINT",str(imass)) for iline in dc_out] )
                 dc_out =  ([iline.replace("COUPLINGVALUE",args.coupling_value) for iline in dc_out] ) ## mind that now it is dc_out
