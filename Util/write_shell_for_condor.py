@@ -46,7 +46,7 @@ else:
     nrow = len(df.index)
 
     for i_row in range(nrow):
-        Write_Shell(WorkDir=WorkDir,channel=str(df.iloc[i_row]['Channel']),mode=str(df.iloc[i_row]['Task']),higgs=str(df.iloc[i_row]['PID']),year=str(df.iloc[i_row]['Year']),mass_point=str(df.iloc[i_row]['Mass_point']),coupling_value=str(df.iloc[i_row]['Coupling_value']),outputdir=str(df.iloc[i_row]['outputdir']))
+        Write_Shell(WorkDir=WorkDir,channel=str(df.iloc[i_row]['Channel']),mode=str(df.iloc[i_row]['Task']),higgs=str(df.iloc[i_row]['PID']),year=str(df.iloc[i_row]['Year']),mass_point=str(df.iloc[i_row]['Mass_point']),coupling_value=str(df.iloc[i_row]['Coupling_value']),sample_type=str(df.iloc[i_row]['sample_type']),outputdir=str(df.iloc[i_row]['outputdir']))
     
     #print(data.loc[0,["Task"]])
 

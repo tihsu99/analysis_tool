@@ -4,11 +4,14 @@ import sys
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 
-def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,outputdir,Masses=-1):
+def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,sample_type,outputdir,Masses=-1):
     if Masses!=-1:
         Script_File_path = './scripts/shell_script_{}_for_{}_{}.sh'.format(mode,channel,year) # should be relative -> But I don't understand why.
     else:
         Script_File_path = './scripts/shell_script_{}_for_{}_{}_M{}{}_{}.sh'.format(mode,channel,year,higgs,mass_point,coupling_value) # should be relative -> But I don't understand why.
+
+    if sample_type == "interference":
+      Script_File_path = Script_File_path.replace(".sh","_interference.sh")
 
     if os.path.isfile(Script_File_path):
         print('Shell Script-> {} existed!\n'.format(Script_File_path))
@@ -73,10 +76,16 @@ def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,output
         
         
         #datacards_run2_ttu/ttu_rtu04_datacard_run2_SR_em_em_MA200.txt
-        datacard_location = 'datacards_{year}_{sig}/{sig}_{cp_value}_datacard_{year}_SR_{channel}_{channel}_M{H}{Mass}.txt'.format(year=year,sig=signal_process_name,channel=channel,H=higgs,Mass = mass_point,cp_value = coupling_value)
+        if sample_type == "interference":
+          datacard_location = 'datacards_{year}_{sig}/{sig}_{cp_value}_datacard_{year}_SR_{channel}_{channel}_MA{Mass}_MS{Mass_S}.txt'.format(year=year,sig=signal_process_name,channel=channel,Mass = mass_point,Mass_S = str(int(mass_point)-50),cp_value = coupling_value)
+        else:
+          datacard_location = 'datacards_{year}_{sig}/{sig}_{cp_value}_datacard_{year}_SR_{channel}_{channel}_M{H}{Mass}.txt'.format(year=year,sig=signal_process_name,channel=channel,H=higgs,Mass = mass_point,cp_value = coupling_value)
         if not CheckFile(datacard_location,False,True): raise ValueError('\nMake sure {} exists. Please prepare this datacards\n'.format(datacard_location))
 
-        f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))
+        if sample_type == "interference":
+          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --interference --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))
+        else:
+          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))
     else:pass
     f.close()
 

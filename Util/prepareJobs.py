@@ -20,9 +20,10 @@ parser.add_argument('--task',type=str,default='LimitPlot',choices=['LimitPlot','
 parser.add_argument('--channel',choices =['mm','ee','em','C'],default='C',type=str,help='channel of the job.')
 parser.add_argument('--year',choices =['2016apv','2016postapv','2017','2018','run2'],default='run2',type=str,help='year of job.')
 parser.add_argument('--coupling_value',choices=coupling_value,default='rtc04',help='coupling value')
-parser.add_argument('--mass_point',default='300',type=str,choices=['200','300','350','400','500','600','700','800','900','1000'],help='mass point')
+parser.add_argument('--mass_point',default='300',type=str,help='mass point')
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument('--higgs',default='A',type=str,choices=['A'],help='Higgs.')
+parser.add_argument('--interference',action='store_true',help='use interference sample')
 
 '''
 python ./Util/prepareJobs.py --mode write 
@@ -37,7 +38,7 @@ if args.mode=='reset':
     Job_bus_name = args.Job_bus_Name
     if CheckFile(Job_bus_name,False):
         f = open(Job_bus_name,'w')
-        f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,outputdir\n")
+        f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,sample_type,outputdir\n")
         print("Reset file -> {}".format(Job_bus_name))
         f.close()
     else:pass
@@ -56,18 +57,19 @@ else:
     
     if args.mode=='write':
         if CheckFile(Job_bus_name,quiet=True):raise ValueError("\n\nFile exists! -> {} .\nIf you want to reset the file, please use --mode reset. And if you want to append another job into this bus file, please use --mode append. ".format(Job_bus_name))
-        os.system('mkdir -p output')
-        os.system('mkdir -p err')
-        os.system('mkdir -p log')
         with open(Job_bus_name,'w') as f:
-            f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,outputdir\n")
+            f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,sample_type,outputdir\n")
 
         print("You Job_bus file with name -> "+Job_bus_name+" is created.")
         print("Use [--mode append] and [--Job_bus_Name filename] to append the following task.")
     elif args.mode == 'append':
+        if args.interference:
+          sample_type = "interference"
+        else:
+          sample_type = "pure"
         with open(Job_bus_name,'a') as f:
-            f.write("{},{},{},{},{},{},{}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,args.output_dir))
-        print("Sequence -> {},{},{},{},{},{},{} written into {}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,args.output_dir,Job_bus_name))
+            f.write("{},{},{},{},{},{},{},{}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,args.output_dir))
+        print("Sequence -> {},{},{},{},{},{},{},{} written into {}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,args.output_dir,Job_bus_name))
 
 
     elif args.mode=='read':
