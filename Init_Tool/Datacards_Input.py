@@ -27,46 +27,53 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         nuisance=str(nuisance.split('_')[-1])
         Input['NuisForProc'][nuisance] = []
         
+        lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV"]
 
-        lnN_nuisance = ['fake','normTTTo2L','normttWW','normttZZ','normttWZ','normttZ','normttW','normtZq','normtttX','normVVV']
         sig_nuisance = ['sigYEARpdf','sigYEARscale','sigYEARps']
+        
         if nuisance not in lnN_nuisance:
             Input['UnclnN'][nuisance]='shape'
         if nuisance in lnN_nuisance or nuisance in sig_nuisance:
             if nuisance == 'fake':
                 Input['UnclnN'][nuisance]='1.30'
-                Input['NuisForProc'][nuisance].append('TTTo1L')
+                Input['NuisForProc'][nuisance].append('Nonprompt')
             elif nuisance =='normTTTo2L':
                 Input['UnclnN'][nuisance]='1.061'
                 Input['NuisForProc'][nuisance].append('TTTo2L')
-            elif nuisance =='normTTTo1L':
-                pass
-                #Input['UnclnN'][nuisance]='1.061'
-                #Input['NuisForProc'][nuisance].append('TTTo1L')
-            elif nuisance =='normttWW':
-                Input['UnclnN'][nuisance]='1.114'
-                Input['NuisForProc'][nuisance].append('ttWW')
-            elif nuisance =='normttZZ':
-                Input['UnclnN'][nuisance]='1.087'
-                Input['NuisForProc'][nuisance].append('ttZZ')
-            elif nuisance =='normttWZ':
-                Input['UnclnN'][nuisance]='1.106'
-                Input['NuisForProc'][nuisance].append('ttWZ')
+            elif nuisance =='normSingleTop':
+                Input['UnclnN'][nuisance]='1.054'
+                Input['NuisForProc'][nuisance].append('SingleTop')
+            elif nuisance =='normDY':
+                Input['NuisForProc'][nuisance].append('DY')
+                Input['UnclnN'][nuisance]='1.003'
+            elif nuisance =='normVV':
+                Input['NuisForProc'][nuisance].append('VV')
+                Input['UnclnN'][nuisance]='1.187'
+            elif nuisance =='normVBS':
+                Input['NuisForProc'][nuisance].append('VBS')
+                Input['UnclnN'][nuisance]='1.30'
+            elif nuisance =='normttVV':
+                Input['UnclnN'][nuisance]='1.18'
+                Input['NuisForProc'][nuisance].append('ttVV')
+            elif nuisance =='normttVH':
+                Input['NuisForProc'][nuisance].append('ttVH')
+                Input['UnclnN'][nuisance]='1.50'
             elif nuisance =='normttZ':
                 Input['UnclnN'][nuisance]='1.147'
                 Input['NuisForProc'][nuisance].append('ttZ')
             elif nuisance =='normttW':
-                Input['UnclnN'][nuisance]='1.112'
-                Input['NuisForProc'][nuisance].append('ttWtoLNu')
+                Input['UnclnN'][nuisance]='1.20'
+                Input['NuisForProc'][nuisance].append('ttW')
             elif nuisance =='normtZq':
                 Input['UnclnN'][nuisance]='1.10'
-                Input['NuisForProc'][nuisance].append('tzq')
+                Input['NuisForProc'][nuisance].append('tZq')
             elif nuisance =='normtttX':
                 Input['UnclnN'][nuisance]='1.30'
                 Input['NuisForProc'][nuisance].append('tttX')
             elif nuisance =='normVVV':
                 Input['NuisForProc'][nuisance].append('VVV')
                 Input['UnclnN'][nuisance]='1.20'
+
             elif nuisance in sig_nuisance:
                 Input['NuisForProc'][nuisance].append('TAToTTQ_COUPLINGVALUE_MAMASSPOINT')
             
@@ -74,7 +81,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 raise ValueError('Fix me. ')
         for proc in process:
             if nuisance not in lnN_nuisance and nuisance not in sig_nuisance:
-                if proc !='TTTo1L':
+                if proc !='Nonprompt':
                     if channel=='ee':
                         if nuisance=='muIDYEARsys' or nuisance=='muIDYEARstat' or nuisance=='elemuTriggerYEAR' or nuisance=='dimuTriggerYEAR':continue
                         elif 'chargeflipYEAR' in nuisance and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
