@@ -223,7 +223,10 @@ for reg in regions:
                   parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
          
                 if args.scale:
-                  df = pd.read_fwf("ttc_cross_sections.txt")
+                  if not args.interference:
+                    df = pd.read_fwf("ttc_cross_sections.txt")
+                  else:
+                    df = pd.read_fwf("ttc_cross_sections_with_interference.txt")
                   cp_value = int(cp_scaleTo.replace('rtc','').replace('rtt','').replace('rtu','').replace('p',''))*0.1
                   for i in range(len(df)):
                     if df['PID'][i] == 'a0' and df['Mass'][i] == int(imass) and df[coupling_name][i] == cp_value:

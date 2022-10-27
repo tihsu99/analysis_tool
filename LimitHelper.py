@@ -19,7 +19,7 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
@@ -27,6 +27,7 @@ class RunLimits:
         self.model_                = model
         self.coupling_             = coupling_value
         self.coupling_str_         = str(self.coupling_).replace(".","p")
+        self.interference_         = interference
         
         #self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
         #self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
@@ -36,12 +37,13 @@ class RunLimits:
         if CheckDir(self.limit_dir,MakeDir=True):pass
         else:pass
 
-
         self.limitlog = os.path.join(self.limit_dir,"limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt")
+        self.limit_pdf_file = "limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+"_"+analysisbin+".pdf"
+        if interference: 
+          self.limitlog = self.limitlog.replace(".txt","_interference.txt")
+          self.limit_pdf_file = self.limit_pdf_file.replace(".pdf","_interference.pdf")
         self.limit_root_file = self.limitlog.replace(".txt",".root")
         self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
-        self.limit_pdf_file = "limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+"_"+analysisbin+".txt"
-        self.limit_pdf_file = self.limit_pdf_file.replace(".txt",".pdf") 
         self.Coupling = coupling
         self.__unblind = unblind
         #self.runmode = runmode
@@ -321,8 +323,8 @@ class RunLimits:
         elif self.Coupling =='rtt':
             sig_process_name = 'tt#bar{t}  '
 
-
-        
+        if self.interference_:
+          latex.DrawLatex(0.20, 0.76, "m_{A}-m_{H} = 50 GeV");
         latex.DrawLatex(0.20, 0.7, sig_process_name+self.analysisbin_);
         latex.DrawLatex(0.20, 0.64, "Extra Yukawa");
         latex.DrawLatex(0.15, 0.58, "{} =".format(self.Coupling)+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");

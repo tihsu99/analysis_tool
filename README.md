@@ -75,9 +75,9 @@ Use the ReBin.py macro to perform two main tasks:
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
 ```
 
-Normally, you should use the following commands.
+Normally, you should use the following commands. (Note that we always use mA as our Mass input in interference case.)
 ```
-python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/rtt] --y [year: 2016apv/2016postapv/2017/2018] --Masses [Mass points you want to take into account] --inputdir [input/provided/by/Gouranga]; 
+python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/rtt] --y [year: 2016apv/2016postapv/2017/2018] --Masses [Mass points you want to take into account] --inputdir [input/provided/by/Gouranga] [--interference]; 
 ```
 
 
@@ -180,7 +180,7 @@ python prepareCards.py -y run2 -c C  --For template
 
 Once you have the datacard template for full run2 with channels combined, then you can obtain the datacard for each mass point for full run2 in combined-channel with
 ```
-python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700};
+python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700} [--interference] [--scale];
 ```
 - Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
 
@@ -239,15 +239,22 @@ python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Ma
 
 ```
 
-### 3.3.1 Quick command-list for datacard productions with scaling
+### 3.3.1 Quick command-list for datacard productions with scaling and interference sample
 
-Take 2018 for example, just add `--scale` in the command line. Code automatically take rtc0p4 as scaling reference.
+Take 2018 for example, just add `--scale` in the command line. Code automatically take coupling value 0p4 as scaling reference.
 ```
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 200 300 350 400 500 600 700 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 200 300 350 400 500 600 700 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 200 300 350 400 500 600 700 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
 
+```
+Similar to interference samples. (Note that we always use mA as our Mass input in interference case.)
+```
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 250 300 350 400 550 700 --scale --interference;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 250 300 350 400 550 700 --scale --interference;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 250 300 350 400 550 700 --scale --interference;
+python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 250 300 350 400 550 700 --scale --interference;
 ```
 
 
@@ -292,11 +299,18 @@ python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 200 300 350 40
 python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
 python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
 ```
+### Run2(Interference)
+```
+python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 250 300 350 400 550 700 --interference
+python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 250 300 350 400 550 700 --interference
+python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 250 300 350 400 550 700 --interference
+python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 250 300 350 400 550 700 --interference
+```
 #### Plot Limits 
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016apv,2016postapv,2017,2018] --Masses [Mass list] --outputdir [your/favoured/output/folder] --plot_only ;
+python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016apv,2016postapv,2017,2018] --Masses [Mass list] --outputdir [your/favoured/output/folder] --plot_only [--interference];
 ```
 
 
@@ -356,13 +370,14 @@ In this example, Job_bus file name is `Job_bus/lqhAti.txt`
 
 Then the next step is to add the job into the Job_bus file, so in our case, we want to calculate the limits value in low mass regime for higgs A for run2 channel-conbined, then
 ```
-python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2 
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 300 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 350 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 400 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 500 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 600 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 250 --channel C --coupling_value rtc04 --higgs A --year run2 --interference #if you want to use interference sample
 ```
 And you can use 
 ```
