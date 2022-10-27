@@ -29,6 +29,7 @@ parser.add_argument("--outputdir",help='Create your favour outputdir. (If the di
 parser.add_argument("--Masses",default=[200,300,350,400,500,600,700,800,900,1000],nargs='+')
 
 parser.add_argument("--unblind",action="store_true")
+parser.add_argument("--interference", action="store_true")
 
 args = parser.parse_args()
 
@@ -52,6 +53,8 @@ for value in args.coupling_values:
     else:raise ValueError('No such coupling values: {}'.format(value))
 
     log_files_path_per_value = './bin/{year}/{channel}/limits_{coupling_value}_asimov_extYukawa.root'.format(year=args.year,channel=args.channel,coupling_value=coupling_value)
+    if args.interference:
+      log_files_path_per_value = log_files_path_per_value.replace(".root","_interference.root")
     
     if CheckFile(log_files_path_per_value,quiet=True):pass
     else:
