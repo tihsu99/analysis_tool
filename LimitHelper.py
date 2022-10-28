@@ -106,8 +106,8 @@ class RunLimits:
         command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' '+'--run blind  '
         if asimov:
             command_ = command_ + asimovstr
-        os.system(command_+" > "+logname)
-        print(command_+" > "+logname)
+        os.system(command_+" >& "+logname)
+        print(command_+" >& "+logname)
         return logname
         
     ## category can be merged/resolved/combined

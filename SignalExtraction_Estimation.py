@@ -52,6 +52,7 @@ parser.add_argument('--mass_point',help='Mass point of dataset.',type=str)
 parser.add_argument('-M','--mode',default='Nothing',choices=mode_choices,help='Mode of the executation')
 parser.add_argument('--unblind',action='store_true',help = 'Unblind or not.')
 parser.add_argument('--outputdir',default='./')
+parser.add_argument('--expectSignal',action="store_true")
 
 args = parser.parse_args()
 
@@ -75,7 +76,8 @@ settings ={
         'coupling_value':args.coupling_value,
         'mass':args.mass_point,
         'higgs':higgs,
-        'unblind':args.unblind
+        'unblind':args.unblind,
+        'expectSignal':args.expectSignal
         }
 
 
