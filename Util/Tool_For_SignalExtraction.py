@@ -209,8 +209,8 @@ def Plot_Impacts(settings=dict()):
     os.system("mv higgsCombine_paramFit*.root root/")
 
 def postFitPlot(settings=dict()):
-    if settings['channel'] == 'C':
-        print("postFitPlot is not applicable for combine channel at this moment.")
+    if settings['channel'] == 'C' or settings['year']=='run2':
+        print("postFitPlot is not applicable for combine channel or full run2 at this moment.")
         print("\nNext mode: [PullCalculation]")
         return 0
     figDiagnostics_File = settings['FitDiagnostics_file']
@@ -378,8 +378,8 @@ def postFitPlot(settings=dict()):
     print("\nNext mode: [PullCalculation]")
 
 def preFitPlot(settings=dict()):
-    if settings['channel'] == 'C':
-        print("preFitPlot is not applicable for combine channel at this moment.")
+    if settings['channel'] == 'C' or settings['years']=='run2':
+        print("preFitPlot is not applicable for combine channel or full run2 at this moment.")
         print("\nNext mode: [datacard2workspace]")
         return 0
     if 'rtc' in settings['coupling_value']:
