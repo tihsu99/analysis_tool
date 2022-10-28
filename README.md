@@ -325,38 +325,50 @@ python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016a
 
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
-# 5. For impacts and pulls and post-fit distribution
+# 5. For impacts and pulls and post/pre-fit distribution
+step0 -> preFit distribution. O(time) ~ 1 sec
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
+```
 
-Step1
+
+Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
 ```
-This would give your the workspace root file of datacards.
-Step2: After this, you would get the FitDiagnostics root file.
+
+Step2 -> FitDiagnostics. O(time) ~ O(3mins) for one year per channel. O(time) ~ O() for one year with combined 
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
 ```
-Step3: After this, you would get the postFit distribution
+
+Step3 -> postFit distribution. O(time) ~ 1 sec
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
 ```
-Step4: Calculating Pulls for each nuisances and background.
+
+Step4 -> Calculating Pulls for each nuisances and background. O(time) ~ 10 sec
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PullCalculation --coupling_value rtu04 --mass_point 800
 ```
-Step5: Plot the pulls.
+
+Step5 -> Plot the pulls. O(time) ~ 10 sec.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
 ```
-Step6: Init Fit for Impact -> You need to wait the job completed.
+
+Step6 -> Init Fit for Impact. O(time) ~ 5 mins for one year per channel. O(time) ~ O() for one year with combined
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
 ```
-Step7: Do Fits for Impacts -> You need to wait all the jobs completed.
+
+Step7 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 40 mins for one year per channel. 
+O(time) ~ O() for one year with combined
+
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
 ```
-Step8: Plot Impacts.
+Step8: Plot Impacts.  O(time) ~ 10 sec.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
 ```
