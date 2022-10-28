@@ -157,12 +157,23 @@ def Plot_Impacts(settings=dict()):
     command = 'combineTool.py -M Impacts -d {workspace_root} -o {impacts_json} -m 200'.format(workspace_root=settings['workspace_root'],impacts_json=settings['impacts_json'],mass=settings['mass'])
     os.system(command)
     command = 'plotImpacts.py -i  {impacts_json} -o {impacts_json_prefix}'.format(impacts_json=settings['impacts_json'],impacts_json_prefix=settings['impacts_json'].replace(".json",""))
+    
+    
     os.system(command)
+    
     print(command+"\n\n")
+    
+    command = 'pdftoppm {impacts_json_prefix}.pdf {impacts_json_prefix} -png -rx 300 -ry 300'.format(impacts_json_prefix= settings['impacts_json'].replace(".json",""))
+    os.system(command)    
+    
     print("Please check {impacts_json_prefix}.pdf".format(impacts_json_prefix=settings['impacts_json'].replace(".json","")))
 
 
 def postFitPlot(settings=dict()):
+    if settings['channel'] == 'C':
+        print("postFitPlot is not applicable for combine channel at this moment.")
+        print("\nNext mode: [PullCalculation]")
+        return 0
     figDiagnostics_File = settings['FitDiagnostics_file']
     if CheckFile(figDiagnostics_File,False,False):pass
     else:
@@ -218,11 +229,11 @@ def postFitPlot(settings=dict()):
 
     for Histogram_Name in Histogram_Names:
         #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-        h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+        h = fin.Get(first_dir+second_dir+Histogram_Name)
         nbin = h.GetNbinsX()
         Histogram[Histogram_Name] = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
 
-        if type(Histogram[Histogram_Name]) != ROOT.TH1F:
+        if type(h) != ROOT.TH1F:
             raise ValueError("No such histogram, please check {SampleName_File} and {figDiagnostics_File}".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
         else:
             print("Access: {}".format(Histogram_Name))
@@ -230,10 +241,10 @@ def postFitPlot(settings=dict()):
             Integral[Histogram_Name] = h.Integral()
             ### Set Bin Content
             
-            for ibin in range(nbin):
-                x = -1 + (2.*(ibin +1))/nbin
-                Histogram[Histogram_Name].Fill(x,h.GetBinContent(ibin+1))
-            
+            for ibin in range(nbin+1):
+                #x = -1 + (2.*(ibin +1))/nbin
+                Histogram[Histogram_Name].SetBinContent(ibin,h.GetBinContent(ibin))
+            #Histogram[Histogram_Name] = h 
             if Maximum < Histogram[Histogram_Name].GetMaximum():
                 Maximum = Histogram[Histogram_Name].GetMaximum()
 
@@ -301,7 +312,7 @@ def postFitPlot(settings=dict()):
     else:
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = settings['coupling_value']))
     value = int(settings['coupling_value'].split(coupling)[-1]) * 0.1
-    latex.DrawLatex(.07,100,"Coupling Value #rho_{t%s} = %s"%(quark,value))
+    latex.DrawLatex(.07,100,"#rho_{t%s} = %s"%(quark,value))
     latex.DrawLatex(.07,50,"M_{A} = %s "%(settings['mass']))
     ### CMS Pad #####
     import CMS_lumi
@@ -326,4 +337,5 @@ def postFitPlot(settings=dict()):
     print("Please check {prefix}.png".format(prefix=settings['postFitPlot']))
 
     print("\nNext mode: [PullCalculation]")
+
 
