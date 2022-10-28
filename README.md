@@ -332,12 +332,12 @@ python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupli
 ```
 
 
-Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec
+Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
 ```
 
-Step2 -> FitDiagnostics. O(time) ~ O(3mins) for one year per channel. O(time) ~ O(15mins) for one year with combined 
+Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for one year per channel.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
 ```
