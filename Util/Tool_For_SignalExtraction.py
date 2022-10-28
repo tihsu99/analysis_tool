@@ -369,11 +369,11 @@ def postFitPlot(settings=dict()):
 
     legend.Draw("SAME")
     canvas.Update()
-    canvas.SaveAs('{prefix}.pdf'.format(prefix=settings['postFitPlot']))
-    canvas.SaveAs('{prefix}.png'.format(prefix=settings['postFitPlot']))
+    canvas.SaveAs('{prefix}.pdf'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
+    canvas.SaveAs('{prefix}.png'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
 
-    print("Please check {prefix}.pdf".format(prefix=settings['postFitPlot']))
-    print("Please check {prefix}.png".format(prefix=settings['postFitPlot']))
+    print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
+    print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
 
     print("\nNext mode: [PullCalculation]")
 
