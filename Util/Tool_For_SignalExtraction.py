@@ -378,7 +378,7 @@ def postFitPlot(settings=dict()):
     print("\nNext mode: [PullCalculation]")
 
 def preFitPlot(settings=dict()):
-    if settings['channel'] == 'C' or settings['years']=='run2':
+    if settings['channel'] == 'C' or settings['year']=='run2':
         print("preFitPlot is not applicable for combine channel or full run2 at this moment.")
         print("\nNext mode: [datacard2workspace]")
         return 0
