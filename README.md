@@ -357,7 +357,7 @@ Step5 -> Plot the pulls.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
 ```
 
-Step6 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 10mins for Combined. 
+Step6 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
 ```
