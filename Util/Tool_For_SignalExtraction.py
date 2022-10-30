@@ -49,7 +49,7 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     Log_Path = os.path.relpath(datacards,os.path.dirname(datacards)).replace(".txt","_{}.log".format(mode))
     workspace_root = os.path.relpath(datacards,os.path.dirname(datacards)).replace("txt","root")
     FitDiagnostics_file = 'fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
-    Pull_File = os.path.join(Final_Output_Dir,FitDiagnostics_file.replace("fitDiagnostics","pulls"))
+    diffNuisances_File = os.path.join(Final_Output_Dir,FitDiagnostics_file.replace("fitDiagnostics","diffNuisances"))
     impacts_json = 'results/impacts_t0_{year}_{channel}_M{higgs}{mass}_{coupling_value}.json'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']) 
 
     
@@ -59,7 +59,7 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['workspace_root'] = os.path.join(settings['outputdir'],workspace_root)
     settings['datacards'] = os.path.join(settings['WorkDir'],datacards)
     settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],FitDiagnostics_file)
-    settings['Pull_File'] = Pull_File
+    settings['diffNuisances_File'] = diffNuisances_File
     settings['impacts_json'] = impacts_json
     settings['postFitPlot'] = 'results/postFit_{}'.format(settings['channel'])
     settings['preFitPlot'] = 'results/preFit_{}'.format(settings['channel'])
@@ -83,7 +83,7 @@ def datacard2workspace(settings=dict()):
 
 def FitDiagnostics(settings=dict()):
     
-    CheckFile(settings['FitDiagnostics_file']) 
+    CheckFile(settings['FitDiagnostics_file'],True) 
     os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
     os.chdir("{outputdir}".format(outputdir=settings['outputdir']))
     workspace_root = os.path.basename(settings['workspace_root'])
@@ -108,12 +108,12 @@ def FitDiagnostics(settings=dict()):
     print("For more detailed information about FitDiagnostics : https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#c-using-fitdiagnostics") 
     print("\nNext mode: [postFitPlot]")
 
-def PullCalculation(settings=dict()):
+def diffNuisances(settings=dict()):
     
-    CheckFile(settings['Pull_File'],True) 
+    CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {Pull_File}'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],Pull_File=settings['Pull_File'])
+    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File}'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
     print(command)
     
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
@@ -121,13 +121,13 @@ def PullCalculation(settings=dict()):
     os.system(command)
     
     print("*Please see {} for more information.".format(settings['Log_Path']))
-    print("*Pull root file: {} is created. ".format(settings['Pull_File']))
+    print("*diffNuisances root file: {} is created. ".format(settings['diffNuisances_File']))
     print("\nNext mode: [PlotPulls]")
 
 
 def PlotPulls(settings=dict()):
     
-    command = 'root -l -b -q '+"'PlotPulls.C"+'("{Pull_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}")'.format(Pull_File=settings['Pull_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])+"'"
+    command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])+"'"
     print(command)
 
     command += ' >& {}'.format(settings['Log_Path'])
@@ -144,6 +144,8 @@ def Impact_doInitFit(settings=dict()):
     
     print("cd {outputdir}".format(outputdir=settings['outputdir']))
     os.chdir(settings['outputdir'])
+    CheckFile("higgsCombine_initialFit_Test.MultiDimFit.mH{mass}.root".format(mass= settings['mass']),True)
+    CheckFile("combine_logger.out",True)
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
 
@@ -167,7 +169,7 @@ def Impact_doFits(settings=dict()):
     Log_Path = os.path.basename(settings['Log_Path'])
     
     
-    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin -20 --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'" +' --rMax 20 --parallel 256'
+    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin -20 --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'])+'--sub-opts='+"'+JobFlavour="+'"testmatch"'+"'" +' --rMax 20 --parallel 256'
     print(command)
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
@@ -211,7 +213,7 @@ def Plot_Impacts(settings=dict()):
 def postFitPlot(settings=dict()):
     if settings['channel'] == 'C' or settings['year']=='run2':
         print("postFitPlot is not applicable for combine channel or full run2 at this moment.")
-        print("\nNext mode: [PullCalculation]")
+        print("\nNext mode: [diffNuisances]")
         return 0
     figDiagnostics_File = settings['FitDiagnostics_file']
     if CheckFile(figDiagnostics_File,False,False):pass
@@ -242,6 +244,11 @@ def postFitPlot(settings=dict()):
     canvas.SetRightMargin(0.08)
 
     fin = ROOT.TFile(figDiagnostics_File,"READ")
+
+    if settings['expectSignal']:
+        first_dir = 'shapes_fit_s'
+    else:
+        first_dir = 'shapes_fit_b'
 
     first_dir = 'shapes_fit_b'
     second_dir = '/SR_{channel}/'.format(channel=settings['channel'])
@@ -375,7 +382,7 @@ def postFitPlot(settings=dict()):
     print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
 
-    print("\nNext mode: [PullCalculation]")
+    print("\nNext mode: [diffNuisances]")
 
 def preFitPlot(settings=dict()):
     if settings['channel'] == 'C' or settings['year']=='run2':
