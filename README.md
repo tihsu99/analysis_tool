@@ -337,33 +337,32 @@ Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
 ```
 
-Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for one year per channel.
+Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )  
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
 ```
 
-Step3 -> postFit distribution. O(time) ~ 1 sec
+Step3 -> postFit distribution.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
 ```
 
-Step4 -> Calculating Pulls for each nuisances and background. O(time) ~ 10 sec
+Step4 -> Calculating Pulls for each nuisances and background.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PullCalculation --coupling_value rtu04 --mass_point 800
 ```
 
-Step5 -> Plot the pulls. O(time) ~ 10 sec.
+Step5 -> Plot the pulls.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
 ```
 
-Step6 -> Init Fit for Impact. O(time) ~ 30 sec
+Step6 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 10mins for Combined. 
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
 ```
 
-Step7 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for one year per channel. 
-O(time) ~ O(20-40 mins) for one year with combined
+Step7 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. 
 
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
