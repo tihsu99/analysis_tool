@@ -1,8 +1,8 @@
 
 // using  a weird default name so that code crash in cse a correct rootfile is not provided 
-void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=10){ 
+void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=10,TString year="2018"){ 
   
-  TString plotdir = outdir;
+    TString plotdir = outdir;
     TFile file(filename,"READ");
     TCanvas *c = (TCanvas*)file.Get("nuisances");
     c->ls(); //check inside the c canvas
@@ -49,8 +49,23 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt2->SetFillStyle(0);
     pt2->SetTextFont(42);
     pt2->SetTextSize(lumitextsize);
-    pt2->AddText(0.81, 0.5, "41.5 fb^{-1} (13 TeV)");
     
+    if(year == "2018"){
+      pt2->AddText(0.81, 0.5, " 59.8 fb^{-1} (13 TeV)");
+    }
+    else if(year=="2017"){
+      pt2->AddText(0.81, 0.5, " 41.5 fb^{-1} (13 TeV)");
+    }
+    else if(year=="2016apv"){
+      pt2->AddText(0.81, 0.5, " 19.5 fb^{-1} (13 TeV)");
+    }
+    else if(year=="2016postapv"){
+        pt2->AddText(0.81, 0.5, " 16.8 fb^{-1} (13 TeV)");
+    }else{
+      cout << "should not reach" << endl;
+    }
+
+
     TPaveText *pt3 = new TPaveText(0.0377181,0.85,0.9580537,0.88,"brNDC");
     pt3->SetBorderSize(0);
     pt3->SetTextAlign(12);

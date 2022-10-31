@@ -169,5 +169,4 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     c.SaveAs(limit_png_file)
     
     c.Close()
-        
 

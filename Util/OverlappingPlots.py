@@ -7,8 +7,8 @@
 import sys
 
 import ROOT 
-ROOT.gROOT.SetBatch(True)
-sys.argv.append( '-b-' )
+#ROOT.gROOT.SetBatch(True)
+#sys.argv.append( '-b-' )
 
 
 from ROOT import TFile, TH1F, gDirectory, TCanvas, TPad, TProfile,TGraph, TGraphAsymmErrors,THStack
@@ -33,7 +33,6 @@ def DrawOverlap(fileVec, histVec, titleVec,legendtext,pngname,logstatus=[0,0],xR
     gStyle.SetOptTitle(0)
     gStyle.SetOptStat(0)
     gStyle.SetTitleOffset(1.1,"Y");
-    #gStyle.SetTitleOffset(1.9,"X");
     gStyle.SetLineWidth(3)
     gStyle.SetFrameLineWidth(3); 
 
