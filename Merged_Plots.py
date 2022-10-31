@@ -64,4 +64,4 @@ for value in args.coupling_values:
     log_files_path_Dict[value] = log_files_path_per_value
 # python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu01 rtu04 --plot_y_max 1000 --plot_y_min 0.001 --outputdir /eos/user/z/zhenggan/www/run2/merged_plot/ttu 
 from Util.Plot_Tool import Plot_1D_Limit_For
-Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses)
+Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference)
