@@ -113,7 +113,7 @@ def diffNuisances(settings=dict()):
     CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File}'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
+    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --absolute'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
     print(command)
     
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
@@ -186,17 +186,23 @@ def Plot_Impacts(settings=dict()):
     os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.err err".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.log log_condor".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.out output".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+    os.system("mv higgsCombine_paramFit*.root root/")
+    os.system("mv higgsCombine_initialFit*.root root/")
+    
+    os.chdir("root")
 
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
-    command = 'combineTool.py -M Impacts -d {workspace_root} -o {impacts_json} -m {mass}'.format(workspace_root=workspace_root,impacts_json=settings['impacts_json'],mass=settings['mass'])
+    command = 'combineTool.py -M Impacts -d ../{workspace_root} -o ../{impacts_json} -m {mass}'.format(workspace_root=workspace_root,impacts_json=settings['impacts_json'],mass=settings['mass'])
     print(command+"\n\n")
-    command += '&> {Log_Path}'.format(Log_Path=Log_Path)
+    command += ' > {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
+   
+    os.chdir('../')
     command = 'plotImpacts.py -i  {impacts_json} -o {impacts_json_prefix}'.format(impacts_json=settings['impacts_json'],impacts_json_prefix=settings['impacts_json'].replace(".json",""))
     
     print(command+"\n\n")
-    command += '>> {Log_Path}'.format(Log_Path=Log_Path)
+    command += ' >> {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
     
     command = 'pdftoppm {impacts_json_prefix}.pdf {impacts_json_prefix} -png -rx 300 -ry 300'.format(impacts_json_prefix= settings['impacts_json'].replace(".json",""))
@@ -207,8 +213,8 @@ def Plot_Impacts(settings=dict()):
     print("Please check {impacts_json_prefix}.pdf".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json'].replace(".json",""))))
     #print("Please check {impacts_json_prefix}.png".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json'].replace(".json",""))))
     
-    print("mv higgsCombine_paramFit*.root root/")
-    os.system("mv higgsCombine_paramFit*.root root/")
+    #print("mv higgsCombine_paramFit*.root root/")
+    #os.system("mv higgsCombine_paramFit*.root root/")
 
 def postFitPlot(settings=dict()):
     if settings['channel'] == 'C' or settings['year']=='run2':
