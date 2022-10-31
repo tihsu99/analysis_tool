@@ -113,7 +113,7 @@ def diffNuisances(settings=dict()):
     CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --absolute'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
+    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
     print(command)
     
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
@@ -134,7 +134,7 @@ def PlotPulls(settings=dict()):
     os.system(command)
    # os.system("mv {outputdir}/fitDiagnostics_* {outputdir}/results ".format(outputdir=settings['outputdir']))
 
-    os.system("mv {outputdir}/pulls_*_.* {outputdir}/results".format(outputdir=settings['outputdir']))
+    os.system("mv {outputdir}/diffNuisances_*_.* {outputdir}/results".format(outputdir=settings['outputdir']))
     print("\n")
     print("*Please see {} for more information.".format(settings['Log_Path']))
     print("*Your pull plots and root files are moved under: [ {}/results ]".format(settings['outputdir']))
