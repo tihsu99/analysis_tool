@@ -48,7 +48,8 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     """
     
     nuis_Init=[
-            "_lumiYEAR", 
+            "_lumiYEAR",
+            "_lumiCorrFullRun2",
             "_pileup",
             "_muIDYEARsys", 
             "_muIDYEARstat",
@@ -72,11 +73,10 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_dieleTriggerYEAR",
             "_fake",
             "_muonYEARptCorrection",
-            "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"
-            ]
+            "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
-    
-
+    if year=='2017' or year=='2018': 
+        nuis_Init.append("_lumiCorr1718")
 
 
 
