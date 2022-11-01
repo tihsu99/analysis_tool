@@ -113,7 +113,7 @@ def diffNuisances(settings=dict()):
     CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --absolute'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
+    command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
     print(command)
     
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
@@ -126,15 +126,18 @@ def diffNuisances(settings=dict()):
 
 
 def PlotPulls(settings=dict()):
-    
-    command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])+"'"
+    if settings['year'] == 'run2':n_canvas = '100'
+    elif settings['channel']  =='C':n_canvas ='20'
+    else:n_canvas = '10'
+
+    command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}",{n_canvas},"{year}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],n_canvas=n_canvas)+"'"
     print(command)
 
     command += ' >& {}'.format(settings['Log_Path'])
     os.system(command)
    # os.system("mv {outputdir}/fitDiagnostics_* {outputdir}/results ".format(outputdir=settings['outputdir']))
 
-    os.system("mv {outputdir}/pulls_*_.* {outputdir}/results".format(outputdir=settings['outputdir']))
+    os.system("mv {outputdir}/diffNuisances_*_.* {outputdir}/results".format(outputdir=settings['outputdir']))
     print("\n")
     print("*Please see {} for more information.".format(settings['Log_Path']))
     print("*Your pull plots and root files are moved under: [ {}/results ]".format(settings['outputdir']))
@@ -217,10 +220,6 @@ def Plot_Impacts(settings=dict()):
     #os.system("mv higgsCombine_paramFit*.root root/")
 
 def postFitPlot(settings=dict()):
-    if settings['channel'] == 'C' or settings['year']=='run2':
-        print("postFitPlot is not applicable for combine channel or full run2 at this moment.")
-        print("\nNext mode: [diffNuisances]")
-        return 0
     figDiagnostics_File = settings['FitDiagnostics_file']
     if CheckFile(figDiagnostics_File,False,False):pass
     else:
@@ -229,25 +228,15 @@ def postFitPlot(settings=dict()):
         if CheckFile(figDiagnostics_File,False,False):pass
         else: raise ValueError('Check :{figDiagnostics_File} exists or not. Otherwise you should go back to [FigDiagnostics_File] stage.'.format(figDiagnostics_File=figDiagnostics_File))
 
-    SampleName_File = "./data_info/Sample_Names/process_name_{year}.json".format(year=settings['year'])
 
 
-
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
-    ROOT.gROOT.SetBatch(1)
-    canvas = ROOT.TCanvas("","",620,600)
-
-    Set_Logy =True
-
-    if Set_Logy:
-        canvas.SetLogy(1)
-        Histogram_MaximumScale = 100
-    else:
-        Histogram_MaximumScale = 1.5
-    canvas.SetGrid(1,1)
-    canvas.SetLeftMargin(0.12)
-    canvas.SetRightMargin(0.08)
+    SampleName_File = "./data_info/Sample_Names/process_name_2018.json"
+    with open(SampleName_File,'r') as f:
+        Sample_Names = json.load(f).keys()
+    Histogram = dict()
+    Histogram_Names = []
+    for Sample_Name in Sample_Names:
+        Histogram_Names.append(str(Sample_Name))
 
     fin = ROOT.TFile(figDiagnostics_File,"READ")
 
@@ -257,144 +246,83 @@ def postFitPlot(settings=dict()):
         first_dir = 'shapes_fit_b'
 
     first_dir = 'shapes_fit_b'
-    second_dir = '/SR_{channel}/'.format(channel=settings['channel'])
-
-    Histogram = dict()
-
-    with open(SampleName_File,'r') as f:
-        Sample_Names = json.load(f).keys()
-
-    Histogram_Names = []
-
-    for Sample_Name in Sample_Names:
-        Histogram_Names.append(str(Sample_Name))
-
-
+    
+    second_dirs = []
+    if settings['channel'] != 'C' and settings['channel'] !='run2':
+        second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
+    elif settings['channel'] =='C' and settings['year'] != 'run2':
+        second_dirs = ['/ee/','/em/','/mm/']
+    elif settings['year'] =='run2' and settings['channel'] =='C':
+        for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
+            for channel in ['ee/','em/','mm/']:
+                second_dirs.append(year+'_'+channel)
+    
     Histogram = dict()
     Integral= dict()
     Maximum = -1
-    h_stack = ROOT.THStack()
+    Histogram_Registered = False 
     
+    for second_dir in second_dirs: 
 
+        for Histogram_Name in Histogram_Names:
+            #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+            print(first_dir+second_dir+Histogram_Name)
+            h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+            nbin = h.GetNbinsX()
+            h_reset_x_scale = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
 
-
-
+            if type(h) != ROOT.TH1F:
+                raise ValueError("No such histogram, please check {SampleName_File} and {figDiagnostics_File}".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
+            else:
+                print("Access: {}".format(Histogram_Name))
+                if Histogram_Registered:
+                    Integral[Histogram_Name] += h.Integral()
+                else:
+                    Integral[Histogram_Name] = h.Integral()
+                ### Set Bin Content
+                
+                for ibin in range(nbin+2):
+                    h_reset_x_scale.SetBinContent(ibin+1,h.GetBinContent(ibin+1))
+                if Histogram_Registered:
+                    Histogram[Histogram_Name].Add(h_reset_x_scale)
+                else:
+                    Histogram[Histogram_Name] = h_reset_x_scale
+        Histogram_Registered=True
+    
     for Histogram_Name in Histogram_Names:
-        #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-        h = fin.Get(first_dir+second_dir+Histogram_Name)
-        nbin = h.GetNbinsX()
-        Histogram[Histogram_Name] = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
-
-        if type(h) != ROOT.TH1F:
-            raise ValueError("No such histogram, please check {SampleName_File} and {figDiagnostics_File}".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
-        else:
-            print("Access: {}".format(Histogram_Name))
-            #print("Integral: {}\n".format())
-            Integral[Histogram_Name] = h.Integral()
-            ### Set Bin Content
-            
-            for ibin in range(nbin+1):
-                #x = -1 + (2.*(ibin +1))/nbin
-                Histogram[Histogram_Name].SetBinContent(ibin,h.GetBinContent(ibin))
-            #Histogram[Histogram_Name] = h 
-            if Maximum < Histogram[Histogram_Name].GetMaximum():
-                Maximum = Histogram[Histogram_Name].GetMaximum()
-
-    #Color_List = [ROOT.kAzure,ROOT.kMagenta,ROOT.kRed,ROOT.kOrange,ROOT.kGreen]
-    Color_Dict ={
-            'DY':ROOT.kRed,
-            'VV':ROOT.kCyan-9,
-            'VVV':ROOT.kSpring - 9,
-            'tttX':ROOT.kPink-3,
-            'Nonprompt':ROOT.kViolet-4,
-            'tZq':ROOT.kYellow-4,
-            'TTTo2L':ROOT.kBlue,
-            'ttW':ROOT.kGreen-2,
-            'ttZ':ROOT.kCyan-2,
-            'VBS':ROOT.kBlue-6,
-            'ttVH':ROOT.kRed-9,
-            'ttVV':ROOT.kOrange+3,
-            'SingleTop':ROOT.kGray,
-            }
-    ### Check the process name
-    for Histogram_Name in Histogram_Names:
-        if Histogram_Name not in Color_Dict.keys():
-            raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
+        if Maximum < Histogram[Histogram_Name].GetMaximum():
+            Maximum = Histogram[Histogram_Name].GetMaximum()
 
 
-
-    legend_NCol = int(len(Histogram_Names)/5)
-
-    legend = ROOT.TLegend(.15, .65, .65+0.25*(legend_NCol-1), .890);
-    legend.SetNColumns(int(len(Histogram_Names)/4))
-    legend.SetBorderSize(0);
-    legend.SetFillColor(0);
-    legend.SetShadowColor(0);
-    legend.SetTextFont(42);
-    legend.SetTextSize(0.03);
     
-    Ordered_Integral = OrderedDict(sorted(Integral.items(), key=itemgetter(1)))
-    
-    
+    template_settings= {
+            "Maximum":Maximum,
+            "Integral":Integral,
+            "Histogram":Histogram,
+            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),
+            "year":settings['year'],      
+            "Title":'Post-Fit Distribution',
+            "xaxisTitle":'BDT score',
+            "yaxisTitle":'Events/(1)',
+            "channel":settings['channel'],
+            "coupling_value":settings['coupling_value'],
+            "mass":settings["mass"]
+            } 
+    Plot_Histogram(template_settings=template_settings) 
 
 
-    for idx, Histogram_Name in enumerate(Ordered_Integral):
-        Histogram[Histogram_Name].SetFillColor(Color_Dict[Histogram_Name])
-        #Histogram[Histogram_Name].Draw('HIST SAME')
-        h_stack.Add(Histogram[Histogram_Name])
-        legend.AddEntry(Histogram[Histogram_Name],Histogram_Name+' [{:.1f}]'.format(Integral[Histogram_Name]) , 'F')
     #a = h_stack.GetXaxis();
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
     #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
-    h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
-    h_stack.SetMaximum(Maximum * Histogram_MaximumScale)
-    h_stack.Draw("HIST")
-    latex = ROOT.TLatex()
-    latex.SetTextSize(0.035)
-    latex.SetTextAlign(12)  
-    latex.DrawLatex(.07,200,"Channel: {}".format(settings['channel']))
-    
-    
-    if "rtc" in settings['coupling_value']:
-        quark = "c"
-        coupling ="rtc"
-    elif "rtu" in settings['coupling_value']:
-        quark = "u"
-        coupling ="rtu"
-    else:
-        raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = settings['coupling_value']))
-    value = int(settings['coupling_value'].split(coupling)[-1]) * 0.1
-    latex.DrawLatex(.07,100,"#rho_{t%s} = %s"%(quark,value))
-    latex.DrawLatex(.07,50,"M_{A} = %s "%(settings['mass']))
-    ### CMS Pad #####
-    import CMS_lumi
-    CMS_lumi.writeExtraText = 1
-    CMS_lumi.extraText = "Internal"
-    CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-    iPos = 11
-    if( iPos==0 ): CMS_lumi.relPosX = 0.12
-    iPeriod=settings['year']
-
-    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
-
-    ######
-
-
-    legend.Draw("SAME")
-    canvas.Update()
-    canvas.SaveAs('{prefix}.pdf'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-    canvas.SaveAs('{prefix}.png'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-
     print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-
+    
     print("\nNext mode: [diffNuisances]")
+    
+
+
 
 def preFitPlot(settings=dict()):
-    if settings['channel'] == 'C' or settings['year']=='run2':
-        print("preFitPlot is not applicable for combine channel or full run2 at this moment.")
-        print("\nNext mode: [datacard2workspace]")
-        return 0
     if 'rtc' in settings['coupling_value']:
         quark = 'c'
     elif 'rtu' in settings['coupling_value']:
@@ -406,74 +334,101 @@ def preFitPlot(settings=dict()):
     else:
         raise ValueError('No such higgs: {higgs}'.format(higgs = settings['higgs']))
 
-
-    prefit_File = './FinalInputs/{year}/ttc_{higgs}_{coupling_value}_M{higgs_}{mass}/TMVApp_{mass}_{channel}.root'.format(year=settings['year'],quark=quark,higgs=higgs,coupling_value=settings['coupling_value'],higgs_=settings['higgs'],mass=settings['mass'],channel = settings['channel'])
-    
-    if CheckFile(prefit_File,False,True):pass
-    else:
-        raise ValueError("No such file: {prefit_File}".format(prefit_File=prefit_File))
-    SampleName_File = "./data_info/Sample_Names/process_name_{year}.json".format(year=settings['year'])
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
-    ROOT.gROOT.SetBatch(1)
-    canvas = ROOT.TCanvas("","",620,600)
-
-    Set_Logy =True
-
-    if Set_Logy:
-        canvas.SetLogy(1)
-        Histogram_MaximumScale = 100
-    else:
-        Histogram_MaximumScale = 1.5
-    canvas.SetGrid(1,1)
-    canvas.SetLeftMargin(0.12)
-    canvas.SetRightMargin(0.08)
-
-    fin = ROOT.TFile(prefit_File,"READ")
-
-
-    Histogram = dict()
-
+    #### Define Category Names for Samples ####
+    SampleName_File = "./data_info/Sample_Names/process_name_2018.json"
     with open(SampleName_File,'r') as f:
         Sample_Names = json.load(f).keys()
-
     Histogram_Names = []
-
     for Sample_Name in Sample_Names:
         Histogram_Names.append(str(Sample_Name))
-
-
+    ########################################## 
+    
     Histogram = dict()
     Integral= dict()
     Maximum = -1
-    h_stack = ROOT.THStack()
+    
+    if settings['channel'] != 'C':
+        CHANNELS = [settings['channel']]
+    else:
+        CHANNELS = ['ee','em','mm']
+    
+    if settings['year'] !='run2':
+        YEARS = [settings['year']]
+    else:
+        YEARS = ['2016apv','2016postapv','2017','2018']
     
 
-
-
-
-    for Histogram_Name in Histogram_Names:
-        #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-        h = fin.Get('ttc{year}_'.format(year=settings['year'])+Histogram_Name)
-
-        if type(h) != ROOT.TH1F:
-            raise ValueError("No such histogram, please check {SampleName_File} and {figDiagnostics_File}".format(SampleName_File=SampleName_File,figDiagnostics_File=prefit_File))
-        else:
-            nbin = h.GetNbinsX()
-            Histogram[Histogram_Name] = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
-            print("Access: {}".format(Histogram_Name))
-            #print("Integral: {}\n".format())
-            Integral[Histogram_Name] = h.Integral()
-            ### Set Bin Content
+    Histogram_Registered = False 
+    fin = dict() 
+    for channel in CHANNELS:
+        for year in YEARS:
+            InputFile = './FinalInputs/{year}/ttc_{higgs}_{coupling_value}_M{higgs_}{mass}/TMVApp_{mass}_{channel}.root'.format(higgs_=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],year=year,channel=channel,higgs=higgs)
+            if CheckFile(InputFile,False):pass
+            else:raise ValueError("Check whether you already rebin the BDT output for {coupling_value}:{channel}:{year}:{higgs}".format(coupling_valuesettings['coupling_value'],channel=channel,year=year,higgs=settings['higgs']))
+            fin[channel+year] = ROOT.TFile(InputFile,"READ")
             
-            for ibin in range(nbin+1):
-                #x = -1 + (2.*(ibin +1))/nbin
-                Histogram[Histogram_Name].SetBinContent(ibin,h.GetBinContent(ibin))
-            #Histogram[Histogram_Name] = h 
-            if Maximum < Histogram[Histogram_Name].GetMaximum():
-                Maximum = Histogram[Histogram_Name].GetMaximum()
+            #### Register Histogram ####
+            for Histogram_Name in Histogram_Names:
+                h = fin[channel+year].Get('ttc{year}_'.format(year=year)+Histogram_Name).Clone()
+                
+                h.SetName("{year}_{channel}".format(year=year,channel=channel))
+                if type(h) != ROOT.TH1F:
+                    raise ValueError("No such histogram, please check {SampleName_File} and {InputFile}".format(SampleName_File=SampleName_File,InputFile=InputFile))
+                else:
+                    nbin = h.GetNbinsX()
+                    
+                    hist_x_rescale = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
+                    print("Access: {}".format(Histogram_Name))
+                    #print("Integral: {}\n".format())
+                    if Histogram_Registered:
+                        Integral[Histogram_Name] += h.Integral()
+                    else:
+                        Integral[Histogram_Name] = h.Integral()
+                    ### Set Bin Content
+                    
+                    for ibin in range(nbin+1):
+                        hist_x_rescale.SetBinContent(ibin,h.GetBinContent(ibin))
+        
+                    if Histogram_Registered:
+                        Histogram[Histogram_Name].Add(hist_x_rescale)
+                    else:
+                        Histogram[Histogram_Name] = hist_x_rescale
+            ###########################
+            Histogram_Registered=True
+    for Histogram_Name in Histogram_Names:
+        if Maximum < Histogram[Histogram_Name].GetMaximum():
+            Maximum = Histogram[Histogram_Name].GetMaximum()
 
-    #Color_List = [ROOT.kAzure,ROOT.kMagenta,ROOT.kRed,ROOT.kOrange,ROOT.kGreen]
+
+
+    template_settings= {
+            "Maximum":Maximum,
+            "Integral":Integral,
+            "Histogram":Histogram,
+            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),
+            "year":settings['year'],      
+            "Title":'Pre-Fit Distribution',
+            "xaxisTitle":'BDT score',
+            "yaxisTitle":'Events/(1)',
+            "channel":settings['channel'],
+            "coupling_value":settings['coupling_value'],
+            "mass":settings["mass"]
+            } 
+    Plot_Histogram(template_settings=template_settings) 
+
+    for channel in CHANNELS:
+        for year in YEARS:
+            fin[channel+year].Close() 
+
+    print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
+    print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
+    print("\nNext mode: [datacard2workspace]")
+
+
+
+
+def Plot_Histogram(template_settings=dict()):
+
     Color_Dict ={
             'DY':ROOT.kRed,
             'VV':ROOT.kCyan-9,
@@ -489,56 +444,69 @@ def preFitPlot(settings=dict()):
             'ttVV':ROOT.kOrange+3,
             'SingleTop':ROOT.kGray,
             }
-    ### Check the process name
-    for Histogram_Name in Histogram_Names:
+    for Histogram_Name in template_settings['Histogram'].keys():
         if Histogram_Name not in Color_Dict.keys():
             raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
 
+    #### Canvas ####
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gROOT.SetBatch(1)
+    canvas = ROOT.TCanvas("","",620,600)
 
+    Set_Logy =True
 
-    legend_NCol = int(len(Histogram_Names)/5)
+    if Set_Logy:
+        canvas.SetLogy(1)
+        Histogram_MaximumScale = 100
+    else:
+        Histogram_MaximumScale = 1.5
+    canvas.SetGrid(1,1)
+    canvas.SetLeftMargin(0.12)
+    canvas.SetRightMargin(0.08)
+    ###############
 
+    #### Legend ####
+    legend_NCol = int(len(Color_Dict.keys())/5)
     legend = ROOT.TLegend(.15, .65, .65+0.25*(legend_NCol-1), .890);
-    legend.SetNColumns(int(len(Histogram_Names)/4))
+    legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
     legend.SetTextSize(0.03);
+    #### Ordered_Integral ####
+    Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
+    ##########################
     
-    Ordered_Integral = OrderedDict(sorted(Integral.items(), key=itemgetter(1)))
-    
-    
-
-
+    #### Histogram Settings ####
+    h_stack = ROOT.THStack()
     for idx, Histogram_Name in enumerate(Ordered_Integral):
-        Histogram[Histogram_Name].SetFillColor(Color_Dict[Histogram_Name])
+        template_settings['Histogram'][Histogram_Name].SetFillColor(Color_Dict[Histogram_Name])
         #Histogram[Histogram_Name].Draw('HIST SAME')
-        h_stack.Add(Histogram[Histogram_Name])
-        legend.AddEntry(Histogram[Histogram_Name],Histogram_Name+' [{:.1f}]'.format(Integral[Histogram_Name]) , 'F')
-    #a = h_stack.GetXaxis();
-    #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
-    #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
+        h_stack.Add(template_settings['Histogram'][Histogram_Name])
+        legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
-    h_stack.SetMaximum(Maximum * Histogram_MaximumScale)
+    h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
+    h_stack.SetMinimum(1)
     h_stack.Draw("HIST")
     latex = ROOT.TLatex()
     latex.SetTextSize(0.035)
     latex.SetTextAlign(12)  
-    latex.DrawLatex(.07,200,"Channel: {}".format(settings['channel']))
-    
-    
-    if "rtc" in settings['coupling_value']:
+    latex.DrawLatex(.07,800,"Channel: {}".format(template_settings['channel']))
+
+    ###########################
+    if "rtc" in template_settings['coupling_value']:
         quark = "c"
         coupling ="rtc"
-    elif "rtu" in settings['coupling_value']:
+    elif "rtu" in template_settings['coupling_value']:
         quark = "u"
         coupling ="rtu"
     else:
-        raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = settings['coupling_value']))
-    value = int(settings['coupling_value'].split(coupling)[-1]) * 0.1
-    latex.DrawLatex(.07,100,"#rho_{t%s} = %s"%(quark,value))
-    latex.DrawLatex(.07,50,"M_{A} = %s "%(settings['mass']))
+        raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
+    value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
+    latex.DrawLatex(.07,400,"#rho_{t%s} = %s"%(quark,value))
+    latex.DrawLatex(.07,200,"M_{A} = %s "%(template_settings['mass']))
     ### CMS Pad #####
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
@@ -546,7 +514,7 @@ def preFitPlot(settings=dict()):
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
-    iPeriod=settings['year']
+    iPeriod=template_settings['year']
 
     CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
 
@@ -555,11 +523,8 @@ def preFitPlot(settings=dict()):
 
     legend.Draw("SAME")
     canvas.Update()
-    canvas.SaveAs('{prefix}.pdf'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
-    canvas.SaveAs('{prefix}.png'.format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
+    canvas.SaveAs('{prefix}.pdf'.format(prefix=template_settings['outputfilename']))
+    canvas.SaveAs('{prefix}.png'.format(prefix=template_settings['outputfilename']))
 
-    print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
-    print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
 
-    print("\nNext mode: [datacard2workspace]")
 
