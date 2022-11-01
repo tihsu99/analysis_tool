@@ -14,7 +14,7 @@ from Util.General_Tool import CheckDir,CheckFile
 
 
 
-def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200]):
+def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200],interference=False):
     
     coupling_values = log_files_dict.keys()
     
@@ -88,7 +88,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp1s.SetMarkerStyle(20)
         exp1s.SetMarkerSize(1.1)
         exp1s.SetLineWidth(2)
-        exp1s.SetFillColorAlpha(rt.kGreen,0.6);
+        exp1s.SetFillColorAlpha(rt.kGreen,0.8);
         exp1s.SetLineColor(rt.kGreen)
         #exp1s.Draw("3")
         mg.Add(exp1s,"3")
@@ -112,6 +112,8 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             leg.AddEntry(exp1s,"Expected limit #pm 1 std. deviation","F")
             leg.AddEntry(exp2s,"Expected limit #pm 2 std. deviation","F")
         else:pass
+
+
     c.cd()
     #mg.SetTitleName(";Mass[GeV];#mu=#sigma/#sigma_{theory}")
     mg.Draw("same") 
@@ -141,6 +143,11 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextSize(0.03);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
+    latex.DrawLatex(0.20, 0.84, "ExtraYukawa")
+    latex.DrawLatex(0.20, 0.8, year + " " + channel)
+    if interference:
+      latex.DrawLatex(0.20, 0.76, "m_{A}-m_{H} = 50 GeV");
+
     
     c.Update()
     
