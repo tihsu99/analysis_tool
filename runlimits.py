@@ -98,7 +98,7 @@ else:
           parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
         card_name = template_card.replace("template",parameters)
         
-        logname = RL.getLimits(card_name,asimov=True,mass_point="MA"+imass)
+        logname = RL.getLimits(card_name,asimov=False,mass_point="MA"+imass)
         
         mode_ = "a"
         
