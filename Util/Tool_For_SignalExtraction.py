@@ -323,16 +323,13 @@ def postFitPlot(settings=dict()):
 
 
 def preFitPlot(settings=dict()):
-    if 'rtc' in settings['coupling_value']:
-        quark = 'c'
-    elif 'rtu' in settings['coupling_value']:
-        quark = 'u'
+    figDiagnostics_File = settings['FitDiagnostics_file']
+    if CheckFile(figDiagnostics_File,False,False):pass
     else:
-        raise ValueError('No such coupling: {coupling_value}'.format(coupling_value = settings['coupling_value']))
-    if settings['higgs'] =='A':
-        higgs = 'a'
-    else:
-        raise ValueError('No such higgs: {higgs}'.format(higgs = settings['higgs']))
+        FitDiagnostics_file_1 = 'results/fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
+        figDiagnostics_File = os.path.join(settings['outputdir'],FitDiagnostics_file_1)
+        if CheckFile(figDiagnostics_File,False,False):pass
+        else: raise ValueError('Check :{figDiagnostics_File} exists or not. Otherwise you should go back to [FigDiagnostics_File] stage.'.format(figDiagnostics_File=figDiagnostics_File))
 
     #### Define Category Names for Samples ####
     SampleName_File = "./data_info/Sample_Names/process_name_2018.json"
@@ -346,60 +343,61 @@ def preFitPlot(settings=dict()):
     Histogram = dict()
     Integral= dict()
     Maximum = -1
-    
-    if settings['channel'] != 'C':
-        CHANNELS = [settings['channel']]
-    else:
-        CHANNELS = ['ee','em','mm']
-    
-    if settings['year'] !='run2':
-        YEARS = [settings['year']]
-    else:
-        YEARS = ['2016apv','2016postapv','2017','2018']
-    
+    fin = ROOT.TFile(figDiagnostics_File,"READ")
 
+    if settings['expectSignal']:
+        first_dir = 'shapes_fit_s'
+    else:
+        first_dir = 'shapes_fit_b'
+
+    first_dir = 'shapes_fit_b'
+    
+    second_dirs = []
+    if settings['channel'] != 'C' and settings['channel'] !='run2':
+        second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
+    elif settings['channel'] =='C' and settings['year'] != 'run2':
+        second_dirs = ['/ee/','/em/','/mm/']
+    elif settings['year'] =='run2' and settings['channel'] =='C':
+        for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
+            for channel in ['ee/','em/','mm/']:
+                second_dirs.append(year+'_'+channel)
+    
+    Histogram = dict()
+    Integral= dict()
+    Maximum = -1
     Histogram_Registered = False 
-    fin = dict() 
-    for channel in CHANNELS:
-        for year in YEARS:
-            InputFile = './FinalInputs/{year}/ttc_{higgs}_{coupling_value}_M{higgs_}{mass}/TMVApp_{mass}_{channel}.root'.format(higgs_=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],year=year,channel=channel,higgs=higgs)
-            if CheckFile(InputFile,False):pass
-            else:raise ValueError("Check whether you already rebin the BDT output for {coupling_value}:{channel}:{year}:{higgs}".format(coupling_valuesettings['coupling_value'],channel=channel,year=year,higgs=settings['higgs']))
-            fin[channel+year] = ROOT.TFile(InputFile,"READ")
-            
-            #### Register Histogram ####
-            for Histogram_Name in Histogram_Names:
-                h = fin[channel+year].Get('ttc{year}_'.format(year=year)+Histogram_Name).Clone()
-                
-                h.SetName("{year}_{channel}".format(year=year,channel=channel))
-                if type(h) != ROOT.TH1F:
-                    raise ValueError("No such histogram, please check {SampleName_File} and {InputFile}".format(SampleName_File=SampleName_File,InputFile=InputFile))
+    
+    for second_dir in second_dirs: 
+
+        for Histogram_Name in Histogram_Names:
+            #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+            print(first_dir+second_dir+Histogram_Name)
+            h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+            nbin = h.GetNbinsX()
+            h_reset_x_scale = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
+
+            if type(h) != ROOT.TH1F:
+                raise ValueError("No such histogram, please check {SampleName_File} and {figDiagnostics_File}".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
+            else:
+                print("Access: {}".format(Histogram_Name))
+                if Histogram_Registered:
+                    Integral[Histogram_Name] += h.Integral()
                 else:
-                    nbin = h.GetNbinsX()
-                    
-                    hist_x_rescale = ROOT.TH1F(Histogram_Name+'_',Histogram_Name+'_',nbin,-1,1)
-                    print("Access: {}".format(Histogram_Name))
-                    #print("Integral: {}\n".format())
-                    if Histogram_Registered:
-                        Integral[Histogram_Name] += h.Integral()
-                    else:
-                        Integral[Histogram_Name] = h.Integral()
-                    ### Set Bin Content
-                    
-                    for ibin in range(nbin+1):
-                        hist_x_rescale.SetBinContent(ibin,h.GetBinContent(ibin))
-        
-                    if Histogram_Registered:
-                        Histogram[Histogram_Name].Add(hist_x_rescale)
-                    else:
-                        Histogram[Histogram_Name] = hist_x_rescale
-            ###########################
-            Histogram_Registered=True
+                    Integral[Histogram_Name] = h.Integral()
+                ### Set Bin Content
+                
+                for ibin in range(nbin+2):
+                    h_reset_x_scale.SetBinContent(ibin+1,h.GetBinContent(ibin+1))
+                if Histogram_Registered:
+                    Histogram[Histogram_Name].Add(h_reset_x_scale)
+                else:
+                    Histogram[Histogram_Name] = h_reset_x_scale
+        Histogram_Registered=True
+    
     for Histogram_Name in Histogram_Names:
         if Maximum < Histogram[Histogram_Name].GetMaximum():
             Maximum = Histogram[Histogram_Name].GetMaximum()
-
-
+    
 
     template_settings= {
             "Maximum":Maximum,
@@ -416,9 +414,6 @@ def preFitPlot(settings=dict()):
             } 
     Plot_Histogram(template_settings=template_settings) 
 
-    for channel in CHANNELS:
-        for year in YEARS:
-            fin[channel+year].Close() 
 
     print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
     print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
