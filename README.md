@@ -326,10 +326,6 @@ python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016a
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls and post/pre-fit distribution
-step0 -> preFit distribution. O(time) ~ 1 sec
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
-```
 
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
@@ -342,17 +338,22 @@ Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
 ```
 
-Step3 -> postFit distribution.
+Step3 -> preFit distribution. O(time) ~ 1 sec
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
+```
+
+Step4 -> postFit distribution.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
 ```
 
-Step4 -> Calculating Pulls for each nuisances and background.
+Step5 -> Calculating Pulls for each nuisances and background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PullCalculation --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800
 ```
 
-Step5 -> Plot the pulls.
+Step6 -> Plot the pulls.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
 ```
