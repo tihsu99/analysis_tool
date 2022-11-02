@@ -143,7 +143,7 @@ for reg in regions:
                 
                     with open('./data_info/Datacard_Input/{}/Datacard_Input_{}.json'.format(year,channel),'r') as f:
                         Datacards_Input = json.load(f)
-                    with open('./data_info/NuisanceList/nuisance_list_{}_{}.json'.format(year,channel),'r') as f:
+                    with open('./data_info/NuisanceList/corrected_nuisance_list_{}_{}.json'.format(year,channel),'r') as f:
                         nuisance_ordered_list = json.load(f)
 
                     print(len(nuisance_ordered_list.keys()))
