@@ -55,6 +55,9 @@ parser.add_argument('-M','--mode',default='Nothing',choices=mode_choices,help='M
 parser.add_argument('--unblind',action='store_true',help = 'Unblind or not.')
 parser.add_argument('--outputdir',default='./')
 parser.add_argument('--expectSignal',action="store_true")
+parser.add_argument('--rMin',help='rMin values',default='-20')
+parser.add_argument('--rMax',help='rMax values',default='20')
+
 args = parser.parse_args()
 
 if 'rtc' in args.coupling_value:
@@ -72,14 +75,16 @@ datacards = 'datacards_{year}_{signal_process}/{signal_process}_{coupling_value}
 
 
 settings ={
-        'year':args.year,
-        'channel':args.channel,
-        'coupling_value':args.coupling_value,
-        'mass':args.mass_point,
-        'higgs':higgs,
-        'unblind':args.unblind,
-        'expectSignal':args.expectSignal
-        }
+    'year':args.year,
+    'channel':args.channel,
+    'coupling_value':args.coupling_value,
+    'mass':args.mass_point,
+    'higgs':higgs,
+    'unblind':args.unblind,
+    'expectSignal':args.expectSignal,
+    'rMin': args.rMin,
+    'rMax': args.rMax
+}
 
 
 MODE = eval(args.mode) 

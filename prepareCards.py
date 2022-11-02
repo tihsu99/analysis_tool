@@ -27,6 +27,7 @@ parser.add_argument("--reset",action="store_true")
 parser.add_argument("--coupling_value",default='rtc0p4',type=str,choices=coupling_value_choices)
 parser.add_argument("--scale", action="store_true")
 parser.add_argument("--interference", action="store_true")
+parser.add_argument("--review", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 
@@ -60,6 +61,7 @@ if(args.scale):
     else:raise ValueError("No such coupling value {}".format(args.coupling_value))
 args.coupling_value = args.coupling_value.replace("p","")
 
+signal_process_name_forView = signal_process_name
 signal_process_name = 'ttc' #Keep the naming rule, suggested by Gouranga.
 
 args.scale = args.scale and not (cp_scaleTo.replace("p","") == args.coupling_value)
@@ -208,8 +210,17 @@ for reg in regions:
     elif args.For == 'specific':
         CheckDir("datacards_"+year+"_"+signal_process_name,True,True)
         for channel in channels:
+            if args.interference:
+              CheckDir("datacards/"+year+"/datacards_"+signal_process_name_forView+"_interference/"+channel,True,True)
+            else:
+              CheckDir("datacards/"+year+"/datacards_"+signal_process_name_forView+"/"+channel,True,True)
             cat_str = channel+"_"+channel
             template_card = "datacards_"+year+"_template/template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
+            if not args.interference:
+              template_card_forView = "datacards/"+year+"/datacards_"+signal_process_name_forView+"/"+channel+"/"+"template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
+            else:
+              template_card_forView = "datacards/"+year+"/datacards_"+signal_process_name_forView+"_interference/"+channel+"/"+"template_couplingvalue_datacard_"+year+"_SR_"+cat_str+"_parameters.txt"
+
             dc_tmplate=open(template_card).readlines()
 
 
@@ -246,10 +257,21 @@ for reg in regions:
                 card_name = card_name.replace("couplingvalue",coupling_value)
                 if(args.scale):
                   card_name = card_name.replace(args.coupling_value,cp_scaleTo.replace('p',''))
+
+                if(args.review):
+                  card_name_forView = template_card_forView.replace("template",signal_process_name_forView)
+                  card_name_forView = card_name_forView.replace("parameters",parameters)
+                  coupling_value = args.coupling_value.split(signal_process_name)[-1]
+                  card_name_forView = card_name_forView.replace("couplingvalue",coupling_value).replace("MS","MH")
+                  if(args.scale):
+                    card_name_forView = card_name_forView.replace(args.coupling_value,cp_scaleTo.replace('p',''))
+
                 CheckFile(card_name,RemoveFile=True)
+                CheckFile(card_name_forView, RemoveFile=True)
                 
 
                 fout = open(card_name,'w')
+                fout_forView = open(card_name_forView,'w')
 
                 if args.interference:
                   dc_out = ([iline.replace("SIGNALPROCESS_a_COUPLINGVALUE_MAMASSPOINT", str(signal_process_name + "_a_" + str(imass) + "_s_" + str(int(imass)-50) + "_COUPLINGVALUE")) for iline in dc_out])
@@ -266,9 +288,14 @@ for reg in regions:
                     dc_out =  ([iline.replace("datacards_{}_{}/".format(signal_process_name,year),"") for iline in dc_out] )
                 
 
-                
+                dc_out_forView = dc_out 
                 fout.writelines(dc_out)
                 fout.close()
+
+                if args.review:
+#                  fout_forView = open(card_name_forView,'w')
+                  fout_forView.writelines(dc_out_forView)
+                  fout_forView.close()
                 print ("\nA new datacard: {} is created\n".format( card_name))
     else:raise ValueError('')
 

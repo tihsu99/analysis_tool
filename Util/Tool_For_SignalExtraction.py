@@ -89,7 +89,7 @@ def FitDiagnostics(settings=dict()):
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
 
-    command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy 0 --rMin -20 --rMax 20".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'])
+    command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy 0 --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'])
 
     #FitDiagnostics_file = 'fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
     print(command)
@@ -152,7 +152,7 @@ def Impact_doInitFit(settings=dict()):
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
 
-    command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin -20 '.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'])+' --rMax 20'
+    command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} '.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'])
     print(command)
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
@@ -172,7 +172,8 @@ def Impact_doFits(settings=dict()):
     Log_Path = os.path.basename(settings['Log_Path'])
     
     
-    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin -20 --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'])+'--sub-opts='+"'+JobFlavour="+'"testmatch"'+"'" +' --rMax 20 --parallel 256'
+    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'])+'--sub-opts='+"'+JobFlavour="+'"testmatch"'+"'"
+    
     print(command)
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
@@ -182,7 +183,8 @@ def Impact_doFits(settings=dict()):
     print("\nNext mode: [Plot_Impacts]")
 
 def Plot_Impacts(settings=dict()):
-    
+
+    print("cd {outputdir}".format(outputdir=settings['outputdir']))
     os.chdir(settings['outputdir'])
     Log_Path = os.path.basename(settings['Log_Path'])
     
