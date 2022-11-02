@@ -88,8 +88,8 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         
     nuis_Final_return = []
     
-    corr_nuis_Final_return = dict()
-    corr_nuis_Final = []
+    corr_nuis_Final =dict()
+    corr_nuis_Final_return =[]
     
     Index = 0
     for nui in nuis_Init:
@@ -107,14 +107,14 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             #if year=='2018':
             #    if 'prefireYEAR' in nui:continue
             #    else:pass
-            nuis_Final[str(Index)] = nui
+            nuis_Final[Index] = nui
             nuis_Final_return.append(nui)
             if nui in  Corr_nuis_list:
                 nui=nui.replace("YEAR","")
 
             else:pass
-            corr_nuis_Final_return[str(Index)] = nui
-            corr_nuis_Final.append(nui)
+            corr_nuis_Final[Index] = nui
+            corr_nuis_Final_return.append(nui)
 
             Index+=1
     
