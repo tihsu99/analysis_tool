@@ -77,9 +77,10 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
     if year=='2017' or year=='2018': 
         nuis_Init.append("_lumiCorr1718")
-
-
-
+        
+    if year=='2016apv' or year=='2016postapv':
+        nuis_Init = [nui.replace("_lumiYEAR","_lumi2016") for nui in nuis_Init]
+        
     nuis_Final = {}
     nuis_Final_return = []
     Index = 0
