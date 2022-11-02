@@ -25,7 +25,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         Input['rate'].append(-1)
     for nuisance in nuisances:
         nuisance=nuisance.split('_')[-1].strip()
-        nuisance=str(nuisance)
+        print(nuisance)
         Input['NuisForProc'][nuisance] = []
         
         if year=='2016apv' or year=='2016postapv':
@@ -33,7 +33,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         else:
             lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
 
-        sig_nuisance = ['sigYEARpdf','sigYEARscale','sigYEARps']
+        sig_nuisance = ['sigpdf','sigscale','sigps']
         
         if nuisance not in lnN_nuisance:
             Input['UnclnN'][nuisance]='shape'

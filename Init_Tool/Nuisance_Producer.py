@@ -46,7 +46,9 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         jesTotalDown
 
     """
-    
+    Corr_nuis_list = ["_sigYEARscale","_sigYEARpdf","_sigYEARps","_jesYEAR"]
+
+
     nuis_Init=[
             "_lumiYEAR",
             "_lumiCorrFullRun2",
@@ -77,12 +79,18 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
     if year=='2017' or year=='2018': 
         nuis_Init.append("_lumiCorr1718")
+
+
+    nuis_Final = dict()
         
     if year=='2016apv' or year=='2016postapv':
         nuis_Init = [nui.replace("_lumiYEAR","_lumi2016") for nui in nuis_Init]
         
-    nuis_Final = {}
     nuis_Final_return = []
+    
+    corr_nuis_Final =dict()
+    corr_nuis_Final_return =[]
+    
     Index = 0
     for nui in nuis_Init:
         if nui in blacklist and nui not in whitelist:pass
@@ -99,14 +107,22 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             #if year=='2018':
             #    if 'prefireYEAR' in nui:continue
             #    else:pass
-
             nuis_Final[Index] = nui
             nuis_Final_return.append(nui)
+            if nui in  Corr_nuis_list:
+                nui=nui.replace("YEAR","")
+
+            else:pass
+            corr_nuis_Final[Index] = nui
+            corr_nuis_Final_return.append(nui)
 
             Index+=1
     
     CheckFile('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
     with open('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
         json.dump(nuis_Final,f,indent=4)
+    CheckFile('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
+    with open('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
+        json.dump(corr_nuis_Final,f,indent=4)
         
-    return nuis_Final_return
+    return corr_nuis_Final_return

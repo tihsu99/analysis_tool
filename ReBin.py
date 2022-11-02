@@ -20,7 +20,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 #print(sys.path)
 import json
-from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -79,6 +79,7 @@ else:
 
 sample_names = dict()
 nuisances = dict()
+
 for iyear in years:
     with open('./data_info/Sample_Names/process_name_{}.json'.format(iyear),'r') as f:
         sample_names[iyear] = json.load(f)
@@ -89,6 +90,10 @@ for iyear in years:
         nuisances[iyear][ichannel] =[]
         for key in Nuisances_dict.keys():
             nuisances[iyear][ichannel].append(str(Nuisances_dict[key]))
+
+##### Correlated Nuisance List -> Manually#####
+Correlated_Nuisance_List = ['_sigYEARscale','_sigYEARpdf','_sigYEARps' ,'_jesYEAR']
+
 
 Process_Categories = sample_names[iyear].keys()
 
@@ -115,8 +120,14 @@ for iyear in years:
                 #os.system("rm -rf "+outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
 
 for iyear in years:
+    Correlated_Nuisance_List_YEAR =[]
+    for nui in Correlated_Nuisance_List:
+        for U_or_D in ["Up","Down"]:
+            correlated_nui = nui+U_or_D
+            Correlated_Nuisance_List_YEAR.append(correlated_nui.replace("YEAR",iyear))
+            #print(correlated_nui)
     for ir in regions:
-        print(nuisances[iyear][ir])
+        #print(nuisances[iyear][ir])
         variations=["Up", "Down"]
         allvariations= [inuis+iv for iv in variations for inuis in nuisances[iyear][ir]]
         allvariations.append("")
@@ -151,23 +162,35 @@ for iyear in years:
                 
                 CheckDir(outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2],True,True)
                 outputfilename=outputdir+"/"+iyear+"/"+rootfiilename_OUT
-                print ("Output file -> : {}\n\n".format(outputfilename))
+                CheckFile(outputfilename,True)
+                
                 fout = TFile(outputfilename,"RECREATE")
+                print ("Output file is created. -> : {}\n\n".format(outputfilename))
 
                 
                 ## This list needs to be altered for each year, 
                 allvariations = [iv.replace("YEAR",iyear) for iv in allvariations]
+                #print(allvariations)
                 #print ("systematic variations: ", allvariations)
                 for inuis in allvariations:
-                    
                     Hist = dict()
-
+                    
+                    ### Correlate Nuisance###
+                    correct_nuisance_name=''
+                    if inuis in Correlated_Nuisance_List_YEAR:
+                        correct_nuisance_name = inuis.replace(iyear,"")
+                        #print(iyear,ir,ic,imass,inuis,correct_nuisance_name)
+                    else:
+                        correct_nuisance_name = inuis
+                        #print(iyear,ir,ic,imass,inuis,correct_nuisance_name)
+                    #print(correct_nuisance_name) 
+                    #########################
                     
                     for Category in Process_Categories:
                         
                         Category = str(Category)
                         f_in.cd()
-                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear,q=args.quiet)
+                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear,q=args.quiet,correct_nuisance_name=correct_nuisance_name)
                         if Hist[Category] is None:pass
                         else:
                             fout.cd()
@@ -200,10 +223,9 @@ for iyear in years:
                       sig_name_ = prefix+(signal_.replace("MAMASS",str(imass))).replace("MSMASS",str(int(imass)-50)).replace("COUPLIING",ic_)
                     f_in.cd()
                     if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
-                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+inuis), str(sig_name_+inuis))
+                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+correct_nuisance_name), str(sig_name_+correct_nuisance_name))
                         fout.cd()
                         h_signal_.Write()
-
 
                     
                                         

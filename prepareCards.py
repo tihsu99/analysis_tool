@@ -145,7 +145,7 @@ for reg in regions:
                 
                     with open('./data_info/Datacard_Input/{}/Datacard_Input_{}.json'.format(year,channel),'r') as f:
                         Datacards_Input = json.load(f)
-                    with open('./data_info/NuisanceList/nuisance_list_{}_{}.json'.format(year,channel),'r') as f:
+                    with open('./data_info/NuisanceList/corrected_nuisance_list_{}_{}.json'.format(year,channel),'r') as f:
                         nuisance_ordered_list = json.load(f)
 
                     print(len(nuisance_ordered_list.keys()))
@@ -265,13 +265,12 @@ for reg in regions:
                   card_name_forView = card_name_forView.replace("couplingvalue",coupling_value).replace("MS","MH")
                   if(args.scale):
                     card_name_forView = card_name_forView.replace(args.coupling_value,cp_scaleTo.replace('p',''))
-
+                  CheckFile(card_name_forView, RemoveFile=False)
+                  fout_forView = open(card_name_forView,'w')
+        
                 CheckFile(card_name,RemoveFile=True)
-                CheckFile(card_name_forView, RemoveFile=True)
-                
 
                 fout = open(card_name,'w')
-                fout_forView = open(card_name_forView,'w')
 
                 if args.interference:
                   dc_out = ([iline.replace("SIGNALPROCESS_a_COUPLINGVALUE_MAMASSPOINT", str(signal_process_name + "_a_" + str(imass) + "_s_" + str(int(imass)-50) + "_COUPLINGVALUE")) for iline in dc_out])
@@ -288,14 +287,16 @@ for reg in regions:
                     dc_out =  ([iline.replace("datacards_{}_{}/".format(signal_process_name,year),"") for iline in dc_out] )
                 
 
-                dc_out_forView = dc_out 
-                fout.writelines(dc_out)
-                fout.close()
 
                 if args.review:
 #                  fout_forView = open(card_name_forView,'w')
-                  fout_forView.writelines(dc_out_forView)
-                  fout_forView.close()
+                    dc_out_forView = dc_out 
+                    fout_forView.writelines(dc_out_forView)
+                    fout_forView.close()
+                else:
+
+                    fout.writelines(dc_out)
+                    fout.close()
                 print ("\nA new datacard: {} is created\n".format( card_name))
     else:raise ValueError('')
 

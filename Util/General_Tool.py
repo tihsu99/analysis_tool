@@ -4,7 +4,7 @@ import copy
 import os 
 import sys
 CURRENT_WORKDIR = os.getcwd()
-def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',rebin=5,year='2017',q=False):
+def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',rebin=5,year='2017',q=False,correct_nuisance_name=''):
     Init = True
     
     Nui_Exist = False
@@ -22,7 +22,8 @@ def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category
                 h.Add(f.Get(sample_nuis_name))
     if Nui_Exist:
         h.Rebin(rebin)
-        h.SetNameTitle("ttc"+year+"_"+process_category+nuis,"ttc"+year+"_"+process_category+nuis)
+        #print("ttc"+year+"_"+process_category+correct_nuisance_name)
+        h.SetNameTitle("ttc"+year+"_"+process_category+correct_nuisance_name,"ttc"+year+"_"+process_category+correct_nuisance_name)
     else:
         if q:pass
         else:print("Warning: {} doesn't exist".format(sample_nuis_name))
