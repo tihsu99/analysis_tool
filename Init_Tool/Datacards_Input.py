@@ -24,19 +24,59 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         Input['process1'].append(idx)
         Input['rate'].append(-1)
     for nuisance in nuisances:
-        nuisance=str(nuisance.split('_')[-1])
+        nuisance=nuisance.split('_')[-1].strip()
+        nuisance=str(nuisance)
         Input['NuisForProc'][nuisance] = []
         
-        lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV"]
+        if year=='2016apv' or year=='2016postapv':
+            lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumi2016","lumiCorrFullRun2","lumiCorr1718"]
+        else:
+            lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
 
         sig_nuisance = ['sigYEARpdf','sigYEARscale','sigYEARps']
         
         if nuisance not in lnN_nuisance:
             Input['UnclnN'][nuisance]='shape'
+        else:pass
         if nuisance in lnN_nuisance or nuisance in sig_nuisance:
             if nuisance == 'fake':
                 Input['UnclnN'][nuisance]='1.30'
                 Input['NuisForProc'][nuisance].append('Nonprompt')
+            elif nuisance == 'lumiYEAR' or nuisance == 'lumi2016':
+                if "2016" in year:
+                    Input['UnclnN'][nuisance] = '1.01'
+                elif "2017" in year:
+                    Input['UnclnN'][nuisance] = '1.02'
+                elif "2018" in year:
+                    Input['UnclnN'][nuisance] = '1.015'
+                else:raise ValueError("No such year: {year}".format(year=year))
+                for proc in process:
+                    if proc !='Nonprompt':
+                        Input['NuisForProc'][nuisance].append(proc)
+                    else:pass 
+            elif nuisance == 'lumiCorrFullRun2' :
+                if "2016" in year:
+                    Input['UnclnN'][nuisance] = '1.006'
+                elif "2017" in year:
+                    Input['UnclnN'][nuisance] = '1.009'
+                elif "2018" in year:
+                    Input['UnclnN'][nuisance] = '1.020'
+                else:raise ValueError("No such year: {year}".format(year=year))
+                for proc in process:
+                    if proc !='Nonprompt':
+                        Input['NuisForProc'][nuisance].append(proc)
+                    else:pass 
+            elif nuisance == 'lumiCorr1718':
+                print(nuisance)
+                if "2017" == year:
+                    Input['UnclnN'][nuisance] = '1.006'
+                elif "2018" ==  year:
+                    Input['UnclnN'][nuisance] = '1.002'
+                else:raise ValueError("No such year: {year}".format(year=year))
+                for proc in process:
+                    if proc !='Nonprompt':
+                        Input['NuisForProc'][nuisance].append(proc)
+                    else:pass 
             elif nuisance =='normTTTo2L':
                 Input['UnclnN'][nuisance]='1.061'
                 Input['NuisForProc'][nuisance].append('TTTo2L')
@@ -78,7 +118,8 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 Input['NuisForProc'][nuisance].append('TAToTTQ_COUPLINGVALUE_MAMASSPOINT')
             
             else:
-                raise ValueError('Fix me. ')
+                print(repr(nuisance))
+                raise ValueError('No such nuisance: {nuisance}'.format(nuisance=nuisance))
         for proc in process:
             if nuisance not in lnN_nuisance and nuisance not in sig_nuisance:
                 if proc !='Nonprompt':

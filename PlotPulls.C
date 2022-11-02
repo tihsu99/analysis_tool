@@ -1,6 +1,6 @@
 
 // using  a weird default name so that code crash in cse a correct rootfile is not provided 
-void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=10,TString year="2018"){ 
+void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=100,TString year="2018"){ 
   
     TString plotdir = outdir;
     TFile file(filename,"READ");
@@ -52,6 +52,9 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     
     if(year == "2018"){
       pt2->AddText(0.81, 0.5, " 59.8 fb^{-1} (13 TeV)");
+    }
+    if(year == "run2"){
+      pt2->AddText(0.81, 0.5, " 137.6 fb^{-1} (13 TeV)");
     }
     else if(year=="2017"){
       pt2->AddText(0.81, 0.5, " 41.5 fb^{-1} (13 TeV)");

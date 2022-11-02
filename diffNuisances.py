@@ -3,7 +3,7 @@ import re
 from sys import argv, stdout, stderr, exit
 import datetime
 from optparse import OptionParser
-import HiggsAnalysis.CombinedLimit.calculate_pulls as CP 
+import calculate_pulls as CP 
 
 # tool to compare fitted nuisance parameters to prefit values.
 #
