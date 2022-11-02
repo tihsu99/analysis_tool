@@ -97,7 +97,7 @@ class RunLimits:
             
 
     def getLimits(self, dc, asimov=True,mass_point='MA200'):
-        asimovstr = "-t -1"
+        asimovstr =""#"-t -1"
         logname = dc.replace(".txt",".log")
         logname = logname.replace( logname.split("/")[-1], os.path.join("log",logname.split("/")[-1] ) )
         print ("logname: ",logname)
