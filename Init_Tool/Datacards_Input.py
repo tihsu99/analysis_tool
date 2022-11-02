@@ -23,8 +23,11 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
     for idx in range(N_process):
         Input['process1'].append(idx)
         Input['rate'].append(-1)
-    for nuisance in nuisances:
+    print(nuisances)
+    for Index in nuisances.keys():
+        nuisance = nuisances[Index]
         nuisance=nuisance.split('_')[-1].strip()
+        print(nuisance)
         nuisance=str(nuisance)
         Input['NuisForProc'][nuisance] = []
         
