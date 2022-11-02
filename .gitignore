@@ -27,3 +27,4 @@ condor_*.sub
 combine_logger.out
 PlotPulls_C.d
 SignalExtraction/
+datacards/*
