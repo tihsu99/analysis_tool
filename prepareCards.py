@@ -249,7 +249,7 @@ for reg in regions:
                   scale       = xs_scaleTo/xs_reference
                   scale_sigma = (xs_scaleTo_err**2/(xs_reference**2) + (xs_reference_err**2)*(xs_scaleTo**2)/(xs_reference**4))**0.5
 
-                  dc_out.append("sigscale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT %f [%f,%f]"%(scale,scale-scale_sigma,scale+scale_sigma)+'\n')
+                  dc_out.append("SigScale rateParam * TAToTTQ_COUPLINGVALUE_MAMASSPOINT %f [%f,%f]"%(scale,scale-scale_sigma,scale+scale_sigma)+'\n')
 
                 card_name = template_card.replace("template",signal_process_name)
                 card_name = card_name.replace("parameters",parameters)
