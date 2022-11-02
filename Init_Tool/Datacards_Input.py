@@ -28,7 +28,10 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         nuisance=str(nuisance)
         Input['NuisForProc'][nuisance] = []
         
-        lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
+        if year=='2016apv' or year=='2016postapv':
+            lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumi2016","lumiCorrFullRun2","lumiCorr1718"]
+        else:
+            lnN_nuisance =  ["fake","normTTTo2L","normSingleTop","normDY","normVV","normVBS","normttVV","normttVH","normttZ","normttW","normtZq","normtttX","normVVV","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
 
         sig_nuisance = ['sigYEARpdf','sigYEARscale','sigYEARps']
         
@@ -39,7 +42,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
             if nuisance == 'fake':
                 Input['UnclnN'][nuisance]='1.30'
                 Input['NuisForProc'][nuisance].append('Nonprompt')
-            elif nuisance == 'lumiYEAR':
+            elif nuisance == 'lumiYEAR' or nuisance == 'lumi2016':
                 if "2016" in year:
                     Input['UnclnN'][nuisance] = '1.01'
                 elif "2017" in year:
