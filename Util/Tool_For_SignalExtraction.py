@@ -106,7 +106,7 @@ def FitDiagnostics(settings=dict()):
     print("(1) root -l {FitDiagnostics_file}\n".format(FitDiagnostics_file=FitDiagnostics_file))
     print("(2) fit_s->Print()\n")
     print("For more detailed information about FitDiagnostics : https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#c-using-fitdiagnostics") 
-    print("\nNext mode: [postFitPlot]")
+    print("\nNext mode: [preFitPlot]")
 
 def diffNuisances(settings=dict()):
     
@@ -250,10 +250,13 @@ def postFitPlot(settings=dict()):
     first_dir = 'shapes_fit_b'
     
     second_dirs = []
-    if settings['channel'] != 'C' and settings['channel'] !='run2':
+    if settings['channel'] != 'C' and settings['year'] !='run2':
         second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
     elif settings['channel'] =='C' and settings['year'] != 'run2':
         second_dirs = ['/ee/','/em/','/mm/']
+    elif settings['year'] == 'run2' and settings['channel'] != 'C':
+        for year in ['/year2016apv/','/year2016postapv/','/year2017/','/year2018/']:
+            second_dirs.append(year)
     elif settings['year'] =='run2' and settings['channel'] =='C':
         for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
             for channel in ['ee/','em/','mm/']:
@@ -355,10 +358,13 @@ def preFitPlot(settings=dict()):
     first_dir = 'shapes_fit_b'
     
     second_dirs = []
-    if settings['channel'] != 'C' and settings['channel'] !='run2':
+    if settings['channel'] != 'C' and settings['year'] !='run2':
         second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
     elif settings['channel'] =='C' and settings['year'] != 'run2':
         second_dirs = ['/ee/','/em/','/mm/']
+    elif settings['year'] == 'run2' and settings['channel'] != 'C':
+        for year in ['/year2016apv/','/year2016postapv/','/year2017/','/year2018/']:
+            second_dirs.append(year)
     elif settings['year'] =='run2' and settings['channel'] =='C':
         for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
             for channel in ['ee/','em/','mm/']:
@@ -419,7 +425,7 @@ def preFitPlot(settings=dict()):
 
     print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
     print("Please check {prefix}.png".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
-    print("\nNext mode: [datacard2workspace]")
+    print("\nNext mode: [postFitPlot]")
 
 
 
@@ -490,7 +496,6 @@ def Plot_Histogram(template_settings=dict()):
     latex = ROOT.TLatex()
     latex.SetTextSize(0.035)
     latex.SetTextAlign(12)  
-    latex.DrawLatex(.07,800,"Channel: {}".format(template_settings['channel']))
 
     ###########################
     if "rtc" in template_settings['coupling_value']:
@@ -502,8 +507,10 @@ def Plot_Histogram(template_settings=dict()):
     else:
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
     value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
-    latex.DrawLatex(.07,400,"#rho_{t%s} = %s"%(quark,value))
-    latex.DrawLatex(.07,200,"M_{A} = %s "%(template_settings['mass']))
+    legend.Draw("SAME")
+    latex.DrawLatex(.10,200,"#rho_{t%s} = %s"%(quark,value))
+    latex.DrawLatex(.5,200,"M_{A} = %s "%(template_settings['mass']))
+    latex.DrawLatex(-.4,200,"Channel: {}".format(template_settings['channel']))
     ### CMS Pad #####
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
@@ -518,7 +525,6 @@ def Plot_Histogram(template_settings=dict()):
     ######
 
 
-    legend.Draw("SAME")
     canvas.Update()
     canvas.SaveAs('{prefix}.pdf'.format(prefix=template_settings['outputfilename']))
     canvas.SaveAs('{prefix}.png'.format(prefix=template_settings['outputfilename']))
