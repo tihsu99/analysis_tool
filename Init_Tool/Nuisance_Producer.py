@@ -53,10 +53,15 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_lumiYEAR",
             "_lumiCorrFullRun2",
             "_pileup",
+            "_prefire",
+            "_muonYEARptCorrection",
             "_muIDYEARsys", 
             "_muIDYEARstat",
             "_eleIDYEARsys",
             "_eleIDYEARstat",
+            "_elemuTriggerYEAR" ,
+            "_dimuTriggerYEAR",
+            "_dieleTriggerYEAR",
             "_ctagYEARstat",
             "_ctagYEARExtrap",
             "_ctagYEARInterp",
@@ -65,20 +70,16 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_ctagWJetsXSc",
             "_chargeflipYEARstat",
             "_chargeflipYEARsyst",
-            "_prefire",
             "_metYEARunclusterE", 
-            "_sigYEARscale","_sigYEARpdf","_sigYEARps", #only for signal
             "_jesYEAR",
             "_jerYEAR", 
-            "_elemuTriggerYEAR" ,
-            "_dimuTriggerYEAR",
-            "_dieleTriggerYEAR",
             "_fake",
-            "_muonYEARptCorrection",
-            "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
+            "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV",
+            "_sigYEARscale","_sigYEARpdf","_sigYEARps"] #only for signal
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
     if year=='2017' or year=='2018': 
-        nuis_Init.append("_lumiCorr1718")
+        nuis_Init.insert(1,"_lumiCorr1718")
+
 
 
     nuis_Final = dict()
