@@ -88,7 +88,7 @@ doc_nuis   = yaml.safe_load(f_nuis)
 
 if args.For == 'template':
     CheckDir('datacards_{}_template'.format(year),True,True)
-
+Description='''Date: {}\n'''.format(os.popen('date').read())
 
 
 top_ = '''
@@ -125,9 +125,13 @@ for reg in regions:
                     print('cp ./datacards_{year}_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt ./datacards_run2_template'.format(year=i_year,channel=channel))
                     os.system('cp ./datacards_{year}_template/template_couplingvalue_datacard_{year}_SR_{channel}_{channel}_parameters.txt ./datacards_run2_template'.format(year=i_year,channel=channel))
 
+                f = open("datacards_run2_template/template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt".format(channel=channel),"w")
+                f.write(Description)
+                f.write('------------'+'\n')
+                f.close()
 
                 print('cd datacards_run2_template;combineCards.py year2016apv=template_couplingvalue_datacard_2016apv_SR_{channel}_{channel}_parameters.txt year2016postapv=template_couplingvalue_datacard_2016postapv_SR_{channel}_{channel}_parameters.txt year2017=template_couplingvalue_datacard_2017_SR_{channel}_{channel}_parameters.txt year2018=template_couplingvalue_datacard_2018_SR_{channel}_{channel}_parameters.txt > template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt'.format(channel=channel))
-                os.system('cd datacards_run2_template;combineCards.py year2016apv=template_couplingvalue_datacard_2016apv_SR_{channel}_{channel}_parameters.txt year2016postapv=template_couplingvalue_datacard_2016postapv_SR_{channel}_{channel}_parameters.txt year2017=template_couplingvalue_datacard_2017_SR_{channel}_{channel}_parameters.txt year2018=template_couplingvalue_datacard_2018_SR_{channel}_{channel}_parameters.txt > template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt'.format(channel=channel))
+                os.system('cd datacards_run2_template;combineCards.py year2016apv=template_couplingvalue_datacard_2016apv_SR_{channel}_{channel}_parameters.txt year2016postapv=template_couplingvalue_datacard_2016postapv_SR_{channel}_{channel}_parameters.txt year2017=template_couplingvalue_datacard_2017_SR_{channel}_{channel}_parameters.txt year2018=template_couplingvalue_datacard_2018_SR_{channel}_{channel}_parameters.txt >> template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt'.format(channel=channel))
                 print('\n./datacards_run2_template/template_couplingvalue_datacard_run2_SR_{channel}_{channel}_parameters.txt is prepared.'.format(channel=channel))
                 
                 for i_year in ["2016apv","2016postapv","2017","2018"]:
@@ -181,6 +185,8 @@ for reg in regions:
                     print ("part2: ",part2)
                     part3 = getUpperPart3(reg)
                     
+                    fout.write(Description+'\n')
+                    fout.write('------------'+'\n')
                     fout.write(part1+'\n')
                     fout.write('------------'+'\n')
                     fout.write(part2+'\n')
@@ -205,7 +211,11 @@ for reg in regions:
                     print("===================================================")
                     print("")
                 else:    
-                    os.system('cd datacards_{y}_template/;combineCards.py em=template_couplingvalue_datacard_{y}_SR_em_em_parameters.txt ee=template_couplingvalue_datacard_{y}_SR_ee_ee_parameters.txt  mm=template_couplingvalue_datacard_{y}_SR_mm_mm_parameters.txt > template_couplingvalue_datacard_{y}_SR_C_C_parameters.txt'.format(y=year))
+                    f = open("datacards_{y}_template/template_couplingvalue_datacard_{y}_SR_C_C_parameters.txt".format(y=year),"w")
+                    f.write(Description)
+                    f.write('------------'+'\n')
+                    f.close()
+                    os.system('cd datacards_{y}_template/;combineCards.py em=template_couplingvalue_datacard_{y}_SR_em_em_parameters.txt ee=template_couplingvalue_datacard_{y}_SR_ee_ee_parameters.txt  mm=template_couplingvalue_datacard_{y}_SR_mm_mm_parameters.txt >> template_couplingvalue_datacard_{y}_SR_C_C_parameters.txt'.format(y=year))
                     print(template_card+ ' is prepared')
     elif args.For == 'specific':
         CheckDir("datacards_"+year+"_"+signal_process_name,True,True)
