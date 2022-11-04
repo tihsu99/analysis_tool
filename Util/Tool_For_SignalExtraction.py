@@ -75,7 +75,7 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
 def datacard2workspace(settings=dict()):
     
     CheckFile(settings['workspace_root'],True,True)
-    command = 'text2workspace.py {datacards}  -o {workspace_root}  --channel-mask >& {Log_Path}'.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'],Log_Path=settings['Log_Path'])
+    command = 'text2workspace.py {datacards}  -o {workspace_root} >& {Log_Path}'.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'],Log_Path=settings['Log_Path'])
     print(command)
     os.system(command)
     print("A new Workspace root file: {} is created! ".format(os.path.join(settings['outputdir'],settings['workspace_root'])))

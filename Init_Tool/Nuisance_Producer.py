@@ -81,6 +81,9 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         nuis_Init.insert(1,"_lumiCorr1718")
 
 
+    # remove _prefire for 2018:
+    if year=='2018':
+        nuis_Init.remove("_prefire")
 
     nuis_Final = dict()
         
