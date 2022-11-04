@@ -77,6 +77,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV",
             "_sigYEARscale","_sigYEARpdf","_sigYEARps"] #only for signal
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
+    
     if year=='2017' or year=='2018': 
         nuis_Init.insert(1,"_lumiCorr1718")
 
@@ -85,11 +86,12 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     if year=='2018':
         nuis_Init.remove("_prefire")
 
-    nuis_Final = dict()
         
     if year=='2016apv' or year=='2016postapv':
         nuis_Init = [nui.replace("_lumiYEAR","_lumi2016") for nui in nuis_Init]
+
         
+    nuis_Final = dict()
     nuis_Final_return = []
     
     corr_nuis_Final =dict()
@@ -100,7 +102,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         if nui in blacklist and nui not in whitelist:pass
         else:
             if channel=='ee':
-                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui:continue
+                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui or '_muonYEARptCorrection' in nui:continue
                 else:pass 
             elif channel =='mm':
                 if "dieleTriggerYEAR" in nui or 'elemuTriggerYEAR' in nui or 'eleIDYEARstat' in nui or 'eleIDYEARsys' in nui or "chargeflipYEAR" in nui:continue
