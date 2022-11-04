@@ -15,6 +15,7 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
     #Check And Create Folder: SignalExtraction
     start = time.time()
+    os.system("date")
     
     Fit_type =''
     if settings['expectSignal']:
@@ -350,8 +351,11 @@ def preFitPlot(settings=dict()):
     Maximum = -1
     fin = ROOT.TFile(figDiagnostics_File,"READ")
 
+    Histogram = dict()
     if settings['expectSignal']:
         first_dir = 'shapes_fit_s'
+        #TAToTTQ_300_s_250_rtc04 -> Inteference sample
+        Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     else:
         first_dir = 'shapes_fit_b'
 
@@ -370,7 +374,6 @@ def preFitPlot(settings=dict()):
             for channel in ['ee/','em/','mm/']:
                 second_dirs.append(year+'_'+channel)
     
-    Histogram = dict()
     Integral= dict()
     Maximum = -1
     Histogram_Registered = False 
