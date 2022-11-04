@@ -102,7 +102,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         if nui in blacklist and nui not in whitelist:pass
         else:
             if channel=='ee':
-                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui:continue
+                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui or '_muonYEARptCorrection' in nui:continue
                 else:pass 
             elif channel =='mm':
                 if "dieleTriggerYEAR" in nui or 'elemuTriggerYEAR' in nui or 'eleIDYEARstat' in nui or 'eleIDYEARsys' in nui or "chargeflipYEAR" in nui:continue
