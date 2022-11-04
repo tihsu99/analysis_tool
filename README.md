@@ -340,12 +340,12 @@ python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --co
 
 Step3 -> preFit distribution. O(time) ~ 1 sec
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
