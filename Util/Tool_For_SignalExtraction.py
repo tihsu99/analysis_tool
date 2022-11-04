@@ -66,11 +66,11 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['preFitPlot'] = 'results/preFit_{}'.format(settings['channel'])
     CheckFile(settings['Log_Path'],True,True)
     MODE(settings=settings)
-    if mode!='postFitPlot':
+    if mode!='postFitPlot' or mode !="preFitPlot":
         print("* Please see {} for the output information.".format(settings['Log_Path']))
     print("\nRun time for {mode}: {runtime} sec".format(mode=mode,runtime=time.time()-start))
 
-
+    
 
 def datacard2workspace(settings=dict()):
     
@@ -245,10 +245,10 @@ def postFitPlot(settings=dict()):
 
     if settings['expectSignal']:
         first_dir = 'shapes_fit_s'
+        Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     else:
         first_dir = 'shapes_fit_b'
 
-    first_dir = 'shapes_fit_b'
     
     second_dirs = []
     if settings['channel'] != 'C' and settings['year'] !='run2':
@@ -263,7 +263,6 @@ def postFitPlot(settings=dict()):
             for channel in ['ee/','em/','mm/']:
                 second_dirs.append(year+'_'+channel)
     
-    Histogram = dict()
     Integral= dict()
     Maximum = -1
     Histogram_Registered = False 
@@ -312,9 +311,12 @@ def postFitPlot(settings=dict()):
             "yaxisTitle":'Events/(1)',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
-            "mass":settings["mass"]
-            } 
-    Plot_Histogram(template_settings=template_settings) 
+            "mass":settings["mass"],
+            "text_y":settings["text_y"]
+            }
+    if settings["expectSignal"]:
+        template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+    Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
 
     #a = h_stack.GetXaxis();
@@ -353,13 +355,12 @@ def preFitPlot(settings=dict()):
 
     Histogram = dict()
     if settings['expectSignal']:
-        first_dir = 'shapes_fit_s'
+        first_dir = 'shapes_prefit'
         #TAToTTQ_300_s_250_rtc04 -> Inteference sample
         Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     else:
-        first_dir = 'shapes_fit_b'
+        first_dir = 'shapes_prefit'
 
-    first_dir = 'shapes_fit_b'
     
     second_dirs = []
     if settings['channel'] != 'C' and settings['year'] !='run2':
@@ -421,9 +422,12 @@ def preFitPlot(settings=dict()):
             "yaxisTitle":'Events/(1)',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
-            "mass":settings["mass"]
+            "mass":settings["mass"],
+            "text_y":settings["text_y"]
             } 
-    Plot_Histogram(template_settings=template_settings) 
+    if settings["expectSignal"]:
+        template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+    Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
 
     print("Please check {prefix}.pdf".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
@@ -433,7 +437,7 @@ def preFitPlot(settings=dict()):
 
 
 
-def Plot_Histogram(template_settings=dict()):
+def Plot_Histogram(template_settings=dict(),expectSignal=False):
 
     Color_Dict ={
             'DY':ROOT.kRed,
@@ -450,6 +454,8 @@ def Plot_Histogram(template_settings=dict()):
             'ttVV':ROOT.kOrange+3,
             'SingleTop':ROOT.kGray,
             }
+    if expectSignal:
+        Color_Dict[template_settings["Signal_Name"]] = ROOT.kBlack
     for Histogram_Name in template_settings['Histogram'].keys():
         if Histogram_Name not in Color_Dict.keys():
             raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
@@ -511,9 +517,9 @@ def Plot_Histogram(template_settings=dict()):
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
     value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
-    latex.DrawLatex(.10,200,"#rho_{t%s} = %s"%(quark,value))
-    latex.DrawLatex(.5,200,"M_{A} = %s "%(template_settings['mass']))
-    latex.DrawLatex(-.4,200,"Channel: {}".format(template_settings['channel']))
+    latex.DrawLatex(.10,template_settings["text_y"],"#rho_{t%s} = %s"%(quark,value))
+    latex.DrawLatex(.5,template_settings["text_y"],"M_{A} = %s "%(template_settings['mass']))
+    latex.DrawLatex(-.4,template_settings["text_y"],"Channel: {}".format(template_settings['channel']))
     ### CMS Pad #####
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
