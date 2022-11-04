@@ -53,6 +53,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_lumiYEAR",
             "_lumiCorrFullRun2",
             "_pileup",
+            "_prefire",
             "_muonYEARptCorrection",
             "_muIDYEARsys", 
             "_muIDYEARstat",
