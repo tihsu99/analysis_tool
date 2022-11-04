@@ -57,6 +57,7 @@ parser.add_argument('--outputdir',default='./')
 parser.add_argument('--expectSignal',action="store_true")
 parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
+parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
 
 args = parser.parse_args()
 
@@ -86,6 +87,8 @@ settings ={
     'rMax': args.rMax
 }
 
+if args.mode =='preFitPlot' or args.mode =='postFitPlot':
+    settings['text_y'] = float(args.text_y)
 
 MODE = eval(args.mode) 
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
