@@ -373,6 +373,12 @@ Step8: Plot Impacts.  O(time) ~ 30 sec.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
 ```
 
+Step9: Copy results to your given folder.  O(time) ~ 30 sec.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode ResultsCopy --coupling_value rtu04 --mass_point 800 --dest [Your/Given/OutputFolder]
+```
+Under this command, take this command for example, it will copy the local folder: SignalExtraction/2018/ee/rtu04/A/800/b_only/ as Your/Given/OutputFolder/`SignalExtraction/2018/ee/rtu04/A/800/b_only/`
+
 # 6. Condor Jobs
 
 ## 6.1 Condor Jobs for limit plots
