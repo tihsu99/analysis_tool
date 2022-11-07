@@ -57,7 +57,6 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
     
     settings['Log_Path'] = os.path.join(settings['outputdir'],Log_Path)
-    CheckFile(settings['Log_Path'],True)
     settings['workspace_root'] = os.path.join(settings['outputdir'],workspace_root)
     settings['datacards'] = os.path.join(settings['WorkDir'],datacards)
     settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],FitDiagnostics_file)
@@ -71,8 +70,9 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
         if mode == "PlotPulls" or mode =="Plot_Impacts" or mode=="ResultsCopy": 
             pass
         else:
-            print("* You can use [--text_y] arguments to modify the y position of [channel mass year] in the plots.")
+            print("\033[1;33m* You can use [--text_y] arguments to modify the y position of [channel mass year] in the plots.\033[0;m")
     else:
+        CheckFile(settings['Log_Path'],True)
         print("\033[1;33m* Please see \033[4m{}\033[0;m \033[1;33mfor the output information. \033[0;m".format(settings['Log_Path']))
     
     print("\nRun time for \033[1;33m {mode} \033[0;m: \033[0;33m {runtime} \033[0;m sec".format(mode=mode,runtime=time.time()-start))
@@ -319,6 +319,8 @@ def postFitPlot(settings=dict()):
             }
     if settings["expectSignal"]:
         template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+    else:
+        template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
@@ -326,10 +328,10 @@ def postFitPlot(settings=dict()):
     #a = h_stack.GetXaxis();
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
     #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
-    print("\nPlease check \033[1;33m\033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-    print("Please check \033[1;33m\033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     
     print("\nNext mode: \033[1;33m [diffNuisances] \033[1;33m")
+    print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
+    print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     
 
 
@@ -432,12 +434,14 @@ def preFitPlot(settings=dict()):
             } 
     if settings["expectSignal"]:
         template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+    else:
+        template_settings["Signal_Name"] = "DEFAULT"
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
 
-    print("\nPlease check \033[1;33m\033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
-    print("Please check \033[1;33m\033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
     print("\nNext mode: \033[1;33m[postFitPlot]\033[1;m")
+    print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
+    print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
 
 
 
@@ -460,7 +464,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
             'SingleTop':ROOT.kGray,
             }
     if expectSignal:
-        Color_Dict[template_settings["Signal_Name"]] = ROOT.kBlack
+        Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
     for Histogram_Name in template_settings['Histogram'].keys():
         if Histogram_Name not in Color_Dict.keys():
             raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
@@ -500,14 +504,13 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     h_stack = ROOT.THStack()
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
-        if  expectSignal:
-            if Histogram_Name == template_settings["Signal_Name"]:
-                h_sig = template_settings['Histogram'][Histogram_Name]
-                h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
-                h_sig.SetLineWidth(4)
-            else:pass
+        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
+            h_sig = template_settings['Histogram'][Histogram_Name]
+            h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
+            h_sig.SetLineWidth(4)
+            h_sig.SetLineStyle(9)
         else:    
-            template_settings['Histogram'][Histogram_Name].SetFillColor(Color_Dict[Histogram_Name])
+            template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
             #Histogram[Histogram_Name].Draw('HIST SAME')
             
             h_stack.Add(template_settings['Histogram'][Histogram_Name])
@@ -518,8 +521,8 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     h_stack.Draw("HIST")
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(10)
-        h_sig.Draw("HIST SAME ")
-        legend.AddEntry(h_sig,'Signal(10 X)', 'L')
+        h_sig.Draw("HIST;SAME")
+        legend.AddEntry(h_sig,'Signal(X 10)', 'L')
     latex = ROOT.TLatex()
     latex.SetTextSize(0.035)
     latex.SetTextAlign(12)  
