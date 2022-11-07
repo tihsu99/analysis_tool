@@ -115,7 +115,7 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
     elif ( iPeriod==0 ):
         lumiText += lumi_sqrtS
             
-    print lumiText
+    #print lumiText
 
     latex = rt.TLatex()
     latex.SetNDC()
@@ -173,13 +173,13 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
                 latex.DrawLatex(posX_+0.10, posY_+0.08, extraText)
-                print(extraText)
+                #print(extraText)
     elif( writeExtraText ):
         if( iPosX==0):
             posX_ =   l +  relPosX*(1-l-r)
             posY_ =   1-t+lumiTextOffset*t
 
-        print(extraText)
+        #print(extraText)
         latex.SetTextFont(extraTextFont)
         latex.SetTextSize(extraTextSize*t)
         latex.SetTextAlign(align_)
