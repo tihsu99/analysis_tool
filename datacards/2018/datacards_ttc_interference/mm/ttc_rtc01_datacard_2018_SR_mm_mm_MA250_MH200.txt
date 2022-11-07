@@ -1,3 +1,7 @@
+Date: Mon Nov  7 10:07:37 CET 2022
+
+
+------------
 
 imax *  number of channels
 jmax *  number of backgrounds
@@ -15,37 +19,38 @@ bin                                  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  S
 process  TAToTTQ_250_s_200_rtc04    tZq    ttZ   ttVH    VVV    ttW    VBS   ttVV  Nonprompt  TTTo2L     VV     DY   tttX  SingleTop
 process                                  0      1      2      3      4      5      6      7          8       9     10     11     12         13
 rate                                    -1     -1     -1     -1     -1     -1     -1     -1         -1      -1     -1     -1     -1         -1
-lumi2018              shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-pileup                shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-muID2018sys           shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-muID2018stat          shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctag2018stat          shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctag2018Extrap        shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctag2018Interp        shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctagDYXSb             shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctagDYXSc             shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-ctagWJetsXSc          shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-prefire               shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-met2018unclusterE     shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-sig2018scale          shape  1     -      -     -     -     -     -     -     -      -      -      -     -      -
-sig2018pdf            shape  1     -      -     -     -     -     -     -     -      -      -      -     -      -
-sig2018ps             shape  1     -      -     -     -     -     -     -     -      -      -      -     -      -
-jes2018               shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-jer2018               shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-dimuTrigger2018       shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-fake                    lnN  -     -      -     -     -     -     -     -  1.30      -      -      -     -      -
-muon2018ptCorrection  shape  1     1      1     1     1     1     1     1     -      1      1      1     1      1
-normTTTo2L              lnN  -     -      -     -     -     -     -     -     -  1.061      -      -     -      -
-normSingleTop           lnN  -     -      -     -     -     -     -     -     -      -      -      -     -  1.054
-normDY                  lnN  -     -      -     -     -     -     -     -     -      -      -  1.003     -      -
-normVV                  lnN  -     -      -     -     -     -     -     -     -      -  1.187      -     -      -
-normVBS                 lnN  -     -      -     -     -     -  1.30     -     -      -      -      -     -      -
-normttVV                lnN  -     -      -     -     -     -     -  1.18     -      -      -      -     -      -
-normttVH                lnN  -     -      -  1.50     -     -     -     -     -      -      -      -     -      -
-normttZ                 lnN  -     -  1.147     -     -     -     -     -     -      -      -      -     -      -
-normttW                 lnN  -     -      -     -     -  1.20     -     -     -      -      -      -     -      -
-normtZq                 lnN  -  1.10      -     -     -     -     -     -     -      -      -      -     -      -
-normtttX                lnN  -     -      -     -     -     -     -     -     -      -      -      -  1.30      -
-normVVV                 lnN  -     -      -     -  1.20     -     -     -     -      -      -      -     -      -
+lumi2018                lnN  1.015  1.015  1.015  1.015  1.015  1.015  1.015  1.015     -  1.015  1.015  1.015  1.015  1.015
+lumiCorr1718            lnN  1.002  1.002  1.002  1.002  1.002  1.002  1.002  1.002     -  1.002  1.002  1.002  1.002  1.002
+lumiCorrFullRun2        lnN  1.020  1.020  1.020  1.020  1.020  1.020  1.020  1.020     -  1.020  1.020  1.020  1.020  1.020
+pileup                shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muon2018ptCorrection  shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2018sys           shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2018stat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+dimuTrigger2018       shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018stat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018Extrap        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018Interp        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSb             shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSc             shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagWJetsXSc          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+met2018unclusterE     shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jes                   shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jer2018               shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+fake                    lnN      -      -      -      -      -      -      -      -  1.30      -      -      -      -      -
+normTTTo2L              lnN      -      -      -      -      -      -      -      -     -  1.061      -      -      -      -
+normSingleTop           lnN      -      -      -      -      -      -      -      -     -      -      -      -      -  1.054
+normDY                  lnN      -      -      -      -      -      -      -      -     -      -      -  1.003      -      -
+normVV                  lnN      -      -      -      -      -      -      -      -     -      -  1.187      -      -      -
+normVBS                 lnN      -      -      -      -      -      -   1.30      -     -      -      -      -      -      -
+normttVV                lnN      -      -      -      -      -      -      -   1.18     -      -      -      -      -      -
+normttVH                lnN      -      -      -   1.50      -      -      -      -     -      -      -      -      -      -
+normttZ                 lnN      -      -  1.147      -      -      -      -      -     -      -      -      -      -      -
+normttW                 lnN      -      -      -      -      -   1.20      -      -     -      -      -      -      -      -
+normtZq                 lnN      -   1.10      -      -      -      -      -      -     -      -      -      -      -      -
+normtttX                lnN      -      -      -      -      -      -      -      -     -      -      -      -   1.30      -
+normVVV                 lnN      -      -      -      -   1.20      -      -      -     -      -      -      -      -      -
+sigscale              shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigpdf                shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigps                 shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
 * autoMCStats 10 0 1  
-sigscale rateParam * TAToTTQ_250_s_200_rtc04 0.054207 [0.045182,0.063231]
+SigScale rateParam * TAToTTQ_250_s_200_rtc04 0.054207 [0.045182,0.063231]
