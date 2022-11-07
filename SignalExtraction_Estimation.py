@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy
 
 
 CURRENT_WORKDIR = os.getcwd()
@@ -42,7 +42,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy']
 
 
 parser = argparse.ArgumentParser()
@@ -53,7 +53,7 @@ parser.add_argument('--coupling_value',help='Coupling_values',default='rtu04',ch
 parser.add_argument('--mass_point',help='Mass point of dataset.',type=str)
 parser.add_argument('-M','--mode',default='Nothing',choices=mode_choices,help='Mode of the executation')
 parser.add_argument('--unblind',action='store_true',help = 'Unblind or not.')
-parser.add_argument('--outputdir',default='./')
+parser.add_argument('--dest',default='./')
 parser.add_argument('--expectSignal',action="store_true")
 parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
@@ -89,6 +89,8 @@ settings ={
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
     settings['text_y'] = float(args.text_y)
+elif args.mode=='ResultsCopy':
+    settings['dest'] = args.dest
 
 MODE = eval(args.mode) 
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
