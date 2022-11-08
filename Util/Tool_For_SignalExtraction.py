@@ -64,15 +64,15 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['impacts_json'] = impacts_json
     settings['postFitPlot'] = 'results/postFit_{}'.format(settings['channel'])
     settings['preFitPlot'] = 'results/preFit_{}'.format(settings['channel'])
-    CheckFile(settings['Log_Path'],True,True)
-    MODE(settings=settings)
     if mode == 'postFitPlot' or mode == "preFitPlot" or mode == "PlotPulls" or mode=="Plot_Impacts" or mode =="ResultsCopy":
+        MODE(settings=settings)
         if mode == "PlotPulls" or mode =="Plot_Impacts" or mode=="ResultsCopy": 
             pass
         else:
             print("\033[1;33m* You can use [--text_y] arguments to modify the y position of [channel mass year] in the plots.\033[0;m")
     else:
         CheckFile(settings['Log_Path'],True)
+        MODE(settings=settings)
         print("\033[1;33m* Please see \033[4m{}\033[0;m \033[1;33mfor the output information. \033[0;m".format(settings['Log_Path']))
     
     print("\nRun time for \033[1;33m {mode} \033[0;m: \033[0;33m {runtime} \033[0;m sec".format(mode=mode,runtime=time.time()-start))
@@ -87,9 +87,9 @@ def datacard2workspace(settings=dict()):
     
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
     os.system(command)
-    print("\nA new Workspace root file: \033[0;32m\033[4m{}\033[0;m is created!".format(os.path.join(settings['outputdir'],settings['workspace_root'])))
 
-    print("\nNext mode: [\033[1;33m FitDiagnostics \033[0;m]")
+    print("\nNext mode: [\033[0;32m FitDiagnostics \033[0;m]")
+    print("\n* A new Workspace root file: \033[0;32m\033[4m{}\033[0;m is created!".format(os.path.join(settings['outputdir'],settings['workspace_root'])))
 
 def FitDiagnostics(settings=dict()):
     
@@ -118,7 +118,7 @@ def FitDiagnostics(settings=dict()):
     print("For more detailed information about FitDiagnostics : \033[0;34m\033[4mhttps://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#c-using-fitdiagnostics \033[0;m") 
     print("Before entering into the next mode, please check the log file.")
     
-    print("\nNext mode: [\033[1;33m preFitPlot\033[0;m]")
+    print("\nNext mode: [\033[0;32m preFitPlot\033[0;m]")
 
 def diffNuisances(settings=dict()):
     
@@ -133,7 +133,7 @@ def diffNuisances(settings=dict()):
     os.system(command)
     
     print("\033[0;34m* diffNuisances root file: \033[4m{}\033[0;m is created. ".format(settings['diffNuisances_File']))
-    print("\nNext mode: [\033[1;33m PlotPulls \033[0;m]")
+    print("\nNext mode: [\033[0;32m PlotPulls \033[0;m]")
 
 
 def PlotPulls(settings=dict()):
@@ -149,7 +149,7 @@ def PlotPulls(settings=dict()):
     os.system("mv {outputdir}/fitDiagnostics_* {outputdir}/results ".format(outputdir=settings['outputdir']))
 
     os.system("mv {outputdir}/diffNuisances_*_.* {outputdir}/results".format(outputdir=settings['outputdir']))
-    print("\nNext mode: [\033[1;33m Impact_doInitFit \033[0;m]")
+    print("\nNext mode: [\033[0;32m Impact_doInitFit \033[0;m]")
     print("\033[1;33m* Your pull plots and root files are moved under: \033[4m{}/results\033[0;m".format(settings['outputdir']))
 
 def Impact_doInitFit(settings=dict()):
@@ -165,7 +165,7 @@ def Impact_doInitFit(settings=dict()):
     print("\033[0;35m"+command+"\033[0;m")
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
-    print("\nNext mode: [\033[1;33m Impact_doFits \033[0;m]")
+    print("\nNext mode: [\033[0;32m Impact_doFits \033[0;m]")
     print("\033[1;33m* Check the log file to find whether the [rMin, rMax] fall into specificied range, otherwise you need to reset --rMin/--rMax.\033[0;m") 
 
 
@@ -185,7 +185,7 @@ def Impact_doFits(settings=dict()):
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
 
-    print("\nNext mode: [\033[1;33m Plot_Impacts \033[1;33m]")
+    print("\nNext mode: [\033[0;32m Plot_Impacts \033[1;33m]")
     print("\033[1;33m* You need to wait for the condor job is done, then move to the next step [Plot_Impacts]. \033[0;m")
 
 def Plot_Impacts(settings=dict()):
@@ -329,7 +329,7 @@ def postFitPlot(settings=dict()):
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
     #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
     
-    print("\nNext mode: \033[1;33m [diffNuisances] \033[1;33m")
+    print("\nNext mode: \033[0;32m [diffNuisances] \033[1;33m")
     print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     
@@ -439,7 +439,7 @@ def preFitPlot(settings=dict()):
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
 
-    print("\nNext mode: \033[1;33m[postFitPlot]\033[1;m")
+    print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
     print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
     print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
 
