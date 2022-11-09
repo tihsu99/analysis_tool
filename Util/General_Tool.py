@@ -26,7 +26,7 @@ def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category
         h.SetNameTitle("ttc"+year+"_"+process_category+correct_nuisance_name,"ttc"+year+"_"+process_category+correct_nuisance_name)
     else:
         if q:pass
-        else:print("Warning: {} doesn't exist".format(sample_nuis_name))
+        else:print("\033[0;32m Warning \033[0;m: {} doesn't exist".format(sample_nuis_name))
     return h
 
 def MakePositive_Hist(Hist,value=0.0001):
@@ -46,11 +46,11 @@ def CheckDir(Dir_to_check="",MakeDir=True,quiet=False):
     if os.path.isdir(Dir_to_check): return True
     else:
         if not quiet:
-            print("\nWarning: You don't have directory: `{}` under {}\n".format(Dir_to_check, CURRENT_WORKDIR))
+            print("\n \033[0;32m Warning \033[0;m: You don't have directory: \033[0;33m\033[4m{}\033[0;m under \033[0;33m\033[4m{}\033[0;m\n".format(Dir_to_check, CURRENT_WORKDIR))
         if MakeDir:
             os.system('mkdir -p {}'.format(os.path.join(CURRENT_WORKDIR,Dir_to_check)))
             if not quiet:
-                print("\nWarning: Dir-> ./{} is made now.\n".format(Dir_to_check))
+                print("\n \033[0;32m Warning \033[0;m: Dir-> \033[0;32m{}\033[0;m is made now.\n".format(Dir_to_check))
         else:pass
         if not quiet:
             print("")
@@ -65,16 +65,16 @@ def CheckFile(File_to_check='',RemoveFile=False,quiet=False):
     
     if os.path.isfile(File_to_check): 
         if not quiet:
-            print('\nWarning: File-> {} exists\n'.format(File_to_check))
+            print('\n \033[0;32m Warning \033[0;m : File->\033[0;33m\033[4m{}\033[0;m exists\n'.format(File_to_check))
         if RemoveFile:
             if not quiet:
-                print('\nWarning: Remove File-> {}\n'.format(File_to_check))
+                print('\n \033[0;32m Warning \033[0;m : Remove File->\033[0;31m\033[4m{}\033[0;m\n'.format(File_to_check))
             os.system('rm -f {}'.format(File_to_check))
         return True
     else:
         if not quiet:
 
-            print('\nWarning: File-> {} does not exist\n'.format(File_to_check))
+            print('\n \033[0;32m Warning \033[0;m : File->\033[0;33m\033[4m{}\033[0;m does not exist\n'.format(File_to_check))
 
         return False
 

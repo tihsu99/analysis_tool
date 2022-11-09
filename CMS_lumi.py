@@ -29,7 +29,7 @@ lumi_13TeV = "137 fb^{-1}"
 lumi_13TeV_2016apv = "19.5 fb^{-1}"
 lumi_13TeV_2016postapv = "16.8 fb^{-1}"
 lumi_13TeV_2017 = "41.5 fb^{-1}"
-lumi_13TeV_2018 = "59.7 fb^{-1}" 
+lumi_13TeV_2018 = "59.8 fb^{-1}" 
 lumi_13TeV_run2=  "137 fb^{-1}"
 lumi_8TeV = "35.8 fb^{-1}"
 lumi_7TeV  = "5.1 fb^{-1}"
@@ -115,7 +115,7 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
     elif ( iPeriod==0 ):
         lumiText += lumi_sqrtS
             
-    print lumiText
+    #print lumiText
 
     latex = rt.TLatex()
     latex.SetNDC()
@@ -173,13 +173,13 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
                 latex.DrawLatex(posX_+0.10, posY_+0.08, extraText)
-                print(extraText)
+                #print(extraText)
     elif( writeExtraText ):
         if( iPosX==0):
             posX_ =   l +  relPosX*(1-l-r)
             posY_ =   1-t+lumiTextOffset*t
 
-        print(extraText)
+        #print(extraText)
         latex.SetTextFont(extraTextFont)
         latex.SetTextSize(extraTextSize*t)
         latex.SetTextAlign(align_)
