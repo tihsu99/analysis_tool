@@ -58,9 +58,11 @@ parser.add_argument('--expectSignal',action="store_true")
 parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
+parser.add_argument('--interference',help ='If you want to calculate for interference samples, then activate this option.',action="store_true")
 
 args = parser.parse_args()
 
+'''
 if 'rtc' in args.coupling_value:
     signal_process = 'ttc'
 elif 'rtu' in args.coupling_value:
@@ -68,23 +70,31 @@ elif 'rtu' in args.coupling_value:
 elif 'rtt' in args.coupling_value:
     signal_process = 'ttt'
 else:raise ValueError("No such coupling value: {}".format(args.coupling_value))
+'''
 signal_process = 'ttc'
 
 higgs = 'A'
 
+
+
 datacards = 'datacards_{year}_{signal_process}/{signal_process}_{coupling_value}_datacard_{year}_SR_{channel}_{channel}_M{higgs}{mass}.txt'.format(year = args.year,signal_process=signal_process,coupling_value=args.coupling_value,channel=args.channel,higgs=higgs,mass=args.mass_point)
 
+if args.interference:
+    higgs += '_interfered_with_S0'
+    datacards = './datacards_{year}_ttc/ttc_{coupling_value}_datacard_{year}_SR_{channel}_{channel}_MA{mass}_MS{mass2}.txt'.format(year = args.year, coupling_value=args.coupling_value,channel=args.channel,higgs=higgs,mass=args.mass_point,mass2=str(int(args.mass_point)-50))
 
 settings ={
     'year':args.year,
     'channel':args.channel,
     'coupling_value':args.coupling_value,
     'mass':args.mass_point,
+    'mass2':str(int(args.mass_point)-50),
     'higgs':higgs,
     'unblind':args.unblind,
     'expectSignal':args.expectSignal,
     'rMin': args.rMin,
-    'rMax': args.rMax
+    'rMax': args.rMax,
+    'interference' : args.interference
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':

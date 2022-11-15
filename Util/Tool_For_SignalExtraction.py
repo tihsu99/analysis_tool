@@ -25,7 +25,9 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     else:
         Fit_type+='b_only'
         settings['expectSignal']= 0
-
+    
+        
+    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs']),False)
     
     
     CheckDir("SignalExtraction",True)
@@ -248,7 +250,10 @@ def postFitPlot(settings=dict()):
 
     if settings['expectSignal']:
         first_dir = 'shapes_fit_s'
-        Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+        if not settings['interference']:
+            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+        else:
+            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
     else:
         first_dir = 'shapes_fit_b'
 
@@ -318,7 +323,11 @@ def postFitPlot(settings=dict()):
             "text_y":settings["text_y"]
             }
     if settings["expectSignal"]:
-        template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+        if not settings['interference']:    
+            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+        else:
+            
+            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
     else:
         template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
@@ -363,7 +372,10 @@ def preFitPlot(settings=dict()):
     if settings['expectSignal']:
         first_dir = 'shapes_prefit'
         #TAToTTQ_300_s_250_rtc04 -> Inteference sample
-        Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+        if not settings['interference']:
+            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+        else:
+            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
     else:
         first_dir = 'shapes_prefit'
 
@@ -433,7 +445,11 @@ def preFitPlot(settings=dict()):
             "text_y":settings["text_y"]
             } 
     if settings["expectSignal"]:
-        template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+        if not settings['interference']:    
+            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+        else:
+            
+            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
     else:
         template_settings["Signal_Name"] = "DEFAULT"
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
