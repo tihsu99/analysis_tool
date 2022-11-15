@@ -327,6 +327,7 @@ Note: Generally, it would take > 1 day to finish the calculation for full run2 l
 
 # 5. For impacts and pulls and post/pre-fit distribution
 
+Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
