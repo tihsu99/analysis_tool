@@ -10,6 +10,9 @@ from Util.General_Tool import CheckDir,CheckFile
 from Util.General_Tool import CheckFile
 from collections import OrderedDict
 from operator import itemgetter
+from Util.aux import *
+
+
 #from Util.OverlappingPlots import *
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
@@ -85,7 +88,8 @@ def datacard2workspace(settings=dict()):
     
     CheckFile(settings['workspace_root'],True,True)
     command = 'text2workspace.py {datacards}  -o {workspace_root}'.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'])
-    print("\033[0;35m "+command+" \033[0;m\n")
+    # print("\033[0;35m "+command+" \033[0;m\n")
+    print(ts+command+ns)
     
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
     os.system(command)
