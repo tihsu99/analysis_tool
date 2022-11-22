@@ -443,9 +443,14 @@ python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4
 # 8. Integrating results
 
 This section is mainly for saving the results in AN structure specifically.
+Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
 ```
-source example/IntegrateResults.sh # Note: You should already have all the results for limits.
+source example/IntegrateResults.sh rtc /your/output/folder/for/ # Note: You should already have all the results for limits.
 ```
+Then, please check created folders for:
+- ttc_merged
+- Impacts_Plots
+- LimitsTables
 
 # 8.1 small example for integrating limit table
 To produce the results in with particular era/channel/coupling for limit table:
@@ -457,7 +462,7 @@ python Results_Integrate.py --mode LimitTables --year 2016postapv --channel ee -
 python Results_Integrate.py --mode SignalExtraction --year 2018 --channel ee --mass 350 --coupling_value rtu0p4
 ```
 # 8.3 Small example for integrating limit plots (only merged ones)
-Let's say if your original output folder was: /your/output/folder/for/merged/plots_limit:
+Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
 Then: 
 ```
 python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/folder/for/ --coupling rtu
