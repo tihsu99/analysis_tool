@@ -408,6 +408,7 @@ def preFitPlot(settings=dict()):
             #print(first_dir+second_dir+Histogram_Name)
             h = fin.Get(first_dir+second_dir+Histogram_Name)
             if type(h) != ROOT.TH1F:
+                print(first_dir+second_dir+Histogram_Name)
                 raise ValueError("\033[0;31m No such histogram, please check {SampleName_File} and {figDiagnostics_File} \033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
 
             else:
