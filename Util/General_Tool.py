@@ -79,11 +79,3 @@ def CheckFile(File_to_check='',RemoveFile=False,quiet=False):
         return False
 
 
-
-
-
-
-
-
-
-

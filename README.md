@@ -374,12 +374,6 @@ Step8: Plot Impacts.  O(time) ~ 30 sec.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
 ```
 
-Step9: Copy results to your given folder.  O(time) ~ 30 sec.
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode ResultsCopy --coupling_value rtu04 --mass_point 800 --dest [Your/Given/OutputFolder]
-```
-Under this command, take this command for example, it will copy the local folder: SignalExtraction/2018/ee/rtu04/A/800/b_only/ as Your/Given/OutputFolder/`SignalExtraction/2018/ee/rtu04/A/800/b_only/`
-
 # 6. Condor Jobs
 
 ## 6.1 Condor Jobs for limit plots
@@ -437,16 +431,7 @@ Now, please submit it with condor_submit
 condor_submit scripts/condor.sub
 ```
 
-## 6.2 Condor Jobs for limit plots
 
-The steps are very simple. The pre-requiest for this is the corresponding datacard.
-For channel-combined in run2 with rtc04, MA=300GeV
-```
-python ./Util/write_shell_for_condor.py --channel C --year run2 --coupling_value rtc04 --mass_point 300 --higgs A --mode Impact --outputdir [Your/output/folder/ForImpacts]
-python ./Util/write_condor_job.py --shell_script ./scripts/shell_script_Impact_for_C_run2.sh
-condor_submit scripts/condor.sub
-```
-Note: After you collect result, you need to plot them! Please see the corresponding command in section 4.
 
 # 7. Multiple Limit Plots
 
@@ -455,10 +440,43 @@ Merged selected multiple plots together. You should make sure you already make e
 python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
 ```
 
+# 8. Integrating results
 
-# 8. Trouble Shooting 
+This section is mainly for saving the results in AN structure specifically.
+Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
+```
+source example/IntegrateResults.sh rtc /your/output/folder/for/ 
+```
+Then, please check created folders for:
+- ttc_merged
+- Impacts_Plots
+- LimitsTables
 
-## 8.1 Possible bugs in ReBin.py
+## 8.1 small example for integrating limit table
+To produce the results in with particular era/channel/coupling for limit table:
+```
+python Results_Integrate.py --mode LimitTables --year 2016postapv --channel ee --coupling_value rtc0p4
+```
+## 8.2 small example for integrating SignalExctraction
+```
+python Results_Integrate.py --mode SignalExtraction --year 2018 --channel ee --mass 350 --coupling_value rtu0p4
+```
+## 8.3 Small example for integrating limit plots (only merged ones)
+Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
+Then: 
+```
+python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/folder/for/ --coupling rtu
+```
+For interference one:
+```
+python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/folder/for/ --coupling rtu --interference
+```
+
+
+
+# 9. Trouble Shooting 
+
+## 9.1 Possible bugs in ReBin.py
 
 If you encounter the error message like
 ```
@@ -477,7 +495,7 @@ TypeError: none of the 3 overloaded methods succeeded. Full details:
 You should tune the name of histogram you want to "get" and "rebin", instead of "naming", to be consistent with the histograms names in input file.
 For this case, ttZtoQQ->ttZToQQ in line 142 for year2016postapv.
 
-## 8.2 Possible bugs in runlimit.py
+## 9.2 Possible bugs in runlimit.py
 
 If you encounter the error message like
 ```
@@ -505,7 +523,7 @@ You should tune the name of histogram you want to "get" and "rebin", instead of 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
 
-### 9. Appendix from Raman
+### 10. Appendix from Raman
 
 ## For signal shape comparison 
 python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc

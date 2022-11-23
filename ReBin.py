@@ -108,7 +108,6 @@ for iyear in years:
                   inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
                 else:
                   inputdir_ = inputdir.format(iyear, str(imass), str(int(imass)-50), ic_)
-                
                 print (" filename: ", inputdir_+"/"+filename_)
                 # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
                 if not args.interference:
@@ -147,7 +146,6 @@ for iyear in years:
                 
                 f_in.cd()
                 #f_in.ls()
-
                 prefix="ttc"+iyear+"_"
                 
                 rebin_=5
@@ -159,7 +157,6 @@ for iyear in years:
                 print(rootfiilename_OUT.split("/")[-2])
 
                 print("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2])
-                
                 CheckDir(outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2],True,True)
                 outputfilename=outputdir+"/"+iyear+"/"+rootfiilename_OUT
                 CheckFile(outputfilename,True)

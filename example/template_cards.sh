@@ -1,3 +1,8 @@
+python Init.py --year 2017 --channel all
+python Init.py --year 2018 --channel all
+python Init.py --year 2016apv --channel all
+python Init.py --year 2016postapv --channel all
+
 #template
 python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For template
 python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For template
