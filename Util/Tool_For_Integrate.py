@@ -1,10 +1,13 @@
 import os 
 import json
 import sys
+from decimal import Decimal, ROUND_HALF_UP
 CURRENT_WORKDIR = os.getcwd()
 
 from Util.General_Tool import CheckDir,CheckFile
 
+def smart_round(x,n):
+  return str(Decimal(x).quantize(Decimal("0."+"0"*n),rounding=ROUND_HALF_UP))
 
 def Integrate_LimitPlots(args):
     #Specific
@@ -158,6 +161,8 @@ def Integrate_LimitTables(args):
     TableName = os.path.join(TableName,str(args.channel)) 
     CheckDir(TableName,True)
     TableName = os.path.join(TableName,str(args.coupling_value)+'.tex')
+    if(args.interference):
+      TableName = TableName.replace('.tex','_interference.tex')
     WriteTableForAN(args=args,FileIn=FileIn,TableName=TableName)    
     
 
@@ -181,7 +186,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     LimitTable.write(r'\begin{center}'+'\n')
     
     if args.channel == 'C':
-        channel = 'Combined channel'
+        channel = 'combined all decay channel'
     elif args.channel == 'ee':
         channel = 'double-electron channel'
     elif args.channel == 'mm':
@@ -193,7 +198,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     if not args.interference:
         LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel} with coupling value {coupling_term}}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
     else:
-        LimitTable.write(r'\caption{{Table of limit values for year{year} in {channel}  with coupling value {coupling_term} for $A^0-H^0$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
+        LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel}  with coupling value {coupling_term} for $A^0-H^0$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
 
     if not args.interference:
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
@@ -206,6 +211,8 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     for record in records:
         record = record.split(' ')
         record = record[1:-1]
+        record = [smart_round(float(i),3) for i in record]
+        record[0] = str(int(float(record[0])))
         record = ' & '.join(record)
         record += r'\\'+'\n'
         LimitTable.write(record)         
