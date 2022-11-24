@@ -198,7 +198,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     if not args.interference:
         LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel} with coupling value {coupling_term}}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
     else:
-        LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel}  with coupling value {coupling_term} for $A^0-H^0$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
+        LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel}  with coupling value {coupling_term} for $\PA-\PH$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
 
     if not args.interference:
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
@@ -206,7 +206,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
     LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
     LimitTable.write(r'\hline'+'\n')
-    LimitTable.write(r'Mass Point [GeV] ($m_{A^0}$) & limits at $-2\sigma$ & limits at $-1\sigma$ & limits (median) & limits at $1\sigma$ & limits at $2\sigma$ \\'+'\n') 
+    LimitTable.write(r'Mass Point [GeV] ($\mA$) & limits at $-2\sigma$ & limits at $-1\sigma$ & limits (median) & limits at $1\sigma$ & limits at $2\sigma$ \\'+'\n') 
     
     for record in records:
         record = record.split(' ')
