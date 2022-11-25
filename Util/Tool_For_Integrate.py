@@ -188,11 +188,11 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     if args.channel == 'C':
         channel = 'combined all decay channel'
     elif args.channel == 'ee':
-        channel = 'double-electron channel'
+        channel = '\Pe\Pe channel'
     elif args.channel == 'mm':
-        channel = 'double-muon channel'
+        channel = '\Pe\PGm channel'
     elif args.channel == 'em':
-        channel = 'electron-muon channel'
+        channel = '\PGm\PGm channel'
 
 
     if not args.interference:
@@ -206,7 +206,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
     LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
     LimitTable.write(r'\hline'+'\n')
-    LimitTable.write(r'Mass Point [GeV] ($\mA$) & limits at $-2\sigma$ & limits at $-1\sigma$ & limits (median) & limits at $1\sigma$ & limits at $2\sigma$ \\'+'\n') 
+    LimitTable.write(r'Mass Point [GeV] (\mA) & limits at $-2\sigma$ & limits at $-1\sigma$ & limits (median) & limits at $1\sigma$ & limits at $2\sigma$ \\'+'\n') 
     
     for record in records:
         record = record.split(' ')
