@@ -54,92 +54,173 @@ def Integrate_LimitPlots(args):
                 os.system('cp {original_files} {AN_Filename}'.format(original_files= original_files,AN_Filename=AN_Filename))
 
 
-def SearchSpecific(args):
-    
-    Target = 'SignalExtraction'
-    coupling_value = (args.coupling_value).replace('p','')
-    for subfolder in [args.year,args.channel,coupling_value]:
-        Target = os.path.join(Target,subfolder)
-    if args.interference:
-        Target = os.path.join(Target,'A_interfered_with_S0')
-    else:
-        Target = os.path.join(Target,'A')
-    
-    Target = os.path.join(Target,args.mass)
-    if args.IncludeSignal:
-        Target = os.path.join(Target,'s_plus_b')
-    else:
-        Target = os.path.join(Target,'b_only')
-
-    Target = os.path.join(Target,'results')
-    
-    if not CheckDir(Target,False,False):
-        raise ValueError('No such results: {Target}'.format(Target=Target))
-    
-    Targets = []
-    for root , dirs , files in os.walk(Target,topdown=False):
-        for name in files:
-            if not '.pdf' in name: continue
-            Targets.append(os.path.join(root,name))
-    
-    return Targets
-
-
-def SearchAll(Original_Folder='SignalExtraction'):
-     
-    Targets = []
-        
-    for root , dirs , files in os.walk(Original_Folder,topdown=False):
-        if not 'results' in root: continue
-        for name in files:
-            if not '.pdf' in name: continue
-            Targets.append(os.path.join(root,name))
-                                    
-    return Targets
-
 
 
 def Integrate_SignalExtraction(args):
-    #Specific\
     '''
-    python Results_Integrate.py --WalkAll --mode SignalExtraction
-    python Results_Integrate.py --mode SignalExtraction --year 2018 --channel ee --mass 350 --coupling_value rtu0p4  
-    
+    Main function to integrate signal extraction results
     '''
-    Main_Folder = 'Impacts_Plots'
-    CheckDir(Main_Folder,True)
-    
-    if args.WalkAll:
-        OriginalInputs = SearchAll()
-    else:
-        OriginalInputs = SearchSpecific(args)
-    
-    for Input in OriginalInputs:
-        '''
-        SignalExtraction/2018/C/rtu04/A_interfered_with_S0/350/s_plus_b/results/diffNuisances_2018_C_A_interfered_with_S0_350_rtu04_8_.pdf
-        '''
-        elements = Input.split('/')
-        
-        subFolders = elements[1:4]
-        
-        Folder_Out = Main_Folder 
-        CheckDir(Folder_Out,True,True)
-        for subFolder in subFolders:
-            Folder_Out = os.path.join(Folder_Out,subFolder)
-            CheckDir(Folder_Out,True,True)
-        
-        if 'diffNuisances' in Input: 
-            FileName = elements[8]
-        else:
-            FileName = '{0}_{1}_{2}_{3}'.format(elements[4],elements[5],elements[6],elements[8])
-    
-        FileName = os.path.join(Folder_Out,FileName)
-        
-        CheckFile(FileName,True,True)
+    Store_Folders = WalkAndStoreAsList(mainFolder='SignalExtraction')
+    for Folder in Store_Folders : 
+        print('\nFolder which is checking currently: {Folder}'.format(Folder=Folder))
+        Info = GetInformation(Folder)
+        CopyTheResults(Info)
+        WriteLatex(Info)
 
-        os.system('cp {Input} {FileName}'.format(FileName=FileName,Input=Input))
+def WalkAndStoreAsList(mainFolder=''):
     
-    print('Please check the new folder: {}'.format(Main_Folder))
+    Store_Folders = list()
+    for root, _,_ in os.walk(mainFolder,topdown=True):
+        if len(root.split('/')) != 7: continue
+        Store_Folders.append(root)
+
+    return Store_Folders
+
+
+def GetInformation(Folder=''):
+
+    elements = Folder.split('/')
+    year = elements[1]
+    channel = elements[2]
+    coupling = elements[3]
+    higgs = elements[4]
+    mA = elements[5]
+    b_only_ornot = elements[6]
+    
+    result_folder = os.path.join(Folder,'results')
+    
+    #/SignalExtraction/run2/C/rtu04/A/350/s_plus_b/results
+    #./SignalExtraction/run2/C/rtu04/A_interfered_with_S0/350/b_only/results/diffNuisances_run2_C_A_interfered_with_S0_350_rtu04_69_.pdf
+    #./SignalExtraction/run2/C/rtu04/A_interfered_with_S0/350/b_only/results/impacts_t0_run2_C_MA_interfered_with_S0350_rtu04.pdf
+
+    filenames = ['preFit_{channel}.pdf'.format(channel=channel),'postFit_{channel}.pdf'.format(channel=channel),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_1_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_2_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'impacts_t0_{year}_{channel}_M{higgs}{mA}_{coupling}.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling)]
+    
+    Categorys = ['preFit','postFit','pull','impact']
+    
+    Info = dict()
+    Info['year'] = year
+    Info['channel'] = channel
+    Info['coupling'] = coupling
+    Info['higgs'] = higgs
+    Info['mH'] = mA
+    Info['b_only_ornot'] = b_only_ornot
+    Info['Category'] = dict()
+    for Category in Categorys:
+        Info['Category'][Category] = dict()
+        Info['Category'][Category]['Filenames'] = []
+        Info['Category'][Category]['Exist'] = False
+        Info['Category'][Category]['FinalFolder'] = ''
+
+    for idx,filename in enumerate(filenames):
+        filename = os.path.join(result_folder,filename)
+        if CheckFile(filename,False,True):
+            if 'preFit' in filename:
+                Info['Category']['preFit']['Exist'] = True
+                Info['Category']['preFit']['Filenames'].append(filename)
+                Info['Category']['preFit']['FinalFolder'] = 'plots/preFit/{year}/{channel}/{coupling}/{higgs}/{mA}/{b_only_ornot}'.format(year=year,channel=channel,coupling=coupling,higgs=higgs,mA=mA,b_only_ornot=b_only_ornot)
+            elif 'postFit' in filename:
+                Info['Category']['postFit']['Exist'] = True
+                Info['Category']['postFit']['Filenames'].append(filename)
+                Info['Category']['postFit']['FinalFolder'] = 'plots/postFit/{year}/{channel}/{coupling}/{higgs}/{mA}/{b_only_ornot}'.format(year=year,channel=channel,coupling=coupling,higgs=higgs,mA=mA,b_only_ornot=b_only_ornot)
+            elif 'diffNuisances' in filename:
+                Info['Category']['pull']['Exist'] = True
+                Info['Category']['pull']['Filenames'].append(filename)
+                Info['Category']['pull']['FinalFolder'] = 'plots/pull/{year}/{channel}/{coupling}/{higgs}/{mA}/{b_only_ornot}'.format(year=year,channel=channel,coupling=coupling,higgs=higgs,mA=mA,b_only_ornot=b_only_ornot)
+            elif 'impacts' in filename:
+                Info['Category']['impact']['Exist'] = True
+                Info['Category']['impact']['Filenames'].append(filename)
+                Info['Category']['impact']['FinalFolder'] = 'plots/impact/{year}/{channel}/{coupling}/{higgs}/{mA}/{b_only_ornot}'.format(year=year,channel=channel,coupling=coupling,higgs=higgs,mA=mA,b_only_ornot=b_only_ornot)
+        else:
+            if idx == 0:
+                print('Warning -> Folder: {result_folder} do not have preFit plot.'.format(result_folder=result_folder))
+            elif idx == 1:
+                print('Warning -> Folder: {result_folder} do not have postFit plot.'.format(result_folder=result_folder))
+            elif idx == 2 or idx == 3 :
+                print('Warning -> Folder: {result_folder} do not have diffNuisances plot.'.format(result_folder=result_folder))
+            elif idx == 2 or idx == 3 :
+                print('Warning -> Folder: {result_folder} do not have diffNuisances plot.'.format(result_folder=result_folder))
+            else:
+                print('Warning -> Folder: {result_folder} do not have impact plots.'.format(result_folder=result_folder))
+    return Info
+
+def CopyTheResults(Info=dict()):
+
+    for category in Info['Category'].keys():
+        if Info['Category'][category]['Exist']:
+            CheckDir(Info['Category'][category]['FinalFolder'],True,False)
+            for filename in Info['Category'][category]['Filenames']:
+                os.system('cp {filename} {folder}'.format(filename=filename,folder=Info['Category'][category]['FinalFolder'])) 
+                if category == 'impact':
+                    filename = filename.split('/')[-1]
+                    filename = os.path.join(Info['Category'][category]['FinalFolder'],filename)
+                    filename_multiple  = filename.replace('.pdf','_%d.pdf')
+                    os.system('pdfseparate  {filename} {filename_multiple}'.format(filename=filename,filename_multiple=filename_multiple))
+
+
+def WriteLatex(Info=dict()):
+
+    for category in Info['Category'].keys():
+        if Info['Category'][category]['Exist']:
+            if category == 'postFit':continue
+            tex_Folder = Info['Category'][category]['FinalFolder'].replace('plots/','sub_tex/')
+            CheckDir(tex_Folder,True,False)
+            latex = open(os.path.join(tex_Folder,'Fig.tex'),'w')
+            if Info['year'] == 'run2':
+                year = 'the full Run 2'
+            else:
+                year = 'full {year}'.format(year=Info['year'])
+            if Info['channel'] == 'ee':
+                channel = 'the $\Pe\Pe$ channel'
+            elif Info['channel'] == 'em':
+                channel = 'the $\PGm\PGm$ channel'
+            elif Info['channel'] == 'mm':
+                channel = 'the $\Pe\PGm$ channel'
+            else:
+                channel = 'all channels'
+            if Info['higgs'] == 'A':
+                interfered_postfix = ''
+            else:
+                interfered_postfix = ' with $\PA-\PH$ interference'
+            
+            if Info['b_only_ornot'] == 'b_only':
+                postfix_b_only_ornot = 'background-only'
+            else:
+                postfix_b_only_ornot = 'signal + background'
+
+
+            if 'rtu' in Info['coupling']:
+                value = int(Info['coupling'].split('rtu')[-1])*0.1
+                coupling = r'$\rho_{tu}'+'={value}$'.format(value=value)
+            elif 'rtc' in Info['coupling']:
+                value = Info['coupling'].split('rtc')[-1].replace('p','.')
+                coupling = r'$\rho_{tc}'+'={value}$'.format(value=value)
+            
+            latex.write(r'\begin{figure}[!h]'+'\n')
+            latex.write(r'\centering'+'\n')
+            if category == 'impact':
+                latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_1.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
+                latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_2.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
+                latex.write(r'\caption{{Impact distribution of the nuisance parameters for {postfix_b_only_ornot} Asimov fit of {year} data set in {channel} with \mA={mH}\GeV and {coupling} {interfered_postfix} (pages 1 and 2).}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot)+'\n')
+                latex.write(r'\label{{fig:asimov_impact_{year}_{channel}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
+
+            elif category =='preFit':
+                Folder = Info['Category'][category]['FinalFolder']
+                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/preFit_{channel}.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
+                Folder = Folder.replace('preFit','postFit')
+                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/postFit_{channel}.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
+                latex.write(r'\caption{{Pre-fit(left) and  post-fit(right) BDT variable with {year} data for the {postfix_b_only_ornot} fit for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot) +'\n') 
+
+                latex.write(r'\label{{fig:prefit_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
+            elif category =='pull':
+                latex.write(r'\includegraphics[width=0.73\textwidth]{{{Folder}/diffNuisances_{year}_{channel}_{higgs}_{mH}_{coupling}_1_.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
+                latex.write(r'\includegraphics[width=0.73\textwidth]{{{Folder}/diffNuisances_{year}_{channel}_{higgs}_{mH}_{coupling}_2_.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
+                latex.write('\caption{{Pulls for each of the nuisance parameters for the {postfix_b_only_ornot} Asimov fit of {year} data set for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}.}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot)+'\n')
+                latex.write(r'\label{{fig:asimov_pull_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
+
+            latex.write(r'\end{figure}'+'\n')
+
+            latex.close()
+
 
 def Integrate_LimitTables(args):
     '''
@@ -186,7 +267,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     LimitTable.write(r'\begin{center}'+'\n')
     
     if args.channel == 'C':
-        channel = 'combined all decay channel'
+        channel = 'the combined channel'
     elif args.channel == 'ee':
         channel = '\Pe\Pe channel'
     elif args.channel == 'mm':
@@ -206,7 +287,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
     LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
     LimitTable.write(r'\hline'+'\n')
-    LimitTable.write(r'Mass Point [GeV] (\mA) & limits at $-2\sigma$ & limits at $-1\sigma$ & limits (median) & limits at $1\sigma$ & limits at $2\sigma$ \\'+'\n') 
+    LimitTable.write(r'Mass Point [GeV] (\mA) & limits ($-2\sigma$) & limits ($-1\sigma$) & limits (median) & limits ($1\sigma$) & limits ($2\sigma$) \\'+'\n') 
     
     for record in records:
         record = record.split(' ')
