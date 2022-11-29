@@ -287,7 +287,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
     LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
     LimitTable.write(r'\hline'+'\n')
-    LimitTable.write(r'Mass Point [GeV] (\mA) & limits ($-2\sigma$) & limits ($-1\sigma$) & limits (median) & limits ($1\sigma$) & limits ($2\sigma$) \\'+'\n') 
+    LimitTable.write(r'Mass Point [GeV] (\mA) & limit ($-2\sigma$) & limit ($-1\sigma$) & limit (median) & limit ($1\sigma$) & limit ($2\sigma$) \\'+'\n') 
     
     for record in records:
         record = record.split(' ')
