@@ -559,9 +559,9 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
     value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
-    latex.DrawLatex(.10,template_settings["text_y"],"#rho_{t%s} = %s"%(quark,value))
-    latex.DrawLatex(.5,template_settings["text_y"],"M_{A} = %s "%(template_settings['mass']))
-    latex.DrawLatex(-.4,template_settings["text_y"],"Channel: {}".format(template_settings['channel']))
+    #latex.DrawLatex(.10,template_settings["text_y"],"#rho_{t%s} = %s"%(quark,value))
+    #latex.DrawLatex(.5,template_settings["text_y"],"M_{A} = %s "%(template_settings['mass']))
+    #latex.DrawLatex(-.4,template_settings["text_y"],"Channel: {}".format(template_settings['channel']))
     ### CMS Pad #####
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
