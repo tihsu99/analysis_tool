@@ -78,6 +78,8 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_jesYEAR",
             "_jerYEAR", 
             "_fake",
+            "_fakeYEAR_ele_stat",
+            "_fakeYEAR_mu_stat",
             "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV",
             "_sigYEARscale","_sigYEARpdf","_sigYEARps"] #only for signal
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
@@ -106,10 +108,10 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         if nui in blacklist and nui not in whitelist:pass
         else:
             if channel=='ee':
-                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui or '_muonYEARptCorrection' in nui:continue
+                if 'elemuTriggerYEAR' in nui or 'dimuTriggerYEAR' in nui or 'muIDYEARsys' in nui or 'muIDYEARstat' in nui or '_muonYEARptCorrection' in nui or 'fakeYEAR_mu_stat' in nui:continue
                 else:pass 
             elif channel =='mm':
-                if "dieleTriggerYEAR" in nui or 'elemuTriggerYEAR' in nui or 'eleIDYEARstat' in nui or 'eleIDYEARsys' in nui or "chargeflipYEAR" in nui:continue
+                if "dieleTriggerYEAR" in nui or 'elemuTriggerYEAR' in nui or 'eleIDYEARstat' in nui or 'eleIDYEARsys' in nui or "chargeflipYEAR" in nui or 'fakeYEAR_ele_stat' in nui:continue
                 else:pass
             else:
                 if "dieleTriggerYEAR" in nui or 'dimuTriggerYEAR' in nui or "chargeflipYEAR" in nui:continue
