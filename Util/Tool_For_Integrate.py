@@ -201,7 +201,7 @@ def WriteLatex(Info=dict()):
                 latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_1.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
                 latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_2.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
                 latex.write(r'\caption{{Impact distribution of the nuisance parameters for {postfix_b_only_ornot} Asimov fit of {year} data set in {channel} with \mA={mH}\GeV and {coupling} {interfered_postfix} (pages 1 and 2).}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot)+'\n')
-                latex.write(r'\label{{fig:asimov_impact_{year}_{channel}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
+                latex.write(r'\label{{fig:asimov_impact_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
 
             elif category =='preFit':
                 Folder = Info['Category'][category]['FinalFolder']
