@@ -522,6 +522,16 @@ You should tune the name of histogram you want to "get" and "rebin", instead of 
 
 For this case, tzq -> tZq for year2016postapv while in processing ReBin.py.
 
+## 9.3 Possible Common Fit Minimizer Options in combine:
+```
+--cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=1.0
+```
+Like the above option fix the Run-2 combined channel impact plot.
+NB: they are added in the code but while run you have to apply from command line option
+e.g
+```
+python ./SignalExtraction_Estimation.py -y run2 -c C --mode Impact_doInitFit  --coupling_value rtc04 --mass_point 350 --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=1.0
+```
 
 ### 10. Appendix from Raman
 
