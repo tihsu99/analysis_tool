@@ -96,14 +96,14 @@ class RunLimits:
             return ([mparameters_[1], mparameters_[3] ])
             
 
-    def getLimits(self, dc, asimov=True,mass_point='MA200'):
+    def getLimits(self, dc, asimov=True,mass_point='MA200',cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0):
         asimovstr =""
         logname = dc.replace(".txt",".log")
         logname = logname.replace( logname.split("/")[-1], os.path.join("log",logname.split("/")[-1] ) )
         print ("logname: ",logname)
         
         
-        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' '+'--run blind  '
+        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' -v 3 --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' '
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" >& "+logname)
