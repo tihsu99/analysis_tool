@@ -71,7 +71,7 @@ import time
 
 
 start_time = time.time()
-RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value,interference = args.interference, ) 
+RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value,interference = args.interference) 
 if args.reset_outputfiles:
     CheckFile(RL.limitlog,True)
     CheckFile(RL.limit_root_file,True)
