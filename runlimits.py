@@ -26,6 +26,9 @@ parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
 
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
+parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
+parser.add_argument('--rAbsAcc', help='default = 0.001', default=0.001, type=float)
 args = parser.parse_args()
 
 category = args.category # i.e., channel: ee, em, mm
@@ -98,7 +101,7 @@ else:
           parameters = "MA" + str(imass) + "_MS" + str(int(imass)-50)
         card_name = template_card.replace("template",parameters)
         
-        logname = RL.getLimits(card_name,asimov=False,mass_point="MA"+imass)
+        logname = RL.getLimits(card_name,asimov=False,mass_point="MA"+imass,cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance)
         
         mode_ = "a"
         
