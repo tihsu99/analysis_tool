@@ -60,8 +60,8 @@ parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
 parser.add_argument('--interference',help ='If you want to calculate for interference samples, then activate this option.',action="store_true")
-parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 1', default=1,type=int)
-parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 0.1', default=0.1, type=float)
+parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
 
 args = parser.parse_args()
 
