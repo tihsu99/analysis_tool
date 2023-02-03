@@ -84,22 +84,22 @@ python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/r
 ## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time):
 
 ```
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/; 
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/; 
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
 
 #Interference
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/ --interference;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/ --interference;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/ --interference;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
 
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Oct2022/BDT_output/ --interference;
+python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
 ```
 
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
