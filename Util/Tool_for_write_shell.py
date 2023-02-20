@@ -4,11 +4,15 @@ import sys
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 
-def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,sample_type,outputdir,Masses=-1):
-    if Masses!=-1:
-        Script_File_path = './scripts/shell_script_{}_for_{}_{}.sh'.format(mode,channel,year) # should be relative -> But I don't understand why.
+def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,sample_type,outputdir,Masses=-1,unblind = False):
+    if unblind:
+        unblind_post_fix = "unblind"
     else:
-        Script_File_path = './scripts/shell_script_{}_for_{}_{}_M{}{}_{}.sh'.format(mode,channel,year,higgs,mass_point,coupling_value) # should be relative -> But I don't understand why.
+        unblind_post_fix = "blind"
+    if Masses!=-1:
+        Script_File_path = './scripts/shell_script_{}_for_{}_{}_{}.sh'.format(mode,channel,year,unblind_post_fix) # should be relative -> But I don't understand why.
+    else:
+        Script_File_path = './scripts/shell_script_{}_for_{}_{}_M{}{}_{}_{}.sh'.format(mode,channel,year,higgs,mass_point,coupling_value,unblind_post_fix) # should be relative -> But I don't understand why.
 
     if sample_type == "interference":
       Script_File_path = Script_File_path.replace(".sh","_interference.sh")
@@ -81,11 +85,15 @@ def Write_Shell(WorkDir,channel,mode,higgs,year,mass_point,coupling_value,sample
         else:
           datacard_location = 'datacards_{year}_{sig}/{sig}_{cp_value}_datacard_{year}_SR_{channel}_{channel}_M{H}{Mass}.txt'.format(year=year,sig=signal_process_name,channel=channel,H=higgs,Mass = mass_point,cp_value = coupling_value)
         if not CheckFile(datacard_location,False,True): raise ValueError('\nMake sure {} exists. Please prepare this datacards\n'.format(datacard_location))
+        if unblind:
+            unblind_command = "--unblind"
+        else:
+            unblind_command = ""
 
         if sample_type == "interference":
-          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --interference --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))
+          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --interference --reset_outputfiles {}\n'.format(channel,coupling_value,year,massess_string,unblind_command))
         else:
-          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --reset_outputfiles\n'.format(channel,coupling_value,year,massess_string))
+          f.write('python runlimits.py -c {} --coupling_value {} -y {} --Masses {} --reset_outputfiles {}\n'.format(channel,coupling_value,year,massess_string,unblind_command))
     else:pass
     f.close()
 
