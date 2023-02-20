@@ -24,7 +24,7 @@ parser.add_argument('--mass_point',default='300',type=str,help='mass point')
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument('--higgs',default='A',type=str,choices=['A'],help='Higgs.')
 parser.add_argument('--interference',action='store_true',help='use interference sample')
-parser.add_argument('--unblind',action='store_true',help='use interference sample')
+parser.add_argument('--unblind',action='store_true',help='for limit unbliding')
 
 '''
 python ./Util/prepareJobs.py --mode write 
