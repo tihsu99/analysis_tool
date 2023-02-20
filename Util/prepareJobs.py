@@ -24,6 +24,7 @@ parser.add_argument('--mass_point',default='300',type=str,help='mass point')
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument('--higgs',default='A',type=str,choices=['A'],help='Higgs.')
 parser.add_argument('--interference',action='store_true',help='use interference sample')
+parser.add_argument('--unblind',action='store_true',help='use interference sample')
 
 '''
 python ./Util/prepareJobs.py --mode write 
@@ -58,7 +59,7 @@ else:
     if args.mode=='write':
         if CheckFile(Job_bus_name,quiet=True):raise ValueError("\n\nFile exists! -> {} .\nIf you want to reset the file, please use --mode reset. And if you want to append another job into this bus file, please use --mode append. ".format(Job_bus_name))
         with open(Job_bus_name,'w') as f:
-            f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,sample_type,outputdir\n")
+            f.write("Task,Mass_point,Coupling_value,PID,Channel,Year,sample_type,outputdir,unblind\n")
 
         print("You Job_bus file with name -> "+Job_bus_name+" is created.")
         print("Use [--mode append] and [--Job_bus_Name filename] to append the following task.")
@@ -68,8 +69,8 @@ else:
         else:
           sample_type = "pure"
         with open(Job_bus_name,'a') as f:
-            f.write("{},{},{},{},{},{},{},{}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,args.output_dir))
-        print("Sequence -> {},{},{},{},{},{},{},{} written into {}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,args.output_dir,Job_bus_name))
+            f.write("{},{},{},{},{},{},{},{},{}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,str(args.unblind),args.output_dir))
+        print("Sequence -> {},{},{},{},{},{},{},{},{} written into {}\n".format(args.task,args.mass_point,args.coupling_value,args.higgs,args.channel,args.year,sample_type,args.output_dir,str(args.unblind),Job_bus_name))
 
 
     elif args.mode=='read':
