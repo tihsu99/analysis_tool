@@ -88,7 +88,6 @@ def datacard2workspace(settings=dict()):
     
     CheckFile(settings['workspace_root'],True,True)
     command = 'text2workspace.py {datacards}  -o {workspace_root}'.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'])
-    # print("\033[0;35m "+command+" \033[0;m\n")
     print(ts+command+ns)
     
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
@@ -107,7 +106,7 @@ def FitDiagnostics(settings=dict()):
 
     command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
 
-    print("\033[0;35m "+command+"\033[0;m\n")
+    print(ts+command+ns)
     command = command + ' >& {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
     #Status : MINIMIZE=0 HESSE=0
@@ -132,8 +131,7 @@ def diffNuisances(settings=dict()):
     
     
     command = 'python diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
-    print("\033[0;35m "+command+"\033[0;m\n")
-    
+    print(ts+command+ns)
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
     
     os.system(command)
@@ -148,7 +146,7 @@ def PlotPulls(settings=dict()):
     else:n_canvas = '10'
 
     command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}",{n_canvas},"{year}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],n_canvas=n_canvas)+"'"
-    print("\033[0;35m"+command+"\033[0;m")
+    print(ts+command+ns)
 
     command += ' >& {}'.format(settings['Log_Path'])
     os.system(command)
@@ -168,7 +166,7 @@ def Impact_doInitFit(settings=dict()):
     Log_Path = os.path.basename(settings['Log_Path'])
 
     command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
-    print("\033[0;35m"+command+"\033[0;m")
+    print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
     print("\nNext mode: [\033[0;32m Impact_doFits \033[0;m]")
@@ -184,10 +182,9 @@ def Impact_doFits(settings=dict()):
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
     
+    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
     
-    command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])+'--sub-opts='+"'+JobFlavour="+'"testmatch"'+"'"
-    
-    print("\033[0;35m"+command+"\033[0;m")
+    print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
     os.system(command) 
 
@@ -211,7 +208,7 @@ def Plot_Impacts(settings=dict()):
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
     command = 'combineTool.py -M Impacts -d ../{workspace_root} -o ../{impacts_json} -m {mass}'.format(workspace_root=workspace_root,impacts_json=settings['impacts_json'],mass=settings['mass'])
-    print("\033[0;35m"+command+"\n\n"+"\033[0;m")
+    print(ts+command+ns)
     command += ' > {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
    
@@ -345,9 +342,6 @@ def postFitPlot(settings=dict()):
     print("\nNext mode: \033[0;32m [diffNuisances] \033[1;33m")
     print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
     print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-    
-
-
 
 def preFitPlot(settings=dict()):
     figDiagnostics_File = settings['FitDiagnostics_file']
@@ -458,8 +452,7 @@ def preFitPlot(settings=dict()):
     else:
         template_settings["Signal_Name"] = "DEFAULT"
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
-
-
+    
     print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
     print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
     print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
@@ -574,15 +567,12 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
 
     ######
-
-
     canvas.Update()
     canvas.SaveAs('{prefix}.pdf'.format(prefix=template_settings['outputfilename']))
     canvas.SaveAs('{prefix}.png'.format(prefix=template_settings['outputfilename']))
 
 
 def ResultsCopy(settings=dict()):
-    
     
     CheckDir(settings['outputdir']) # Check your current output directory exists or not 
     

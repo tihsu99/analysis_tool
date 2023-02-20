@@ -102,8 +102,10 @@ class RunLimits:
         logname = logname.replace( logname.split("/")[-1], os.path.join("log",logname.split("/")[-1] ) )
         print ("logname: ",logname)
         
-        
-        command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' -v 3 --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' '
+        if self.__unblind:
+            command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' '
+        else:
+            command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' '
         if asimov:
             command_ = command_ + asimovstr
         os.system(command_+" >& "+logname)
@@ -170,7 +172,6 @@ class RunLimits:
         
         for imass in Masses:
             input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
-            
             if CheckFile(input_file):pass
             else:
                 raise ValueError('Make sure you have this file: {}'.format(input_file))
@@ -271,13 +272,14 @@ class RunLimits:
         exp.SetLineWidth(3)
         exp.Draw("L same")
         if self.__unblind:
+            print ("***Unblinding BOX***")
             obs =  f.Get("obs")
             obs.SetMarkerStyle(20)
-            #obs.SetMarkerColor(4)
+            obs.SetMarkerColor(4)
             obs.SetMarkerSize(1.1)
-            #obs.SetLineColor(2)
+            obs.SetLineColor(4)
             obs.SetLineWidth(3)
-            #obs.Draw("L same")
+            obs.Draw("L same")
     
         leg = rt.TLegend(.6, .65, .88, .890);
         leg.SetBorderSize(0);
@@ -288,7 +290,8 @@ class RunLimits:
         leg.AddEntry(exp, " CL_{S}  Expected ", "LP");
         leg.AddEntry(exp1s, "CL_{S}  Expected #pm 1#sigma", "LF");
         leg.AddEntry(exp2s, " CL_{S}  Expected #pm 2#sigma", "LF");
-        # leg.AddEntry(obs, "CL_{S} Observed", "LP");
+        if self.__unblind:
+            leg.AddEntry(obs, "Observed", "LP");
     
         leg.Draw("same")
         c.Update()
