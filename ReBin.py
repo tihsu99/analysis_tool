@@ -197,17 +197,6 @@ for iyear in years:
                     
 
                     ### data_obs ###
-                    ''' 
-                    if args.unblind:
-                        f_in.cd()
-                        if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
-                            h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
-                            h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
-                            fout.cd()
-                            h_data_obs.Write()
-                    else:pass 
-                    '''
-                    f_in.cd()
                     if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
                         h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
                         h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
