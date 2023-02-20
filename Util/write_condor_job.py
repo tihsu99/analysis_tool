@@ -74,12 +74,17 @@ elif args.shell_script=='__default__':
         higgs = str(df.iloc[i_row]['PID'])
         mass_point = str(df.iloc[i_row]['Mass_point'])
         coupling_value = str(df.iloc[i_row]['Coupling_value'])
-        sample_type    = str(df.iloc[i_row]['sample_type']) 
-        
-        if sample_type == "interference":
-          shell_script =  './scripts/shell_script_{}_for_{}_{}_M{}{}_{}_interference.sh'.format(mode,channel,year,higgs,mass_point,coupling_value)
+        sample_type    = str(df.iloc[i_row]['sample_type'])
+        unblind = bool(df.iloc[i_row]['unblind'])
+        if unblind:
+            unblind_postfix = 'unblind'
         else:
-          shell_script = './scripts/shell_script_{}_for_{}_{}_M{}{}_{}.sh'.format(mode,channel,year,higgs,mass_point,coupling_value) # should be relative -> But I don't understand why.
+            unblind_postfix = 'blind'
+
+        if sample_type == "interference":
+          shell_script =  './scripts/shell_script_{}_for_{}_{}_M{}{}_{}_{}_interference.sh'.format(mode,channel,year,higgs,mass_point,coupling_value,unblind_postfix)
+        else:
+          shell_script = './scripts/shell_script_{}_for_{}_{}_M{}{}_{}_{}.sh'.format(mode,channel,year,higgs,mass_point,coupling_value,unblind_postfix) # should be relative -> But I don't understand why.
         
         f.write('executable = {}\n'.format(shell_script))
         #f.write('Universe = parallel\n')
