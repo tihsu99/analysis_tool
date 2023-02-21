@@ -106,7 +106,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerStyle(20)
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
-            mg.Add(obs, "L") 
+            mg.Add(obs, "LP") 
         leg.AddEntry(exp, Limit_Name+" CL_{S} Exp 95% Upper Limit", "LP");
         if idx==end_point:
             leg.AddEntry(exp1s,"Expected limit #pm 1 std. deviation","F")
