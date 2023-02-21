@@ -22,12 +22,15 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     print("\033[1;37m{date}\033[0;m".format(date=date))
     
     Fit_type =''
-    if settings['expectSignal']:
-        Fit_type+='s_plus_b'
-        settings['expectSignal']= 1
+    if settings['unblind']:
+        Fit_type += 'Unblind'
     else:
-        Fit_type+='b_only'
-        settings['expectSignal']= 0
+        if settings['expectSignal']:
+            Fit_type+='s_plus_b'
+            settings['expectSignal']= 1
+        else:
+            Fit_type+='b_only'
+            settings['expectSignal']= 0
     
         
     CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs']),False)
@@ -103,8 +106,12 @@ def FitDiagnostics(settings=dict()):
     os.chdir("{outputdir}".format(outputdir=settings['outputdir']))
     workspace_root = os.path.basename(settings['workspace_root'])
     Log_Path = os.path.basename(settings['Log_Path'])
+    
 
-    command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+    if settings['unblind']:
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+    else: 
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
 
     print(ts+command+ns)
     command = command + ' >& {Log_Path}'.format(Log_Path=Log_Path)
@@ -255,17 +262,22 @@ def postFitPlot(settings=dict()):
     Histogram_Names = []
     for Sample_Name in Sample_Names:
         Histogram_Names.append(str(Sample_Name))
+    if settings['unblind']:
+        Histogram_Names.append('data')
 
     fin = ROOT.TFile(figDiagnostics_File,"READ")
-
-    if settings['expectSignal']:
-        first_dir = 'shapes_fit_s'
-        if not settings['interference']:
-            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-        else:
-            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
-    else:
+    
+    if settings['unblind']:
         first_dir = 'shapes_fit_b'
+    else:
+        if settings['expectSignal']:
+            first_dir = 'shapes_fit_s'
+            if not settings['interference']:
+                Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+            else:
+                Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
+        else:
+            first_dir = 'shapes_fit_b'
 
     
     second_dirs = []
@@ -291,13 +303,26 @@ def postFitPlot(settings=dict()):
             #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
             #print(first_dir+second_dir+Histogram_Name)
             h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-            nbin = h.GetNbinsX()
-            h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,nbin,-1,1)
 
             if type(h) != ROOT.TH1F:
-                raise ValueError("\033[0;31mNo such histogram, please check {SampleName_File} and {figDiagnostics_File}\033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
+                if settings['unblind'] and Histogram_Name =='data':
+                    data_higComb = h
+                    Integral[Histogram_Name] = int(data_higComb.Integral())
+                    data = ROOT.TH1F('data', '', 40, -1, 1)
+                    
+                    for bini in range(data.GetSize()):
+                        tgraph_content = data_higComb.Eval(bini-0.5) # must fit the center of the bin in tgraph
+                        tgraph_error   = data_higComb.GetErrorY(bini) # just symmetrical error
+                        data.SetBinContent (bini, tgraph_content)
+                        data.SetBinError   (bini, tgraph_error)
+                    Histogram[Histogram_Name] = data
+                else:
+                    print(first_dir+second_dir+Histogram_Name)
+                    raise ValueError("\033[0;31mNo such histogram, please check {SampleName_File} and {figDiagnostics_File}\033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
             else:
                 print("\033[1;32mAccess: {}\033[0;m".format(Histogram_Name))
+                nbin = h.GetNbinsX()
+                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,nbin,-1,1)
                 if Histogram_Registered:
                     Integral[Histogram_Name] += h.Integral()
                 else:
@@ -330,16 +355,20 @@ def postFitPlot(settings=dict()):
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
-            "text_y":settings["text_y"]
+            "text_y":settings["text_y"],
+            "unblind":settings['unblind']
             }
-    if settings["expectSignal"]:
-        if not settings['interference']:    
-            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-        else:
-            
-            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
-    else:
+    if settings['unblind']:
         template_settings["Signal_Name"] = "DEFAULT"
+    else:
+        if settings["expectSignal"]:
+            if not settings['interference']:    
+                template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+            else:
+                
+                template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
+        else:
+            template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
 
@@ -369,22 +398,27 @@ def preFitPlot(settings=dict()):
     for Sample_Name in Sample_Names:
         Histogram_Names.append(str(Sample_Name))
     ########################################## 
-    
+    if settings['unblind']:
+        Histogram_Names.append('data')
+
     Histogram = dict()
     Integral= dict()
     Maximum = -1
     fin = ROOT.TFile(figDiagnostics_File,"READ")
 
     Histogram = dict()
-    if settings['expectSignal']:
+    if settings['unblind']:
         first_dir = 'shapes_prefit'
-        #TAToTTQ_300_s_250_rtc04 -> Inteference sample
-        if not settings['interference']:
-            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-        else:
-            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
     else:
-        first_dir = 'shapes_prefit'
+        if settings['expectSignal']:
+            first_dir = 'shapes_prefit'
+            #TAToTTQ_300_s_250_rtc04 -> Inteference sample
+            if not settings['interference']:
+                Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+            else:
+                Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
+        else:
+            first_dir = 'shapes_prefit'
 
     
     second_dirs = []
@@ -410,9 +444,24 @@ def preFitPlot(settings=dict()):
             #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
             #print(first_dir+second_dir+Histogram_Name)
             h = fin.Get(first_dir+second_dir+Histogram_Name)
+        
+        
             if type(h) != ROOT.TH1F:
-                print(first_dir+second_dir+Histogram_Name)
-                raise ValueError("\033[0;31m No such histogram, please check {SampleName_File} and {figDiagnostics_File} \033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
+                if settings['unblind'] and Histogram_Name =='data':
+                    data_higComb = h
+                    Integral[Histogram_Name] = int(data_higComb.Integral())
+                    data = ROOT.TH1F('data', '', 40, -1, 1)
+                    
+                    for bini in range(data.GetSize()):
+                        tgraph_content = data_higComb.Eval(bini-0.5) # must fit the center of the bin in tgraph
+                        tgraph_error   = data_higComb.GetErrorY(bini) # just symmetrical error
+                        data.SetBinContent (bini, tgraph_content)
+                        data.SetBinError   (bini, tgraph_error)
+                    Histogram[Histogram_Name] = data
+
+                else:
+                    print(first_dir+second_dir+Histogram_Name)
+                    raise ValueError("\033[0;31m No such histogram, please check {SampleName_File} and {figDiagnostics_File} \033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
 
             else:
                 h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
@@ -450,16 +499,20 @@ def preFitPlot(settings=dict()):
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
-            "text_y":settings["text_y"]
+            "text_y":settings["text_y"],
+            "unblind":settings["unblind"]
             } 
-    if settings["expectSignal"]:
-        if not settings['interference']:    
-            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-        else:
-            
-            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
-    else:
+    if settings['unblind']:
         template_settings["Signal_Name"] = "DEFAULT"
+    else:
+        if settings["expectSignal"]:
+            if not settings['interference']:    
+                template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+            else:
+                
+                template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
+        else:
+            template_settings["Signal_Name"] = "DEFAULT"
     Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
     
     print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
@@ -486,8 +539,11 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
             'ttVV':ROOT.kOrange+3,
             'SingleTop':ROOT.kGray,
             }
-    if expectSignal:
-        Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
+    if template_settings["unblind"]:
+        Color_Dict['data'] = ROOT.kBlack
+    else: 
+        if expectSignal:
+            Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
     for Histogram_Name in template_settings['Histogram'].keys():
         if Histogram_Name not in Color_Dict.keys():
             raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
@@ -502,7 +558,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
 
     if Set_Logy:
         canvas.SetLogy(1)
-        Histogram_MaximumScale = 100
+        Histogram_MaximumScale = 1000
     else:
         Histogram_MaximumScale = 1.5
     canvas.SetGrid(1,1)
@@ -527,22 +583,28 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     h_stack = ROOT.THStack()
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
-        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
+        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT" and not template_settings['unblind']:
             h_sig = template_settings['Histogram'][Histogram_Name]
             h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
             h_sig.SetLineWidth(4)
             h_sig.SetLineStyle(9)
         else:    
-            template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
-            #Histogram[Histogram_Name].Draw('HIST SAME')
-            
-            h_stack.Add(template_settings['Histogram'][Histogram_Name])
-            legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
+            if Histogram_Name == 'data':
+                if template_settings['unblind']:
+                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:02d}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
+                    template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
+                    template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
+                    template_settings['Histogram'][Histogram_Name].SetLineWidth(2)
+            else:
+                template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
+                h_stack.Add(template_settings['Histogram'][Histogram_Name])
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
     h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
-    h_stack.SetMinimum(1)
     h_stack.Draw("HIST")
-    if type(h_sig )== ROOT.TH1F:
+    if template_settings['unblind']:
+        template_settings['Histogram']["data"].Draw("SAME P*")
+    if type(h_sig )== ROOT.TH1F and not template_settings['unblind']:
         h_sig.Scale(10)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'Signal(X 10)', 'L')
