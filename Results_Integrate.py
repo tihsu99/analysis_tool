@@ -24,6 +24,7 @@ parser.add_argument('--coupling',help='Coupling_values',default='rtu',choices=co
 parser.add_argument('--year',default='2016apv',choices=year_choices)
 parser.add_argument('--channel',choices=channel_choices,default='ee')
 parser.add_argument('--mode',choices=mode_choices)
+parser.add_argument('--unblind', action="store_true")
 ######################
 
 ### Valid for LimitsPlots (only for merged plots) ###

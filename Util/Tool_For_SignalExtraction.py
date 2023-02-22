@@ -571,7 +571,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     ROOT.gROOT.SetBatch(1)
     canvas = ROOT.TCanvas("","",620,600)
 
-    Set_Logy =False
+    Set_Logy =True
 
     if Set_Logy:
         canvas.SetLogy(1)
@@ -618,7 +618,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
     h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
-    h_stack.SetMinimum(0.1)
+    h_stack.SetMinimum(0.001)
     h_stack.Draw("HIST")
     if template_settings['unblind']:
         template_settings['Histogram']["data"].Draw("SAME P*")

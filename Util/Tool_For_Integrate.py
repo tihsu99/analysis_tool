@@ -235,7 +235,10 @@ def Integrate_LimitTables(args):
     
     if not CheckFile(FileIn,False,True):
         raise ValueError("Please check whether you have the file: {FileIn}, if not, please plot the limits first.".format(FileIn=FileIn))
-    
+    ''' Will be updated later
+    if args.unblind:
+        FileIn = FileIn.replace('.txt','_unblind.txt')
+    '''
     CheckDir('LimitsTables',True)
     TableName = os.path.join('LimitsTables',str(args.year))
     CheckDir(TableName,True)
@@ -244,6 +247,9 @@ def Integrate_LimitTables(args):
     TableName = os.path.join(TableName,str(args.coupling_value)+'.tex')
     if(args.interference):
       TableName = TableName.replace('.tex','_interference.tex')
+    if args.unblind:
+      TableName = TableName.replace('.tex','_unblind.tex')
+
     WriteTableForAN(args=args,FileIn=FileIn,TableName=TableName)    
     
 
@@ -274,24 +280,38 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         channel = '\Pe\PGm channel'
     elif args.channel == 'em':
         channel = '\PGm\PGm channel'
-
-
-    if not args.interference:
-        LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel} with coupling value {coupling_term}}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
+    
+    if args.unblind:
+        unblind_postfix = ' unblinding '
     else:
-        LimitTable.write(r'\caption{{Table of limit values for {year} data in {channel}  with coupling value {coupling_term} for $\PA-\PH$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term)+'\n')
-
+        unblind_postfix = ''
+    
     if not args.interference:
-        LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
+        LimitTable.write(r'\caption{{Table of limit values for {year}{unblind_postfix}data in {channel} with coupling value {coupling_term}}}'.format(year=args.year,channel=channel,coupling_term=coupling_term, unblind_postfix=unblind_postfix)+'\n')
     else:
-        LimitTable.write(r'\label{{tab:Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year)+'\n')
-    LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
+        LimitTable.write(r'\caption{{Table of limit values for {year}{unblind_postfix}data in {channel}  with coupling value {coupling_term} for $\PA-\PH$ interference}}'.format(year=args.year,channel=channel,coupling_term=coupling_term,unblind_postfix=unblind_postfix)+'\n')
+    
+    if args.unblind:
+        unblind_postfix = 'Unblinding'
+    else:
+        unblind_postfix = ''
+    if not args.interference:
+        LimitTable.write(r'\label{{tab:{unblind_postfix}Limits_{coupling_value}_{channel}_{year}}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year,unblind_postfix=unblind_postfix)+'\n')
+    else:
+        LimitTable.write(r'\label{{tab:{unblind_postfix}Limits_{coupling_value}_{channel}_{year}_interference}}'.format(coupling_value=args.coupling_value,channel=args.channel,year=args.year,unblind_postfix=unblind_postfix)+'\n')
+    if args.unblind:
+        LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|c|}\n')
+    else:
+        LimitTable.write(r'\begin{tabular}'+'{|c|c|c|c|c|c|}\n')
     LimitTable.write(r'\hline'+'\n')
-    LimitTable.write(r'Mass Point [GeV] (\mA) & limit ($-2\sigma$) & limit ($-1\sigma$) & limit (median) & limit ($1\sigma$) & limit ($2\sigma$) \\'+'\n') 
+    if args.unblind:
+        LimitTable.write(r'Mass Point [GeV] (\mA) & exp-limit ($-2\sigma$) & exp-limit ($-1\sigma$) & exp-limit (median) & exp-limit ($1\sigma$) & exp-limit ($2\sigma$) & obs-limit \\'+'\n')
+    else:
+        LimitTable.write(r'Mass Point [GeV] (\mA) & exp-limit ($-2\sigma$) & exp-limit ($-1\sigma$) & exp-limit (median) & exp-limit ($1\sigma$) & exp-limit ($2\sigma$) \\'+'\n')
     
     for record in records:
         record = record.split(' ')
-        record = record[1:-1]
+        record = record[1:]
         record = [smart_round(float(i),3) for i in record]
         record[0] = str(int(float(record[0])))
         record = ' & '.join(record)
