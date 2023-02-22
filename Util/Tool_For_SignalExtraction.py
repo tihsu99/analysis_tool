@@ -33,28 +33,29 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
             settings['expectSignal']= 0
     
         
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs']),False)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'])),False)
     
     
-    CheckDir("SignalExtraction",True)
-    CheckDir("SignalExtraction/{year}".format(year=settings['year']),True)
-    CheckDir("SignalExtraction/{year}/{channel}".format(year=settings['year'],channel=settings['channel']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/err".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/output".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/log_condor".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/results".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
-    CheckDir("SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/root".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction"),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}".format(year=settings['year'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}".format(year=settings['year'],channel=settings['channel'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/err".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/output".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/log_condor".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/results".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/root".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
 
 
-    Final_Output_Dir = "SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])
+    Final_Output_Dir = os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
 
     
     settings['outputdir'] = Final_Output_Dir
     settings['WorkDir'] = CURRENT_WORKDIR
+    settings['condorDir'] = os.path.join(settings['WorkDir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
     
     Log_Path = os.path.relpath(datacards,os.path.dirname(datacards)).replace(".txt","_{}.log".format(mode))
     workspace_root = os.path.relpath(datacards,os.path.dirname(datacards)).replace("txt","root")
@@ -68,10 +69,12 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['workspace_root'] = os.path.join(settings['outputdir'],workspace_root)
     settings['datacards'] = os.path.join(settings['WorkDir'],datacards)
     settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],FitDiagnostics_file)
-    settings['diffNuisances_File'] = diffNuisances_File
+    settings['diffNuisances_File'] = diffNuisances_File 
     settings['impacts_json'] = impacts_json
     settings['postFitPlot'] = 'results/postFit_{}'.format(settings['channel'])
     settings['preFitPlot'] = 'results/preFit_{}'.format(settings['channel'])
+    settings['plotNLLcode'] = os.path.join(settings['WorkDir'],'../../CombineHarvester/CombineTools/scripts/plot1DScan.py')
+
     if mode == 'postFitPlot' or mode == "preFitPlot" or mode == "PlotPulls" or mode=="Plot_Impacts" or mode =="ResultsCopy":
         MODE(settings=settings)
         if mode == "PlotPulls" or mode =="Plot_Impacts" or mode=="ResultsCopy": 
@@ -307,15 +310,22 @@ def postFitPlot(settings=dict()):
             if type(h) != ROOT.TH1F:
                 if settings['unblind'] and Histogram_Name =='data':
                     data_higComb = h
-                    Integral[Histogram_Name] = int(data_higComb.Integral())
                     data = ROOT.TH1F('data', '', 40, -1, 1)
                     
                     for bini in range(data.GetSize()):
-                        tgraph_content = data_higComb.Eval(bini-0.5) # must fit the center of the bin in tgraph
-                        tgraph_error   = data_higComb.GetErrorY(bini) # just symmetrical error
-                        data.SetBinContent (bini, tgraph_content)
-                        data.SetBinError   (bini, tgraph_error)
-                    Histogram[Histogram_Name] = data
+                        tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
+                        tgraph_error   = data_higComb.GetErrorY(bini+1) # just symmetrical error
+                        data.SetBinContent (bini+1, tgraph_content)
+                        data.SetBinError   (bini+1, tgraph_error)
+
+                    if Histogram_Registered:
+                      Integral[Histogram_Name]+= int(data.Integral())
+                    else:
+                      Integral[Histogram_Name] = int(data.Integral())
+                    if Histogram_Registered:
+                      Histogram[Histogram_Name].Add(data)
+                    else:
+                      Histogram[Histogram_Name] = data
                 else:
                     print(first_dir+second_dir+Histogram_Name)
                     raise ValueError("\033[0;31mNo such histogram, please check {SampleName_File} and {figDiagnostics_File}\033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
@@ -449,15 +459,22 @@ def preFitPlot(settings=dict()):
             if type(h) != ROOT.TH1F:
                 if settings['unblind'] and Histogram_Name =='data':
                     data_higComb = h
-                    Integral[Histogram_Name] = int(data_higComb.Integral())
                     data = ROOT.TH1F('data', '', 40, -1, 1)
                     
                     for bini in range(data.GetSize()):
-                        tgraph_content = data_higComb.Eval(bini-0.5) # must fit the center of the bin in tgraph
-                        tgraph_error   = data_higComb.GetErrorY(bini) # just symmetrical error
-                        data.SetBinContent (bini, tgraph_content)
-                        data.SetBinError   (bini, tgraph_error)
-                    Histogram[Histogram_Name] = data
+                        tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
+                        tgraph_error   = data_higComb.GetErrorY(bini+1) # just symmetrical error
+                        data.SetBinContent (bini+1, tgraph_content)
+                        data.SetBinError   (bini+1, tgraph_error)
+
+                    if Histogram_Registered:
+                      Integral[Histogram_Name]+= int(data.Integral())
+                    else:
+                      Integral[Histogram_Name] = int(data.Integral())
+                    if Histogram_Registered:
+                      Histogram[Histogram_Name].Add(data)
+                    else:
+                      Histogram[Histogram_Name] = data
 
                 else:
                     print(first_dir+second_dir+Histogram_Name)
@@ -664,4 +681,40 @@ def ResultsCopy(settings=dict()):
     
     command = "cp -r {origin}/* {dest}/{origin}".format(origin= settings['outputdir'],dest= settings['dest'])
     os.system(command) 
+
+def SubmitFromEOS(settings=dict()):
+
+  CheckDir(settings['condorDir'])
+  command = "cp {origin}/*.s* {dest}/.".format(origin = settings['outputdir'], dest = settings['condorDir'])
+  os.system(command)
+  for f in os.listdir(settings['condorDir']):
+    if 'sub' in f:
+      os.chdir("{dest}".format(dest = settings['condorDir']))
+      os.system("condor_submit {submit_file}".format(submit_file = f))
+      os.chdir("{dest}".format(dest = settings['WorkDir']))
+
+def DrawNLL(settings=dict()):
+  os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
+  os.chdir(settings['outputdir'])
+  workspace_root = os.path.basename(settings['workspace_root'])
+  Log_Path = os.path.basename(settings['Log_Path'])
+  commands = []
+  if settings['unblind']:
+    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL --rMin -4 --rMax 4 --algo grid --points 80".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
+    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot --rMin -4 --rMax 4 --saveWorkspace".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
+    commands.append("combine -M MultiDimFit higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot.MultiDimFit.mH{mass}.root -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll --rMin -4 --rMax 4 --algo grid --points 80 --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
+    commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
+    commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
+    commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
+    for i in range(len(commands)):
+      print(ts+commands[i]+ns)
+      if i == 0:
+        commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
+      else:
+        commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
+    print(commands)
+    command = ';'.join(commands)
+    os.system(command)
+  else:
+    print("Do not have blind option now")
 

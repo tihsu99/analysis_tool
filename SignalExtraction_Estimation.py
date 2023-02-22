@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL
 from Util.aux import *
 
 
@@ -43,7 +43,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL']
 
 
 parser = argparse.ArgumentParser()
@@ -62,6 +62,7 @@ parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',def
 parser.add_argument('--interference',help ='If you want to calculate for interference samples, then activate this option.',action="store_true")
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
 parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
+parser.add_argument('--outdir', help='output directory', default='./', type=str)
 
 args = parser.parse_args()
 
@@ -99,7 +100,8 @@ settings ={
     'rMax': args.rMax,
     'interference' : args.interference,
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
-    'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy)
+    'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
+    'outdir': args.outdir
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
