@@ -69,7 +69,7 @@ python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR
 
 ## 2.1 Commands for histograms rebinning for original BDT_output files
 
-Use the ReBin.py macro to perform two main tasks: 
+Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `Util/General_Tool.py`, please edit it if you want to change binning): 
 ```
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
