@@ -19,7 +19,7 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False, verbose=False):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
@@ -46,6 +46,7 @@ class RunLimits:
         self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
         self.Coupling = coupling
         self.__unblind = unblind
+        self.__verbose = verbose
         #self.runmode = runmode
         print "class instantiation done"
         
@@ -108,6 +109,8 @@ class RunLimits:
             command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' '
         if asimov:
             command_ = command_ + asimovstr
+        if self.__verbose:
+            command_ = command_ + '-v 3'
         os.system(command_+" >& "+logname)
         print(command_+" >& "+logname)
         return logname

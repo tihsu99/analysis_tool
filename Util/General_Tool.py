@@ -2,9 +2,9 @@ import ROOT
 from ROOT import TFile,TH1F
 import copy
 import os 
-import sys
+import sys, array
 CURRENT_WORKDIR = os.getcwd()
-def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',rebin=5,year='2017',q=False,correct_nuisance_name=''):
+def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):
     Init = True
     
     Nui_Exist = False
@@ -21,7 +21,8 @@ def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category
             else:
                 h.Add(f.Get(sample_nuis_name))
     if Nui_Exist:
-        h.Rebin(rebin)
+        # h.Rebin(rebin)
+        h = h.Rebin(len(bins)-1, "h", bins)
         #print("ttc"+year+"_"+process_category+correct_nuisance_name)
         h.SetNameTitle("ttc"+year+"_"+process_category+correct_nuisance_name,"ttc"+year+"_"+process_category+correct_nuisance_name)
     else:

@@ -19,7 +19,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 #print(sys.path)
-import json
+import json, array
 from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
@@ -148,7 +148,10 @@ for iyear in years:
                 #f_in.ls()
                 prefix="ttc"+iyear+"_"
                 
-                rebin_=5
+                # rebin_=10
+                # Look carefully the final binning(change as per needed)
+                xbins = array.array('d', [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+
                 if not args.interference:
                   rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
                 else:
@@ -187,7 +190,7 @@ for iyear in years:
                         
                         Category = str(Category)
                         f_in.cd()
-                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,rebin=rebin_,year=iyear,q=args.quiet,correct_nuisance_name=correct_nuisance_name)
+                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,bins=xbins,year=iyear,q=args.quiet,correct_nuisance_name=correct_nuisance_name)
                         if Hist[Category] is None:pass
                         else:
                             fout.cd()
@@ -199,7 +202,9 @@ for iyear in years:
                     ### data_obs ###
                     if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
                         h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
-                        h_data_obs.Rebin(rebin_);  h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
+                        # h_data_obs.Rebin(rebin_);
+                        h_data_obs = h_data_obs.Rebin(len(xbins)-1, "h_data_obs", xbins)
+                        h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
                         fout.cd()
                         h_data_obs.Write()
                     ### Signal Sample ####
@@ -209,7 +214,10 @@ for iyear in years:
                       sig_name_ = prefix+(signal_.replace("MAMASS",str(imass))).replace("MSMASS",str(int(imass)-50)).replace("COUPLIING",ic_)
                     f_in.cd()
                     if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
-                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis))); h_signal_.Rebin(rebin_); h_signal_.SetNameTitle(str(sig_name_+correct_nuisance_name), str(sig_name_+correct_nuisance_name))
+                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis)));
+                        # h_signal_.Rebin(rebin_);
+                        h_signal_ = h_signal_.Rebin(len(xbins)-1, "h_signal_", xbins);
+                        h_signal_.SetNameTitle(str(sig_name_+correct_nuisance_name), str(sig_name_+correct_nuisance_name))
                         fout.cd()
                         h_signal_.Write()
 
