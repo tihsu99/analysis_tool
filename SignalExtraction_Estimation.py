@@ -59,6 +59,7 @@ parser.add_argument('--expectSignal',action="store_true")
 parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
+parser.add_argument('--logy',help='log y in pre/post-fit plots',action='store_true')
 parser.add_argument('--interference',help ='If you want to calculate for interference samples, then activate this option.',action="store_true")
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
 parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
@@ -106,6 +107,7 @@ settings ={
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
     settings['text_y'] = float(args.text_y)
+    settings['logy'] = args.logy
 elif args.mode=='ResultsCopy':
     settings['dest'] = args.dest
 
