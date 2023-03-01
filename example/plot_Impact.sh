@@ -1,16 +1,20 @@
-####################################################################
-# :Usage                                                           #  
-#  - deal all the procedure needed to submit Impact fit to condor. #
-# :Command                                                         #
-#  - sh plot_Impact.sh 2018 mm 350 rtc04 s_plus_b interference     #
-# :Input parameter(order is important)                             #
-#  - 1: era [2016apv/2016postapv/2017/2018/run2]                   #
-#  - 2: channel [ee/em/mm/C]                                       #
-#  - 3: mass                                                       #
-#  - 4: coupling [rtc04/rtu04]                                     #
-#  - 5: expectSignal [s_plus_b/b_only]                             #
-#  - 6: interference [interference/pure]                           #
-####################################################################
+###################################################################################
+# :Usage                                                                          #  
+#  - deal all the procedure needed to submit Impact fit to condor.                #
+# :Command                                                                        #
+#  - sh plot_Impact.sh 2018 mm 350 rtc04 s_plus_b interference 0 1.0 ./ --unblind #
+# :Input parameter(order is important)                                            #
+#  - 1: era [2016apv/2016postapv/2017/2018/run2]                                  #
+#  - 2: channel [ee/em/mm/C]                                                      #
+#  - 3: mass                                                                      #
+#  - 4: coupling [rtc04/rtu04]                                                    #
+#  - 5: expectSignal [s_plus_b/b_only]                                            #
+#  - 6: interference [interference/pure]                                          #
+#  - 7: cminDefaultMinimizerStrategy [int]                                        #
+#  - 8: cminDefaultMinimizerTolerance [float]                                     #
+#  - 9: output directory                                                          #
+#  -10: unblind option
+###################################################################################
 
 cmsenv
 
@@ -27,7 +31,7 @@ BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
 
-startpoint=20
+startpoint=10
 loop=true
 era=$1
 channel=$2
@@ -40,22 +44,34 @@ if [[ $5 == "s_plus_b" ]]; then
   expectSignal="--expectSignal"
   expectSignal_tag=$5
 fi
+
+if [[ ${10} =~ "unblind" ]]; then
+  expectSignal_tag="Unblind"
+fi
+
+continue
 interference=""
 if [[ $6 == "interference" ]]; then
   interference="--interference"
 fi
+
+cminDefaultMinimizerStrategy=$7
+cminDefaultMinimizerTolerance=$8
+
+outdir=${9:-"./"}
+unblind=${10:-""}
 ##########################
 ##  datacard2workspace  ##
 ##########################
 
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode datacard2workspace --coupling_value $coupling --mass_point $mass $expectSignal $interference
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode datacard2workspace --coupling_value $coupling --mass_point $mass $expectSignal $interference --outdir $outdir $unblind
 
 #####################
 ## FitDiagnostics  ##
 #####################
 
-rmax=20
-rmin=-20
+rmax=10
+rmin=-10
 
 while $loop
 do
@@ -64,13 +80,13 @@ do
 
   echo -e "${BCyan}fit with rmin ${rmin} and rmax ${rmax}${NC}"
 
-  python ./SignalExtraction_Estimation.py -y $era -c $channel --mode FitDiagnostics --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax $expectSignal $interference
+  python ./SignalExtraction_Estimation.py -y $era -c $channel --mode FitDiagnostics --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind
 
   if [[ $6 == "interference" ]]; then
     massS=$(($mass-50))
-    Line=$(grep -n "Best" SignalExtraction/$era/$channel/$coupling/A_interfered_with_S0/$mass/$expectSignal_tag/ttc_$coupling\_datacard_$era\_SR_$channel\_$channel\_MA$mass\_MS$massS\_FitDiagnostics.log)
+    Line=$(grep -n "Best" $outdir/SignalExtraction/$era/$channel/$coupling/A_interfered_with_S0/$mass/$expectSignal_tag/ttc_$coupling\_datacard_$era\_SR_$channel\_$channel\_MA$mass\_MS$massS\_FitDiagnostics.log)
   else
-    Line=$(grep -n "Best" SignalExtraction/$era/$channel/$coupling/A/$mass/$expectSignal_tag/ttc_$coupling\_datacard_$era\_SR_$channel\_$channel\_MA$mass\_FitDiagnostics.log)
+    Line=$(grep -n "Best" $outdir/SignalExtraction/$era/$channel/$coupling/A/$mass/$expectSignal_tag/ttc_$coupling\_datacard_$era\_SR_$channel\_$channel\_MA$mass\_FitDiagnostics.log)
   fi
   echo $Line
   Line=$(echo $Line | grep -Eo '[-][0-9]+([.][0-9]+)?[/][+][0-9]+([.][0-9]+)?')
@@ -94,9 +110,24 @@ done
 #####################
 ## preFitPlot etc. ##
 #####################
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode preFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode postFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode diffNuisances --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotPulls --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doInitFit --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doFits --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode preFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode preFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind --logy
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode postFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode postFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind --logy
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode diffNuisances --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotPulls --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+#python ./SignalExtraction_Estimation.py -y $era -c $channel --mode DrawNLL --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doInitFit --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doFits --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+
+if [[ $outdir == *"eos"* ]]; then
+  python ./SignalExtraction_Estimation.py -y $era -c $channel --mode SubmitFromEOS --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+fi

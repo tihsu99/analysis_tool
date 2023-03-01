@@ -20,7 +20,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 #print(sys.path)
 import json, array
-from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, binning
 #processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
 #           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
 
@@ -147,11 +147,9 @@ for iyear in years:
                 f_in.cd()
                 #f_in.ls()
                 prefix="ttc"+iyear+"_"
-                
-                # rebin_=10
-                # Look carefully the final binning(change as per needed)
-                xbins = array.array('d', [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
+                # Look carefully the final binning in Util/General_Tool.py(change as per needed)
+                xbins = binning
                 if not args.interference:
                   rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
                 else:

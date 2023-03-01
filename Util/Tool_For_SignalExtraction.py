@@ -6,8 +6,7 @@ import json
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
-from Util.General_Tool import CheckDir,CheckFile
-from Util.General_Tool import CheckFile
+from Util.General_Tool import CheckDir,CheckFile,CheckFile,binning
 from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
@@ -270,17 +269,14 @@ def postFitPlot(settings=dict()):
 
     fin = ROOT.TFile(figDiagnostics_File,"READ")
     
-    if settings['unblind']:
-        first_dir = 'shapes_fit_b'
-    else:
-        if settings['expectSignal']:
-            first_dir = 'shapes_fit_s'
-            if not settings['interference']:
-                Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-            else:
-                Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
+    if settings['expectSignal'] or settings['unblind']:
+        first_dir = 'shapes_fit_s'
+        if not settings['interference']:
+            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
         else:
-            first_dir = 'shapes_fit_b'
+            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
+    else:
+        first_dir = 'shapes_fit_b'
 
     
     second_dirs = []
@@ -310,7 +306,7 @@ def postFitPlot(settings=dict()):
             if type(h) != ROOT.TH1F:
                 if settings['unblind'] and Histogram_Name =='data':
                     data_higComb = h
-                    data = ROOT.TH1F('data', '', 40, -1, 1)
+                    data = ROOT.TH1F('data', '', len(binning)-1,binning)
                     
                     for bini in range(data.GetSize()):
                         tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
@@ -332,7 +328,7 @@ def postFitPlot(settings=dict()):
             else:
                 print("\033[1;32mAccess: {}\033[0;m".format(Histogram_Name))
                 nbin = h.GetNbinsX()
-                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,nbin,-1,1)
+                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,len(binning)-1,binning)
                 if Histogram_Registered:
                     Integral[Histogram_Name] += h.Integral()
                 else:
@@ -366,21 +362,20 @@ def postFitPlot(settings=dict()):
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
             "text_y":settings["text_y"],
-            "unblind":settings['unblind']
+            "logy":settings["logy"],
+            "unblind":settings['unblind'],
+            "expectSignal":settings['expectSignal']
             }
-    if settings['unblind']:
-        template_settings["Signal_Name"] = "DEFAULT"
-    else:
-        if settings["expectSignal"]:
-            if not settings['interference']:    
-                template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-            else:
-                
-                template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
+    if settings["unblind"] or settings["expectSignal"]:
+        if not settings['interference']:    
+            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
         else:
+                
+            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
+    else:
             template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
-    Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
+    Plot_Histogram(template_settings=template_settings) 
 
 
     #a = h_stack.GetXaxis();
@@ -419,6 +414,11 @@ def preFitPlot(settings=dict()):
     Histogram = dict()
     if settings['unblind']:
         first_dir = 'shapes_prefit'
+        if not settings['interference']:
+            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+        else:
+            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
+
     else:
         if settings['expectSignal']:
             first_dir = 'shapes_prefit'
@@ -459,9 +459,9 @@ def preFitPlot(settings=dict()):
             if type(h) != ROOT.TH1F:
                 if settings['unblind'] and Histogram_Name =='data':
                     data_higComb = h
-                    data = ROOT.TH1F('data', '', 40, -1, 1)
+                    data = ROOT.TH1F('data', '', len(binning)-1, binning)
                     
-                    for bini in range(data.GetSize()):
+                    for bini in range(data.GetNbinsX()):
                         tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
                         tgraph_error   = data_higComb.GetErrorY(bini+1) # just symmetrical error
                         data.SetBinContent (bini+1, tgraph_content)
@@ -483,7 +483,9 @@ def preFitPlot(settings=dict()):
             else:
                 h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
                 nbin = h.GetNbinsX()
-                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,nbin,-1,1)
+                if not (nbin == len(binning)-1):
+                  raise ValueError("\033[0;31m Input binning is not consistent with local binning setting. Please check binning in Util/General_Tool.py \033[0;m")
+                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,len(binning)-1, binning)
                 print("\033[1;32mAccess: {} \033[0;m ".format(Histogram_Name))
                 if Histogram_Registered:
                     Integral[Histogram_Name] += h.Integral()
@@ -517,20 +519,18 @@ def preFitPlot(settings=dict()):
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
             "text_y":settings["text_y"],
-            "unblind":settings["unblind"]
+            "logy":settings["logy"],
+            "unblind":settings["unblind"],
+            "expectSignal":settings["expectSignal"]
             } 
-    if settings['unblind']:
-        template_settings["Signal_Name"] = "DEFAULT"
+    if settings["expectSignal"] or settings["unblind"]:
+        if not settings['interference']:    
+            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
+        else:                
+            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
     else:
-        if settings["expectSignal"]:
-            if not settings['interference']:    
-                template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-            else:
-                
-                template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
-        else:
             template_settings["Signal_Name"] = "DEFAULT"
-    Plot_Histogram(template_settings=template_settings,expectSignal=settings["expectSignal"]) 
+    Plot_Histogram(template_settings=template_settings) 
     
     print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
     print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
@@ -539,7 +539,7 @@ def preFitPlot(settings=dict()):
 
 
 
-def Plot_Histogram(template_settings=dict(),expectSignal=False):
+def Plot_Histogram(template_settings=dict()):
 
     Color_Dict ={
             'DY':ROOT.kRed,
@@ -558,9 +558,8 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
             }
     if template_settings["unblind"]:
         Color_Dict['data'] = ROOT.kBlack
-    else: 
-        if expectSignal:
-            Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
+    if template_settings["unblind"] or template_settings["expectSignal"]:
+        Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
     for Histogram_Name in template_settings['Histogram'].keys():
         if Histogram_Name not in Color_Dict.keys():
             raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
@@ -571,7 +570,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     ROOT.gROOT.SetBatch(1)
     canvas = ROOT.TCanvas("","",620,600)
 
-    Set_Logy =True
+    Set_Logy = template_settings['logy']
 
     if Set_Logy:
         canvas.SetLogy(1)
@@ -585,7 +584,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.15, .65, .65+0.25*(legend_NCol-1), .890);
+    legend = ROOT.TLegend(.15, .65, .15+0.37*(legend_NCol-1), .890);
     legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
@@ -600,7 +599,7 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     h_stack = ROOT.THStack()
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
-        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT" and not template_settings['unblind']:
+        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
             h_sig = template_settings['Histogram'][Histogram_Name]
             h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
             h_sig.SetLineWidth(4)
@@ -618,11 +617,11 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
     h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
-    h_stack.SetMinimum(0.001)
+    h_stack.SetMinimum(0.1)
     h_stack.Draw("HIST")
     if template_settings['unblind']:
         template_settings['Histogram']["data"].Draw("SAME P*")
-    if type(h_sig )== ROOT.TH1F and not template_settings['unblind']:
+    if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(10)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'Signal(X 10)', 'L')
@@ -656,9 +655,13 @@ def Plot_Histogram(template_settings=dict(),expectSignal=False):
     CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
 
     ######
+    if Set_Logy:
+      log_tag = "_log"
+    else:
+      log_tag = ""
     canvas.Update()
-    canvas.SaveAs('{prefix}.pdf'.format(prefix=template_settings['outputfilename']))
-    canvas.SaveAs('{prefix}.png'.format(prefix=template_settings['outputfilename']))
+    canvas.SaveAs('{prefix}{log}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag))
+    canvas.SaveAs('{prefix}{log}.png'.format(prefix=template_settings['outputfilename'],log=log_tag))
 
 
 def ResultsCopy(settings=dict()):
@@ -699,10 +702,13 @@ def DrawNLL(settings=dict()):
   workspace_root = os.path.basename(settings['workspace_root'])
   Log_Path = os.path.basename(settings['Log_Path'])
   commands = []
+  rMin = -4
+  rMax = 4
+  points = 80
   if settings['unblind']:
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL --rMin -4 --rMax 4 --algo grid --points 80".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot --rMin -4 --rMax 4 --saveWorkspace".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
-    commands.append("combine -M MultiDimFit higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot.MultiDimFit.mH{mass}.root -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll --rMin -4 --rMax 4 --algo grid --points 80 --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']))
+    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points}".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
+    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --saveWorkspace".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
+    commands.append("combine -M MultiDimFit higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot.MultiDimFit.mH{mass}.root -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points} --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
     commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
     commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
     commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
@@ -712,7 +718,6 @@ def DrawNLL(settings=dict()):
         commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
       else:
         commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
-    print(commands)
     command = ';'.join(commands)
     os.system(command)
   else:

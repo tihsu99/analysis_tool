@@ -2,8 +2,14 @@ import ROOT
 from ROOT import TFile,TH1F
 import copy
 import os 
+import numpy as np
 import sys, array
+
 CURRENT_WORKDIR = os.getcwd()
+
+binning = array.array('d', [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+
+
 def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):
     Init = True
     
@@ -39,6 +45,7 @@ def MakePositive_Hist(Hist,value=0.0001):
             H.SetBinContent(ibin+1,value) #this is up to user
         else:pass
     return H
+
 def CheckDir(Dir_to_check="",MakeDir=True,quiet=False):
     '''
     Just check whether a folder is existed or not. If it is not, then create a new one.
