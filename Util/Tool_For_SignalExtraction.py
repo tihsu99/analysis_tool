@@ -381,10 +381,15 @@ def postFitPlot(settings=dict()):
     #a = h_stack.GetXaxis();
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
     #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
-    
+
+    if settings["logy"]:
+      log_tag = "_log"
+    else:
+      log_tag = ""
+
     print("\nNext mode: \033[0;32m [diffNuisances] \033[1;33m")
-    print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
-    print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot']))))
+    print("\033[1;33m* Please check \033[4m{prefix}{log}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),log=log_tag))
+    print("\033[1;33m* Please check \033[4m{prefix}{log}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),log=log_tag))
 
 def preFitPlot(settings=dict()):
     figDiagnostics_File = settings['FitDiagnostics_file']
@@ -532,9 +537,14 @@ def preFitPlot(settings=dict()):
             template_settings["Signal_Name"] = "DEFAULT"
     Plot_Histogram(template_settings=template_settings) 
     
+    if settings["logy"]:
+      log_tag = "_log"
+    else:
+      log_tag = ""
+
     print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
-    print("\033[1;33m* Please check \033[4m{prefix}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
-    print("\033[1;33m* Please check \033[4m{prefix}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot']))))
+    print("\033[1;33m* Please check \033[4m{prefix}{log}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),log=log_tag))
+    print("\033[1;33m* Please check \033[4m{prefix}{log}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),log=log_tag))
 
 
 
