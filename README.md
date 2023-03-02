@@ -327,7 +327,7 @@ Note: Generally, it would take > 1 day to finish the calculation for full run2 l
 
 # 5. For impacts and pulls and post/pre-fit distribution
 
-Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.\\
+Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.  
 Note: Since it takes too much space to store all the information, we suggest to make the workspace under eos directory, simply adding `--outdir [path/to/workspace]` after each step, then the code will automatically create and operate in that directory automatically.
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
