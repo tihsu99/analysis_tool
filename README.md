@@ -327,51 +327,56 @@ Note: Generally, it would take > 1 day to finish the calculation for full run2 l
 
 # 5. For impacts and pulls and post/pre-fit distribution
 
-Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.
+Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.  
+Note: Since it takes too much space to store all the information, we suggest to make the workspace under eos directory, simply adding `--outdir [path/to/workspace]` after each step, then the code will automatically create and operate in that directory automatically.
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )  
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> preFit distribution. O(time) ~ 1 sec
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace]
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace]
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step6 -> Plot the pulls.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step6 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
+Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step7 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. 
+Step7.2 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. --outdir [path/to/workspace]
 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+```
+Step9: Submit from EOS (Only when workspace is under eos)
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitFromEOS --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
 # 6. Condor Jobs
