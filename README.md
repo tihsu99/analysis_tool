@@ -269,6 +269,8 @@ python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Ma
 
 # 4. Limit Plots
 
+N.B: if you want to compute unblinded results, then add ``--unblind`` while run the command.
+
 Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
@@ -329,6 +331,9 @@ Note: Generally, it would take > 1 day to finish the calculation for full run2 l
 
 Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.  
 Note: Since it takes too much space to store all the information, we suggest to make the workspace under eos directory, simply adding `--outdir [path/to/workspace]` after each step, then the code will automatically create and operate in that directory automatically.
+
+N.B: if you want to compute unblinded results, then add ``--unblind`` while run the command.
+N.B: if you want to do some parameter optimization and wanted to same output to different directory other than "Unblind/s_plus_b/s_plus_b", you can add ``--prefix <string>`` this will add the given string in the ouput directory "Unblind/s_plus_b/s_plus_b".
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
