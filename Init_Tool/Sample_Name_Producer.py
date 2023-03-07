@@ -124,10 +124,10 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     ### VV ###
     if year =='2018' or year=='2017':
         SAMPLE['VV'].append('osWW')
-        SAMPLE['VV'].append('WWdps')
+        # SAMPLE['VV'].append('WWdps') # removed on 7Mar2023
         SAMPLE['VV'].append('WZ_qcd')
     elif year=='2016apv' or year =='2016postapv':
-        SAMPLE['VV'].append('zz2l')
+        # SAMPLE['VV'].append('zz2l') # removed on 7Mar2023
         SAMPLE['VV'].append('wz_qcd')
         SAMPLE['VV'].append('ww')  
 #        if year =='2018':

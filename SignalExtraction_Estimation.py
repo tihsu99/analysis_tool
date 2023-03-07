@@ -64,6 +64,7 @@ parser.add_argument('--interference',help ='If you want to calculate for interfe
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
 parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
+parser.add_argument('--prefix', help='output directory', default='', type=str)
 
 args = parser.parse_args()
 
@@ -102,7 +103,8 @@ settings ={
     'interference' : args.interference,
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
-    'outdir': args.outdir
+    'outdir': args.outdir,
+    'prefix': args.prefix
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':

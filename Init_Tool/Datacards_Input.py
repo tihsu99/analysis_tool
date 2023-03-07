@@ -98,7 +98,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 Input['UnclnN'][nuisance]='1.003'
             elif nuisance =='normVV':
                 Input['NuisForProc'][nuisance].append('VV')
-                Input['UnclnN'][nuisance]='1.187'
+                Input['UnclnN'][nuisance]='1.051'
             elif nuisance =='normVBS':
                 Input['NuisForProc'][nuisance].append('VBS')
                 Input['UnclnN'][nuisance]='1.30'
