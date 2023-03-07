@@ -19,8 +19,13 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     start = time.time()
     date = os.popen("date").read()
     print("\033[1;37m{date}\033[0;m".format(date=date))
-    
-    Fit_type =''
+
+    Fit_type = ''
+    if settings['prefix'] != None:
+        Fit_type = settings['prefix']+"_"+Fit_type
+    else:
+        Fit_type =''
+
     if settings['unblind']:
         Fit_type += 'Unblind'
     else:
@@ -51,7 +56,6 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
 
     Final_Output_Dir = os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
 
-    
     settings['outputdir'] = Final_Output_Dir
     settings['WorkDir'] = CURRENT_WORKDIR
     settings['condorDir'] = os.path.join(settings['WorkDir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
