@@ -566,7 +566,7 @@ def Plot_Histogram(template_settings=dict()):
             'ttW':ROOT.kGreen-2,
             'ttZ':ROOT.kCyan-2,
             'VBS':ROOT.kBlue-6,
-            'ttVH':ROOT.kRed-9,
+            'ttH':ROOT.kRed-9,
             'ttVV':ROOT.kOrange+3,
             'SingleTop':ROOT.kGray,
             'Others': ROOT.kYellow-4,

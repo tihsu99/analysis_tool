@@ -29,9 +29,9 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
         Input['NuisForProc'][nuisance] = []
         
         if year=='2016apv' or year=='2016postapv':
-            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttVH","normttW","lumi2016","lumiCorrFullRun2","lumiCorr1718"]
+            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttH","normttW","lumi2016","lumiCorrFullRun2","lumiCorr1718"]
         else:
-            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttVH","normttW","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
+            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttH","normttW","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
 
         sig_nuisance = ['sigpdf','sigscale','sigps']
         
@@ -88,7 +88,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 Input['UnclnN'][nuisance]='1.061'
                 Input['NuisForProc'][nuisance].append('TTTo2L')
             elif nuisance =='normOthers':
-                Input['UnclnN'][nuisance]='1.30'
+                Input['UnclnN'][nuisance]='1.50'
                 Input['NuisForProc'][nuisance].append('Others')
             elif nuisance =='normSingleTop':
                 Input['UnclnN'][nuisance]='1.054'
@@ -105,9 +105,9 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
             elif nuisance =='normttVV':
                 Input['UnclnN'][nuisance]='1.18'
                 Input['NuisForProc'][nuisance].append('ttVV')
-            elif nuisance =='normttVH':
-                Input['NuisForProc'][nuisance].append('ttVH')
-                Input['UnclnN'][nuisance]='1.50'
+            elif nuisance =='normttH':
+                Input['NuisForProc'][nuisance].append('ttH')
+                Input['UnclnN'][nuisance]='1.078'
             elif nuisance =='normttZ':
                 Input['UnclnN'][nuisance]='1.147'
                 Input['NuisForProc'][nuisance].append('ttZ')

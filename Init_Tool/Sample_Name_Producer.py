@@ -7,7 +7,7 @@ You need to fill in the process name for MC sample in root file manually.
 
 def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     SAMPLE=dict()
-    SAMPLE['ttVH'] = [] # ttH + ttWH + ttZH
+#    SAMPLE['ttVH'] = [] # ttH + ttWH + ttZH
     SAMPLE['Nonprompt'] = [] # TTTo1L without WJets
     SAMPLE['TTTo2L'] = [] #TTTo2L
 #    SAMPLE['DY'] = [] #DY
@@ -20,7 +20,8 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
 #    SAMPLE['ttVV'] = []
 #    SAMPLE['tttX'] = []
 #    SAMPLE['tZq'] = []
-    SAMPLE['Others'] = [] #tZq + singletop + VVV + tttX + DY + ttVV + ttZ
+    SAMPLE['ttH'] = [] # ttH
+    SAMPLE['Others'] = [] #tZq + singletop + VVV + tttX + DY + ttVV + ttZ + ttWH + ttZH
 
 
     #1) ttVH = ttH + ttWH + ttZH --> assign uncertainty
@@ -109,9 +110,9 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
 
     ### tt_V_H ###
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttVH'].append('ttH')
-        SAMPLE['ttVH'].append('ttWH')
-        SAMPLE['ttVH'].append('ttZH')
+        SAMPLE['ttH'].append('ttH')
+        SAMPLE['Others'].append('ttWH')
+        SAMPLE['Others'].append('ttZH')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tzq ###

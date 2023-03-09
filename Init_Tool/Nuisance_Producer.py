@@ -81,7 +81,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             "_fakeYEAReleStat",
             "_fakeYEARmuStat",
 #            "_normTTTo2L","_normSingleTop","_normDY","_normVV","_normVBS","_normttVV","_normttVH","_normttZ","_normttW","_normtZq","_normtttX","_normVVV",
-            "_normTTTo2L","_normOthers","_normVV","_normVBS","_normttVH","_normttW",
+            "_normTTTo2L","_normOthers","_normVV","_normVBS","_normttH","_normttW",
             "_sigYEARscale","_sigYEARpdf","_sigYEARps"] #only for signal
             #"_normTTTo2L","_normttWW","_normttZZ","_normttWZ","_normttZ","_normttW","_normtZq","_normtttX","_normVVV"]
     
