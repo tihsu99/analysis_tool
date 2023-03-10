@@ -88,7 +88,7 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 Input['UnclnN'][nuisance]='1.061'
                 Input['NuisForProc'][nuisance].append('TTTo2L')
             elif nuisance =='normOthers':
-                Input['UnclnN'][nuisance]='1.50'
+                Input['UnclnN'][nuisance]='1.054'
                 Input['NuisForProc'][nuisance].append('Others')
             elif nuisance =='normSingleTop':
                 Input['UnclnN'][nuisance]='1.054'
@@ -98,10 +98,10 @@ def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMA
                 Input['UnclnN'][nuisance]='1.003'
             elif nuisance =='normVV':
                 Input['NuisForProc'][nuisance].append('VV')
-                Input['UnclnN'][nuisance]='1.051'
+                Input['UnclnN'][nuisance]='1.045'
             elif nuisance =='normVBS':
                 Input['NuisForProc'][nuisance].append('VBS')
-                Input['UnclnN'][nuisance]='1.30'
+                Input['UnclnN'][nuisance]='1.104'
             elif nuisance =='normttVV':
                 Input['UnclnN'][nuisance]='1.18'
                 Input['NuisForProc'][nuisance].append('ttVV')
