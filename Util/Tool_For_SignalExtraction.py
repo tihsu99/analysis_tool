@@ -611,8 +611,13 @@ def Plot_Histogram(template_settings=dict()):
     
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
+    hh_total = None
+    for idx, Histogram_Name in enumerate(Ordered_Integral):
+        hh_total = template_settings['Histogram'][Histogram_Name].Clone("hh_total")
+        hh_total.Reset() #this line to reset but keep the same bining
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
+
         if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
             h_sig = template_settings['Histogram'][Histogram_Name]
             h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
@@ -628,11 +633,22 @@ def Plot_Histogram(template_settings=dict()):
             else:
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
+                hh_total.Add(template_settings['Histogram'][Histogram_Name])
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
     h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
     h_stack.SetMinimum(0.1)
     h_stack.Draw("HIST")
+    # For uncert.
+    hh_total.SetFillStyle(3144)
+    hh_total.SetFillColor(12) #ROOT.kGray + 2)
+    hh_total.SetMarkerSize(0)
+    hh_total.SetMarkerStyle(0)
+    hh_total.SetMarkerColor(12) #ROOT.kGray + 2)
+    hh_total.SetLineWidth(0)
+    legend.AddEntry(hh_total,'Total-Unc','F')
+    hh_total.Draw("SAME E2")
+
     if template_settings['unblind']:
         template_settings['Histogram']["data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
