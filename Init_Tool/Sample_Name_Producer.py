@@ -7,19 +7,21 @@ You need to fill in the process name for MC sample in root file manually.
 
 def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     SAMPLE=dict()
-    SAMPLE['ttVH'] = [] # ttH + ttWH + ttZH
+#    SAMPLE['ttVH'] = [] # ttH + ttWH + ttZH
     SAMPLE['Nonprompt'] = [] # TTTo1L without WJets
     SAMPLE['TTTo2L'] = [] #TTTo2L
-    SAMPLE['DY'] = [] #DY
+#    SAMPLE['DY'] = [] #DY
     SAMPLE['VV'] = [] #  osWW + WWdps + WZ_qcd 
     SAMPLE['VBS'] = []
-    SAMPLE['VVV'] = []
-    SAMPLE['SingleTop'] = []
+#    SAMPLE['VVV'] = []
+#    SAMPLE['SingleTop'] = []
     SAMPLE['ttW'] = []
-    SAMPLE['ttZ'] = []
-    SAMPLE['ttVV'] = []
-    SAMPLE['tttX'] = []
-    SAMPLE['tZq'] = []
+#    SAMPLE['ttZ'] = []
+#    SAMPLE['ttVV'] = []
+#    SAMPLE['tttX'] = []
+#    SAMPLE['tZq'] = []
+    SAMPLE['ttH'] = [] # ttH
+    SAMPLE['Others'] = [] #tZq + singletop + VVV + tttX + DY + ttVV + ttZ + ttWH + ttZH
 
 
     #1) ttVH = ttH + ttWH + ttZH --> assign uncertainty
@@ -53,7 +55,7 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
     
     ### DY ###
     if year == '2016apv' or year=='2016postapv' or year =='2017' or year=='2018':
-        SAMPLE['DY'].append('DYnlo')
+        SAMPLE['Others'].append('DYnlo')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     ### ttWtoLNu ###
     if year == '2018' or year=='2017':
@@ -66,58 +68,58 @@ def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
 
     ## ttVV ##
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttVV'].append('ttWW')
-        SAMPLE['ttVV'].append('ttWZ')
-        SAMPLE['ttVV'].append('ttZZ')
+        SAMPLE['Others'].append('ttWW')
+        SAMPLE['Others'].append('ttWZ')
+        SAMPLE['Others'].append('ttZZ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     ### ttV ###
     if year =='2018' or year=='2017':
-        SAMPLE['ttZ'].append('ttZ')
-        SAMPLE['ttZ'].append('ttZtoQQ')
+        SAMPLE['Others'].append('ttZ')
+        SAMPLE['Others'].append('ttZtoQQ')
     elif  year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttZ'].append('ttZ')
-        SAMPLE['ttZ'].append('ttZToQQ')
+        SAMPLE['Others'].append('ttZ')
+        SAMPLE['Others'].append('ttZToQQ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tttX ###
     if year =='2018' or year=='2017' or year =='2016postapv' or year == '2016apv':
-        SAMPLE['tttX'].append('tttW')
-        SAMPLE['tttX'].append('tttt')
-        SAMPLE['tttX'].append('tttJ')
+        SAMPLE['Others'].append('tttW')
+        SAMPLE['Others'].append('tttt')
+        SAMPLE['Others'].append('tttJ')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
 
     ### VVV ###
     if year=='2018' or year=='2017':
-        SAMPLE['VVV'].append('WWW')
-        SAMPLE['VVV'].append('WWZ')
-        SAMPLE['VVV'].append('WZZ')
-        SAMPLE['VVV'].append('ZZZ')
+        SAMPLE['Others'].append('WWW')
+        SAMPLE['Others'].append('WWZ')
+        SAMPLE['Others'].append('WZZ')
+        SAMPLE['Others'].append('ZZZ')
     elif year=='2016postapv' or year=='2016apv':
-        SAMPLE['VVV'].append('www1')
-        SAMPLE['VVV'].append('wwz1')
-        SAMPLE['VVV'].append('wzz1')
-        SAMPLE['VVV'].append('zzz1')
+        SAMPLE['Others'].append('www1')
+        SAMPLE['Others'].append('wwz1')
+        SAMPLE['Others'].append('wzz1')
+        SAMPLE['Others'].append('zzz1')
 
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     ### tW or tbar_W ###
     if year =='2018' or year=='2017' or year =='2016postapv'  or year =='2016apv':
-        SAMPLE['SingleTop'].append('tW')
-        SAMPLE['SingleTop'].append('tbarW')
+        SAMPLE['Others'].append('tW')
+        SAMPLE['Others'].append('tbarW')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
 
     ### tt_V_H ###
     if year =='2018' or year=='2017' or year =='2016postapv' or year =='2016apv':
-        SAMPLE['ttVH'].append('ttH')
-        SAMPLE['ttVH'].append('ttWH')
-        SAMPLE['ttVH'].append('ttZH')
+        SAMPLE['ttH'].append('ttH')
+        SAMPLE['Others'].append('ttWH')
+        SAMPLE['Others'].append('ttZH')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### tzq ###
     if year=='2018' or year=='2017':
-        SAMPLE['tZq'].append('tzq')
+        SAMPLE['Others'].append('tzq')
     elif year=='2016postapv' or year=='2016apv':
-        SAMPLE['tZq'].append('tZq')
+        SAMPLE['Others'].append('tZq')
     else:raise ValueError('Fix me') # -> You need to add sample by hands.
     
     ### VV ###

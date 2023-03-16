@@ -7,7 +7,7 @@ import sys, array
 
 CURRENT_WORKDIR = os.getcwd()
 
-binning = array.array('d', [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+binning = array.array('d', [-0.6, -0.2, 0.2, 0.6, 1.0])
 
 
 def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):
