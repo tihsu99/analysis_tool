@@ -65,7 +65,7 @@ parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizer
 parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
-parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots [0: not plot, 1: plot]', default=1, type=int)
+parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
 
 args = parser.parse_args()
 
@@ -111,7 +111,7 @@ settings ={
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
     settings['text_y'] = float(args.text_y)
     settings['logy'] = args.logy
-    settings['plotRatio'] = ((args.plotRatio == 1) and args.unblind)
+    settings['plotRatio'] = ((args.plotRatio) and args.unblind)
 elif args.mode=='ResultsCopy':
     settings['dest'] = args.dest
 
