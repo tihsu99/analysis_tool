@@ -345,14 +345,14 @@ Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step3 -> preFit distribution. O(time) ~ 1 sec
+Step3 -> preFit distribution. O(time) ~ 1 sec 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio]
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio]
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
@@ -375,13 +375,14 @@ Step7.2 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time)
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
+Step7.3: Submit from EOS (Only when workspace is under eos)
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitFromEOS --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+```
+
 Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
-```
-Step9: Submit from EOS (Only when workspace is under eos)
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitFromEOS --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
 # 6. Condor Jobs

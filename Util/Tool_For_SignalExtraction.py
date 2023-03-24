@@ -10,6 +10,7 @@ from Util.General_Tool import CheckDir,CheckFile,CheckFile,binning
 from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
+import numpy as np
 
 
 #from Util.OverlappingPlots import *
@@ -368,7 +369,8 @@ def postFitPlot(settings=dict()):
             "text_y":settings["text_y"],
             "logy":settings["logy"],
             "unblind":settings['unblind'],
-            "expectSignal":settings['expectSignal']
+            "expectSignal":settings['expectSignal'],
+            "plotRatio":settings['plotRatio']
             }
     if settings["unblind"] or settings["expectSignal"]:
         if not settings['interference']:    
@@ -530,7 +532,8 @@ def preFitPlot(settings=dict()):
             "text_y":settings["text_y"],
             "logy":settings["logy"],
             "unblind":settings["unblind"],
-            "expectSignal":settings["expectSignal"]
+            "expectSignal":settings["expectSignal"],
+            "plotRatio":settings["plotRatio"]
             } 
     if settings["expectSignal"] or settings["unblind"]:
         if not settings['interference']:    
@@ -587,11 +590,27 @@ def Plot_Histogram(template_settings=dict()):
 
     Set_Logy = template_settings['logy']
 
+    if template_settings['plotRatio']:
+      pad1 = ROOT.TPad('pad1','',0.00, 0.22, 0.99, 0.99)
+      pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.22)
+      pad1.SetBottomMargin(0.01);
+      pad2.SetTopMargin(0.035);
+      pad2.SetBottomMargin(0.45);
+      pad1.Draw()
+      pad2.Draw()
+      pad1.cd()
+    else:
+      pad1 = ROOT.TPad('pad1','',0.00, 0.00, 0.99, 0.99)
+      pad1.SetBottomMargin(0.1);
+      pad1.Draw()
+      pad1.cd()
+
     if Set_Logy:
-        canvas.SetLogy(1)
+        pad1.SetLogy(1)
         Histogram_MaximumScale = 1000
     else:
         Histogram_MaximumScale = 1.5
+
     canvas.SetGrid(1,1)
     canvas.SetLeftMargin(0.12)
     canvas.SetRightMargin(0.08)
@@ -637,11 +656,11 @@ def Plot_Histogram(template_settings=dict()):
                 hh_total.Add(template_settings['Histogram'][Histogram_Name])
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
     h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
-    h_stack.SetMaximum(template_settings['Maximum'] * Histogram_MaximumScale)
+    h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     h_stack.SetMinimum(0.1)
     h_stack.Draw("HIST")
     # For uncert.
-    hh_total.SetFillStyle(3144)
+    hh_total.SetFillStyle(3005)
     hh_total.SetFillColor(12) #ROOT.kGray + 2)
     hh_total.SetMarkerSize(0)
     hh_total.SetMarkerStyle(0)
@@ -656,6 +675,49 @@ def Plot_Histogram(template_settings=dict()):
         h_sig.Scale(10)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'Signal(X 10)', 'L')
+    if template_settings['plotRatio']:
+        pad2.cd()
+        hMC     = h_stack.GetStack().Last()
+        h_ratio = (template_settings['Histogram']["data"].Clone())
+        h_ratio.Divide(hMC)
+        h_ratio.SetMarkerStyle(20)
+        h_ratio.SetMarkerSize(0.85)
+        h_ratio.SetMarkerColor(1)
+        h_ratio.SetLineWidth(1)
+          
+        h_ratio.GetYaxis().SetTitle("Data/Pred.")
+        h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
+        h_ratio.GetYaxis().CenterTitle()
+        h_ratio.SetMaximum(1.5)
+        h_ratio.SetMinimum(0.5)
+        h_ratio.GetYaxis().SetNdivisions(4,ROOT.kFALSE)
+        h_ratio.GetYaxis().SetTitleOffset(0.3)
+        h_ratio.GetYaxis().SetTitleSize(0.14)
+        h_ratio.GetYaxis().SetLabelSize(0.1)
+        h_ratio.GetXaxis().SetTitleSize(0.14)
+        h_ratio.GetXaxis().SetLabelSize(0.1)
+        h_ratio.Draw()
+
+        x = [];
+        y = [];
+        xerror_l = [];
+        xerror_r = [];
+        yerror_u = [];
+        yerror_d = [];
+        for i in range(0,h_ratio.GetNbinsX()):
+          x.append(h_ratio.GetBinCenter(i+1))
+          y.append(1.0)
+          xerror_l.append(0.5*h_ratio.GetBinWidth(i+1))
+          xerror_r.append(0.5*h_ratio.GetBinWidth(i+1))
+          yerror_u.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
+          yerror_d.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
+        ru = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
+        ru.SetFillColor(1);
+        ru.SetFillStyle(3005);
+        ru.Draw("SAME 2");
+
+
+        pad1.cd()
     latex = ROOT.TLatex()
     latex.SetTextSize(0.035)
     latex.SetTextAlign(12)  
