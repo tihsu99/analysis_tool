@@ -815,4 +815,14 @@ def DrawNLL(settings=dict()):
     os.system(command)
   else:
     print("Do not have blind option now")
+def plotCorrelationRanking(settings=dict()):
+
+    outputdir = os.path.join(settings['outputdir'], 'results')
+    impacts_json = os.path.join(settings['outputdir'], settings['impacts_json'])
+    
+    if CheckFile(settings['FitDiagnostics_file'], False, False):
+        plotCorrelation(FitDiagnostics_file = settings['FitDiagnostics_file'], outputdir = outputdir, impacts_json = impacts_json)
+    else:
+        settings['FitDiagnostics_file'] = settings['FitDiagnostics_file'].replace('fitDiagnostics', 'results/fitDiagnostics')
+        plotCorrelation(FitDiagnostics_file = settings['FitDiagnostics_file'], outputdir = outputdir, impacts_json = impacts_json)
 
