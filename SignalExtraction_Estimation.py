@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot 
 from Util.aux import *
 
 
@@ -43,7 +43,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot']
 
 
 parser = argparse.ArgumentParser()
@@ -66,7 +66,7 @@ parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', de
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
-
+parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
 args = parser.parse_args()
 
 '''
@@ -105,7 +105,8 @@ settings ={
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
-    'prefix': args.prefix
+    'prefix': args.prefix,
+    'GoF_Algorithm': args.GoF_Algorithm
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
