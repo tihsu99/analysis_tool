@@ -35,7 +35,7 @@ def plotCorrelation(FitDiagnostics_file='', outputdir='', impacts_json = ''):
     print('Start to retrieve correlation information for nuisance')
 
     for paramInfo in Impact_Rank_Top_param:
-        for ibin in range(CorrelationMatrix.GetNbinsX()):
+        for ibin in range(CorrelationMatrix.GetNbinsX() + 1):
             if CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) == paramInfo['Name']:
                 paramInfo['bin'] = ibin+1
                 
@@ -44,23 +44,25 @@ def plotCorrelation(FitDiagnostics_file='', outputdir='', impacts_json = ''):
         
         Correlation = []
 
-        for ibin in range(CorrelationMatrix.GetNbinsX()):
+        for ibin in range(CorrelationMatrix.GetNbinsY()):
             Info = {}
-            Info['name'] = CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) 
+            Info['name'] = CorrelationMatrix.GetYaxis().GetBinLabel(ibin+1) 
             Info['correlation'] = CorrelationMatrix.GetBinContent(paramInfo['bin'], ibin+1)
             Correlation.append(Info)
 
 
 
         Correlation.sort(key = lambda x: abs(x['correlation']), reverse = True)
-        Correlation = Correlation[:Corr_Rank]
+        #Correlation = Correlation[:Corr_Rank]
         correlation_array = []
         name_array = []
-        for corr in Correlation:
-            correlation_array.append(corr['correlation'])
-            name_array.append(corr['name'])
+        for jdx, corr in enumerate(Correlation):
+            if jdx < Corr_Rank:
+                correlation_array.append(corr['correlation'])
+                name_array.append(corr['name'])
+            else:break
 
-        ypos = np.arange(len(Correlation))
+        ypos = np.arange(len(name_array))
         plt.rcdefaults()
         fig, ax = plt.subplots()
         fig.set_size_inches(20.5, 10.5)
