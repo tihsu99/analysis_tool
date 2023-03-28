@@ -25,29 +25,30 @@ def plotCorrelation(FitDiagnostics_file='', outputdir='', impacts_json = ''):
     Params.sort(key = lambda x: abs(x['impact_%s' % POI]), reverse = True)
 
 
-    Impact_Rank_Top_param = []
+    Impact_Rank_Top_param = dict()
     for idx, param in enumerate(Params):
-        if idx > Impact_Rank: break
+        #if idx > Impact_Rank: break
         paramInfo = dict()
         paramInfo['Name'] = param['name']
         paramInfo['bin'] = -1
-        Impact_Rank_Top_param.append(paramInfo)
+        paramInfo['Rk'] = idx+1
+        Impact_Rank_Top_param[param['name']] = paramInfo
     print('Start to retrieve correlation information for nuisance')
-
-    for paramInfo in Impact_Rank_Top_param:
+    Impact_Rank_Top_param_List = sorted(Impact_Rank_Top_param.items(), key = lambda x: x[1]['Rk'], reverse = True)
+    for idx, param in enumerate(Impact_Rank_Top_param_List):
         for ibin in range(CorrelationMatrix.GetNbinsX() + 1):
-            if CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) == paramInfo['Name']:
-                paramInfo['bin'] = ibin+1
+            if CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) == param[1]['Name']:
+                Impact_Rank_Top_param_List[idx][1]['bin'] = ibin+1
                 
     print('Plotting')
-    for idx,paramInfo in enumerate(Impact_Rank_Top_param):
-        
+    for idx,param in enumerate(Impact_Rank_Top_param_List):
+        if param[1]['Name']  != 'jes' :continue
         Correlation = []
 
         for ibin in range(CorrelationMatrix.GetNbinsY()):
             Info = {}
             Info['name'] = CorrelationMatrix.GetYaxis().GetBinLabel(ibin+1) 
-            Info['correlation'] = CorrelationMatrix.GetBinContent(paramInfo['bin'], ibin+1)
+            Info['correlation'] = CorrelationMatrix.GetBinContent(param[1]['bin'], ibin+1)
             Correlation.append(Info)
 
 
@@ -59,7 +60,10 @@ def plotCorrelation(FitDiagnostics_file='', outputdir='', impacts_json = ''):
         for jdx, corr in enumerate(Correlation):
             if jdx < Corr_Rank:
                 correlation_array.append(corr['correlation'])
-                name_array.append(corr['name'])
+                if corr['name'] == 'r':
+                    name_array.append(corr['name'])
+                else:
+                    name_array.append(corr['name'] + ':Rk(%s)' % Impact_Rank_Top_param[corr['name']]['Rk'])
             else:break
 
         ypos = np.arange(len(name_array))
@@ -75,9 +79,9 @@ def plotCorrelation(FitDiagnostics_file='', outputdir='', impacts_json = ''):
             tick.label.set_fontsize(10) 
         ax.invert_yaxis()
         ax.set_xlabel('Correlation')
-        ax.set_title('Correlation Ranking for %s' %paramInfo['Name'])
+        ax.set_title('Correlation Ranking for %s' %param[1]['Name'])
         
-        output = os.path.join(outputdir, 'ImpactRank%s_CorrelationFor-%s.png'%(idx+1,  paramInfo['Name']))
+        output = os.path.join(outputdir, 'ImpactRank%s_CorrelationFor-%s.png'%(param[1]['Rk'], param[1]['Name']))
         
         fig.savefig(output, dpi=100)
         print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(output))
