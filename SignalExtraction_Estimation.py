@@ -67,6 +67,7 @@ parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
 parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
+parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 args = parser.parse_args()
 
 '''
@@ -106,7 +107,8 @@ settings ={
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
     'prefix': args.prefix,
-    'GoF_Algorithm': args.GoF_Algorithm
+    'GoF_Algorithm': args.GoF_Algorithm,
+    'correlation': args.correlation
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
