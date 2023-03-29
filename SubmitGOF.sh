@@ -44,7 +44,7 @@ fi
 
 CWD=$(pwd)
 nToys=10000
-nJobs=50
+nJobs=20
 toysPerJob=$((nToys/nJobs))
 datacards=ttc_${COUPLING}_datacard_${YEAR}_SR_${CHANNEL}_${CHANNEL}_MA${MASS}.txt
 jobMode=condor
@@ -76,7 +76,7 @@ echo "=== Submit job for toys (`pwd`)"
 for (( t=1; t<=nJobs; t++ ))
 do
     echo "=== Submit Jobs for toys $t/$nJobs ==="
-    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${CHANNEL}.${MASS}.${ALGO} 
+    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${CHANNEL}.${MASS}.${ALGO} > dirname=SignalExtraction/${YEAR}/${CHANNEL}/${COUPLING}/${Higgs}/${MASS}/${subFolder_POSTFIX}/SubmitGoF.log 
 done
 
 if [[ $6 == "unblind" ]];then
