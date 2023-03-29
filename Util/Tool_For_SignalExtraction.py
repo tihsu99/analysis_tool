@@ -3,6 +3,7 @@ import sys
 import time
 import ROOT
 import json
+import matplotlib.pyplot as plt
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -11,7 +12,6 @@ from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
 import numpy as np
-from plotCorrelation import plotCorrelation 
 
 #from Util.OverlappingPlots import *
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
@@ -116,9 +116,13 @@ def FitDiagnostics(settings=dict()):
     
 
     if settings['unblind']:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes --plots -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
     else: 
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes --plots -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+    
+    if settings['correlation']:
+        command += ' --plots '
+        print('Correlation Matrix will be saved in the FitDiagnostics root file...')
 
     print(ts+command+ns)
     command = command + ' >& {Log_Path}'.format(Log_Path=Log_Path)
@@ -824,8 +828,101 @@ def plotCorrelationRanking(settings=dict()):
         pass
     else:
         settings['FitDiagnostics_file'] = settings['FitDiagnostics_file'].replace('fitDiagnostics', 'results/fitDiagnostics')
-    print(settings['FitDiagnostics_file'])
-    plotCorrelation(FitDiagnostics_file = settings['FitDiagnostics_file'], outputdir = outputdir, impacts_json = impacts_json)
+
+    inFile = ROOT.TFile.Open(settings['FitDiagnostics_file'] ,"READ")
+
+    Impact_Rank = 30
+    Corr_Rank= 15
+    CorrelationMatrix = inFile.Get('covariance_fit_s')
+
+    with open(impacts_json) as f:
+        data = json.load(f)
+
+    POIs = [ele['name'] for ele in data['POIs']]
+    POI = POIs[0]
+
+
+    Params = data['params']
+    print('Start to ranking impacts')
+    Params.sort(key = lambda x: abs(x['impact_%s' % POI]), reverse = True)
+
+
+    Impact_Rank_Top_param = dict()
+    for idx, param in enumerate(Params):
+        #if idx > Impact_Rank: break
+        paramInfo = dict()
+        paramInfo['Name'] = param['name']
+        paramInfo['bin'] = -1
+        paramInfo['Rk'] = idx+1
+        Impact_Rank_Top_param[param['name']] = paramInfo
+    print('Start to retrieve correlation information for nuisance')
+    Impact_Rank_Top_param_List = sorted(Impact_Rank_Top_param.items(), key = lambda x: x[1]['Rk'], reverse = True)
+    for idx, param in enumerate(Impact_Rank_Top_param_List):
+        for ibin in range(CorrelationMatrix.GetNbinsX() + 1):
+            if CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) == param[1]['Name']:
+                Impact_Rank_Top_param_List[idx][1]['bin'] = ibin+1
+                
+    print('Plotting')
+    for idx,param in enumerate(Impact_Rank_Top_param_List):
+        if param[1]['Name']  != 'jes' :continue
+        Correlation = []
+
+        for ibin in range(CorrelationMatrix.GetNbinsY()):
+            Info = {}
+            Info['name'] = CorrelationMatrix.GetYaxis().GetBinLabel(ibin+1) 
+            Info['correlation'] = CorrelationMatrix.GetBinContent(param[1]['bin'], ibin+1)
+            Correlation.append(Info)
+
+
+
+        Correlation.sort(key = lambda x: abs(x['correlation']), reverse = True)
+        #Correlation = Correlation[:Corr_Rank]
+        correlation_array = []
+        name_array = []
+        barh_color = []
+        counter = 0
+        for jdx, corr in enumerate(Correlation):
+            if counter < Corr_Rank:
+                if corr['name'] == param[1]['Name']:
+                    continue
+                correlation_array.append(corr['correlation'])
+                counter += 1
+                if corr['correlation'] > 0:
+                    barh_color.append('cornflowerblue')
+                else:
+                    barh_color.append('lightcoral')
+                if corr['name'] == 'r':
+                    name_array.append(corr['name'])
+                else:
+                    name_array.append(corr['name'] + ':Rk(%s)' % Impact_Rank_Top_param[corr['name']]['Rk'])
+            else:break
+
+        ypos = np.arange(len(name_array))
+        plt.rcdefaults()
+        fig, ax = plt.subplots()
+        plt.gcf().set_size_inches(8,6)
+        ax.barh(ypos, np.array(correlation_array), align = 'center', color = barh_color)
+        ax.set_yticks(ypos)
+        ax.set_xlim([-1, 1]) 
+        ax.set_yticklabels(name_array)
+        
+        ax.yaxis.grid(True, linestyle='--', which='major',
+                                   color='grey', alpha=.65)
+        ax.axvline(0, color='red', alpha=0.65)
+        for tick in ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(10) 
+        ax.invert_yaxis()
+        ax.set_xlabel('Correlation')
+        ax.set_title('Correlation Ranking for %s (rank: %d)' %(param[1]['Name'], param[1]['Rk']))
+        
+        output = os.path.join(outputdir, 'ImpactRank%s_CorrelationFor-%s.png'%(param[1]['Rk'], param[1]['Name']))
+        plt.tight_layout()  
+        fig.savefig(output, dpi=100)
+        fig.savefig(output.replace('.png','.pdf'), dpi=100)
+        print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(output))
+    
+
+
 
 def SubmitGOF(settings = dict()):
 
