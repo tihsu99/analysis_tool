@@ -402,7 +402,7 @@ Note: FitDiagnostics files and impact json are necessary in this step.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
 
 
--- Final Yield computation:
+# Final Yield computation:
 
 exmaple script is taken from combine central repo:
 
