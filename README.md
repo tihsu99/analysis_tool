@@ -388,8 +388,11 @@ python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coup
 
 
 -- Final Yield computation:
+
 exmaple script is taken from combine central repo:
+
 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/290b8260808891936aab06e5996f293a9f8954c3/test/mlfitNormsToText.py
+
 https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations
 
 For this we need fit_diagonatic root file
