@@ -385,6 +385,22 @@ Step8: Plot Impacts.  O(time) ~ 30 sec.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
+
+
+# Final Yield computation:
+
+exmaple script is taken from combine central repo:
+
+https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/290b8260808891936aab06e5996f293a9f8954c3/test/mlfitNormsToText.py
+
+https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations
+
+For this we need fit_diagonatic root file
+```
+cd Util/
+python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
+```
+
 # 6. Condor Jobs
 
 ## 6.1 Condor Jobs for limit plots
