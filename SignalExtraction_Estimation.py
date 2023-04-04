@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot 
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
 from Util.aux import *
 
 
@@ -43,7 +43,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
 
 
 parser = argparse.ArgumentParser()
