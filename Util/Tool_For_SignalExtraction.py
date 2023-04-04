@@ -3,6 +3,7 @@ import sys
 import time
 import ROOT
 import json
+import math
 import matplotlib.pyplot as plt
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
@@ -1147,3 +1148,159 @@ def GoFPlot(settings = dict()):
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
 
 
+def FinalYieldComputation(settings=dict()):
+    FitDiag_File = settings['FitDiagnostics_file']
+    
+    #if not CheckFile(FitDiag_File, False, False):
+    FitDiag_File = FitDiag_File.replace('fitDiagnostics', '/results/fitDiagnostics')
+    FinalYield_txt_file = os.path.join(settings['outputdir'] , 'results/FinalYield.txt')
+    output = os.path.join(settings['outputdir'], 'results')
+    command = "python ./Util/mlfitNormsToText.py {} --uncertainties -o {} > {} ".format(FitDiag_File, output, FinalYield_txt_file)
+
+
+    os.system(command)
+    
+    FinalYield_txt_file = open(FinalYield_txt_file, 'r')
+    
+    while True:
+        line = FinalYield_txt_file.readline()
+        if not line:
+            break
+        element = line.split(' ')
+        
+    
+    FinalYield_json = os.path.join(output, 'finalyield.json')
+
+    with open(FinalYield_json, 'r') as f:
+        FinalYield = json.load(f)
+    Yield = dict()
+    Yield['ee'] = dict()
+    Yield['em'] = dict()
+    Yield['mm'] = dict()
+    for year_channel in FinalYield.keys():
+        if 'ee' in year_channel:
+            channel = 'ee'
+        if 'em' in year_channel:
+            channel = 'em'
+        if 'mm' in year_channel:
+            channel = 'mm'
+        for category in FinalYield[year_channel].keys():
+            if Yield[channel].get(category, None) is None:
+                Yield[channel][category] = dict()
+            if Yield[channel][category].get('PreFit-Central', None) is None:
+                Yield[channel][category]['PreFit-Central'] = 0
+            if Yield[channel][category].get('PreFit-Error', None) is None:
+                Yield[channel][category]['PreFit-Error'] = 0
+            if Yield[channel][category].get('PostFit_s-Central', None) is None:
+                Yield[channel][category]['PostFit_s-Central'] = 0
+            if Yield[channel][category].get('PostFit_s-Error', None) is None:
+                Yield[channel][category]['PostFit_s-Error'] = 0
+            if Yield[channel][category].get('PostFit_b-Central', None) is None:
+                Yield[channel][category]['PostFit_b-Central'] = 0
+            if Yield[channel][category].get('PostFit_b-Error', None) is None:
+                Yield[channel][category]['PostFit_b-Error'] = 0
+
+
+            Yield[channel][category]['PreFit-Central'] += FinalYield[year_channel][category]['PreFit-Central']
+            diff = FinalYield[year_channel][category]['PreFit-Error']
+            Yield[channel][category]['PreFit-Error'] += diff
+
+            Yield[channel][category]['PostFit_b-Central'] += FinalYield[year_channel][category]['PostFit_b-Central']
+            diff = FinalYield[year_channel][category]['PostFit_b-Error']
+            Yield[channel][category]['PostFit_b-Error'] += diff 
+            
+            Yield[channel][category]['PostFit_s-Central'] += FinalYield[year_channel][category]['PostFit_s-Central']
+            diff = FinalYield[year_channel][category]['PostFit_s-Error']
+            Yield[channel][category]['PostFit_s-Error'] += diff
+    #print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(FinalYield_txt_file))
+    
+    for channel in Yield.keys():
+        for category in Yield[channel].keys():
+            Yield[channel][category]['PreFit-Error'] = math.sqrt(Yield[channel][category]['PreFit-Error'])
+            Yield[channel][category]['PostFit_s-Error'] = math.sqrt(Yield[channel][category]['PostFit_s-Error'])
+            Yield[channel][category]['PostFit_b-Error'] = math.sqrt(Yield[channel][category]['PostFit_b-Error'])
+    with open(FinalYield_json, 'w') as f:
+        json.dump(Yield, f, indent =4 )
+    
+
+    PostFixstr = ''
+    if settings['unblind']:
+        PostFixstr +='-unblind'
+    else:
+        PostFixstr += 'blind'
+    PostFixstr += "-" + settings['year']
+    PostFixstr += "-" + settings['channel']
+    PostFixstr += "-" + settings['coupling_value']
+    PostFixstr += "-mS" + settings['mass']
+    if settings['interference']:
+        PostFixstr +='-interference'
+    else:
+        PostFixstr += '-pure'
+
+
+    with open('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr), 'w') as f:
+        End = '\n'
+        f.write(r'\begin{table}[!htpb]'+End)
+        f.write(r'\label{tab:yields}'+End)
+        f.write(r'\begin{center}'+End)
+        f.write(r'\begin{tabular}{|l|l|l|l|}'+End)
+        f.write(r'\hline'+End)
+        f.write(r'process     &    Yield   (\Pe{}\Pe)     & Yield (\PGm{}\PGm)  &  Yield (\Pe{}\PGm) \\'+End)
+        f.write(r'\hline'+End)
+        
+        #for category in Yield[channel].keys():
+        #rank_category = sorted(Yield['ee'], Yield['ee']
+        
+        for channel in Yield.keys():
+            y = dict()
+            
+            for category in Yield[channel].keys():
+                y[category] = Yield[channel][category]['PreFit-Central']
+
+            y = dict(sorted(y.items(), key = lambda item: item[1] ))
+            break
+        category_byrank = y.keys()
+        
+        for category in category_byrank:
+            if 'TAToTTQ' in category:
+                continue
+            f.write(r'{}'.format(category))
+            for channel in Yield.keys():
+                f.write(r'& {:.1f} $\pm$ {:.1f} '.format(Yield[channel][category]['PreFit-Central'], Yield[channel][category]['PreFit-Error']))
+            f.write(r'\\'+End)
+
+        f.write(r'\hline'+End)
+        f.write(r'\end{tabular}'+End)
+        
+        if settings['year'] == 'run2':
+            YEAR = 'full Run 2'
+        if settings['channel'] == 'C':
+            CHANNEL = r'\Pe{}\Pe, \PGm{}\PGm and \Pe{}\PGm'
+        elif settings['channel'] == 'ee':
+            CHANNEL = r'\Pe{}\Pe'
+        elif settings['channel'] == 'em':
+            CHANNEL = r'\Pe{}\Pm'
+        elif settings['channel'] == 'mm':
+            CHANNEL = r'\Pm{}\Pm'
+
+        CHANNEL+= " decay channel"
+        if settings['interference']:
+            INTERFERENCE = 'with H-A interference($\Vert m_{H} - m_{A} \Vert = 50$ GeV)'
+        else:
+            INTERFERENCE = '(pure)'
+        if settings['coupling_value']:
+            if 'rtu' in settings['coupling_value']:
+                cp = 'rtu'
+                COUPLING = r'$\rho_{tu}'
+            elif 'rtc' in settings['coupling_value']:
+                cp = 'rtc'
+                COUPLING = r'$\rho_{tc}'
+
+            COUPLING += ' = ' + str(float(settings['coupling_value'].split(cp)[1]) * 0.1) + ' $ '
+            
+            #print(float(cp_value[1])*0.1)
+        f.write(r'\caption{Yield table for '+CHANNEL + 'for ' + YEAR + ' with '+ COUPLING+ ' for ' + r' $m_{S} = ' + settings['mass'] + ' GeV$ {INTERFERENCE} }}'.format(INTERFERENCE = INTERFERENCE) + End)
+        f.write(r'\end{center}'+End)
+        f.write(r'\end{table}'+End)
+    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr)))
+    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(os.path.join(output, 'finalyield.json')))
