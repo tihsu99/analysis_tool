@@ -92,7 +92,6 @@ while True:
             Yield[m.group(1)][m.group(2)] = dict()
 
         Yield[m.group(1)][m.group(2)]['PreFit-Central'] = norm_p.getVal()
-
         Yield[m.group(1)][m.group(2)]['PostFit_s-Central'] = norm_s.getVal()
         Yield[m.group(1)][m.group(2)]['PostFit_b-Central'] = norm_b.getVal()
         Yield[m.group(1)][m.group(2)]['PreFit-Error'] = norm_p.getError()
