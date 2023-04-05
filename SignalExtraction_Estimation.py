@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
 from Util.aux import *
 
 
@@ -43,7 +43,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
 
 
 parser = argparse.ArgumentParser()
@@ -66,7 +66,9 @@ parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', de
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
-
+parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
+parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
+parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
 args = parser.parse_args()
 
 '''
@@ -105,7 +107,10 @@ settings ={
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
-    'prefix': args.prefix
+    'prefix': args.prefix,
+    'GoF_Algorithm': args.GoF_Algorithm,
+    'correlation': args.correlation,
+    'saveNormalizations': args.saveNormalizations
 }
 
 if args.mode =='preFitPlot' or args.mode =='postFitPlot':
@@ -117,7 +122,6 @@ elif args.mode=='ResultsCopy':
 
 MODE = eval(args.mode) 
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
-
 
 
     

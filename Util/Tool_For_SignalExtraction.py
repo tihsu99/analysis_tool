@@ -3,6 +3,8 @@ import sys
 import time
 import ROOT
 import json
+import math
+import matplotlib.pyplot as plt
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -11,7 +13,6 @@ from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
 import numpy as np
-
 
 #from Util.OverlappingPlots import *
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
@@ -119,6 +120,10 @@ def FitDiagnostics(settings=dict()):
         command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
     else: 
         command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+    
+    if settings['correlation']:
+        command += ' --plots '
+        print('Correlation Matrix will be saved in the FitDiagnostics root file...')
 
     print(ts+command+ns)
     command = command + ' >& {Log_Path}'.format(Log_Path=Log_Path)
@@ -242,7 +247,7 @@ def Plot_Impacts(settings=dict()):
     command += ' >> {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
     
-    print("\n\033[0;31mTransforming 'pdf' to 'pdg'...\033[0;m")
+    print("\n\033[0;31mTransforming 'pdf' to 'png'...\033[0;m")
     command = 'pdftoppm {impacts_json_prefix}.pdf {impacts_json_prefix} -png -rx 300 -ry 300'.format(impacts_json_prefix= settings['impacts_json'].replace(".json",""))
     print("\n\033[0;35m"+command+"\n"+"\033[0;m")
     
@@ -815,4 +820,487 @@ def DrawNLL(settings=dict()):
     os.system(command)
   else:
     print("Do not have blind option now")
+def plotCorrelationRanking(settings=dict()):
 
+    outputdir = os.path.join(settings['outputdir'], 'results')
+    impacts_json = os.path.join(settings['outputdir'], settings['impacts_json'])
+    
+    if CheckFile(settings['FitDiagnostics_file'], False, False):
+        pass
+    else:
+        settings['FitDiagnostics_file'] = settings['FitDiagnostics_file'].replace('fitDiagnostics', 'results/fitDiagnostics')
+
+    inFile = ROOT.TFile.Open(settings['FitDiagnostics_file'] ,"READ")
+
+    Impact_Rank = 30
+    Corr_Rank= 15
+    CorrelationMatrix = inFile.Get('covariance_fit_s')
+
+    with open(impacts_json) as f:
+        data = json.load(f)
+
+    POIs = [ele['name'] for ele in data['POIs']]
+    POI = POIs[0]
+
+
+    Params = data['params']
+    print('Start to ranking impacts')
+    Params.sort(key = lambda x: abs(x['impact_%s' % POI]), reverse = True)
+
+
+    Impact_Rank_Top_param = dict()
+    for idx, param in enumerate(Params):
+        #if idx > Impact_Rank: break
+        paramInfo = dict()
+        paramInfo['Name'] = param['name']
+        paramInfo['bin'] = -1
+        paramInfo['Rk'] = idx+1
+        Impact_Rank_Top_param[param['name']] = paramInfo
+    print('Start to retrieve correlation information for nuisance')
+    Impact_Rank_Top_param_List = sorted(Impact_Rank_Top_param.items(), key = lambda x: x[1]['Rk'], reverse = True)
+    for idx, param in enumerate(Impact_Rank_Top_param_List):
+        for ibin in range(CorrelationMatrix.GetNbinsX() + 1):
+            if CorrelationMatrix.GetXaxis().GetBinLabel(ibin+1) == param[1]['Name']:
+                Impact_Rank_Top_param_List[idx][1]['bin'] = ibin+1
+                
+    print('Plotting')
+    for idx,param in enumerate(Impact_Rank_Top_param_List):
+        if param[1]['Name']  != 'jes' :continue
+        Correlation = []
+
+        for ibin in range(CorrelationMatrix.GetNbinsY()):
+            Info = {}
+            Info['name'] = CorrelationMatrix.GetYaxis().GetBinLabel(ibin+1) 
+            Info['correlation'] = CorrelationMatrix.GetBinContent(param[1]['bin'], ibin+1)
+            Correlation.append(Info)
+
+
+
+        Correlation.sort(key = lambda x: abs(x['correlation']), reverse = True)
+        #Correlation = Correlation[:Corr_Rank]
+        correlation_array = []
+        name_array = []
+        barh_color = []
+        counter = 0
+        for jdx, corr in enumerate(Correlation):
+            if counter < Corr_Rank:
+                if corr['name'] == param[1]['Name']:
+                    continue
+                correlation_array.append(corr['correlation'])
+                counter += 1
+                if corr['correlation'] > 0:
+                    barh_color.append('cornflowerblue')
+                else:
+                    barh_color.append('lightcoral')
+                if corr['name'] == 'r':
+                    name_array.append(corr['name'])
+                else:
+                    name_array.append(corr['name'] + ':Rk(%s)' % Impact_Rank_Top_param[corr['name']]['Rk'])
+            else:break
+
+        ypos = np.arange(len(name_array))
+        plt.rcdefaults()
+        fig, ax = plt.subplots()
+        plt.gcf().set_size_inches(8,6)
+        ax.barh(ypos, np.array(correlation_array), align = 'center', color = barh_color)
+        ax.set_yticks(ypos)
+        ax.set_xlim([-1, 1]) 
+        ax.set_yticklabels(name_array)
+        
+        ax.yaxis.grid(True, linestyle='--', which='major',
+                                   color='grey', alpha=.65)
+        ax.axvline(0, color='red', alpha=0.65)
+        for tick in ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(10) 
+        ax.invert_yaxis()
+        ax.set_xlabel('Correlation')
+        ax.set_title('Correlation Ranking for %s (rank: %d)' %(param[1]['Name'], param[1]['Rk']))
+        
+        output = os.path.join(outputdir, 'ImpactRank%s_CorrelationFor-%s.png'%(param[1]['Rk'], param[1]['Name']))
+        plt.tight_layout()  
+        fig.savefig(output, dpi=100)
+        fig.savefig(output.replace('.png','.pdf'), dpi=100)
+        print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(output))
+    
+
+
+
+def SubmitGOF(settings = dict()):
+
+    command = "./SubmitGOF.sh {algo} {year} {channel} {coupling} {mass} ".format(algo = settings['GoF_Algorithm'], year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], mass = settings['mass'])
+
+    if settings['unblind']:
+        command += ' unblind'
+    else:
+        if settings['expectSignal']:
+            command += ' sig_bkg'
+        else:
+            command += ' bkg'
+
+    if settings['interference']:
+        
+        command += ' interference'
+
+    else:
+        command += ' pure'
+    
+
+    print(ts+command+ns)
+    
+    os.system(command)
+
+    
+def GoFPlot(settings = dict()):
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gROOT.SetBatch(1)
+    algo = settings['GoF_Algorithm']
+
+    os.chdir("{outputdir}/results".format(outputdir=settings['outputdir']))
+    print('Processing {algo} algorithm...'.format(algo = algo))
+
+    analysis = "ExtraYukawa"
+    OutputFile = 'GoF_{algo}_{coupling_value}_{year}_{channel}_mH{mass}.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    rootToysFiles = 'higgsCombinetoys*.{coupling_value}.{year}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.*.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
+    rootDataFiles = 'higgsCombineData.{coupling_value}.{year}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
+    CheckFile(OutputFile, True, True) 
+    if len(rootToysFiles) > 0:
+        print('Merging \"{rootToysFiles}\" ROOT files into\"{OutputFile}\"'.format(OutputFile = OutputFile, rootToysFiles = rootToysFiles))
+        os.system('hadd -k {OutputFile} {rootFiles} > mergeROOT.txt'.format(OutputFile = OutputFile, rootFiles = rootToysFiles))
+    else:
+        print('Found {nrootFiles} toy ROOT files to merge'.format(nrootFiles = len(rootToysFiles)))
+        raise Exception('')
+
+    if CheckFile(OutputFile, False, True):
+        print('Opening merged ROOT file \"{OutputFile}\"'.format(OutputFile = OutputFile))
+    else:
+        print('The output ROOT file  \"{OutputFile}\" does not exist.'.format(OutputFile = OutputFile))
+    if CheckFile(rootDataFiles, False, True):pass
+    else:
+        print('Please check whether {rootDataFiles} {outputdir}/results'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir']))
+    
+    fToys = ROOT.TFile(OutputFile)
+    if settings['unblind']:
+        fData = ROOT.TFile(rootDataFiles)
+    else:
+        fData = ROOT.TFile(OutputFile)
+    tToys = fToys.Get("limit")
+    tData = fData.Get("limit")
+    nToys = tToys.GetEntries()
+
+    print('NData = {:.1f}, NToys = {:.1f}'.format(tData.GetEntries(), tToys.GetEntries()))
+    tData.GetEntry(0)
+    GoF_DATA = tData.limit
+
+    print(GoF_DATA)
+
+    ### Setting(Toys) ###
+    GoF_TOYS_TOT = 0
+    pval_cum = 0
+    toys     = []
+    minToy   = +99999999
+    maxToy   = -99999999
+    settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_SR_{channel}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    with open(settings['Log_Path'], 'w') as f:
+        for i in range(0, tToys.GetEntries()):
+            tToys.GetEntry(i)
+            GoF_TOYS_TOT += tToys.limit
+            toys.append(tToys.limit)
+            
+            # Accumulate p-Value if GoF_toy > GoF_data
+            if tToys.limit > GoF_DATA:
+                f.write("GoF (toy) = {:.3f}, GoF (data) = {:.3f}, p-Value += {} ({})\n".format(tToys.limit, GoF_DATA, tToys.limit, pval_cum))
+                pval_cum += tToys.limit 
+    settings['Log_Path'] = os.path.join('{outputdir}/results'.format(outputdir = settings['outputdir']), settings['Log_Path'])
+    
+    pval = pval_cum/GoF_TOYS_TOT
+    msg = "p-Value = {:.3f} (= {:.2f}/{:.2f})".format(pval, pval_cum, GoF_TOYS_TOT)
+
+    nBins = 100
+    xMax = {}
+    xMax["saturated"] = 2000
+    xMax["KS"] = 2000.0
+    xMax["AD"] = 200.0
+    xMin = dict()
+    xMin["saturated"] = 0
+    xMin["KS"] = 0.0
+    xMin["AD"] = 0.0
+    binWidth = dict()
+    binWidth['saturated'] = 5
+    binWidth['KS'] = 0.002
+    binWidth['AD'] = 0.2
+    nBins = (xMax[algo]-xMin[algo])/binWidth[algo]
+
+    hist = ROOT.TH1D("GoF-{}".format(algo), "", int(nBins), xMin[algo], xMax[algo])
+
+    for k in toys:
+        hist.Fill(k)
+    xMin  = hist.GetBinLowEdge(hist.FindFirstBinAbove(0.0))*0.25
+    xMax  = hist.GetBinLowEdge(hist.FindLastBinAbove(0.0))*1.75 
+    yMin  = 0.0
+    yMax  = hist.GetMaximum()*1.05
+
+    c = ROOT.TCanvas('c', 'c')
+    
+    binW = hist.GetBinWidth(0)
+    if binW >= 5.0:
+        yTitle = "Entries / {:.1f}".format(binW)
+    elif binW >= 0.1:
+        yTitle = "Entries / {:.2f}".format(binW)
+    elif binW >= 0.01:
+        yTitle = "Entries / {:.3f}".format(binW)
+    else:
+        yTitle = "Entries / {:.4f}".format(binW)
+    
+    hist.GetYaxis().SetTitle(yTitle) # bin width does not change
+    hist.GetXaxis().SetTitle("test-statistic t")
+    hist.GetXaxis().SetTitle("test-statistic t")
+    hist.SetLineColorAlpha(ROOT.kRed, 0.4)
+    hist.SetLineWidth(3)
+
+    
+    hist.GetXaxis().SetRangeUser(xMin, xMax)
+    hist.GetYaxis().SetRangeUser(yMin, yMax)
+
+    hist.GetYaxis().SetTitleOffset(1.30)
+
+
+    hist.Draw()
+    # Duplicate histogram for filling only part which is above GoF_DATA    
+    hCum = hist.Clone("Cumulative")
+    for b in range(0, hCum.GetNbinsX()):
+        if b < hCum.FindBin(GoF_DATA):
+            hCum.SetBinContent(b + 1 , 0)
+    hCum.SetLineWidth(0)
+    hCum.SetFillColorAlpha(ROOT.kBlue - 6, 0.35) #kLightRed)
+    hCum.SetFillStyle(1001)
+    hCum.Draw("same")
+    hist.Draw("same") # re-draw to get line
+
+    # Customise arrow indicating data-observed
+    tZeroX = hist.GetBinLowEdge(hist.FindBin(GoF_DATA)) # GoF_DATA
+    if hist.GetBinContent(hist.FindBin(GoF_DATA)) > 0.0:
+        tZeroY = hist.GetBinContent(hist.FindBin(GoF_DATA))*0.25
+    else:
+        tZeroY = hist.GetMaximum()/5
+
+    
+    
+    
+    arr = ROOT.TArrow(GoF_DATA, 0.0001, GoF_DATA, hist.GetMaximum()/8, 0.02, "<|")
+    arr.SetLineColor(ROOT.kBlue + 3)
+    arr.SetFillColor(ROOT.kBlue + 3)
+    arr.SetFillStyle(1001)
+    arr.SetLineWidth(3)
+    arr.SetLineStyle(1)
+    arr.SetAngle(60)
+    arr.Draw("<|same")
+
+    # Add data observed value
+    left = ROOT.TLatex()
+    #left.SetNDC()
+    left.SetTextFont(43)
+    left.SetTextSize(22)
+    left.SetTextAlign(11)
+    if GoF_DATA < 1.0:
+        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.2f}" % (GoF_DATA))
+    elif GoF_DATA < 10.0:
+        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.1f}" % (GoF_DATA))
+    else:
+        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.0f}" % (GoF_DATA))
+
+
+    anaText = ROOT.TLatex()
+    anaText.SetNDC()
+    anaText.SetTextFont(43)
+    anaText.SetTextSize(22)
+    anaText.SetTextAlign(31) 
+    anaText.DrawLatex(0.92, 0.86, analysis)
+
+    # p-value
+    pvalText = ROOT.TLatex()
+    pvalText.SetNDC()
+    pvalText.SetTextFont(43)
+    pvalText.SetTextSize(22)
+    pvalText.SetTextAlign(31) #11
+    pvalText.DrawLatex(0.92, 0.80, "# toys: %d" % nToys)
+    pvalText.DrawLatex(0.92, 0.74, "p-value: %.2f" % pval)
+    
+    import CMS_lumi
+    CMS_lumi.writeExtraText = 1
+    CMS_lumi.extraText = "Internal"
+    CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+    iPos = 11
+    if( iPos==0 ): CMS_lumi.relPosX = 0.12
+    iPeriod = settings['year']
+
+    CMS_lumi.CMS_lumi(c, iPeriod, iPos)
+
+
+
+    plotname = 'GoF_{algo}.{coupling_value}.{year}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+
+    c.Update()
+    c.SaveAs(plotname)
+    c.SaveAs(plotname.replace('.pdf', '.png'))
+    plotname = os.path.join(settings['outputdir']+'/results', plotname) 
+    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
+    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
+
+
+def FinalYieldComputation(settings=dict()):
+    FitDiag_File = settings['FitDiagnostics_file']
+    
+    #if not CheckFile(FitDiag_File, False, False):
+    FitDiag_File = FitDiag_File.replace('fitDiagnostics', '/results/fitDiagnostics')
+    FinalYield_txt_file = os.path.join(settings['outputdir'] , 'results/FinalYield.txt')
+    output = os.path.join(settings['outputdir'], 'results')
+    command = "python ./Util/mlfitNormsToText.py {} --uncertainties -o {} > {} ".format(FitDiag_File, output, FinalYield_txt_file)
+
+
+    os.system(command)
+    
+    FinalYield_txt_file = open(FinalYield_txt_file, 'r')
+    
+    while True:
+        line = FinalYield_txt_file.readline()
+        if not line:
+            break
+        element = line.split(' ')
+        
+    
+    FinalYield_json = os.path.join(output, 'finalyield.json')
+
+    with open(FinalYield_json, 'r') as f:
+        FinalYield = json.load(f)
+    Yield = dict()
+    Yield['ee'] = dict()
+    Yield['em'] = dict()
+    Yield['mm'] = dict()
+    for year_channel in FinalYield.keys():
+        if 'ee' in year_channel:
+            channel = 'ee'
+        if 'em' in year_channel:
+            channel = 'em'
+        if 'mm' in year_channel:
+            channel = 'mm'
+        for category in FinalYield[year_channel].keys():
+            if Yield[channel].get(category, None) is None:
+                Yield[channel][category] = dict()
+            if Yield[channel][category].get('PreFit-Central', None) is None:
+                Yield[channel][category]['PreFit-Central'] = 0
+            if Yield[channel][category].get('PreFit-Error', None) is None:
+                Yield[channel][category]['PreFit-Error'] = 0
+            if Yield[channel][category].get('PostFit_s-Central', None) is None:
+                Yield[channel][category]['PostFit_s-Central'] = 0
+            if Yield[channel][category].get('PostFit_s-Error', None) is None:
+                Yield[channel][category]['PostFit_s-Error'] = 0
+            if Yield[channel][category].get('PostFit_b-Central', None) is None:
+                Yield[channel][category]['PostFit_b-Central'] = 0
+            if Yield[channel][category].get('PostFit_b-Error', None) is None:
+                Yield[channel][category]['PostFit_b-Error'] = 0
+
+
+            Yield[channel][category]['PreFit-Central'] += FinalYield[year_channel][category]['PreFit-Central']
+            diff = FinalYield[year_channel][category]['PreFit-Error']
+            Yield[channel][category]['PreFit-Error'] += diff
+
+            Yield[channel][category]['PostFit_b-Central'] += FinalYield[year_channel][category]['PostFit_b-Central']
+            diff = FinalYield[year_channel][category]['PostFit_b-Error']
+            Yield[channel][category]['PostFit_b-Error'] += diff 
+            
+            Yield[channel][category]['PostFit_s-Central'] += FinalYield[year_channel][category]['PostFit_s-Central']
+            diff = FinalYield[year_channel][category]['PostFit_s-Error']
+            Yield[channel][category]['PostFit_s-Error'] += diff
+    #print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(FinalYield_txt_file))
+    
+    for channel in Yield.keys():
+        for category in Yield[channel].keys():
+            Yield[channel][category]['PreFit-Error'] = math.sqrt(Yield[channel][category]['PreFit-Error'])
+            Yield[channel][category]['PostFit_s-Error'] = math.sqrt(Yield[channel][category]['PostFit_s-Error'])
+            Yield[channel][category]['PostFit_b-Error'] = math.sqrt(Yield[channel][category]['PostFit_b-Error'])
+    with open(FinalYield_json, 'w') as f:
+        json.dump(Yield, f, indent =4 )
+    
+
+    PostFixstr = ''
+    if settings['unblind']:
+        PostFixstr +='-unblind'
+    else:
+        PostFixstr += 'blind'
+    PostFixstr += "-" + settings['year']
+    PostFixstr += "-" + settings['channel']
+    PostFixstr += "-" + settings['coupling_value']
+    PostFixstr += "-mS" + settings['mass']
+    if settings['interference']:
+        PostFixstr +='-interference'
+    else:
+        PostFixstr += '-pure'
+
+
+    with open('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr), 'w') as f:
+        End = '\n'
+        f.write(r'\begin{table}[!htpb]'+End)
+        f.write(r'\label{tab:yields}'+End)
+        f.write(r'\begin{center}'+End)
+        f.write(r'\begin{tabular}{|l|l|l|l|}'+End)
+        f.write(r'\hline'+End)
+        f.write(r'process     &    Yield   (\Pe{}\Pe)     & Yield (\PGm{}\PGm)  &  Yield (\Pe{}\PGm) \\'+End)
+        f.write(r'\hline'+End)
+        
+        #for category in Yield[channel].keys():
+        #rank_category = sorted(Yield['ee'], Yield['ee']
+        
+        for channel in Yield.keys():
+            y = dict()
+            
+            for category in Yield[channel].keys():
+                y[category] = Yield[channel][category]['PreFit-Central']
+
+            y = dict(sorted(y.items(), key = lambda item: item[1] ))
+            break
+        category_byrank = y.keys()
+        
+        for category in category_byrank:
+            if 'TAToTTQ' in category:
+                continue
+            f.write(r'{}'.format(category))
+            for channel in Yield.keys():
+                f.write(r'& {:.1f} $\pm$ {:.1f} '.format(Yield[channel][category]['PreFit-Central'], Yield[channel][category]['PreFit-Error']))
+            f.write(r'\\'+End)
+
+        f.write(r'\hline'+End)
+        f.write(r'\end{tabular}'+End)
+        
+        if settings['year'] == 'run2':
+            YEAR = 'full Run 2'
+        if settings['channel'] == 'C':
+            CHANNEL = r'\Pe{}\Pe, \PGm{}\PGm and \Pe{}\PGm'
+        elif settings['channel'] == 'ee':
+            CHANNEL = r'\Pe{}\Pe'
+        elif settings['channel'] == 'em':
+            CHANNEL = r'\Pe{}\Pm'
+        elif settings['channel'] == 'mm':
+            CHANNEL = r'\Pm{}\Pm'
+
+        CHANNEL+= " decay channel"
+        if settings['interference']:
+            INTERFERENCE = 'with H-A interference($\Vert m_{H} - m_{A} \Vert = 50$ GeV)'
+        else:
+            INTERFERENCE = '(pure)'
+        if settings['coupling_value']:
+            if 'rtu' in settings['coupling_value']:
+                cp = 'rtu'
+                COUPLING = r'$\rho_{tu}'
+            elif 'rtc' in settings['coupling_value']:
+                cp = 'rtc'
+                COUPLING = r'$\rho_{tc}'
+
+            COUPLING += ' = ' + str(float(settings['coupling_value'].split(cp)[1]) * 0.1) + ' $ '
+            
+            #print(float(cp_value[1])*0.1)
+        f.write(r'\caption{Yield table for '+CHANNEL + 'for ' + YEAR + ' with '+ COUPLING+ ' for ' + r' $m_{S} = ' + settings['mass'] + ' GeV$ {INTERFERENCE} }}'.format(INTERFERENCE = INTERFERENCE) + End)
+        f.write(r'\end{center}'+End)
+        f.write(r'\end{table}'+End)
+    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr)))
+    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(os.path.join(output, 'finalyield.json')))
