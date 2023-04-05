@@ -400,22 +400,6 @@ Note: FitDiagnostics files and impact json are necessary in this step.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
 
-Step9 : Goodness of Test 
-Firstly, you need to submit the jobs to condor for 50 toys for GoF
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitGOF --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
-```
-Then, after all the jobs are completed, you can plot it with
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode GoFPlot --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
-```
-
-Step 10: plotCorrelation
-Currently, only the correlated uncertainties to JES are plotted (Under development)
-Note: FitDiagnostics files and impact json are necessary in this step.
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
-
 
 # Final Yield computation:
 
