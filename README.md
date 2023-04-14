@@ -405,7 +405,7 @@ Currently, only the correlated uncertainties to JES are plotted (Under developme
 Note: FitDiagnostics files and impact json are necessary in this step.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
-
+```
 
 # Final Yield computation:
 
@@ -432,6 +432,7 @@ For this we need fit_diagonatic root file
 ```
 cd Util/
 python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
+```
 Step9 : Goodness of Test 
 Firstly, you need to submit the jobs to condor for 50 toys for GoF
 ```
