@@ -345,14 +345,20 @@ Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
 ```
 
+Step3 -> FinalYieldComputation.
+After this, you will have latex table with yields value (and error values) for each background.
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FinalYieldComputation --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+```
+
 Step3 -> preFit distribution. O(time) ~ 1 sec 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio]
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio]
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
