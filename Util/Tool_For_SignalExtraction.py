@@ -798,6 +798,11 @@ def DrawNLL(settings=dict()):
   os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
   os.chdir(settings['outputdir'])
   workspace_root = os.path.basename(settings['workspace_root'])
+
+  # safety check:
+  if not os.path.isfile(workspace_root):
+      raise Exception("First run: --mode datacard2workspace step")
+
   Log_Path = os.path.basename(settings['Log_Path'])
   commands = []
   rMin = -4
@@ -810,6 +815,7 @@ def DrawNLL(settings=dict()):
     commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
     commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
     commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
+
     for i in range(len(commands)):
       print(ts+commands[i]+ns)
       if i == 0:
