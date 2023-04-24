@@ -305,7 +305,7 @@ def PlotShape(settings=dict()):
             h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
             nbin = h_postfix.GetNbinsX()
             
-            for ibin in range(nbin+2):
+            for ibin in range(nbin):
                 h_postfix.SetBinContent(ibin+1,h.GetBinContent(ibin+1)) # Modify the x-axis value
                 if category == 'data_obs':
                     error   = h.GetBinError(ibin+1) # just symmetrical error
