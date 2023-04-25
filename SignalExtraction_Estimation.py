@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts,postFitPlot,preFitPlot,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
 from Util.aux import *
 
 
@@ -43,7 +43,7 @@ for coupling in ['rtc','rtu','rtt']:
         coupling_value_choices.append(coupling+value)
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','postFitPlot','preFitPlot','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
 
 
 parser = argparse.ArgumentParser()
@@ -69,6 +69,7 @@ parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plot
 parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
 parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
+parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit', 'postFit'], type = str, default = None)
 args = parser.parse_args()
 
 '''
@@ -110,10 +111,11 @@ settings ={
     'prefix': args.prefix,
     'GoF_Algorithm': args.GoF_Algorithm,
     'correlation': args.correlation,
-    'saveNormalizations': args.saveNormalizations
+    'saveNormalizations': args.saveNormalizations,
+    'shape_type': args.shape_type
 }
 
-if args.mode =='preFitPlot' or args.mode =='postFitPlot':
+if args.mode =='PlotShape':
     settings['text_y'] = float(args.text_y)
     settings['logy'] = args.logy
     settings['plotRatio'] = ((args.plotRatio) and args.unblind)
