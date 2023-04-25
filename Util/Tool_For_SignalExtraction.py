@@ -1013,7 +1013,10 @@ def FinalYieldComputation(settings=dict()):
     for first_level in FileIn.GetListOfKeys():
         first_level_name = first_level.GetName()
         print('In Dir: {}'.format(first_level_name))
-        channel,Type = first_level_name.split('_')
+        if settings['year'] == "run2":
+            year,channel,Type = first_level_name.split('_')
+        else:
+            channel,Type = first_level_name.split('_')
         for second_level in FileIn.Get(first_level_name).GetListOfKeys():
             process_name = second_level.GetName()
             
