@@ -13,7 +13,7 @@ from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
 import numpy as np
-
+import ctypes
 #from Util.OverlappingPlots import *
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
@@ -73,14 +73,13 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['Log_Path'] = os.path.join(settings['outputdir'],Log_Path)
     settings['workspace_root'] = os.path.join(settings['outputdir'],workspace_root)
     settings['datacards'] = os.path.join(settings['WorkDir'],datacards)
-    settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],FitDiagnostics_file)
+    settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],'results/'+FitDiagnostics_file)
     settings['diffNuisances_File'] = diffNuisances_File 
     settings['impacts_json'] = impacts_json
-    settings['postFitPlot'] = 'results/postFit_{}'.format(settings['channel'])
-    settings['preFitPlot'] = 'results/preFit_{}'.format(settings['channel'])
+    settings['shapePlot'] = 'results/{}_{}'.format(settings['shape_type'],settings['channel'])
     settings['plotNLLcode'] = os.path.join(settings['WorkDir'],'../../CombineHarvester/CombineTools/scripts/plot1DScan.py')
 
-    if mode == 'postFitPlot' or mode == "preFitPlot" or mode == "PlotPulls" or mode=="Plot_Impacts" or mode =="ResultsCopy":
+    if mode == 'PlotShape' or mode == "PlotPulls" or mode=="Plot_Impacts" or mode =="ResultsCopy":
         MODE(settings=settings)
         if mode == "PlotPulls" or mode =="Plot_Impacts" or mode=="ResultsCopy": 
             pass
@@ -124,7 +123,10 @@ def FitDiagnostics(settings=dict()):
     if settings['correlation']:
         command += ' --plots '
         print('Correlation Matrix will be saved in the FitDiagnostics root file...')
-
+    
+    if settings['saveNormalizations']:
+        command += ' --saveNormalizations '
+        print('[saveNormalizations] is applied in the FigDiagnostics stage ')
     print(ts+command+ns)
     command = command + ' >& {Log_Path}'.format(Log_Path=Log_Path)
     os.system(command)
@@ -132,6 +134,7 @@ def FitDiagnostics(settings=dict()):
 
     #os.system('mv {FitDiagnostics_file} {outputdir}'.format(FitDiagnostics_file=FitDiagnostics_file,outputdir=settings['outputdir']))
     
+    os.system('mv ./fitDiagnostics* ./results')
     FitDiagnostics_file = settings['FitDiagnostics_file']
     
     print("A new FitDiagnostics file: \033[0;32m\033[4m{}\033[0;m is created! \n".format(FitDiagnostics_file))
@@ -256,116 +259,83 @@ def Plot_Impacts(settings=dict()):
     print("\033[1;33m* Please check \033[4m{impacts_json_prefix}.pdf\033[0;m".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json'].replace(".json",""))))
     print("\033[1;33m* Your impact json file is : \033[4m{impacts_json_prefix}\033[0;m".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json']))) 
 
-def postFitPlot(settings=dict()):
-    figDiagnostics_File = settings['FitDiagnostics_file']
-    if CheckFile(figDiagnostics_File,False,False):pass
+def PlotShape(settings=dict()):
+    outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    if CheckFile(outputFile,False,False):pass
     else:
-        FitDiagnostics_file_1 = 'results/fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
-        figDiagnostics_File = os.path.join(settings['outputdir'],FitDiagnostics_file_1)
-        if CheckFile(figDiagnostics_File,False,False):pass
-        else: raise ValueError('\033[0;31mCheck :{figDiagnostics_File} exists or not. Otherwise you should go back to [FigDiagnostics_File] stage.'.format(figDiagnostics_File=figDiagnostics_File))
+        raise ValueError('\033[0;31mCheck :{outputFile} exists or not.'.format(outputFile = outputFile))
 
 
 
-    SampleName_File = "./data_info/Sample_Names/process_name_2018.json"
-    with open(SampleName_File,'r') as f:
-        Sample_Names = json.load(f).keys()
-    Histogram = dict()
+
+    FileIn = ROOT.TFile(outputFile,"READ")
     Histogram_Names = []
-    for Sample_Name in Sample_Names:
-        Histogram_Names.append(str(Sample_Name))
-    if settings['unblind']:
-        Histogram_Names.append('data')
-
-    fin = ROOT.TFile(figDiagnostics_File,"READ")
+    for first_level in FileIn.GetListOfKeys():
+        first_level_name = first_level.GetName()
+        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+            category = second_level.GetName() 
+            if category == 'data_obs': category = 'Data'
+            Histogram_Names.append(category)
+        break
     
-    if settings['expectSignal'] or settings['unblind']:
-        first_dir = 'shapes_fit_s'
-        if not settings['interference']:
-            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-        else:
-            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
-    else:
-        first_dir = 'shapes_fit_b'
-
     
-    second_dirs = []
-    if settings['channel'] != 'C' and settings['year'] !='run2':
-        second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
-    elif settings['channel'] =='C' and settings['year'] != 'run2':
-        second_dirs = ['/ee/','/em/','/mm/']
-    elif settings['year'] == 'run2' and settings['channel'] != 'C':
-        for year in ['/year2016apv/','/year2016postapv/','/year2017/','/year2018/']:
-            second_dirs.append(year)
-    elif settings['year'] =='run2' and settings['channel'] =='C':
-        for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
-            for channel in ['ee/','em/','mm/']:
-                second_dirs.append(year+'_'+channel)
-    
+    Histogram = dict()
     Integral= dict()
+
+    for category in Histogram_Names:
+        if ('TotalSig' in category) or  ('TotalProcs' in category):continue
+        if category == 'data_obs': category = 'Data'
+        Histogram[category] = ROOT.TH1F(category, '', len(binning) - 1, binning) 
+        Integral[category] = 0
+    
     Maximum = -1
     Histogram_Registered = False 
+    for first_level in FileIn.GetListOfKeys():
+        first_level_name = first_level.GetName()
+        if not(settings['shape_type'].lower() in first_level_name) : 
+            continue
+        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+            category = second_level.GetName()
+            fpath = first_level_name+'/'+category
+            
+            if (category =='TotalSig') or  (category == 'TotalProcs'):continue
+            h = FileIn.Get(fpath).Clone()
+            if type(h) != ROOT.TH1F: raise TypeError('No such Histogram in file: {}'.format(fpath))
+            
+            h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
+            nbin = h_postfix.GetNbinsX()
+            
+            for ibin in range(nbin):
+                h_postfix.SetBinContent(ibin+1,h.GetBinContent(ibin+1)) # Modify the x-axis value
+                if category == 'data_obs':
+                    error   = h.GetBinError(ibin+1) # just symmetrical error
+                    h_postfix.SetBinError(ibin+1, error)
+            if category == 'data_obs':
+                category = 'Data'
+            Integral[category] += h.Integral()
+            Histogram[category].Add(h_postfix)
+            
+            print('Access Histogram {fpath}'.format(fpath = fpath))
+
     
-    for second_dir in second_dirs: 
-        print("\n\033[1;32mEnter {}\033[0;m".format(first_dir+second_dir))
-        for Histogram_Name in Histogram_Names:
-            #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-            #print(first_dir+second_dir+Histogram_Name)
-            h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
+    for category in Histogram_Names:
+        if ('TotalSig' in category) or  ('TotalProcs' in category):continue
+        if category == 'data_obs': category = 'Data'
+        if Maximum < Histogram[category].GetMaximum():
+            Maximum = Histogram[category].GetMaximum()
 
-            if type(h) != ROOT.TH1F:
-                if settings['unblind'] and Histogram_Name =='data':
-                    data_higComb = h
-                    data = ROOT.TH1F('data', '', len(binning)-1,binning)
-                    
-                    for bini in range(data.GetSize()):
-                        tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
-                        tgraph_error   = data_higComb.GetErrorY(bini+1) # just symmetrical error
-                        data.SetBinContent (bini+1, tgraph_content)
-                        data.SetBinError   (bini+1, tgraph_error)
-
-                    if Histogram_Registered:
-                      Integral[Histogram_Name]+= int(data.Integral())
-                    else:
-                      Integral[Histogram_Name] = int(data.Integral())
-                    if Histogram_Registered:
-                      Histogram[Histogram_Name].Add(data)
-                    else:
-                      Histogram[Histogram_Name] = data
-                else:
-                    print(first_dir+second_dir+Histogram_Name)
-                    raise ValueError("\033[0;31mNo such histogram, please check {SampleName_File} and {figDiagnostics_File}\033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
-            else:
-                print("\033[1;32mAccess: {}\033[0;m".format(Histogram_Name))
-                nbin = h.GetNbinsX()
-                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,len(binning)-1,binning)
-                if Histogram_Registered:
-                    Integral[Histogram_Name] += h.Integral()
-                else:
-                    Integral[Histogram_Name] = h.Integral()
-                ### Set Bin Content
-                
-                for ibin in range(nbin+2):
-                    h_reset_x_scale.SetBinContent(ibin+1,h.GetBinContent(ibin+1))
-                if Histogram_Registered:
-                    Histogram[Histogram_Name].Add(h_reset_x_scale)
-                else:
-                    Histogram[Histogram_Name] = h_reset_x_scale
-        Histogram_Registered=True
-    
-    for Histogram_Name in Histogram_Names:
-        if Maximum < Histogram[Histogram_Name].GetMaximum():
-            Maximum = Histogram[Histogram_Name].GetMaximum()
-
-
+    if settings['shape_type'].lower() == 'prefit':
+        Title = 'Pre-Fit Distribution'
+    else:
+        Title = 'Post-Fit Distribution'
     
     template_settings= {
             "Maximum":Maximum,
             "Integral":Integral,
             "Histogram":Histogram,
-            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),
+            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],      
-            "Title":'Post-Fit Distribution',
+            "Title":Title,
             "xaxisTitle":'BDT score',
             "yaxisTitle":'Events/(1)',
             "channel":settings['channel'],
@@ -388,7 +358,7 @@ def postFitPlot(settings=dict()):
     print("\n")
     Plot_Histogram(template_settings=template_settings) 
 
-
+    FileIn.Close()
     #a = h_stack.GetXaxis();
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
     #a.ChangeLabel(-1,-1,-1,-1,-1,-1,"1");
@@ -399,165 +369,8 @@ def postFitPlot(settings=dict()):
       log_tag = ""
 
     print("\nNext mode: \033[0;32m [diffNuisances] \033[1;33m")
-    print("\033[1;33m* Please check \033[4m{prefix}{log}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),log=log_tag))
-    print("\033[1;33m* Please check \033[4m{prefix}{log}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['postFitPlot'])),log=log_tag))
-
-def preFitPlot(settings=dict()):
-    figDiagnostics_File = settings['FitDiagnostics_file']
-    if CheckFile(figDiagnostics_File,False,False):pass
-    else:
-        FitDiagnostics_file_1 = 'results/fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
-        figDiagnostics_File = os.path.join(settings['outputdir'],FitDiagnostics_file_1)
-        if CheckFile(figDiagnostics_File,False,False):pass
-        else: raise ValueError('\033[0;31m Check :{figDiagnostics_File} exists or not. Otherwise you should go back to \033[1m[FitDiagnostics] \033[0;m'.format(figDiagnostics_File=figDiagnostics_File))
-
-    #### Define Category Names for Samples ####
-    SampleName_File = "./data_info/Sample_Names/process_name_2018.json"
-    with open(SampleName_File,'r') as f:
-        Sample_Names = json.load(f).keys()
-    Histogram_Names = []
-    for Sample_Name in Sample_Names:
-        Histogram_Names.append(str(Sample_Name))
-    ########################################## 
-    if settings['unblind']:
-        Histogram_Names.append('data')
-
-    Histogram = dict()
-    Integral= dict()
-    Maximum = -1
-    fin = ROOT.TFile(figDiagnostics_File,"READ")
-
-    Histogram = dict()
-    if settings['unblind']:
-        first_dir = 'shapes_prefit'
-        if not settings['interference']:
-            Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-        else:
-            Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
-
-    else:
-        if settings['expectSignal']:
-            first_dir = 'shapes_prefit'
-            #TAToTTQ_300_s_250_rtc04 -> Inteference sample
-            if not settings['interference']:
-                Histogram_Names.append("TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-            else:
-                Histogram_Names.append('TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2']))
-        else:
-            first_dir = 'shapes_prefit'
-
-    
-    second_dirs = []
-    if settings['channel'] != 'C' and settings['year'] !='run2':
-        second_dirs = ['/SR_{channel}/'.format(channel=settings['channel'])]
-    elif settings['channel'] =='C' and settings['year'] != 'run2':
-        second_dirs = ['/ee/','/em/','/mm/']
-    elif settings['year'] == 'run2' and settings['channel'] != 'C':
-        for year in ['/year2016apv/','/year2016postapv/','/year2017/','/year2018/']:
-            second_dirs.append(year)
-    elif settings['year'] =='run2' and settings['channel'] =='C':
-        for year in ['/year2016apv','/year2016postapv','/year2017','/year2018']:
-            for channel in ['ee/','em/','mm/']:
-                second_dirs.append(year+'_'+channel)
-    
-    Integral= dict()
-    Maximum = -1
-    Histogram_Registered = False 
-     
-    for second_dir in second_dirs: 
-        print("\n\033[1;32mEnter {}\033[0;m".format(first_dir+second_dir))
-        for Histogram_Name in Histogram_Names:
-            #Histogram[Histogram_Name] = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-            #print(first_dir+second_dir+Histogram_Name)
-            h = fin.Get(first_dir+second_dir+Histogram_Name)
-        
-        
-            if type(h) != ROOT.TH1F:
-                if settings['unblind'] and Histogram_Name =='data':
-                    data_higComb = h
-                    data = ROOT.TH1F('data', '', len(binning)-1, binning)
-                    
-                    for bini in range(data.GetNbinsX()):
-                        tgraph_content = data_higComb.Eval(bini+0.5) # must fit the center of the bin in tgraph
-                        tgraph_error   = data_higComb.GetErrorY(bini+1) # just symmetrical error
-                        data.SetBinContent (bini+1, tgraph_content)
-                        data.SetBinError   (bini+1, tgraph_error)
-
-                    if Histogram_Registered:
-                      Integral[Histogram_Name]+= int(data.Integral())
-                    else:
-                      Integral[Histogram_Name] = int(data.Integral())
-                    if Histogram_Registered:
-                      Histogram[Histogram_Name].Add(data)
-                    else:
-                      Histogram[Histogram_Name] = data
-
-                else:
-                    print(first_dir+second_dir+Histogram_Name)
-                    raise ValueError("\033[0;31m No such histogram, please check {SampleName_File} and {figDiagnostics_File} \033[0;m".format(SampleName_File=SampleName_File,figDiagnostics_File=figDiagnostics_File))
-
-            else:
-                h = fin.Get(first_dir+second_dir+Histogram_Name).Clone()
-                nbin = h.GetNbinsX()
-                if not (nbin == len(binning)-1):
-                  raise ValueError("\033[0;31m Input binning is not consistent with local binning setting. Please check binning in Util/General_Tool.py \033[0;m")
-                h_reset_x_scale = ROOT.TH1F(first_dir+second_dir+Histogram_Name,first_dir+second_dir+Histogram_Name,len(binning)-1, binning)
-                print("\033[1;32mAccess: {} \033[0;m ".format(Histogram_Name))
-                if Histogram_Registered:
-                    Integral[Histogram_Name] += h.Integral()
-                else:
-                    Integral[Histogram_Name] = h.Integral()
-                ### Set Bin Content
-                
-                for ibin in range(nbin+2):
-                    h_reset_x_scale.SetBinContent(ibin+1,h.GetBinContent(ibin+1))
-                if Histogram_Registered:
-                    Histogram[Histogram_Name].Add(h_reset_x_scale)
-                else:
-                    Histogram[Histogram_Name] = h_reset_x_scale
-        Histogram_Registered=True
-    
-    for Histogram_Name in Histogram_Names:
-        if Maximum < Histogram[Histogram_Name].GetMaximum():
-            Maximum = Histogram[Histogram_Name].GetMaximum()
-    
-
-    template_settings= {
-            "Maximum":Maximum,
-            "Integral":Integral,
-            "Histogram":Histogram,
-            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),
-            "year":settings['year'],      
-            "Title":'Pre-Fit Distribution',
-            "xaxisTitle":'BDT score',
-            "yaxisTitle":'Events/(1)',
-            "channel":settings['channel'],
-            "coupling_value":settings['coupling_value'],
-            "mass":settings["mass"],
-            "text_y":settings["text_y"],
-            "logy":settings["logy"],
-            "unblind":settings["unblind"],
-            "expectSignal":settings["expectSignal"],
-            "plotRatio":settings["plotRatio"]
-            } 
-    if settings["expectSignal"] or settings["unblind"]:
-        if not settings['interference']:    
-            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-        else:                
-            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
-    else:
-            template_settings["Signal_Name"] = "DEFAULT"
-    Plot_Histogram(template_settings=template_settings) 
-    
-    if settings["logy"]:
-      log_tag = "_log"
-    else:
-      log_tag = ""
-
-    print("\nNext mode: \033[0;32m[postFitPlot]\033[1;m")
-    print("\033[1;33m* Please check \033[4m{prefix}{log}.pdf\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),log=log_tag))
-    print("\033[1;33m* Please check \033[4m{prefix}{log}.png\033[0;m".format(prefix=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['preFitPlot'])),log=log_tag))
-
+    print("\033[1;33m* Please check \033[4m{plot}{log}.pdf\033[0;m".format(plot =os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),log=log_tag))
+    print("\033[1;33m* Please check \033[4m{plot}{log}.png\033[0;m".format(plot=os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),log=log_tag))
 
 
 
@@ -580,18 +393,17 @@ def Plot_Histogram(template_settings=dict()):
             'Others': ROOT.kYellow-4,
             }
     if template_settings["unblind"]:
-        Color_Dict['data'] = ROOT.kBlack
+        Color_Dict['Data'] = ROOT.kBlack
     if template_settings["unblind"] or template_settings["expectSignal"]:
         Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
-    for Histogram_Name in template_settings['Histogram'].keys():
-        if Histogram_Name not in Color_Dict.keys():
-            raise ValueError("Make sure {} in Color_Dict.keys()".format(Histogram_Name)) 
 
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
     ROOT.gROOT.SetBatch(1)
+    
     canvas = ROOT.TCanvas("","",620,600)
+    
 
     Set_Logy = template_settings['logy']
 
@@ -637,9 +449,7 @@ def Plot_Histogram(template_settings=dict()):
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
     hh_total = None
-    for idx, Histogram_Name in enumerate(Ordered_Integral):
-        hh_total = template_settings['Histogram'][Histogram_Name].Clone("hh_total")
-        hh_total.Reset() #this line to reset but keep the same bining
+    hh_total = template_settings['Histogram']['TotalBkg'].Clone()
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
 
@@ -649,18 +459,19 @@ def Plot_Histogram(template_settings=dict()):
             h_sig.SetLineWidth(4)
             h_sig.SetLineStyle(9)
         else:    
-            if Histogram_Name == 'data':
+            if Histogram_Name == 'Data':
                 if template_settings['unblind']:
-                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:02d}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
+                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
                     template_settings['Histogram'][Histogram_Name].SetLineWidth(2)
             else:
+                if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                hh_total.Add(template_settings['Histogram'][Histogram_Name])
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
-    h_stack.SetTitle("Post-Fit Distribution;BDT score;Events/(1) ")
+
+    h_stack.SetTitle("{};BDT score;Events/(1) ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     h_stack.SetMinimum(0.1)
     h_stack.Draw("HIST")
@@ -675,7 +486,7 @@ def Plot_Histogram(template_settings=dict()):
     hh_total.Draw("SAME E2")
 
     if template_settings['unblind']:
-        template_settings['Histogram']["data"].Draw("SAME P*")
+        template_settings['Histogram']["Data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(10)
         h_sig.Draw("HIST;SAME")
@@ -683,7 +494,7 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
-        h_ratio = (template_settings['Histogram']["data"].Clone())
+        h_ratio = (template_settings['Histogram']["Data"].Clone())
         h_ratio.Divide(hMC)
         h_ratio.SetMarkerStyle(20)
         h_ratio.SetMarkerSize(0.85)
@@ -738,10 +549,8 @@ def Plot_Histogram(template_settings=dict()):
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
     value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
-    #latex.DrawLatex(.10,template_settings["text_y"],"#rho_{t%s} = %s"%(quark,value))
-    #latex.DrawLatex(.5,template_settings["text_y"],"M_{A} = %s "%(template_settings['mass']))
-    #latex.DrawLatex(-.4,template_settings["text_y"],"Channel: {}".format(template_settings['channel']))
     ### CMS Pad #####
+    
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
     CMS_lumi.extraText = "Internal"
@@ -750,7 +559,7 @@ def Plot_Histogram(template_settings=dict()):
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
     iPeriod=template_settings['year']
 
-    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
+    CMS_lumi.CMS_lumi(pad1, iPeriod, iPos)
 
     ######
     if Set_Logy:
@@ -760,6 +569,8 @@ def Plot_Histogram(template_settings=dict()):
     canvas.Update()
     canvas.SaveAs('{prefix}{log}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag))
     canvas.SaveAs('{prefix}{log}.png'.format(prefix=template_settings['outputfilename'],log=log_tag))
+
+
 
 
 def ResultsCopy(settings=dict()):
@@ -825,10 +636,6 @@ def plotCorrelationRanking(settings=dict()):
     outputdir = os.path.join(settings['outputdir'], 'results')
     impacts_json = os.path.join(settings['outputdir'], settings['impacts_json'])
     
-    if CheckFile(settings['FitDiagnostics_file'], False, False):
-        pass
-    else:
-        settings['FitDiagnostics_file'] = settings['FitDiagnostics_file'].replace('fitDiagnostics', 'results/fitDiagnostics')
 
     inFile = ROOT.TFile.Open(settings['FitDiagnostics_file'] ,"READ")
 
@@ -1149,79 +956,63 @@ def GoFPlot(settings = dict()):
 
 
 def FinalYieldComputation(settings=dict()):
-    FitDiag_File = settings['FitDiagnostics_file']
+    outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    command = "PostFitShapesFromWorkspace -w {workspace_root} -o {outputFile} -m 350 -f {FitDiagnostics_root}:fit_s --postfit --sampling --print".format(workspace_root = settings['workspace_root'], FitDiagnostics_root = settings['FitDiagnostics_file'], outputFile = outputFile)
+    command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
     
-    #if not CheckFile(FitDiag_File, False, False):
-    FitDiag_File = FitDiag_File.replace('fitDiagnostics', '/results/fitDiagnostics')
-    FinalYield_txt_file = os.path.join(settings['outputdir'] , 'results/FinalYield.txt')
-    output = os.path.join(settings['outputdir'], 'results')
-    command = "python ./Util/mlfitNormsToText.py {} --uncertainties -o {} > {} ".format(FitDiag_File, output, FinalYield_txt_file)
+    os.system(command) 
+    FileIn = ROOT.TFile.Open(outputFile, 'READ')
+    
 
-
-    os.system(command)
-    
-    FinalYield_txt_file = open(FinalYield_txt_file, 'r')
-    
-    while True:
-        line = FinalYield_txt_file.readline()
-        if not line:
-            break
-        element = line.split(' ')
-        
-    
-    FinalYield_json = os.path.join(output, 'finalyield.json')
-
-    with open(FinalYield_json, 'r') as f:
-        FinalYield = json.load(f)
     Yield = dict()
-    Yield['ee'] = dict()
-    Yield['em'] = dict()
-    Yield['mm'] = dict()
-    for year_channel in FinalYield.keys():
-        if 'ee' in year_channel:
-            channel = 'ee'
-        if 'em' in year_channel:
-            channel = 'em'
-        if 'mm' in year_channel:
-            channel = 'mm'
-        for category in FinalYield[year_channel].keys():
-            if Yield[channel].get(category, None) is None:
-                Yield[channel][category] = dict()
-            if Yield[channel][category].get('PreFit-Central', None) is None:
-                Yield[channel][category]['PreFit-Central'] = 0
-            if Yield[channel][category].get('PreFit-Error', None) is None:
-                Yield[channel][category]['PreFit-Error'] = 0
-            if Yield[channel][category].get('PostFit_s-Central', None) is None:
-                Yield[channel][category]['PostFit_s-Central'] = 0
-            if Yield[channel][category].get('PostFit_s-Error', None) is None:
-                Yield[channel][category]['PostFit_s-Error'] = 0
-            if Yield[channel][category].get('PostFit_b-Central', None) is None:
-                Yield[channel][category]['PostFit_b-Central'] = 0
-            if Yield[channel][category].get('PostFit_b-Error', None) is None:
-                Yield[channel][category]['PostFit_b-Error'] = 0
 
+    if settings['channel'] == 'C':
+        channels = ['ee', 'em', 'mm']
+    else:
+        channels = [settings['channel']]
+    if settings['year'] == 'run2':
+        years = ['2016apv', '2016postapv', '2017', '2018']
+    
+    process_name_list = []
+    for first_level in FileIn.GetListOfKeys():
+        first_level_name = first_level.GetName()
+        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+            process_name_list.append(second_level.GetName())
+        break
 
-            Yield[channel][category]['PreFit-Central'] += FinalYield[year_channel][category]['PreFit-Central']
-            diff = FinalYield[year_channel][category]['PreFit-Error']
-            Yield[channel][category]['PreFit-Error'] += diff
+    for process in process_name_list:
+        Yield[process] = dict()
+        for Type in ['postfit', 'prefit']:
+            Yield[process][Type] = dict()
+            for channel in channels:
+                Yield[process][Type][channel] = dict()
+                Yield[process][Type][channel]['Central'] = 0
+                Yield[process][Type][channel]['Error'] = 0
 
-            Yield[channel][category]['PostFit_b-Central'] += FinalYield[year_channel][category]['PostFit_b-Central']
-            diff = FinalYield[year_channel][category]['PostFit_b-Error']
-            Yield[channel][category]['PostFit_b-Error'] += diff 
+    
+    
+    for first_level in FileIn.GetListOfKeys():
+        first_level_name = first_level.GetName()
+        print('In Dir: {}'.format(first_level_name))
+        year,channel,Type = first_level_name.split('_')
+        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+            process_name = second_level.GetName()
             
-            Yield[channel][category]['PostFit_s-Central'] += FinalYield[year_channel][category]['PostFit_s-Central']
-            diff = FinalYield[year_channel][category]['PostFit_s-Error']
-            Yield[channel][category]['PostFit_s-Error'] += diff
-    #print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(FinalYield_txt_file))
+            unc = ctypes.c_double(0)
+            H = FileIn.Get('{}/{}'.format(first_level_name, process_name))
+            Integral = H.IntegralAndError(1, H.GetNbinsX(), unc)
+            print('Process: {}, Integral: {}, Error: {}'.format(process_name, Integral, unc.value))
+            Yield[process_name][Type][channel]['Central'] += Integral
+            Yield[process_name][Type][channel]['Error'] += unc.value *  unc.value
     
-    for channel in Yield.keys():
-        for category in Yield[channel].keys():
-            Yield[channel][category]['PreFit-Error'] = math.sqrt(Yield[channel][category]['PreFit-Error'])
-            Yield[channel][category]['PostFit_s-Error'] = math.sqrt(Yield[channel][category]['PostFit_s-Error'])
-            Yield[channel][category]['PostFit_b-Error'] = math.sqrt(Yield[channel][category]['PostFit_b-Error'])
+    for process in process_name_list:
+        for Type in ['prefit', 'postfit']:
+            for channel in channels:
+                Yield[process][Type][channel]['Error'] = math.sqrt(Yield[process][Type][channel]['Error'])
+
+    FinalYield_json = os.path.join(settings['outputdir'], 'results/finalyield.json')
     with open(FinalYield_json, 'w') as f:
-        json.dump(Yield, f, indent =4 )
-    
+        json.dump(Yield, f, indent = 4)
 
     PostFixstr = ''
     if settings['unblind']:
@@ -1231,7 +1022,7 @@ def FinalYieldComputation(settings=dict()):
     PostFixstr += "-" + settings['year']
     PostFixstr += "-" + settings['channel']
     PostFixstr += "-" + settings['coupling_value']
-    PostFixstr += "-mS" + settings['mass']
+    PostFixstr += "-mA" + settings['mass']
     if settings['interference']:
         PostFixstr +='-interference'
     else:
@@ -1241,33 +1032,26 @@ def FinalYieldComputation(settings=dict()):
     with open('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr), 'w') as f:
         End = '\n'
         f.write(r'\begin{table}[!htpb]'+End)
-        f.write(r'\label{tab:yields}'+End)
         f.write(r'\begin{center}'+End)
         f.write(r'\begin{tabular}{|l|l|l|l|}'+End)
         f.write(r'\hline'+End)
         f.write(r'process     &    Yield   (\Pe{}\Pe)     & Yield (\PGm{}\PGm)  &  Yield (\Pe{}\PGm) \\'+End)
         f.write(r'\hline'+End)
         
-        #for category in Yield[channel].keys():
-        #rank_category = sorted(Yield['ee'], Yield['ee']
-        
-        for channel in Yield.keys():
-            y = dict()
+        for category in ['data_obs', 'TotalBkg','Nonprompt', 'TTTo2L', 'VBS', 'ttW', 'ttH', 'VV', 'Others']:
+            if ('TAToTTQ'  in category) or ('TotalSig' in category)  or ('TotalProcs' in category):continue
             
-            for category in Yield[channel].keys():
-                y[category] = Yield[channel][category]['PreFit-Central']
-
-            y = dict(sorted(y.items(), key = lambda item: item[1] ))
-            break
-        category_byrank = y.keys()
+            if 'data' in category:
+                f.write(r'{}'.format('Data'))
+            else:
+                f.write(r'{}'.format(category))
         
-        for category in category_byrank:
-            if 'TAToTTQ' in category:
-                continue
-            f.write(r'{}'.format(category))
-            for channel in Yield.keys():
-                f.write(r'& {:.1f} $\pm$ {:.1f} '.format(Yield[channel][category]['PreFit-Central'], Yield[channel][category]['PreFit-Error']))
+            for channel in channels:
+                
+                f.write(r'& {:.1f} $\pm$ {:.1f} '.format(Yield[category]['postfit'][channel]['Central'], Yield[category]['postfit'][channel]['Error']))
             f.write(r'\\'+End)
+            if 'TotalBkg' in category:
+                f.write(r'\hline\hline'+End)
 
         f.write(r'\hline'+End)
         f.write(r'\end{tabular}'+End)
@@ -1285,7 +1069,7 @@ def FinalYieldComputation(settings=dict()):
 
         CHANNEL+= " decay channel"
         if settings['interference']:
-            INTERFERENCE = 'with H-A interference($\Vert m_{H} - m_{A} \Vert = 50$ GeV)'
+            INTERFERENCE = 'with H-A interference(\mA - \mH = 50 \GeV)'
         else:
             INTERFERENCE = '(pure)'
         if settings['coupling_value']:
@@ -1298,9 +1082,13 @@ def FinalYieldComputation(settings=dict()):
 
             COUPLING += ' = ' + str(float(settings['coupling_value'].split(cp)[1]) * 0.1) + ' $ '
             
-            #print(float(cp_value[1])*0.1)
-        f.write(r'\caption{Yield table for '+CHANNEL + 'for ' + YEAR + ' with '+ COUPLING+ ' for ' + r' $m_{S} = ' + settings['mass'] + ' GeV$ {INTERFERENCE} }}'.format(INTERFERENCE = INTERFERENCE) + End)
+        f.write(r'\caption{Yield table for '+CHANNEL + ' for ' + YEAR + ' with '+ COUPLING+ ' for ' + r' \mA = ' + settings['mass'] + ' \GeV {INTERFERENCE} }}'.format(INTERFERENCE = INTERFERENCE) + End)
+        if settings['interference']:
+            f.write(r'\label{tab:yields_'+settings['coupling_value']+r'_interference}'+End)
+        else:
+            f.write(r'\label{tab:yields_'+settings['coupling_value']+r'_pure}'+End)
         f.write(r'\end{center}'+End)
         f.write(r'\end{table}'+End)
+    FileIn.Close()
     print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr)))
-    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(os.path.join(output, 'finalyield.json')))
+    print('\033[1;33m* Please check txt file: \033[4m{}\033[0;m'.format(FinalYield_json))
