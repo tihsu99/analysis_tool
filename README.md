@@ -56,6 +56,8 @@ After this step, a folder, data_info, is created. And under this folder, you can
 - data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
 - data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
 
+## 1.2 Breakdown uncertainties
+
 If you want to breakdown the nuisance uncertainties:
 ```
 python Init.py --year 2017 --channel all --breakdown
@@ -68,7 +70,7 @@ Currently, the groups of uncertainties are theory and experimental. If one want 
 The additional json file name is like 
 - data_info/NuisanceList/nuisance_group_{YEAR}_{CHANNEL}.json # contain the group element information, which will feed into datacards.
 
-## 1.2 Block unwanted nuisances (You can skip this)
+## 1.3 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
@@ -155,6 +157,17 @@ And after you repeat this command for all the dilepton channels, you can manage 
 ```
 python prepareCards.py -y {year} -c C --For template
 ```
+
+### 3.2.2 Uncertainties breakdown
+
+To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
+Once you have it, then you just need to use [--breakdown] for template production: 
+```
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown
+```
+Then you will have the uncertain category in the last line of template datacard.
+
+* [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm.
 
 ### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
 
