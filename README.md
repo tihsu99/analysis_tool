@@ -65,6 +65,9 @@ python Init.py --year 2016postapv --channel all --breakdown
 ```
 Currently, the groups of uncertainties are theory and experimental. If one want to customize the group, please go to [Init_Tool/Nuisance_Producer.py](https://github.com/ExtraYukawa/LimitModel/blob/ZhengGang_dev2/Init_Tool/Nuisance_Producer.py)
 
+The additional json file name is like 
+- data_info/NuisanceList/nuisance_group_{YEAR}_{CHANNEL}.json # contain the group element information, which will feed into datacards.
+
 ## 1.2 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
@@ -72,7 +75,6 @@ If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for examp
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
-- data_info/NuisanceList/nuisance_group_{YEAR}_mm.json # contain the group element information, which will feed into datacards.
 
 # 2. Rebin and merging of processes 
 
