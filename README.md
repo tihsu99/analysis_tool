@@ -56,6 +56,15 @@ After this step, a folder, data_info, is created. And under this folder, you can
 - data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
 - data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
 
+If you want to breakdown the nuisance uncertainties:
+```
+python Init.py --year 2017 --channel all --breakdown
+python Init.py --year 2018 --channel all --breakdown
+python Init.py --year 2016apv --channel all --breakdown
+python Init.py --year 2016postapv --channel all --breakdown
+```
+Currently, the groups of uncertainties are theory and experimental. If one want to customize the group, please go to [Init_Tool/Nuisance_Producer.py]()
+
 ## 1.2 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
