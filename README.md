@@ -70,14 +70,13 @@ Currently, the groups of uncertainties are theory and experimental. If one want 
 The additional json file name is like 
 - data_info/NuisanceList/nuisance_group_{YEAR}_{CHANNEL}.json # contain the group element information, which will feed into datacards.
 
-## 1.3 Block unwanted nuisances (You can skip this)
+## 1.2 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
-- data_info/NuisanceList/nuisance_group_{YEAR}_mm.json # contain the group element information, which will feed into datacards.
 
 
 ## 1.3 Calculate logN uncertainty for category (Option)
