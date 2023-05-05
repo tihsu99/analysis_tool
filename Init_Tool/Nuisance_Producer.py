@@ -1,7 +1,7 @@
 import json
 from Util.General_Tool import CheckFile
 
-def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all'):
+def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all', breakdown = False):
     """
 
     Uncorrelated sources (they need to be kept in the datacard):
@@ -105,6 +105,13 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     corr_nuis_Final_return =[]
     
     Index = 0
+
+    if breakdown:
+        Group = dict()
+        Group['Theory'] = list()
+        Group['Exp'] = list()
+    
+    
     for nui in nuis_Init:
         if nui in blacklist and nui not in whitelist:pass
         else:
@@ -130,6 +137,16 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             corr_nuis_Final_return.append(nui)
 
             Index+=1
+            if breakdown:
+                if "_norm" in nui or "_sig" in nui:
+                    nui = nui.replace("_", "")
+                    nui = nui.replace("YEAR", year)
+                    Group['Theory'].append(nui)
+                else:
+                    nui = nui.replace("_", "")
+                    nui = nui.replace("YEAR", year)
+                    Group['Exp'].append(nui)
+
     
     CheckFile('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
     with open('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
@@ -137,5 +154,10 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     CheckFile('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
     with open('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
         json.dump(corr_nuis_Final,f,indent=4)
+    
+    if breakdown:
+        CheckFile('{}/nuisance_group_{}_{}.json'.format(outputdir,year,channel),True)    
+        with open('{}/nuisance_group_{}_{}.json'.format(outputdir,year,channel),'w') as f:
+            json.dump(Group,f,indent=4)
         
     return corr_nuis_Final_return
