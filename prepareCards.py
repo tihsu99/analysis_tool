@@ -30,7 +30,7 @@ parser.add_argument("--interference", action="store_true")
 parser.add_argument("--review", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
-
+parser.add_argument("--breakdown", help = "To add group information in last few lines", action= "store_true")
 
 args = parser.parse_args()
 
@@ -209,15 +209,16 @@ for reg in regions:
                     '''
                     Last Lines of datacard -> uncertainty group are claimed here
                     '''
-                    with open('./data_info/NuisanceGroup/nuisance_group_{}_{}.json'.format(year,channel),'r') as f:
-                        Group = json.load(f) 
-                    
-                    for gr in Group.keys():
-                        line = gr
-                        line += ' group = '
-                        for unc in Group[gr]:
-                            line += unc+' '
-                        fout.write(line+'\n')
+                    if args.breakdown:
+                        with open('./data_info/NuisanceList/nuisance_group_{}_{}.json'.format(year,channel),'r') as f:
+                            Group = json.load(f) 
+                        
+                        for gr in Group.keys():
+                            line = gr
+                            line += ' group = '
+                            for unc in Group[gr]:
+                                line += unc+' '
+                            fout.write(line+'\n')
 
                     fout.close()
                     print(outputfile+' is prepared!')
