@@ -145,7 +145,7 @@ def FitDiagnostics(settings=dict()):
     print("For more detailed information about FitDiagnostics : \033[0;34m\033[4mhttps://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part5/longexercise/#c-using-fitdiagnostics \033[0;m") 
     print("Before entering into the next mode, please check the log file.")
     
-    print("\nNext mode: [\033[0;32m preFitPlot\033[0;m]")
+    print("\nNext mode: [\033[0;32m FinalYieldComputation\033[0;m]")
 
 def diffNuisances(settings=dict()):
     
@@ -185,6 +185,10 @@ def Impact_doInitFit(settings=dict()):
     CheckFile("higgsCombine_initialFit_Test.MultiDimFit.mH{mass}.root".format(mass= settings['mass']),True)
     CheckFile("combine_logger.out",True)
     workspace_root = os.path.basename(settings['workspace_root'])
+    # safety check:
+    if not os.path.isfile(workspace_root):
+      raise Exception("First run: --mode datacard2workspace step")
+    
     Log_Path = os.path.basename(settings['Log_Path'])
 
     if settings['unblind']:
@@ -609,6 +613,11 @@ def DrawNLL(settings=dict()):
   os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
   os.chdir(settings['outputdir'])
   workspace_root = os.path.basename(settings['workspace_root'])
+
+  # safety check:
+  if not os.path.isfile(workspace_root):
+      raise Exception("First run: --mode datacard2workspace step")
+
   Log_Path = os.path.basename(settings['Log_Path'])
   commands = []
   rMin = -4
@@ -621,6 +630,7 @@ def DrawNLL(settings=dict()):
     commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
     commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
     commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
+
     for i in range(len(commands)):
       print(ts+commands[i]+ns)
       if i == 0:
@@ -956,6 +966,15 @@ def GoFPlot(settings = dict()):
 
 
 def FinalYieldComputation(settings=dict()):
+
+    # add a safety loop whether "FitDiagnostics_root" and "workspace_root" files are there or not! gkole fix me
+    workspace_root = settings['workspace_root']
+    FitDiagnostics_root = settings['FitDiagnostics_file']
+    if os.path.isfile(workspace_root) and os.path.isfile(FitDiagnostics_root):
+        print ("FitDiagnostics_root and workspace_root files are there!")
+    else:
+      raise Exception("First run: --mode datacard2workspace and --mode FitDiagnostics steps")
+
     outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
     command = "PostFitShapesFromWorkspace -w {workspace_root} -o {outputFile} -m 350 -f {FitDiagnostics_root}:fit_s --postfit --sampling --print".format(workspace_root = settings['workspace_root'], FitDiagnostics_root = settings['FitDiagnostics_file'], outputFile = outputFile)
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
@@ -994,7 +1013,10 @@ def FinalYieldComputation(settings=dict()):
     for first_level in FileIn.GetListOfKeys():
         first_level_name = first_level.GetName()
         print('In Dir: {}'.format(first_level_name))
-        year,channel,Type = first_level_name.split('_')
+        if settings['year'] == "run2":
+            year,channel,Type = first_level_name.split('_')
+        else:
+            channel,Type = first_level_name.split('_')
         for second_level in FileIn.Get(first_level_name).GetListOfKeys():
             process_name = second_level.GetName()
             
@@ -1058,6 +1080,8 @@ def FinalYieldComputation(settings=dict()):
         
         if settings['year'] == 'run2':
             YEAR = 'full Run 2'
+        else:
+            YEAR = settings['year']
         if settings['channel'] == 'C':
             CHANNEL = r'\Pe{}\Pe, \PGm{}\PGm and \Pe{}\PGm'
         elif settings['channel'] == 'ee':
