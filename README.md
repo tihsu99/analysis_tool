@@ -437,7 +437,7 @@ Please make sure you already have follow Section 1.2 & Section3.2.2 to produce t
 Then, you can plot the Profile Scan with uncertainty breakdown.
 Note: only valid with [--unblind]
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_value rtu04 --mass_point 800 --unblind --rMin -10 --rMax 0
+./DrawNLL.sh 2018 ee rtc04 800 pure unblind -0.5 3.5
 ```
 
 # Final Yield computation:
