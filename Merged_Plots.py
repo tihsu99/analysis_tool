@@ -30,6 +30,9 @@ parser.add_argument("--Masses",default=[200,300,350,400,500,600,700,800,900,1000
 
 parser.add_argument("--unblind",action="store_true")
 parser.add_argument("--interference", action="store_true")
+parser.add_argument("--paper", action="store_true")
+parser.add_argument("--AN", action="store_true")
+parser.add_argument("--interp", action="store_true")
 
 args = parser.parse_args()
 
@@ -63,5 +66,7 @@ for value in args.coupling_values:
 
     log_files_path_Dict[value] = log_files_path_per_value
 # python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu01 rtu04 --plot_y_max 1000 --plot_y_min 0.001 --outputdir /eos/user/z/zhenggan/www/run2/merged_plot/ttu 
-from Util.Plot_Tool import Plot_1D_Limit_For
-Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference)
+from Util.Plot_Tool import Plot_1D_Limit_For, Plot_2D_Limit_For
+Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference, paper=args.paper, AN=args.AN)
+if args.interp:
+  Plot_2D_Limit_For(log_files_path_Dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, args.interference, args.paper)

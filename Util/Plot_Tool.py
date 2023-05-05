@@ -1,5 +1,7 @@
 import os
 import sys
+from array import array
+import numpy as np
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 from array import  array
@@ -10,11 +12,31 @@ import argparse
 import csv 
 import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
+from scipy.optimize import minimize
  
+def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=False):
 
+  solutions = []
+  for x in np.linspace(min_x, max_x, 10):
+    solution = minimize(pred,
+                        x0 = [x],
+                        args = (itp,1),
+                        bounds=[(min_x,max_x)])
+    find_solution = True
+    for s in solutions:
+      if  abs(solution.x-s) < EPS:
+        find_solution = False
+    if find_solution and (abs(itp.Eval(solution.x))<eps or abs(solution.x-max_x) < EPS):
+      if abs(solution.x-max_x)<EPS and AddBound:
+        solutions.append(float(solution.x)+EPS*0.98) # Draw outside the boundary
+      elif not abs(solution.x-max_x)<EPS:
+        solutions.append(float(solution.x)) 
+  return solutions
 
+def pred(x, itp, r):
+  return (itp.Eval(x[0])-0)**2
 
-def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200],interference=False):
+def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200],interference=False, paper=False, AN=False):
     
     coupling_values = log_files_dict.keys()
     
@@ -28,13 +50,15 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     c = rt.TCanvas("c","c",620, 600)
     c.SetGrid(0,0)
     c.SetLogy(1)
+    c.SetTopMargin(0.085)
     c.SetLeftMargin(0.12)
+    c.SetTicks(1,1)
     
     ##Frame
     
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.45, .65, .68, .890);
+    leg = rt.TLegend(.5, .62, .73, .86);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
@@ -43,9 +67,10 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     
     colors = [2,4,6,28]     
+    line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";M_{A} [GeV];95% C.L. #mu=#sigma/#sigma_{theory}")
+    mg.SetTitle(";m_{A} [GeV];95% CL #mu=#sigma/#sigma_{theory}")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
     end_point = len(coupling_values) -1
@@ -55,13 +80,13 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         #### Set the Name in legend ####
         if 'rtc' in coupling_value :
             value = coupling_value.split('rtc')[-1]
-            prefix = '#rho_{tc}=%s'%(value)
+            prefix = '#rho_{tc} = %s'%(value)
         elif 'rtu' in coupling_value :
             value = coupling_value.split('rtu')[-1]
-            prefix = '#rho_{tu}=%s'%(value)
+            prefix = '#rho_{tu} = %s'%(value)
         elif 'rtt' in coupling_value :
             value = coupling_value.split('rtt')[-1]
-            prefix = '#rho_{tt}=%s'%(value)
+            prefix = '#rho_{tt} = %s'%(value)
         else:
             raise ValueError("No such coupling: {}".format(coupling_value))
         Limit_Name = prefix 
@@ -96,8 +121,8 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp =  File_per_coupling_value.Get("expmed")
         exp.SetMarkerStyle(1)
         exp.SetMarkerSize(1.1)
-        exp.SetLineColor(colors[idx])
-        exp.SetLineStyle(2)
+#        exp.SetLineColor(colors[idx])
+        exp.SetLineStyle(line_style[idx])
         exp.SetLineWidth(3)
         #exp.Draw("L")
         mg.Add(exp,"L")
@@ -107,10 +132,10 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
             mg.Add(obs, "LP") 
-        leg.AddEntry(exp, Limit_Name+" CL_{S} Exp 95% Upper Limit", "LP");
+        leg.AddEntry(exp, Limit_Name+" Expected limit", "LP");
         if idx==end_point:
-            leg.AddEntry(exp1s,"Expected limit #pm 1 std. deviation","F")
-            leg.AddEntry(exp2s,"Expected limit #pm 2 std. deviation","F")
+            leg.AddEntry(exp1s,"Expected limit #pm 1 #sigma","F")
+            leg.AddEntry(exp2s,"Expected limit #pm 2 #sigma","F")
             leg.AddEntry(obs, "Observed limit", "L");
         else:pass
 
@@ -123,13 +148,16 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
-    CMS_lumi.extraText = "Internal"
+    if paper:
+      CMS_lumi.extraText = ""
+    else:
+      CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
     iPeriod=year
 
-    CMS_lumi.CMS_lumi(c, iPeriod, iPos)
+    CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.09)
 
     
     
@@ -144,10 +172,12 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextSize(0.03);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
-    latex.DrawLatex(0.20, 0.84, "ExtraYukawa")
-    latex.DrawLatex(0.20, 0.8, year + " " + channel)
+    latex.DrawLatex(0.19, 0.82, "95% CL limits")
+    latex.DrawLatex(0.19, 0.78, "g2HDM")
+    if AN:
+      latex.DrawLatex(0.19, 0.70, year + " " + channel)
     if interference:
-      latex.DrawLatex(0.20, 0.76, "m_{A}-m_{H} = 50 GeV");
+      latex.DrawLatex(0.19, 0.74, "m_{A} - m_{H} = 50 GeV");
 
     
     c.Update()
@@ -171,3 +201,378 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     c.Close()
 
+def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.Interpolation.kPOLYNOMIAL, EPS=5E-2, Title=""):
+
+  noninterp_bin_x = noninterp_bin[0]
+  noninterp_bin_y = noninterp_bin[1]
+  interp_bin_x    = interp_bin[0]
+  interp_bin_y    = interp_bin[1]
+
+  Hist_interp     = rt.TH2D("",str(Title),len(interp_bin_x)-1, interp_bin_x, len(interp_bin_y)-1, interp_bin_y) 
+
+  final_limit_interp     = array('d', [])
+  interp                 = array('d', [])
+  final_limit_interp_second = array('d', [])
+  interp_second             = array('d', [])
+
+  if axis == 'x':
+    perturbed_axis_noninterp    = noninterp_bin_x
+    perturbed_axis_interp       = interp_bin_x
+    nonperturbed_axis_noninterp = noninterp_bin_y
+    nonperturbed_axis_interp    = interp_bin_y
+  else:
+    perturbed_axis_noninterp    = noninterp_bin_y
+    perturbed_axis_interp       = interp_bin_y
+    nonperturbed_axis_noninterp = noninterp_bin_x
+    nonperturbed_axis_interp    = interp_bin_x
+
+  
+
+  for idx_nonperturbed, value_nonperturbed in enumerate(nonperturbed_axis_noninterp[:-1]):
+    value_vector         = rt.vector('double')()
+    log_limit_vector     = rt.vector('double')()
+    for idx_perturbed, value_perturbed in enumerate(perturbed_axis_noninterp[:-1]):
+      if axis == 'x':
+        idx_x = idx_perturbed + 1
+        idx_y = idx_nonperturbed + 1
+      else:
+        idx_x = idx_nonperturbed + 1
+        idx_y = idx_perturbed + 1
+
+      obs = Hist.GetBinContent(idx_x, idx_y)
+      value_vector.push_back(value_perturbed)
+      log_limit_vector.push_back(np.log(obs))
+
+    itp = ROOT.Math.Interpolator(value_vector, log_limit_vector, itp_type)
+    limits_interp = Find_Intersection(itp, perturbed_axis_noninterp[0], perturbed_axis_noninterp[-2],EPS=EPS, AddBound= axis=='x')    
+    # print(value_nonperturbed, limits_interp)  
+
+    # Only record min and max(if there is second root), ignore the strange fluctuation in the middle(though haven't seen that case ever)
+    if len(limits_interp) > 0:
+      limits_interp_ = [min(limits_interp)]
+      for limit_interp in limits_interp_:
+        final_limit_interp.append(limit_interp)
+        interp.append(value_nonperturbed)
+    if len(limits_interp) > 1: 
+      limits_interp_ = [max(limits_interp)]
+      for limit_interp in limits_interp:
+        final_limit_interp_second.insert(0, limit_interp)
+        interp_second.insert(0, value_nonperturbed)
+ 
+    
+    for idx_perturbed, value_perturbed in enumerate(perturbed_axis_interp[:-1]):
+      if axis == 'x':
+        idx_x = idx_perturbed + 1
+        idx_y = idx_nonperturbed + 1
+      else:
+        idx_x = idx_nonperturbed + 1
+        idx_y = idx_perturbed + 1
+      Hist_interp.SetBinContent(idx_x, idx_y, np.exp(itp.Eval(value_perturbed))) 
+
+  if axis == 'x':
+    exclusion = ROOT.TGraph(len(interp), final_limit_interp, interp)
+  else:
+    exclusion = ROOT.TGraph(len(interp), interp, final_limit_interp)
+ #   if len(final_limit_interp_second)>0:
+ #     for idx, final_limit_second in enumerate(final_limit_interp_second):
+ #       exclusion.SetPoint(exclusion.GetN(), interp_second[idx], final_limit_second)
+
+
+  exclusion.SetLineWidth(2)
+  exclusion.SetLineColor(rt.kRed)
+  results = zip(interp, final_limit_interp)
+  for result in results:
+    print(result)
+  Hist_interp.GetZaxis().SetTitle("95% CL #mu=#sigma/#sigma_{theory}(obs)")
+  Hist_interp.GetZaxis().SetTitleOffset(1.3)
+
+  return Hist_interp, exclusion
+
+def stamp(exclusion, exclusion_exp, interference=False):
+
+  ## Text
+  latex =  rt.TLatex();
+  latex.SetNDC();
+  latex.SetTextFont(42);
+  latex.SetTextSize(0.03);
+  latex.SetTextAlign(31);
+  latex.SetTextAlign(12);
+  latex.DrawLatex(0.62, 0.24, "95% CL limits")
+  latex.DrawLatex(0.62, 0.20, "g2HDM")
+  if interference:
+    latex.DrawLatex(0.62, 0.16, "m_{A} - m_{H} = 50 GeV");
+
+
+  ## Legend
+  leg = rt.TLegend(.6, .72, .83, .80);
+  leg.SetBorderSize(0);
+  leg.SetFillColor(0);
+  leg.SetShadowColor(0);
+  leg.SetTextFont(42);
+  leg.SetTextSize(0.03);
+  leg.AddEntry(exclusion, "Observed limit", "L")
+  leg.AddEntry(exclusion_exp, "Expected limit", "L")
+  leg.Draw("same")
+
+  return leg
+
+def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], interference=False, paper=False):
+
+
+  # Obtain coupling information
+
+  coupling_values = log_files_dict.keys()
+  coupling_values_list = []
+  
+  for coupling_value in coupling_values:
+  
+      value = coupling_value.replace('rtc','').replace('rtu','')
+      coupling_type = coupling_value.replace(value,'').replace('r','')
+      value = float(value.replace('p',''))*0.1
+      coupling_values_list.append(value)
+
+  # Set Canvas Parameter
+
+  rt.gStyle.SetOptTitle(0)
+  rt.gStyle.SetOptStat(0)
+  rt.gStyle.SetPaintTextFormat(".2f");
+  #rt.gStyle.SetPalette(rt.kInvertedDarkBodyRadiator);
+  rt.TColor.InvertPalette();
+
+  c = rt.TCanvas("c", "c", 620, 600)
+  c.SetGrid(0,0)
+  c.SetLogz(1)
+  c.SetTopMargin(0.085)
+  c.SetLeftMargin(0.10)
+  c.SetRightMargin(0.15)
+  c.SetTicks(1,1)
+
+  model_ = '2HDM+a'
+
+  import CMS_lumi
+  CMS_lumi.writeExtraText = 1
+  if paper:
+    CMS_lumi.extraText = ""
+    CMS_lumi.relPosY = 0.05
+  else:
+    CMS_lumi.extraText = "Preliminary"
+  CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+  iPos = 11
+  if( iPos==0 ): CMS_lumi.relPosX = 0.12
+  iPeriod=year
+  CMS_lumi.relPosX = 0.15
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 2)
+  c.Update()
+  # Output directory setting
+
+  if interference:
+    type_ = "interference"
+  else:
+    type_ = "pure"
+
+  OUT_DIR = os.path.join(outputFolder, "plots_limit_2D","r" + coupling_type, type_)
+  CheckDir(OUT_DIR,True)
+
+
+  # Binning
+
+  coupling_values_bin = np.array(coupling_values_list)
+  np.sort(coupling_values_bin)
+  mass_bin = np.array(Masses).astype('float')
+  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.05)
+  mass_bin            = np.append(mass_bin,1050)
+
+  # Interpolation Binning
+  nbin = 90
+  coupling_value_min = coupling_values_bin[0]
+  coupling_value_max = coupling_values_bin[-2]
+  coupling_interp_bin = array('d',[])
+  for i in range(nbin):
+    coupling_interp_bin.append(coupling_value_min + (coupling_value_max - coupling_value_min)/float(nbin)*float(i))
+  coupling_interp_bin.append(1.005)
+
+  bin_width_mass = 5
+  mass_interp_bin = array('d',[])
+  mass_start = mass_bin[0]
+  while mass_start <= mass_bin[-2]:
+    mass_interp_bin.append(mass_start)
+    mass_start += bin_width_mass
+  mass_interp_bin.append(1001)
+  
+
+  # Histogram
+  Title = ";m_{A} [GeV];#rho_{%s}"%coupling_type
+  Hist   = rt.TH2D("",str(Title),
+                   len(mass_bin)-1, array('d',mass_bin.tolist()),
+                   len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
+  Hist_exp = Hist.Clone()
+
+  # Draw Limit Plot from discrete point
+
+  for idx_coupling, coupling_value in enumerate(coupling_values):
+
+    File_per_coupling_value = rt.TFile(log_files_dict[coupling_value])
+    obs = File_per_coupling_value.Get("obs")
+    exp = File_per_coupling_value.Get("expmed")
+    
+    value = float(coupling_value.replace('rtc','').replace('rtu','').replace('p',''))*0.1
+
+    for idx_mass, mass in enumerate(Masses):
+
+        limit_obs = obs.GetY()[idx_mass]
+        limit_exp = exp.GetY()[idx_mass]
+        Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
+        Hist_exp.SetBinContent(idx_mass+1, idx_coupling+1, limit_exp)
+
+    File_per_coupling_value.Close()
+
+  Hist.GetZaxis().SetTitle("95% CL #mu=#sigma/#sigma_{theory}(obs)")
+  Hist.GetZaxis().SetTitleOffset(1.3)
+
+  Hist.Draw("COLZ TEXT")
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
+
+  limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}.pdf'.format(year=year,channel=channel))
+  c.SaveAs(limit_pdf_file)
+  c.SaveAs(limit_pdf_file.replace('pdf','png'))
+
+  # Interpolation
+
+  Hist_interp_mass, exclusion = interpolate(Hist,
+                                             [mass_bin, coupling_values_bin],
+                                             [mass_interp_bin, coupling_values_bin],
+                                             axis='x',
+                                             itp_type = rt.Math.Interpolation.kLINEAR,
+                                             EPS=5, Title=Title)
+  Hist_interp_mass_exp, exclusion_exp = interpolate(Hist_exp,
+                                             [mass_bin, coupling_values_bin],
+                                             [mass_interp_bin, coupling_values_bin],
+                                             axis='x',
+                                             itp_type = rt.Math.Interpolation.kLINEAR,
+                                             EPS=5, Title=Title)
+  
+  Hist_interp_mass.Draw("COLZ")
+  exclusion.Draw("same")
+  exclusion_exp.Draw("same")
+  exclusion_exp.SetLineStyle(2)
+ 
+  ## Text
+  latex =  rt.TLatex();
+  latex.SetNDC();
+  latex.SetTextFont(42);
+  latex.SetTextSize(0.03);
+  latex.SetTextAlign(31);
+  latex.SetTextAlign(12);
+#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
+  latex.DrawLatex(0.62, 0.24, "g2HDM")
+  if interference:
+    latex.DrawLatex(0.62, 0.20, "m_{A} - m_{H} = 50 GeV");
+
+
+  ## Legend
+  leg = rt.TLegend(.6, .72, .83, .80);
+  leg.SetBorderSize(0);
+  leg.SetFillColorAlpha(0,0.0);
+  leg.SetShadowColor(0);
+  leg.SetTextFont(42);
+  leg.SetTextSize(0.03);
+  leg.AddEntry(exclusion, "Observed", "L")
+  leg.AddEntry(exclusion_exp, "Expected", "L")
+  leg.Draw("same")
+ 
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
+
+
+  limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}_interp.pdf'.format(year=year,channel=channel))
+  c.SaveAs(limit_pdf_file)
+  c.SaveAs(limit_pdf_file.replace(".pdf",".png"))
+
+  # Extra interpolation (linear in log mass)
+
+  Hist_interp_extra, exclusion_extra = interpolate(Hist_interp_mass,
+                                             [mass_interp_bin, coupling_values_bin],
+                                             [mass_interp_bin, coupling_interp_bin],
+                                             axis='y',
+                                             itp_type = rt.Math.Interpolation.kPOLYNOMIAL,
+                                             EPS=1E-2, Title=Title)
+  Hist_interp_extra_exp, exclusion_extra_exp = interpolate(Hist_interp_mass_exp,
+                                             [mass_interp_bin, coupling_values_bin],
+                                             [mass_interp_bin, coupling_interp_bin],
+                                             axis='y',
+                                             itp_type = rt.Math.Interpolation.kPOLYNOMIAL,
+                                             EPS=1E-2, Title=Title)
+  if coupling_type == "tc":
+    exclusion_extra.SetPoint(exclusion_extra.GetN(), exclusion.GetX()[-1],  1.0)
+    exclusion_extra_exp.SetPoint(exclusion_extra_exp.GetN(), exclusion_exp.GetX()[-1],  1.0)
+
+  exclusion_extra_exp.SetLineStyle(2)
+  Hist_interp_extra.GetYaxis().SetNdivisions(505)
+  Hist_interp_extra.Draw("COLZ")
+  exclusion_extra.Draw("same")
+  exclusion_extra_exp.Draw("same")
+
+  ## Text
+  latex =  rt.TLatex();
+  latex.SetNDC();
+  latex.SetTextFont(42);
+  latex.SetTextSize(0.03);
+  latex.SetTextAlign(31);
+  latex.SetTextAlign(12);
+#  latex.DrawLatex(0.16, 0.84, "95% CL limits")
+  latex.DrawLatex(0.16, 0.84, "g2HDM")
+  if interference:
+    latex.DrawLatex(0.16, 0.80, "m_{A} - m_{H} = 50 GeV");
+  latex.SetTextSize(0.05)
+  latex.SetTextColor(rt.kRed)
+  if not interference and coupling_type == "tc":
+    latex.DrawLatex(0.20, 0.72, "excluded")
+  else:
+    latex.DrawLatex(0.24,0.68, "excluded")
+
+  ## Legend
+  leg = rt.TLegend(.6, .72, .80, .80);
+  leg.SetBorderSize(0);
+  leg.SetFillColorAlpha(0,0.0);
+  leg.SetShadowColor(0);
+  leg.SetTextFont(42);
+  leg.SetTextSize(0.03);
+  leg.AddEntry(exclusion_extra, "Observed", "L")
+  leg.AddEntry(exclusion_extra_exp, "Expected", "L")
+  leg.Draw("same")
+ 
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
+
+  limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}_interp_extra.pdf'.format(year=year,channel=channel))
+  c.SaveAs(limit_pdf_file)
+  c.SaveAs(limit_pdf_file.replace(".pdf",".png"))
+
+  ## Contour version
+
+  Hist_interp_extra.SetContour(12, array('d',[10**(float(i)/3.-1.) for i in range(12)]))
+  Hist_interp_extra.Draw("CONT4Z")
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
+
+  latex =  rt.TLatex();
+  latex.SetNDC();
+  latex.SetTextFont(42);
+  latex.SetTextSize(0.03);
+  latex.SetTextAlign(31);
+  latex.SetTextAlign(12);
+#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
+  latex.DrawLatex(0.62, 0.20, "g2HDM")
+  if interference:
+    latex.DrawLatex(0.62, 0.16, "m_{A} - m_{H} = 50 GeV");
+  latex.SetTextSize(0.05)
+  latex.SetTextColor(rt.kRed)
+
+  if not interference and coupling_type == "tc":
+    latex.DrawLatex(0.20, 0.72, "excluded")
+  else:
+    latex.DrawLatex(0.24,0.68, "excluded")
+
+  limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}_interp_extra_cont.pdf'.format(year=year,channel=channel))
+  c.SaveAs(limit_pdf_file)
+  c.SaveAs(limit_pdf_file.replace(".pdf",".png"))
+
+  
+  c.Close()
