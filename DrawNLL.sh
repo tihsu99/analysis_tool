@@ -1,5 +1,5 @@
 #!/bin/bash
-#usage: ./DrawNLL.sh run2 C rtc04 200 pure sig_bkg unblind -0.5 3.5
+#usage: ./DrawNLL.sh run2 C rtc04 200 pure unblind -0.5 3.5
 YEAR=$1
 CHANNEL=$2
 COUPLING=$3
@@ -9,15 +9,15 @@ CURRENT_WORKSPACE=$(pwd)
 
 
 if [[ $6 == "sig_bkg" ]];then
+    UNBLIND=""
     expectSignal="s_plus_b"
-else
-    expectSignal="b_only"
-fi
-if [[ $7 == "unblind" ]];then
+elif [[ $6 == 'unblind' ]];then
     UNBLIND="--unblind"
     expectSignal="Unblind"
 else
     UNBLIND=""
+    expectSignal="b_only"
+
 fi
 if [[ $5 == "interference" ]];then
     type_signal="A_interfered_with_S0"
@@ -36,8 +36,8 @@ MultiDimFit_root=higgsCombine.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${ex
 
 
 
-rMin=${8:-0}
-rMax=${9:-10}
+rMin=${7:-0}
+rMax=${8:-10}
 npoints=100
 
 
