@@ -206,6 +206,19 @@ for reg in regions:
                     #fout.write('------------'+'\n')
                     #fout.write(p+'\n')
                     #fout.write(part4+'\n')
+                    '''
+                    Last Lines of datacard -> uncertainty group are claimed here
+                    '''
+                    with open('./data_info/NuisanceGroup/nuisance_group_{}_{}.json'.format(year,channel),'r') as f:
+                        Group = json.load(f) 
+                    
+                    for gr in Group.keys():
+                        line = gr
+                        line += ' group = '
+                        for unc in Group[gr]:
+                            line += unc+' '
+                        fout.write(line+'\n')
+
                     fout.close()
                     print(outputfile+' is prepared!')
                     print("===================================================")
