@@ -35,10 +35,9 @@ OUTDIR=./SignalExtraction/${YEAR}/${CHANNEL}/${COUPLING}/${type_signal}/${MASS}/
 MultiDimFit_root=higgsCombine.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
 
 
-
 rMin=${7:-0}
 rMax=${8:-10}
-npoints=100
+npoints=${9:-1}
 
 
 
@@ -53,7 +52,7 @@ SingleScanMultiDimFit_root=higgsCombine.singlescan.${YEAR}.${CHANNEL}.${COUPLING
 cd ${OUTDIR}
 
 combine -M MultiDimFit ${workspace_root} -n .singlescan.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints
-python plot1DScan.py ${SingleScanMultiDimFit_root} -o Likelihood.singlescan.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}
+python ${CURRENT_WORKSPACE}/plot1DScan.py ${SingleScanMultiDimFit_root} -o Likelihood.singlescan.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}
 ###################
 
 ### snapshot #####
@@ -67,22 +66,17 @@ combine -M MultiDimFit ${workspace_root_copy} -n .${YEAR}.${CHANNEL}.${COUPLING}
 FreezeExp_MultiDimFit_root=higgsCombine.freeze.exp.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
 FreezeExpTheory_MultiDimFit_root=higgsCombine.freeze.exp_theory.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
 FreezeExpTheoryCtag_MultiDimFit_root=higgsCombine.freeze.exp_theory_ctag.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
-FreezeExpTheoryCtagFake_MultiDimFit_root=higgsCombine.freeze.exp_theory_ctag_fake.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
 FreezeAll_MultiDimFit_root=higgsCombine.freeze.All.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.MultiDimFit.mH${MASS}.root
 
 combine -M MultiDimFit ${workspace_root_copy} -n .freeze.exp.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints --freezeNuisanceGroups Exp --snapshotName MultiDimFit
 
 combine -M MultiDimFit ${workspace_root_copy} -n .freeze.exp_theory.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints --freezeNuisanceGroups Exp,Theory --snapshotName MultiDimFit
 combine -M MultiDimFit ${workspace_root_copy} -n .freeze.exp_theory_ctag.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints --freezeNuisanceGroups Exp,Theory,c-tagging --snapshotName MultiDimFit
-combine -M MultiDimFit ${workspace_root_copy} -n .freeze.exp_theory_ctag_fake.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints --freezeNuisanceGroups Exp,Theory,c-tagging,nonprompt --snapshotName MultiDimFit
 combine -M MultiDimFit ${workspace_root_copy} -n .freeze.All.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal} -m ${MASS} --rMin $rMin --rMax $rMax --algo grid --points $npoints --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit
 
-python plot1DScan.py ${SingleScanMultiDimFit_root} --main-label "Total Uncert." -o Likelihood.breakdown.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}  --others ${FreezeExp_MultiDimFit_root}:"Freeze Exp.":4  ${FreezeExpTheory_MultiDimFit_root}:"Freeze Exp.+Theory":2 ${FreezeExpTheoryCtag_MultiDimFit_root}:"Freeze Exp.+Theory+c-tag":3 ${FreezeExpTheoryCtagFake_MultiDimFit_root}:"Freeze Exp.+Theory+c-tag+Nonprompt":5 ${FreezeAll_MultiDimFit_root}:"Stat. Only":6 --breakdown "Exp, Theory, c-tagging, nonprompt, NormttW, Stat"
-python plot1DScan.py ${SingleScanMultiDimFit_root} --main-label "Total Uncert." -o Likelihood.breakdown.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}  --others ${FreezeExp_MultiDimFit_root}:"Freeze Exp.":4  ${FreezeAll_MultiDimFit_root}:"Stat. Only":6 --breakdown "Exp, Theory, Stat"
+python ${CURRENT_WORKSPACE}/plot1DScan.py ${SingleScanMultiDimFit_root} --main-label "Total Uncert." -o Likelihood.breakdown.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}  --others ${FreezeExp_MultiDimFit_root}:"Freeze Exp.":4  ${FreezeExpTheory_MultiDimFit_root}:"Freeze Exp.+Theory":2 ${FreezeExpTheoryCtag_MultiDimFit_root}:"Freeze Exp.+Theory+c-tag":3  ${FreezeAll_MultiDimFit_root}:"Stat. Only":6 --breakdown "Exp, Theory, c-tagging, Background, Stat"
 
 combineTool.py -M FastScan -w ${workspace_root}:w
 
-mv Likelihood.singlescan.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}* ./results
-mv Likelihood.breakdown.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}* ./results
-mv nll.pdf ${OUTPUT_DIR}/nll.${YEAR}.${CHANNEL}.${COUPLING}.${type_signal}.${expectSignal}.mH${MASS}.pdf ./results
+mv *.pdf ./results
 cd ${CURRENT_WORKSPACE}
