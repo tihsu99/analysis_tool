@@ -58,7 +58,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.5, .62, .73, .86);
+    leg = rt.TLegend(.57, .62, .80, .86);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
@@ -70,7 +70,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{A} [GeV];95% CL #mu=#sigma/#sigma_{theory}")
+    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma_{theory}")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
     end_point = len(coupling_values) -1
@@ -132,11 +132,11 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
             mg.Add(obs, "LP") 
-        leg.AddEntry(exp, Limit_Name+" Expected limit", "LP");
+        leg.AddEntry(exp, Limit_Name+" Expected", "LP");
         if idx==end_point:
-            leg.AddEntry(exp1s,"Expected limit #pm 1 #sigma","F")
-            leg.AddEntry(exp2s,"Expected limit #pm 2 #sigma","F")
-            leg.AddEntry(obs, "Observed limit", "L");
+            leg.AddEntry(exp1s,"68% expected","F")
+            leg.AddEntry(exp2s,"95% expected","F")
+            leg.AddEntry(obs, "Observed", "L");
         else:pass
 
 
@@ -150,6 +150,8 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     CMS_lumi.writeExtraText = 1
     if paper:
       CMS_lumi.extraText = ""
+      CMS_lumi.relPosY = 0.045
+      CMS_lumi.relPosX = 0.06
     else:
       CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
@@ -172,12 +174,12 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextSize(0.03);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
-    latex.DrawLatex(0.19, 0.82, "95% CL limits")
-    latex.DrawLatex(0.19, 0.78, "g2HDM")
+#    latex.DrawLatex(0.19, 0.82, "95% CL limits")
+    latex.DrawLatex(0.19, 0.82, "g2HDM")
     if AN:
-      latex.DrawLatex(0.19, 0.70, year + " " + channel)
+      latex.DrawLatex(0.19, 0.74, year + " " + channel)
     if interference:
-      latex.DrawLatex(0.19, 0.74, "m_{A} - m_{H} = 50 GeV");
+      latex.DrawLatex(0.19, 0.78, "m_{A} - m_{H} = 50 GeV");
 
     
     c.Update()
@@ -283,38 +285,12 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
   results = zip(interp, final_limit_interp)
   for result in results:
     print(result)
-  Hist_interp.GetZaxis().SetTitle("95% CL #mu=#sigma/#sigma_{theory}(obs)")
-  Hist_interp.GetZaxis().SetTitleOffset(1.3)
+  Hist_interp.GetZaxis().SetTitle("95% CL upper limit on #mu=#sigma/#sigma_{theory}(obs)")
+  Hist_interp.GetYaxis().SetTitleOffset(0.95)
+  Hist_interp.GetZaxis().SetTitleOffset(1.55)
 
   return Hist_interp, exclusion
 
-def stamp(exclusion, exclusion_exp, interference=False):
-
-  ## Text
-  latex =  rt.TLatex();
-  latex.SetNDC();
-  latex.SetTextFont(42);
-  latex.SetTextSize(0.03);
-  latex.SetTextAlign(31);
-  latex.SetTextAlign(12);
-  latex.DrawLatex(0.62, 0.24, "95% CL limits")
-  latex.DrawLatex(0.62, 0.20, "g2HDM")
-  if interference:
-    latex.DrawLatex(0.62, 0.16, "m_{A} - m_{H} = 50 GeV");
-
-
-  ## Legend
-  leg = rt.TLegend(.6, .72, .83, .80);
-  leg.SetBorderSize(0);
-  leg.SetFillColor(0);
-  leg.SetShadowColor(0);
-  leg.SetTextFont(42);
-  leg.SetTextSize(0.03);
-  leg.AddEntry(exclusion, "Observed limit", "L")
-  leg.AddEntry(exclusion_exp, "Expected limit", "L")
-  leg.Draw("same")
-
-  return leg
 
 def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], interference=False, paper=False):
 
@@ -343,8 +319,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   c.SetGrid(0,0)
   c.SetLogz(1)
   c.SetTopMargin(0.085)
-  c.SetLeftMargin(0.10)
-  c.SetRightMargin(0.15)
+  c.SetLeftMargin(0.07)
+  c.SetRightMargin(0.18)
   c.SetTicks(1,1)
 
   model_ = '2HDM+a'
@@ -353,7 +329,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   CMS_lumi.writeExtraText = 1
   if paper:
     CMS_lumi.extraText = ""
-    CMS_lumi.relPosY = 0.05
+    CMS_lumi.relPosY = 0.045
   else:
     CMS_lumi.extraText = "Preliminary"
   CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
@@ -470,7 +446,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
 
   ## Legend
-  leg = rt.TLegend(.6, .72, .83, .80);
+  leg = rt.TLegend(.55, .72, .78, .80);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);

@@ -456,7 +456,17 @@ def Plot_Histogram(template_settings=dict()):
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
-    
+   
+    if template_settings['unblind']:
+      nDigits = int(np.log10(template_settings['Integral']["Data"]))+1
+      for idx, Histogram_Name in enumerate(Ordered_Integral):
+        if Histogram_Name == "Data": continue
+        Yield = template_settings['Integral'][Histogram_Name]
+        if int(np.log10(Yield))+1 >= nDigits:
+          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits])
+        else:
+          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits+1])
+
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
     hh_total = None
@@ -481,7 +491,7 @@ def Plot_Histogram(template_settings=dict()):
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + template_settings['Integral'][Histogram_Name] + ']', 'F')
 
     h_stack.SetTitle("{};BDT score;Events / bin ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
@@ -584,6 +594,8 @@ def Plot_Histogram(template_settings=dict()):
     CMS_lumi.writeExtraText = 1
     if template_settings['paper']:
       CMS_lumi.extraText = ""
+      CMS_lumi.relPosX = 0.06
+      CMS_lumi.relPosY = 0.03
     else:
       CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
