@@ -110,7 +110,8 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
         Group = dict()
         Group['Theory'] = list()
         Group['Exp'] = list()
-    
+        Group['Background'] = list() 
+        Group['c-tagging'] = list()
     
     for nui in nuis_Init:
         if nui in blacklist and nui not in whitelist:pass
@@ -138,10 +139,18 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
 
             Index+=1
             if breakdown:
-                if "_norm" in nui or "_sig" in nui:
+                if  "_sig" in nui:
                     nui = nui.replace("_", "")
                     nui = nui.replace("YEAR", year)
                     Group['Theory'].append(nui)
+                elif "_norm" in nui or "chargeflip" in nui:
+                    nui = nui.replace("_", "")
+                    nui = nui.replace("YEAR", year)
+                    Group['Background'].append(nui)
+                elif "_ctag" in nui:
+                    nui = nui.replace("_", "")
+                    nui = nui.replace("YEAR", year)
+                    Group['c-tagging'].append(nui)
                 else:
                     nui = nui.replace("_", "")
                     nui = nui.replace("YEAR", year)
