@@ -64,6 +64,11 @@ cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
 
+## 1.3 Calculate logN uncertainty for category (Option)
+To get information about logN uncertainty for merged category. Please use following command. With BDT cut, different signal will affect BDT shape and thus background composition. The average uncertainty will be affected but it was found to have negligible affect. `You need to enter the number to the corresponding code by hand if you want to change category uncertainty` since we want to keep the category uncertainty fixed and maintained in github in current stage.
+```
+python study_bkg_composition.py 
+```
 
 # 2. Rebin and merging of processes 
 
