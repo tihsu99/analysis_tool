@@ -193,17 +193,15 @@ def GetHist(mass, interference, coupling, input_dir, outdir, GenerateUnc=False):
            
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-m','--method')
+parser.add_argument('-m','--method', help='[plot/or not]')
+parser.add_argument('--indir',  type=str)
+parser.add_argument('--Masses', help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
+parser.add_argument('--interference', action='store_true')
+parser.add_argument('--plot', action='store_true')
+parser.add_argument('--coupling', help='[rtc/rtu]', type=str)
+parser.add_argument('--outdir', type=str)
 
 args = parser.parse_args()
 
-if args.method == 'plot':
-  for mass in [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]:
-    GetHist(mass, False, "rtu", '/eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/', '/eos/user/t/tihsu/Limit_bkg_study') 
-  for mass in [250, 300, 350, 400, 550, 700, 800, 900, 1000]:
-    GetHist(mass, True, "rtu", '/eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/', '/eos/user/t/tihsu/Limit_bkg_study')
-else:
-  for mass in [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]:
-    GetHist(mass, False, "rtu", '/eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/', '/eos/user/t/tihsu/Limit_bkg_study', True)
-  for mass in [250, 300, 350, 400, 550, 700, 800, 900, 1000]:
-    GetHist(mass, True, "rtu", '/eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/', '/eos/user/t/tihsu/Limit_bkg_study',True)
+for mass in args.Masses:
+  GetHist(mass, args.interference,  args.coupling, args.indir, args.outdir, not args.plot)
