@@ -64,6 +64,11 @@ cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
 
+## 1.3 Calculate logN uncertainty for category (Option)
+To get information about logN uncertainty for merged category. Please use following command. With BDT cut, different signal will affect BDT shape and thus background composition. The average uncertainty will be affected but it was found to have negligible affect. `You need to enter the number to the corresponding code by hand if you want to change category uncertainty` since we want to keep the category uncertainty fixed and maintained in github in current stage.
+```
+python study_bkg_composition.py 
+```
 
 # 2. Rebin and merging of processes 
 
@@ -527,9 +532,9 @@ condor_submit scripts/condor.sub
 
 # 7. Multiple Limit Plots
 
-Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
+Merged selected multiple plots together. You should make sure you already make every single limit plot already. With `interp` option, you can plot 2D exclusion plot.
 ```
-python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
+python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder] [--interp] [--paper]
 ```
 
 # 8. Integrating results
