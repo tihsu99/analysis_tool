@@ -9,13 +9,10 @@ from ROOT import TGraph, TFile, TGraphAsymmErrors
 import ROOT as rt
 import ROOT
 import argparse
-import csv 
-import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
 from scipy.optimize import minimize
  
 def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=False):
-
   solutions = []
   for x in np.linspace(min_x, max_x, 10):
     solution = minimize(pred,
@@ -74,6 +71,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
     end_point = len(coupling_values) -1
+    OBS = []
     for idx,coupling_value in enumerate(coupling_values):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
@@ -131,14 +129,16 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerStyle(20)
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
-            mg.Add(obs, "LP") 
+            OBS.append(obs)
+          #  mg.Add(obs, "LP") 
         leg.AddEntry(exp, Limit_Name+" Expected", "LP");
         if idx==end_point:
             leg.AddEntry(exp1s,"68% expected","F")
             leg.AddEntry(exp2s,"95% expected","F")
             leg.AddEntry(obs, "Observed", "L");
         else:pass
-
+    for obs in OBS:
+      mg.Add(obs, "LP")
 
     c.cd()
     #mg.SetTitleName(";Mass[GeV];#mu=#sigma/#sigma_{theory}")
@@ -283,8 +283,8 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
   exclusion.SetLineWidth(2)
   exclusion.SetLineColor(rt.kRed)
   results = zip(interp, final_limit_interp)
-  for result in results:
-    print(result)
+#  for result in results:
+#    print(result)
   Hist_interp.GetZaxis().SetTitle("95% CL upper limit on #mu=#sigma/#sigma_{theory}(obs)")
   Hist_interp.GetYaxis().SetTitleOffset(0.95)
   Hist_interp.GetZaxis().SetTitleOffset(1.55)
@@ -394,7 +394,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
     value = float(coupling_value.replace('rtc','').replace('rtu','').replace('p',''))*0.1
 
     for idx_mass, mass in enumerate(Masses):
-
+        #print(coupling_value, mass)
         limit_obs = obs.GetY()[idx_mass]
         limit_exp = exp.GetY()[idx_mass]
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
