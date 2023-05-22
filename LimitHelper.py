@@ -19,7 +19,7 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False, verbose=False, rMax=2):
+    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False, verbose=False, rMax=5):
         self.year_                 = year
         self.analysis_             = analysis 
         self.analysisbin_          = analysisbin 
