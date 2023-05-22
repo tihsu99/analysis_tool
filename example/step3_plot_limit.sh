@@ -1,4 +1,4 @@
-unblind="${3:-''}"
+unblind=$3
 for CHANNEL in C
 do
   for ERA in run2

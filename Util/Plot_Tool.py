@@ -11,7 +11,11 @@ import ROOT
 import argparse
 from Util.General_Tool import CheckDir,CheckFile
 from scipy.optimize import minimize
- 
+
+####################
+## Find Zero Root ##
+####################
+
 def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=False):
   solutions = []
   for x in np.linspace(min_x, max_x, 10):
@@ -33,7 +37,11 @@ def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=Fa
 def pred(x, itp, r):
   return (itp.Eval(x[0])-0)**2
 
-def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200],interference=False, paper=False, AN=False, mode="Coupling"):
+###################
+## 1D Limit Plot ##
+###################
+
+def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year=['run2'],channel=['C'],Coupling_value=['rtc0p4'],outputFolder='./',Masses=[200],interference=False, paper=False, AN=False, mode="Coupling"):
     
     
     y_max=y_max # scale of y axis 
@@ -53,11 +61,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     ##Frame    
     model_ = '2HDM+a'
     ### Legend ####
-    if mode == "Coupling":
-      leg = rt.TLegend(.65, .65, .8, .89);
-    else:
-      leg = rt.TLegend(.57, .62, .80, .86);
-
+    leg = rt.TLegend(.57, .62, .80, .86);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
@@ -77,14 +81,14 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     end_point = len(keys)-1
 
     if mode == "Coupling":
- 
+      print(mode) 
       year = year[0]
       channel = channel[0] 
       limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{channel}.pdf'.format(year=year,channel=channel)
       signal_information = year + " " + channel
       colors = [2,4,6,28]   
       OBS = []
-      for idx,coupling_value in enumerate(coupling_values):
+      for idx,coupling_value in enumerate(Coupling_value):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
         #### Set the Name in legend ####
@@ -140,10 +144,12 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         if idx==end_point:
             leg.AddEntry(exp1s,"68% expected","F")
             leg.AddEntry(exp2s,"95% expected","F")
-            leg.AddEntry(obs, "Observed", "L");
+            if unblind:
+              leg.AddEntry(obs, "Observed", "L");
         else:pass
-      for obs in OBS:
-        mg.Add(obs, "LP")
+      if unblind:
+        for obs in OBS:
+          mg.Add(obs, "LP")
 
     elif mode=='Year':      
 
@@ -172,22 +178,22 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         coupling_value=coupling_value.replace('p','.')
         
         File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
-        exp =  File_per_coupling_value.Get("expmed")
+        if not unblind:
+          exp =  File_per_coupling_value.Get("expmed")
+        else:
+          exp =  File_per_coupling_value.Get("obs")
+
         exp.SetMarkerStyle(21)
         exp.SetMarkerColor(colors[idx])
         exp.SetMarkerSize(1.1)
         exp.SetLineColor(colors[idx])
         exp.SetLineWidth(3)
-        #exp.Draw("L")
-        mg.Add(exp,"L")
-        if unblind:
-            obs =  File_per_coupling_value.Get("obs")
-            obs.SetMarkerStyle(20)
-            obs.SetMarkerSize(1.1)
-            obs.SetLineWidth(3)
-            mg.Add(obs,"LP")
-        
-        leg.AddEntry(exp, YEAR, "LP");
+        mg.Add(exp,"LP")
+        if not unblind:
+          leg.AddEntry(exp, YEAR + "(exp)", "LP");
+        else:
+          leg.AddEntry(exp, YEAR + "(obs)", "LP");
+
 
 
     else: 
@@ -215,28 +221,27 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         
         File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
         
-    
-        exp =  File_per_coupling_value.Get("expmed")
+        if not unblind: 
+          exp =  File_per_coupling_value.Get("expmed")
+        else:
+          exp = File_per_coupling_value.Get("obs")
+
         exp.SetMarkerStyle(21)
         exp.SetMarkerColor(colors[idx])
         exp.SetMarkerSize(1.1)
         exp.SetLineColor(colors[idx])
         exp.SetLineWidth(2)
-        #exp.Draw("L")
-        mg.Add(exp,"L")
-        if unblind:
-            obs =  File_per_coupling_value.Get("obs")
-            obs.SetMarkerStyle(20)
-            obs.SetMarkerSize(1.1)
-            obs.SetLineWidth(2)
-            mg.Add(obs,"LP")
+        mg.Add(exp,"LP")
         channel = channel.replace('C','ee+em+mm').replace('m','#mu')
-        leg.AddEntry(exp, channel, "LP");
+        if not unblind:
+          leg.AddEntry(exp, channel + "(exp)", "LP");
+        else:
+          leg.AddEntry(exp, channel + "(obs)", "LP");
+
 
 
 
     c.cd()
-    #mg.SetTitleName(";Mass[GeV];#mu=#sigma/#sigma_{theory}")
     mg.Draw("same") 
     leg.Draw("same")
 
@@ -269,7 +274,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextSize(0.03);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
-#    latex.DrawLatex(0.19, 0.82, "95% CL limits")
     latex.DrawLatex(0.19, 0.82, "g2HDM")
     if AN:
       latex.DrawLatex(0.19, 0.74, year + " " + channel)
@@ -282,8 +286,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
 
     ### Output File Setting ###
     OUT_DIR = os.path.join(outputFolder,"plots_limit")
-
-    limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{channel}.pdf'.format(year=year,channel=channel)
     
     CheckDir(OUT_DIR,True)
     limit_pdf_file  = os.path.join(OUT_DIR,limit_pdf_file)

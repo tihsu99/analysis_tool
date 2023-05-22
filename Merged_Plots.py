@@ -17,9 +17,8 @@ for coupling in ['rtc','rtu','rtt']:
         couplingvalue_choices.append(coupling+value)
 
 
-
-parser.add_argument('-y','--year',help='Years of data.',default='2017',choices=year_choices)
-parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=channel_choices)
+parser.add_argument('-y','--year',help='Years of data.',default=['2017'],nargs='+')
+parser.add_argument('-c','--channel',help='Years of data.',default=['ee'],choices=channel_choices,nargs='+')
 parser.add_argument('--coupling_values',help='List of coupling values',default=['rtu01','rtu04'],nargs='+')
 
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
@@ -62,7 +61,7 @@ if Mode == "Coupling":
     
     coupling_value = 'ttc_'+value
 
-    log_files_path_per_value = './bin/{year}/{channel}/limits_{coupling_value}_asimov_extYukawa.root'.format(year=args.year,channel=args.channel,coupling_value=coupling_value)
+    log_files_path_per_value = './bin/{year}/{channel}/limits_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value)
 
     if args.interference:
       log_files_path_per_value = log_files_path_per_value.replace(".root","_interference.root")
@@ -111,6 +110,6 @@ else:
 
 from Util.Plot_Tool import Plot_1D_Limit_For, Plot_2D_Limit_For
 if not args.interp:
-  Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference, paper=args.paper, AN=args.AN, mode = Mode)
+  Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference, paper=args.paper, AN=args.AN, Coupling_value = args.coupling_values, mode = Mode)
 else:
   Plot_2D_Limit_For(log_files_path_Dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, args.interference, args.paper)
