@@ -532,9 +532,10 @@ condor_submit scripts/condor.sub
 
 # 7. Multiple Limit Plots
 
-Merged selected multiple plots together. You should make sure you already make every single limit plot already. With `interp` option, you can plot 2D exclusion plot.
+Merged selected multiple plots together. You should make sure you already make every single limit plot already. With `interp` option, you can plot 2D exclusion plot. Please note that you should not do `cmsenv` in this specific part.
 ```
-python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder] [--interp] [--paper]
+source env.sh
+python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 rtu0p8 rtu1p0 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder] [--interp] [--paper]
 ```
 
 # 8. Integrating results
