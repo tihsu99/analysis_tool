@@ -282,10 +282,6 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
 
   exclusion.SetLineWidth(2)
   exclusion.SetLineColor(rt.kRed)
-  results = zip(interp, final_limit_interp)
-#  for result in results:
-#    print(result)
-  Hist_interp.GetZaxis().SetTitle("95% CL upper limit on #mu=#sigma/#sigma_{theory}(obs)")
   Hist_interp.GetYaxis().SetTitleOffset(0.95)
   Hist_interp.GetZaxis().SetTitleOffset(1.55)
 
@@ -312,7 +308,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   rt.gStyle.SetOptTitle(0)
   rt.gStyle.SetOptStat(0)
   rt.gStyle.SetPaintTextFormat(".2f");
-  #rt.gStyle.SetPalette(rt.kInvertedDarkBodyRadiator);
   rt.TColor.InvertPalette();
 
   c = rt.TCanvas("c", "c", 620, 600)
@@ -323,8 +318,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   c.SetRightMargin(0.18)
   c.SetTicks(1,1)
 
-  model_ = '2HDM+a'
-
+  # CMS style
+  
   import CMS_lumi
   CMS_lumi.writeExtraText = 1
   if paper:
@@ -339,6 +334,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   CMS_lumi.relPosX = 0.15
   CMS_lumi.CMS_lumi(c, iPeriod, iPos, 2)
   c.Update()
+
   # Output directory setting
 
   if interference:
@@ -355,29 +351,38 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   coupling_values_bin = np.array(coupling_values_list)
   np.sort(coupling_values_bin)
   mass_bin = np.array(Masses).astype('float')
-  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.05)
-  mass_bin            = np.append(mass_bin,1050)
+  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.005)
+  mass_bin            = np.append(mass_bin, mass_bin[-1]+1)
 
   # Interpolation Binning
+
+  # -- Coupling value --
   nbin = 90
   coupling_value_min = coupling_values_bin[0]
   coupling_value_max = coupling_values_bin[-2]
   coupling_interp_bin = array('d',[])
   for i in range(nbin):
     coupling_interp_bin.append(coupling_value_min + (coupling_value_max - coupling_value_min)/float(nbin)*float(i))
-  coupling_interp_bin.append(1.005)
+  coupling_interp_bin.append(coupling_interp_bin[-1] + 0.005)
 
+  # -- Mass --
   bin_width_mass = 5
   mass_interp_bin = array('d',[])
   mass_start = mass_bin[0]
   while mass_start <= mass_bin[-2]:
     mass_interp_bin.append(mass_start)
     mass_start += bin_width_mass
-  mass_interp_bin.append(1001)
-  
+  mass_interp_bin.append(mass_interp_bin[-1] + 1)
 
+  
   # Histogram
-  Title = ";m_{A} [GeV];#rho_{%s}"%coupling_type
+
+  if unblind:
+    Target_Object = "obs"
+  else:
+    Target_Object = "expmed"
+
+  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma/#sigma_{theory}(%s)"%(coupling_type, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -388,13 +393,12 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   for idx_coupling, coupling_value in enumerate(coupling_values):
 
     File_per_coupling_value = rt.TFile(log_files_dict[coupling_value])
-    obs = File_per_coupling_value.Get("obs")
+    obs = File_per_coupling_value.Get(str(Target_Object))
     exp = File_per_coupling_value.Get("expmed")
     
     value = float(coupling_value.replace('rtc','').replace('rtu','').replace('p',''))*0.1
 
     for idx_mass, mass in enumerate(Masses):
-        #print(coupling_value, mass)
         limit_obs = obs.GetY()[idx_mass]
         limit_exp = exp.GetY()[idx_mass]
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
@@ -402,7 +406,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
     File_per_coupling_value.Close()
 
-  Hist.GetZaxis().SetTitle("95% CL #mu=#sigma/#sigma_{theory}(obs)")
   Hist.GetZaxis().SetTitleOffset(1.3)
 
   Hist.Draw("COLZ TEXT")
@@ -428,7 +431,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
                                              EPS=5, Title=Title)
   
   Hist_interp_mass.Draw("COLZ")
-  exclusion.Draw("same")
+  if unblind:
+    exclusion.Draw("same")
   exclusion_exp.Draw("same")
   exclusion_exp.SetLineStyle(2)
  
@@ -439,7 +443,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
   latex.DrawLatex(0.62, 0.24, "g2HDM")
   if interference:
     latex.DrawLatex(0.62, 0.20, "m_{A} - m_{H} = 50 GeV");
@@ -452,7 +455,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
   leg.SetTextSize(0.03);
-  leg.AddEntry(exclusion, "Observed", "L")
+  if unblind:
+    leg.AddEntry(exclusion, "Observed", "L")
   leg.AddEntry(exclusion_exp, "Expected", "L")
   leg.Draw("same")
  
@@ -484,7 +488,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   exclusion_extra_exp.SetLineStyle(2)
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
   Hist_interp_extra.Draw("COLZ")
-  exclusion_extra.Draw("same")
+  if unblind:
+    exclusion_extra.Draw("same")
   exclusion_extra_exp.Draw("same")
 
   ## Text
@@ -494,7 +499,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.16, 0.84, "95% CL limits")
   latex.DrawLatex(0.16, 0.84, "g2HDM")
   if interference:
     latex.DrawLatex(0.16, 0.80, "m_{A} - m_{H} = 50 GeV");
@@ -512,7 +516,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
   leg.SetTextSize(0.03);
-  leg.AddEntry(exclusion_extra, "Observed", "L")
+  if unblind:
+    leg.AddEntry(exclusion_extra, "Observed", "L")
   leg.AddEntry(exclusion_extra_exp, "Expected", "L")
   leg.Draw("same")
  
@@ -534,7 +539,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
   latex.DrawLatex(0.62, 0.20, "g2HDM")
   if interference:
     latex.DrawLatex(0.62, 0.16, "m_{A} - m_{H} = 50 GeV");
