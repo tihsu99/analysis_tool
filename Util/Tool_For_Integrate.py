@@ -60,25 +60,28 @@ def Integrate_SignalExtraction(args):
     '''
     Main function to integrate signal extraction results
     '''
-    Store_Folders = WalkAndStoreAsList(mainFolder='SignalExtraction')
+    Store_Folders = WalkAndStoreAsList(storedir = args.storedir, mainFolder='SignalExtraction')
     for Folder in Store_Folders : 
         print('\nFolder which is checking currently: {Folder}'.format(Folder=Folder))
-        Info = GetInformation(Folder)
+        Info = GetInformation(storedir = args.storedir, Folder = Folder)
         CopyTheResults(Info)
         WriteLatex(Info)
 
-def WalkAndStoreAsList(mainFolder=''):
+def WalkAndStoreAsList(storedir = '', mainFolder=''):
     
     Store_Folders = list()
-    for root, _,_ in os.walk(mainFolder,topdown=True):
-        if len(root.split('/')) != 7: continue
+    for root, _,_ in os.walk(os.path.join(storedir, mainFolder),topdown=True):
+        if (len(root.split('/'))-len(storedir.split('/'))) != 7: continue
         Store_Folders.append(root)
 
     return Store_Folders
 
 
-def GetInformation(Folder=''):
+def GetInformation(storedir = '', Folder=''):
 
+    Folder = Folder.replace(storedir,'')
+    while Folder[0] == '/':
+      Folder = Folder[1:]
     elements = Folder.split('/')
     year = elements[1]
     channel = elements[2]
@@ -87,13 +90,13 @@ def GetInformation(Folder=''):
     mA = elements[5]
     b_only_ornot = elements[6]
     
-    result_folder = os.path.join(Folder,'results')
+    result_folder = os.path.join(storedir, Folder,'results')
     
     #/SignalExtraction/run2/C/rtu04/A/350/s_plus_b/results
     #./SignalExtraction/run2/C/rtu04/A_interfered_with_S0/350/b_only/results/diffNuisances_run2_C_A_interfered_with_S0_350_rtu04_69_.pdf
     #./SignalExtraction/run2/C/rtu04/A_interfered_with_S0/350/b_only/results/impacts_t0_run2_C_MA_interfered_with_S0350_rtu04.pdf
 
-    filenames = ['preFit_{channel}.pdf'.format(channel=channel),'postFit_{channel}.pdf'.format(channel=channel),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_1_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_2_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'impacts_t0_{year}_{channel}_M{higgs}{mA}_{coupling}.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling)]
+    filenames = ['preFit_{channel}_log.pdf'.format(channel=channel),'postFit_{channel}_log.pdf'.format(channel=channel),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_1_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'diffNuisances_{year}_{channel}_{higgs}_{mA}_{coupling}_2_.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling),'impacts_t0_{year}_{channel}_M{higgs}{mA}_{coupling}.pdf'.format(channel=channel,year=year,higgs=higgs,mA=mA,coupling=coupling)]
     
     Categorys = ['preFit','postFit','pull','impact']
     
@@ -113,7 +116,7 @@ def GetInformation(Folder=''):
 
     for idx,filename in enumerate(filenames):
         filename = os.path.join(result_folder,filename)
-        if CheckFile(filename,False,True):
+        if CheckFile(filename,False,False):
             if 'preFit' in filename:
                 Info['Category']['preFit']['Exist'] = True
                 Info['Category']['preFit']['Filenames'].append(filename)
@@ -172,9 +175,9 @@ def WriteLatex(Info=dict()):
             if Info['channel'] == 'ee':
                 channel = 'the $\Pe\Pe$ channel'
             elif Info['channel'] == 'em':
-                channel = 'the $\PGm\PGm$ channel'
-            elif Info['channel'] == 'mm':
                 channel = 'the $\Pe\PGm$ channel'
+            elif Info['channel'] == 'mm':
+                channel = 'the $\PGm\PGm$ channel'
             else:
                 channel = 'all channels'
             if Info['higgs'] == 'A':
@@ -183,16 +186,18 @@ def WriteLatex(Info=dict()):
                 interfered_postfix = ' with $\PA-\PH$ interference'
             
             if Info['b_only_ornot'] == 'b_only':
-                postfix_b_only_ornot = 'background-only'
+                unblind_postfix = 'background-only Asimov fit'
+            elif Info['b_only_ornot'] == 'Unblind':
+                unblind_postfix = 'unblind result'
             else:
-                postfix_b_only_ornot = 'signal + background'
+                unblind_postfix = 'signal + background Asimov fit'
 
 
             if 'rtu' in Info['coupling']:
                 value = int(Info['coupling'].split('rtu')[-1])*0.1
                 coupling = r'$\rho_{tu}'+'={value}$'.format(value=value)
             elif 'rtc' in Info['coupling']:
-                value = Info['coupling'].split('rtc')[-1].replace('p','.')
+                value = int(Info['coupling'].split('rtc')[-1].replace('p','.'))*0.1
                 coupling = r'$\rho_{tc}'+'={value}$'.format(value=value)
             
             latex.write(r'\begin{figure}[!h]'+'\n')
@@ -200,21 +205,21 @@ def WriteLatex(Info=dict()):
             if category == 'impact':
                 latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_1.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
                 latex.write(r'\includegraphics[width=0.82475\textwidth]{{{Folder}/impacts_t0_{year}_{channel}_M{higgs}{mH}_{coupling}_2.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
-                latex.write(r'\caption{{Impact distribution of the nuisance parameters for {postfix_b_only_ornot} Asimov fit of {year} data set in {channel} with \mA={mH}\GeV and {coupling} {interfered_postfix} (pages 1 and 2).}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot)+'\n')
+                latex.write(r'\caption{{Impact distribution of the nuisance parameters for {unblind_postfix} of {year} dataset in {channel} with \mA={mH}\GeV and {coupling} {interfered_postfix} (pages 1 and 2).}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],unblind_postfix=unblind_postfix)+'\n')
                 latex.write(r'\label{{fig:asimov_impact_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
 
             elif category =='preFit':
                 Folder = Info['Category'][category]['FinalFolder']
-                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/preFit_{channel}.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
+                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/preFit_{channel}_log.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
                 Folder = Folder.replace('preFit','postFit')
-                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/postFit_{channel}.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
-                latex.write(r'\caption{{Pre-fit(left) and  post-fit(right) BDT variable with {year} data for the {postfix_b_only_ornot} fit for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot) +'\n') 
+                latex.write(r'\includegraphics[width=0.45\textwidth]{{{Folder}/postFit_{channel}_log.pdf}}'.format(Folder=Folder,channel=Info['channel'])+'\n')
+                latex.write(r'\caption{{Pre-fit(left) and  post-fit(right) BDT variable with {year} data for the {unblind_postfix} for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],unblind_postfix=unblind_postfix) +'\n') 
 
                 latex.write(r'\label{{fig:prefit_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
             elif category =='pull':
                 latex.write(r'\includegraphics[width=0.73\textwidth]{{{Folder}/diffNuisances_{year}_{channel}_{higgs}_{mH}_{coupling}_1_.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
                 latex.write(r'\includegraphics[width=0.73\textwidth]{{{Folder}/diffNuisances_{year}_{channel}_{higgs}_{mH}_{coupling}_2_.pdf}}'.format(Folder=Info['Category'][category]['FinalFolder'],year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'])+'\n')
-                latex.write('\caption{{Pulls for each of the nuisance parameters for the {postfix_b_only_ornot} Asimov fit of {year} data set for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}.}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],postfix_b_only_ornot=postfix_b_only_ornot)+'\n')
+                latex.write('\caption{{Pulls for each of the nuisance parameters for the {unblind_postfix} of {year} dataset for {coupling} in {channel} for \mA={mH}\GeV {interfered_postfix}.}}'.format(year=year,channel=channel,coupling=coupling,interfered_postfix=interfered_postfix,mH=Info['mH'],unblind_postfix=unblind_postfix)+'\n')
                 latex.write(r'\label{{fig:asimov_pull_{year}_{channel}_{coupling}_{b_only_ornot}_{higgs}_{mH}}}'.format(year=Info['year'],channel=Info['channel'],higgs=Info['higgs'],mH=Info['mH'],coupling=Info['coupling'],b_only_ornot=Info['b_only_ornot'])+'\n')
 
             latex.write(r'\end{figure}'+'\n')
@@ -263,7 +268,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     LimitTable = open(TableName,'w')
     
     if 'rtu' in args.coupling_value:
-        value = (args.coupling_value.split('rtu')[-1]).replace('p','.')
+        value = int((args.coupling_value.split('rtu')[-1]).replace('p','.'))*0.1
         coupling_term = r'$\rho_{{tu}} = {value}$'.format(value=value)
     if 'rtc' in args.coupling_value:
         value = (args.coupling_value.split('rtc')[-1]).replace('p','.')
@@ -277,9 +282,9 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     elif args.channel == 'ee':
         channel = '\Pe\Pe channel'
     elif args.channel == 'mm':
-        channel = '\Pe\PGm channel'
-    elif args.channel == 'em':
         channel = '\PGm\PGm channel'
+    elif args.channel == 'em':
+        channel = '\Pe\PGm channel'
     
     if args.unblind:
         unblind_postfix = ' unblinding '

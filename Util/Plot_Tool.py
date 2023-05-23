@@ -9,13 +9,14 @@ from ROOT import TGraph, TFile, TGraphAsymmErrors
 import ROOT as rt
 import ROOT
 import argparse
-import csv 
-import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
 from scipy.optimize import minimize
- 
-def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=False):
 
+####################
+## Find Zero Root ##
+####################
+
+def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=False):
   solutions = []
   for x in np.linspace(min_x, max_x, 10):
     solution = minimize(pred,
@@ -36,9 +37,12 @@ def Find_Intersection(itp, min_x=0.1, max_x=1.0, EPS=5E-2, eps=1E-2, AddBound=Fa
 def pred(x, itp, r):
   return (itp.Eval(x[0])-0)**2
 
-def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year='run2',channel='C',outputFolder='./',Masses=[200],interference=False, paper=False, AN=False):
+###################
+## 1D Limit Plot ##
+###################
+
+def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year=['run2'],channel=['C'],Coupling_value=['rtc0p4'],outputFolder='./',Masses=[200],interference=False, paper=False, AN=False, mode="Coupling"):
     
-    coupling_values = log_files_dict.keys()
     
     y_max=y_max # scale of y axis 
     y_min=y_min # scale of y axis 
@@ -54,8 +58,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     c.SetLeftMargin(0.12)
     c.SetTicks(1,1)
     
-    ##Frame
-    
+    ##Frame    
     model_ = '2HDM+a'
     ### Legend ####
     leg = rt.TLegend(.57, .62, .80, .86);
@@ -73,8 +76,19 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma_{theory}")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
-    end_point = len(coupling_values) -1
-    for idx,coupling_value in enumerate(coupling_values):
+
+    keys = log_files_dict.keys()
+    end_point = len(keys)-1
+
+    if mode == "Coupling":
+      print(mode) 
+      year = year[0]
+      channel = channel[0] 
+      limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{channel}.pdf'.format(year=year,channel=channel)
+      signal_information = year + " " + channel
+      colors = [2,4,6,28]   
+      OBS = []
+      for idx,coupling_value in enumerate(Coupling_value):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
         #### Set the Name in legend ####
@@ -103,9 +117,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp2s.GetXaxis().SetTitleOffset(1.1)
         exp2s.GetYaxis().SetTitleOffset(1.7)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
-        #exp2s.GetXaxis().SetNdivisions(505);
-        #exp2s.GetXaxis().SetMoreLogLabels()
-        #exp2s.GetXaxis().SetRangeUser(10,750)
         
         mg.Add(exp2s,"A 3")
 
@@ -115,33 +126,122 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp1s.SetLineWidth(2)
         exp1s.SetFillColorAlpha(rt.kGreen,0.8);
         exp1s.SetLineColor(rt.kGreen)
-        #exp1s.Draw("3")
         mg.Add(exp1s,"3")
     
         exp =  File_per_coupling_value.Get("expmed")
         exp.SetMarkerStyle(1)
         exp.SetMarkerSize(1.1)
-#        exp.SetLineColor(colors[idx])
         exp.SetLineStyle(line_style[idx])
         exp.SetLineWidth(3)
-        #exp.Draw("L")
         mg.Add(exp,"L")
         if unblind:
             obs =  File_per_coupling_value.Get("obs")
             obs.SetMarkerStyle(20)
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
-            mg.Add(obs, "LP") 
+            OBS.append(obs)
         leg.AddEntry(exp, Limit_Name+" Expected", "LP");
         if idx==end_point:
             leg.AddEntry(exp1s,"68% expected","F")
             leg.AddEntry(exp2s,"95% expected","F")
-            leg.AddEntry(obs, "Observed", "L");
+            if unblind:
+              leg.AddEntry(obs, "Observed", "L");
         else:pass
+      if unblind:
+        for obs in OBS:
+          mg.Add(obs, "LP")
+
+    elif mode=='Year':      
+
+      year = 'run2'
+      coupling_value = Coupling_value[0]
+      channel = channel[0] 
+      limit_pdf_file = 'Merged_Limit_Plots_For_{coupling_value}_{channel}.pdf'.format(coupling_value=coupling_value,channel=channel)
+      channel = channel.replace("C","ee+em+mm").replace('m','#mu')
+      coupling_value = coupling_value.replace('p','.')
+
+      if 'rtc' in coupling_value :
+        value = coupling_value.split('rtc')[-1]
+        signal_information = '#rho_{tc}=%s'%(value) + " " + channel
+      elif 'rtu' in coupling_value :
+        value = coupling_value.split('rtu')[-1] + " " + channel
+        signal_information = '#rho_{tu}=%s'%(value)
+      elif 'rtt' in coupling_value :
+        value = coupling_value.split('rtt')[-1] + " " + channel
+        signal_information = '#rho_{tt}=%s'%(value)
+
+      colors = [2,3,4,5,1]     
+  
+
+      for idx,YEAR in enumerate(keys):
+        File_path_per_coupling_value = log_files_dict[YEAR]
+        coupling_value=coupling_value.replace('p','.')
+        
+        File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
+        if not unblind:
+          exp =  File_per_coupling_value.Get("expmed")
+        else:
+          exp =  File_per_coupling_value.Get("obs")
+
+        exp.SetMarkerStyle(21)
+        exp.SetMarkerColor(colors[idx])
+        exp.SetMarkerSize(1.1)
+        exp.SetLineColor(colors[idx])
+        exp.SetLineWidth(3)
+        mg.Add(exp,"LP")
+        if not unblind:
+          leg.AddEntry(exp, YEAR + "(exp)", "LP");
+        else:
+          leg.AddEntry(exp, YEAR + "(obs)", "LP");
+
+
+
+    else: 
+
+      year = year[0]
+      coupling_value = Coupling_value[0]
+      limit_pdf_file = 'Merged_Limit_Plots_For_{coupling_value}_{year}.pdf'.format(coupling_value=coupling_value,year=year)
+      coupling_value = coupling_value.replace('p','.')
+
+      if 'rtc' in coupling_value :
+        value = coupling_value.split('rtc')[-1]
+        signal_information = year + ' #rho_{tc}=%s'%(value)
+      elif 'rtu' in coupling_value :
+        value = coupling_value.split('rtu')[-1]
+        signal_information = year + ' #rho_{tu}=%s'%(value)
+      elif 'rtt' in coupling_value :
+        value = coupling_value.split('rtt')[-1]
+        signal_information = year + ' #rho_{tt}=%s'%(value)
+
+      colors = [2,3,4,1]     
+  
+
+      for idx,channel in enumerate(keys):
+        File_path_per_coupling_value = log_files_dict[channel]
+        
+        File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
+        
+        if not unblind: 
+          exp =  File_per_coupling_value.Get("expmed")
+        else:
+          exp = File_per_coupling_value.Get("obs")
+
+        exp.SetMarkerStyle(21)
+        exp.SetMarkerColor(colors[idx])
+        exp.SetMarkerSize(1.1)
+        exp.SetLineColor(colors[idx])
+        exp.SetLineWidth(2)
+        mg.Add(exp,"LP")
+        channel = channel.replace('C','ee+em+mm').replace('m','#mu')
+        if not unblind:
+          leg.AddEntry(exp, channel + "(exp)", "LP");
+        else:
+          leg.AddEntry(exp, channel + "(obs)", "LP");
+
+
 
 
     c.cd()
-    #mg.SetTitleName(";Mass[GeV];#mu=#sigma/#sigma_{theory}")
     mg.Draw("same") 
     leg.Draw("same")
 
@@ -174,7 +274,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextSize(0.03);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
-#    latex.DrawLatex(0.19, 0.82, "95% CL limits")
     latex.DrawLatex(0.19, 0.82, "g2HDM")
     if AN:
       latex.DrawLatex(0.19, 0.74, year + " " + channel)
@@ -187,8 +286,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
 
     ### Output File Setting ###
     OUT_DIR = os.path.join(outputFolder,"plots_limit")
-
-    limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{channel}.pdf'.format(year=year,channel=channel)
     
     CheckDir(OUT_DIR,True)
     limit_pdf_file  = os.path.join(OUT_DIR,limit_pdf_file)
@@ -282,10 +379,6 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
 
   exclusion.SetLineWidth(2)
   exclusion.SetLineColor(rt.kRed)
-  results = zip(interp, final_limit_interp)
-  for result in results:
-    print(result)
-  Hist_interp.GetZaxis().SetTitle("95% CL upper limit on #mu=#sigma/#sigma_{theory}(obs)")
   Hist_interp.GetYaxis().SetTitleOffset(0.95)
   Hist_interp.GetZaxis().SetTitleOffset(1.55)
 
@@ -312,7 +405,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   rt.gStyle.SetOptTitle(0)
   rt.gStyle.SetOptStat(0)
   rt.gStyle.SetPaintTextFormat(".2f");
-  #rt.gStyle.SetPalette(rt.kInvertedDarkBodyRadiator);
   rt.TColor.InvertPalette();
 
   c = rt.TCanvas("c", "c", 620, 600)
@@ -323,8 +415,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   c.SetRightMargin(0.18)
   c.SetTicks(1,1)
 
-  model_ = '2HDM+a'
-
+  # CMS style
+  
   import CMS_lumi
   CMS_lumi.writeExtraText = 1
   if paper:
@@ -339,6 +431,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   CMS_lumi.relPosX = 0.15
   CMS_lumi.CMS_lumi(c, iPeriod, iPos, 2)
   c.Update()
+
   # Output directory setting
 
   if interference:
@@ -355,29 +448,38 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   coupling_values_bin = np.array(coupling_values_list)
   np.sort(coupling_values_bin)
   mass_bin = np.array(Masses).astype('float')
-  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.05)
-  mass_bin            = np.append(mass_bin,1050)
+  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.005)
+  mass_bin            = np.append(mass_bin, mass_bin[-1]+1)
 
   # Interpolation Binning
+
+  # -- Coupling value --
   nbin = 90
   coupling_value_min = coupling_values_bin[0]
   coupling_value_max = coupling_values_bin[-2]
   coupling_interp_bin = array('d',[])
   for i in range(nbin):
     coupling_interp_bin.append(coupling_value_min + (coupling_value_max - coupling_value_min)/float(nbin)*float(i))
-  coupling_interp_bin.append(1.005)
+  coupling_interp_bin.append(coupling_interp_bin[-1] + 0.005)
 
+  # -- Mass --
   bin_width_mass = 5
   mass_interp_bin = array('d',[])
   mass_start = mass_bin[0]
   while mass_start <= mass_bin[-2]:
     mass_interp_bin.append(mass_start)
     mass_start += bin_width_mass
-  mass_interp_bin.append(1001)
-  
+  mass_interp_bin.append(mass_interp_bin[-1] + 1)
 
+  
   # Histogram
-  Title = ";m_{A} [GeV];#rho_{%s}"%coupling_type
+
+  if unblind:
+    Target_Object = "obs"
+  else:
+    Target_Object = "expmed"
+
+  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma/#sigma_{theory}(%s)"%(coupling_type, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -388,13 +490,12 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   for idx_coupling, coupling_value in enumerate(coupling_values):
 
     File_per_coupling_value = rt.TFile(log_files_dict[coupling_value])
-    obs = File_per_coupling_value.Get("obs")
+    obs = File_per_coupling_value.Get(str(Target_Object))
     exp = File_per_coupling_value.Get("expmed")
     
     value = float(coupling_value.replace('rtc','').replace('rtu','').replace('p',''))*0.1
 
     for idx_mass, mass in enumerate(Masses):
-
         limit_obs = obs.GetY()[idx_mass]
         limit_exp = exp.GetY()[idx_mass]
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
@@ -402,7 +503,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
     File_per_coupling_value.Close()
 
-  Hist.GetZaxis().SetTitle("95% CL #mu=#sigma/#sigma_{theory}(obs)")
   Hist.GetZaxis().SetTitleOffset(1.3)
 
   Hist.Draw("COLZ TEXT")
@@ -428,7 +528,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
                                              EPS=5, Title=Title)
   
   Hist_interp_mass.Draw("COLZ")
-  exclusion.Draw("same")
+  if unblind:
+    exclusion.Draw("same")
   exclusion_exp.Draw("same")
   exclusion_exp.SetLineStyle(2)
  
@@ -439,7 +540,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
   latex.DrawLatex(0.62, 0.24, "g2HDM")
   if interference:
     latex.DrawLatex(0.62, 0.20, "m_{A} - m_{H} = 50 GeV");
@@ -452,7 +552,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
   leg.SetTextSize(0.03);
-  leg.AddEntry(exclusion, "Observed", "L")
+  if unblind:
+    leg.AddEntry(exclusion, "Observed", "L")
   leg.AddEntry(exclusion_exp, "Expected", "L")
   leg.Draw("same")
  
@@ -484,7 +585,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   exclusion_extra_exp.SetLineStyle(2)
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
   Hist_interp_extra.Draw("COLZ")
-  exclusion_extra.Draw("same")
+  if unblind:
+    exclusion_extra.Draw("same")
   exclusion_extra_exp.Draw("same")
 
   ## Text
@@ -494,7 +596,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.16, 0.84, "95% CL limits")
   latex.DrawLatex(0.16, 0.84, "g2HDM")
   if interference:
     latex.DrawLatex(0.16, 0.80, "m_{A} - m_{H} = 50 GeV");
@@ -512,7 +613,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
   leg.SetTextSize(0.03);
-  leg.AddEntry(exclusion_extra, "Observed", "L")
+  if unblind:
+    leg.AddEntry(exclusion_extra, "Observed", "L")
   leg.AddEntry(exclusion_extra_exp, "Expected", "L")
   leg.Draw("same")
  
@@ -534,7 +636,6 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex.SetTextSize(0.03);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-#  latex.DrawLatex(0.62, 0.24, "95% CL limits")
   latex.DrawLatex(0.62, 0.20, "g2HDM")
   if interference:
     latex.DrawLatex(0.62, 0.16, "m_{A} - m_{H} = 50 GeV");

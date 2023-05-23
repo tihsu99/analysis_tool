@@ -70,8 +70,8 @@ python ./SignalExtraction_Estimation.py -y $era -c $channel --mode datacard2work
 ## FitDiagnostics  ##
 #####################
 
-rmax=20
-rmin=-20
+rmax=$startpoint
+rmin=$((startpoint*-1))
 
 while $loop
 do
@@ -121,14 +121,16 @@ done
 
 python ./SignalExtraction_Estimation.py -y $era -c $channel --mode FitDiagnostics --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind
 
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode FinalYieldComputation --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind
 
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode preFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotShape --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind --plotRatio --shape_type preFit
 
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode preFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind --logy
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotShape --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind --plotRatio --shape_type preFit --logy
 
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode postFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotShape --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind --plotRatio --shape_type postFit
 
-python ./SignalExtraction_Estimation.py -y $era -c $channel --mode postFitPlot --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind --logy
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotShape --coupling_value $coupling --mass_point $mass --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance $expectSignal $interference --outdir $outdir $unblind --plotRatio --shape_type postFit --logy
+
 
 python ./SignalExtraction_Estimation.py -y $era -c $channel --mode diffNuisances --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
 
@@ -136,11 +138,10 @@ python ./SignalExtraction_Estimation.py -y $era -c $channel --mode PlotPulls --c
 
 #python ./SignalExtraction_Estimation.py -y $era -c $channel --mode DrawNLL --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
 
-#python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doInitFit --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
 
-#python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doFits --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+python ./SignalExtraction_Estimation.py -y $era -c $channel --mode Impact_doFits --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
 
 if [[ $outdir == *"eos"* ]]; then
   break
-#  python ./SignalExtraction_Estimation.py -y $era -c $channel --mode SubmitFromEOS --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
+  python ./SignalExtraction_Estimation.py -y $era -c $channel --mode SubmitFromEOS --coupling_value $coupling --mass_point $mass $expectSignal $interference --rMin $rmin --rMax $rmax --cminDefaultMinimizerStrategy $cminDefaultMinimizerStrategy --cminDefaultMinimizerTolerance $cminDefaultMinimizerTolerance --outdir $outdir $unblind
 fi

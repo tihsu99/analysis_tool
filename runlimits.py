@@ -31,6 +31,7 @@ parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', de
 parser.add_argument('--rAbsAcc', help='default = 0.001', default=0.001, type=float)
 parser.add_argument('--unblind', help='for limit unbliding', action="store_true")
 parser.add_argument('--verbose','-v', dest='verbose', help='for combine verbose', action="store_true")
+parser.add_argument('--rMax',dest='rMax', default=5, type=float)
 args = parser.parse_args()
 
 category = args.category # i.e., channel: ee, em, mm
@@ -73,7 +74,7 @@ import time
 
 
 start_time = time.time()
-RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value,interference = args.interference, unblind=args.unblind, verbose=args.verbose)
+RL  = RunLimits(year=year,analysis="ttc",analysisbin=category,postfix="asimov", coupling=_coupling,coupling_value=_value,interference = args.interference, unblind=args.unblind, verbose=args.verbose, rMax=args.rMax)
 if args.reset_outputfiles:
     CheckFile(RL.limitlog,True)
     CheckFile(RL.limit_root_file,True)
