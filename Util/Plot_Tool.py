@@ -12,6 +12,8 @@ import argparse
 from Util.General_Tool import CheckDir,CheckFile
 from scipy.optimize import minimize
 
+ROOT.gROOT.SetBatch(True) # no flashing canvases
+
 ####################
 ## Find Zero Root ##
 ####################
