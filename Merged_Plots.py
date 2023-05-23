@@ -112,4 +112,4 @@ from Util.Plot_Tool import Plot_1D_Limit_For, Plot_2D_Limit_For
 if not args.interp:
   Plot_1D_Limit_For(log_files_path_Dict,unblind=args.unblind,y_max=args.plot_y_max,y_min=args.plot_y_min,year=args.year,channel=args.channel,outputFolder=args.outputdir,Masses=args.Masses,interference=args.interference, paper=args.paper, AN=args.AN, Coupling_value = args.coupling_values, mode = Mode)
 else:
-  Plot_2D_Limit_For(log_files_path_Dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, args.interference, args.paper)
+  Plot_2D_Limit_For(log_files_path_Dict, args.unblind, args.year[0], args.channel[0], args.outputdir, args.Masses, args.interference, args.paper)
