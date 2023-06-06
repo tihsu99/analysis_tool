@@ -163,7 +163,7 @@ def diffNuisances(settings=dict()):
 
 
 def PlotPulls(settings=dict()):
-    if settings['year'] == 'run2':n_canvas = '100'
+    if settings['year'] == 'run2':n_canvas = '15'
     elif settings['channel']  =='C':n_canvas ='20'
     else:n_canvas = '10'
 
@@ -610,37 +610,124 @@ def SubmitFromEOS(settings=dict()):
       os.chdir("{dest}".format(dest = settings['WorkDir']))
 
 def DrawNLL(settings=dict()):
-  os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
-  os.chdir(settings['outputdir'])
-  workspace_root = os.path.basename(settings['workspace_root'])
+    if settings['group'] == 0:pass 
+    else:
+        with open('./data_info/NuisanceList/group_set{group}.json'.format(group = int(settings['group']))) as f:
+            Group = json.load(f)
+    
+    
+    os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
+    os.chdir(settings['outputdir'])
+    workspace_root = os.path.basename(settings['workspace_root'])
+    plot1Dscan = os.path.join(CURRENT_WORKDIR, 'plot1DScan.py')
+     
+    # safety check:
+    if not os.path.isfile(workspace_root):
+          raise Exception("First run: --mode datacard2workspace step")
 
-  # safety check:
-  if not os.path.isfile(workspace_root):
-      raise Exception("First run: --mode datacard2workspace step")
+    Log_Path = os.path.basename(settings['Log_Path'])
+    commands = []
+    rMin = settings['rMin']
+    rMax = settings['rMax']
+    points = 20
+    
+    if not settings['unblind']:
+        print('Do not support blind option')
+        return
+    
+    commands.append('echo datacard_workspace File: {workspace_root}'.format(workspace_root = workspace_root ))
+    commands.append('echo Start to do likelihood Scan')
+    commands.append('echo single scan ...')
+    
+    common_pattern = '.{year}.{channel}.{coupling}.unblind.Set{group}'.format(year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], group = settings['group'])
+    
+    
+    if settings['interference']:
+        common_pattern += '.interference'
+    else:
+        common_pattern += '.pure'
+        
+    SingleScan_pattern = '.singlescan' + common_pattern 
+    Snapshot_pattern = '.snap' + common_pattern 
+         
+    SingleScan_root = 'higgsCombine' + SingleScan_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass'])
+    ### Single Fit ####
+    Snapshot_root = 'higgsCombine' + Snapshot_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass'])
+     
+    commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    
+    commands.append('{plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern)) 
+    ####################
+    ####  SnapShot #####
+    commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax']))
+    #####################
+    #### Profile Scan ###
+    
+    commands.append('echo Start to do breakdown')
+    commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    
+    FreezeGroup_root = []
+    FreezeGroup_pattern = []
+    FreezeGroup_names = []
+    chain_name = ''
+    
+    for Idx, group in enumerate(Group):
+        if Idx == len(Group) - 1:break
+        FileName = 'higgsCombine.freeze'
+        chain_name += '.' + group
+        FreezeGroup_names.append(' + '.join(Group[:Idx+1]) )
+        FileName = FileName + chain_name + common_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass']) 
+        freeze_pattern = '.freeze' + chain_name + common_pattern  
+        FreezeGroup_root.append(FileName)
+        FreezeGroup_pattern.append(freeze_pattern)
+    FREEZE = '' 
+    
+    for Idx, group in enumerate(Group):
+        if Idx == len(Group) - 1: break
+        FREEZE += group if Idx == 0 else ',' + group
+        commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE))
+    
+    freeze_pattern = '.freeze.All' + common_pattern  
+    
+    FileName = 'higgsCombine' + freeze_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass']) 
+    FreezeGroup_root.append(FileName)
+    FreezeGroup_pattern.append(freeze_pattern) 
+    
+    
+    
+    commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+     
+    ## Plot ##
+    Queue = ''
+    
+    for Idx, File in enumerate(FreezeGroup_root):
+        if Idx != len(FreezeGroup_root) - 1:
+            Queue += '{File}:"Freeze {FreezeGroup_name}":{Idx} '.format(File = File, FreezeGroup_name = FreezeGroup_names[Idx], Idx = Idx+1) 
+        else:
+            Queue += '{File}:"Stat. Only":{Idx} '.format(File = File, Idx = Idx + 1) 
 
-  Log_Path = os.path.basename(settings['Log_Path'])
-  commands = []
-  rMin = -4
-  rMax = 4
-  points = 80
-  if settings['unblind']:
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points}".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --saveWorkspace".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("combine -M MultiDimFit higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot.MultiDimFit.mH{mass}.root -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points} --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
-    commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
-    commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
-
+    BREAKDOWN_LIST = ','.join(Group)        
+    
+    if settings['interference']:
+        POSTFIX = '--interference'
+    else:
+        POSTFIX = '' 
+    commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) 
+    
+    ### Scan NLL under each nuisance variation
+    #commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root)) 
+     
     for i in range(len(commands)):
-      print(ts+commands[i]+ns)
-      if i == 0:
-        commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
-      else:
-        commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
+        print(ts+commands[i]+ns)
+        if i == 0:
+            commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
+        else:
+            commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
     command = ';'.join(commands)
     os.system(command)
-  else:
-    print("Do not have blind option now")
+
+
+
 def plotCorrelationRanking(settings=dict()):
 
     outputdir = os.path.join(settings['outputdir'], 'results')
