@@ -103,7 +103,13 @@ parser.add_argument('--others', nargs='*', help='add secondary scans processed a
 parser.add_argument('--breakdown', help='do quadratic error subtraction using --others')
 parser.add_argument('--logo', default='CMS')
 parser.add_argument('--logo-sub', default='Internal')
+parser.add_argument('--year', type = str, default = '2016apv')
+parser.add_argument('--channel', type = str, default = 'ee')
+parser.add_argument('--mass', type = str, default = '120')
+parser.add_argument('--interference', action = "store_true")
+parser.add_argument('--postfixname', type = str, default = '')
 args = parser.parse_args()
+
 
 print '--------------------------------------'
 print  args.output
@@ -195,13 +201,14 @@ textfit = '%s = %.3f{}^{#plus %.3f}_{#minus %.3f}' % (fixed_name, val_nom[0], va
 pt = ROOT.TPaveText(0.59, 0.82 - len(other_scans)*0.08, 0.95, 0.91, 'NDCNB')
 pt.AddText(textfit)
 
+
 if args.breakdown is None:
     for i, other in enumerate(other_scans):
         textfit = '#color[%s]{%s = %.3f{}^{#plus %.3f}_{#minus %.3f}}' % (other_scans_opts[i][2], fixed_name, other['val'][0], other['val'][1], abs(other['val'][2]))
         pt.AddText(textfit)
 
-
 if args.breakdown is not None:
+    UNC = dict()
     pt.SetX1(0.50)
     if len(other_scans) >= 3:
         pt.SetX1(0.19)
@@ -232,6 +239,20 @@ if args.breakdown is not None:
             hi = v_hi[i]
             lo = v_lo[i]
         textfit += '{}^{#plus %.3f}_{#minus %.3f}(%s)' % (hi, abs(lo), br)
+        UNC[br] = dict()
+        UNC[br]['Up'] = hi
+        UNC[br]['Dn'] = abs(lo)
+    UNC['TotalUnc'] = dict() 
+    UNC['TotalUnc']['Up'] = abs(val_nom[1])
+    UNC['TotalUnc']['Dn'] = abs(val_nom[2])
+    
+    tableName = 'uncertainty-{year}-{channel}-mH{mass}-pure-{postfixname}.json'.format(year = args.year, channel = args.channel, mass = args.mass, postfixname = args.postfixname)
+    if args.interference:
+        tableName = tableName.replace('pure', 'interference')
+    
+    print(tableName) 
+    with open(tableName, 'w') as f:
+        json.dump(UNC, f, indent = 4 )
     pt.AddText(textfit)
 
 
