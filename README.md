@@ -78,6 +78,14 @@ cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
 
+
+## 1.3 Calculate logN uncertainty for category (Option)
+To get information about logN uncertainty for merged category. Please use following command. With BDT cut, different signal will affect BDT shape and thus background composition. The average uncertainty will be affected but it was found to have negligible affect. `You need to enter the number to the corresponding code by hand if you want to change category uncertainty` since we want to keep the category uncertainty fixed and maintained in github in current stage.
+```
+python study_bkg_composition.py 
+```
+
+
 # 2. Rebin and merging of processes 
 
 ## 2.1 Commands for histograms rebinning for original BDT_output files
@@ -560,9 +568,10 @@ condor_submit scripts/condor.sub
 
 # 7. Multiple Limit Plots
 
-Merged selected multiple plots together. You should make sure you already make every single limit plot already. 
+Merged selected multiple plots together. You should make sure you already make every single limit plot already. With `interp` option, you can plot 2D exclusion plot. Please note that you should not do `cmsenv` in this specific part (To plot 2D limit plot).
 ```
-python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 --plot_y_max 1000 --plot_y_min 0.01 --outputdir [your/favour/folder]
+source env.sh
+python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4 rtu0p8 rtu1p0 --plot_y_max 1000 --plot_y_min 0.01 --Masses 200 300 350 400 500 600 700 800 900 1000 --outputdir [your/favour/folder] [--interp] [--paper] [--unblind]
 ```
 
 # 8. Integrating results
@@ -595,6 +604,61 @@ python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/
 For interference one:
 ```
 python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/folder/for/ --coupling rtu --interference
+```
+## 8.4 Workflow Toolkits
+### Step1. Initialize setting and rebin the BDT ntuple.
+```
+sh example/step1_InitAndRebin.sh [BDT ntuple input directory] [--unblind]
+```
+### Step2. Prepare datacard.
+```
+sh example/step2_prepare_datacard.sh [rtc/rtu]
+```
+
+### Step2.1 Submit limit calculation to condor (See Section 6.)
+
+### Step3. After all the limit computations are finished, use following command to plot it.
+```
+sh example/step3_plot_limit.sh [rtc/rtu] [outputdir] [--unblind]
+```
+
+### Step4. Merge and display the plots with different year/mass/coupling strength.
+```
+sh example/step4_merge_plot.sh [rtc/rtu] [outputdir] [--unblind]
+```
+Plot 2D limit (Probably need to reopen lxplus and run without `cmsenv`.
+```
+sh example/step4_2_merge_plot_2D.sh [outputdir] [--unblind] 
+```
+
+### Step5. Make limit table
+```
+sh example/step5_make_limit_tables.sh [rtc/rtu] [--unblind]
+```
+### Step6. Impact plot
+Use tmux to run all the impact task in batch. (Please change the target you want to run in the shell file)
+```
+sh example/step6_1_batch_plot_impact.sh [rtc/rtu] [outputdir] [--unblind]
+```
+If you want to run individually (detail information is stored in shell file).
+```
+sh example/plot_Impact.sh [era] [channel] [mass] [coupling(rtc01 etc.)] [s_plus_b/b_only] [pure/interference] 0 1.0 [outdir] [--unblind]
+```
+You can use this command to check the status of each step.
+```
+sh example/check_Impact_log_file.sh [rtc/rtu] [storage_dir(previous outputdir)] [FitDiagnostics/diffNuisances/Impact_doInitFit/...]
+```
+Plot the to the pdf format.
+```
+sh example/step6_2_plot_Impact_pdf.sh [rtc04/rtu04] [storage_dir(previous outputdir)] [--unblind]
+```
+Integrate them into latex form.
+```
+sh example/step6_3_integrate_Impact.sh [storage_dir(previous outputdir)]
+```
+Move to Impact plots to AN
+```
+sh example/step6_4_move_Impact_plot_to_AN.sh [AN directory]
 ```
 
 

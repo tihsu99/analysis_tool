@@ -300,7 +300,11 @@ def PlotShape(settings=dict()):
             continue
         for second_level in FileIn.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName()
-            fpath = first_level_name+'/'+category
+            if "TAToTTQ" in category:
+              first_level_name_ = first_level_name.replace("postfit","prefit")
+            else:
+              first_level_name_ = first_level_name
+            fpath = first_level_name_+'/'+category
             
             if (category =='TotalSig') or  (category == 'TotalProcs'):continue
             h = FileIn.Get(fpath).Clone()
@@ -332,7 +336,7 @@ def PlotShape(settings=dict()):
         Title = 'Pre-Fit Distribution'
     else:
         Title = 'Post-Fit Distribution'
-    
+
     template_settings= {
             "Maximum":Maximum,
             "Integral":Integral,
@@ -341,7 +345,7 @@ def PlotShape(settings=dict()):
             "year":settings['year'],      
             "Title":Title,
             "xaxisTitle":'BDT score',
-            "yaxisTitle":'Events/(1)',
+            "yaxisTitle":'Events / bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
@@ -349,7 +353,9 @@ def PlotShape(settings=dict()):
             "logy":settings["logy"],
             "unblind":settings['unblind'],
             "expectSignal":settings['expectSignal'],
-            "plotRatio":settings['plotRatio']
+            "plotRatio":settings['plotRatio'],
+            "interference":settings['interference'],
+            "paper":settings['paper']
             }
     if settings["unblind"] or settings["expectSignal"]:
         if not settings['interference']:    
@@ -360,6 +366,8 @@ def PlotShape(settings=dict()):
     else:
             template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
+    template_settings["Signal_Name"] = template_settings["Signal_Name"].replace("01","04").replace("10","04")
+
     Plot_Histogram(template_settings=template_settings) 
 
     FileIn.Close()
@@ -399,7 +407,7 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings["unblind"]:
         Color_Dict['Data'] = ROOT.kBlack
     if template_settings["unblind"] or template_settings["expectSignal"]:
-        Color_Dict[template_settings["Signal_Name"]] = ROOT.kOrange
+        Color_Dict[template_settings["Signal_Name"]] = ROOT.kRed
 
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
@@ -415,13 +423,16 @@ def Plot_Histogram(template_settings=dict()):
       pad1 = ROOT.TPad('pad1','',0.00, 0.22, 0.99, 0.99)
       pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.22)
       pad1.SetBottomMargin(0.01);
+      pad1.SetTicks(1,1)
       pad2.SetTopMargin(0.035);
       pad2.SetBottomMargin(0.45);
+      pad2.SetTicks(1,1)
       pad1.Draw()
       pad2.Draw()
       pad1.cd()
     else:
       pad1 = ROOT.TPad('pad1','',0.00, 0.00, 0.99, 0.99)
+      pad1.SetTicks(1,1)
       pad1.SetBottomMargin(0.1);
       pad1.Draw()
       pad1.cd()
@@ -430,7 +441,7 @@ def Plot_Histogram(template_settings=dict()):
         pad1.SetLogy(1)
         Histogram_MaximumScale = 1000
     else:
-        Histogram_MaximumScale = 1.5
+        Histogram_MaximumScale = 2.0
 
     canvas.SetGrid(1,1)
     canvas.SetLeftMargin(0.12)
@@ -439,17 +450,27 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.15, .65, .15+0.37*(legend_NCol-1), .890);
+    legend = ROOT.TLegend(.15, .62, .15+0.37*(legend_NCol-1), .86);
     legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
-    legend.SetTextSize(0.03);
+    legend.SetTextSize(0.038);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
-    
+   
+    if template_settings['unblind']:
+      nDigits = int(np.log10(template_settings['Integral']["Data"]))+1
+      for idx, Histogram_Name in enumerate(Ordered_Integral):
+        if Histogram_Name == "Data": continue
+        Yield = template_settings['Integral'][Histogram_Name]
+        if int(np.log10(Yield))+1 >= nDigits:
+          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits])
+        else:
+          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits+1])
+
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
     hh_total = None
@@ -461,7 +482,7 @@ def Plot_Histogram(template_settings=dict()):
             h_sig = template_settings['Histogram'][Histogram_Name]
             h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
             h_sig.SetLineWidth(4)
-            h_sig.SetLineStyle(9)
+    #        h_sig.SetLineStyle(9)
         else:    
             if Histogram_Name == 'Data':
                 if template_settings['unblind']:
@@ -469,15 +490,25 @@ def Plot_Histogram(template_settings=dict()):
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
                     template_settings['Histogram'][Histogram_Name].SetLineWidth(2)
+                    template_settings['Histogram'][Histogram_Name].SetLineColor(1)
             else:
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.1f}]'.format(template_settings['Integral'][Histogram_Name]) , 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + template_settings['Integral'][Histogram_Name] + ']', 'F')
 
-    h_stack.SetTitle("{};BDT score;Events/(1) ".format(template_settings['Title']))
+    h_stack.SetTitle("{};BDT score;Events / bin ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
-    h_stack.SetMinimum(0.1)
+    if Set_Logy:
+      h_stack.SetMinimum(3.2)
+    else:
+      h_stack.SetMinimum(0.1)
+    h_stack.Draw()
+    h_stack.GetYaxis().SetTitle("Events / bin")
+    h_stack.GetYaxis().SetTitleSize(0.042) # THStack should first be drawn and then can do this step
+    h_stack.GetYaxis().SetTitleOffset(1.0)
+#    pad1.Modified()
+#    pad1.Update()
     h_stack.Draw("HIST")
     # For uncert.
     hh_total.SetFillStyle(3005)
@@ -492,9 +523,9 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings['unblind']:
         template_settings['Histogram']["Data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
-        h_sig.Scale(10)
+        h_sig.Scale(2.5)
         h_sig.Draw("HIST;SAME")
-        legend.AddEntry(h_sig,'Signal(X 10)', 'L')
+        legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
@@ -505,12 +536,12 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.SetMarkerColor(1)
         h_ratio.SetLineWidth(1)
           
-        h_ratio.GetYaxis().SetTitle("Data/Pred.")
+        h_ratio.GetYaxis().SetTitle("Obs / Exp")
         h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
-        h_ratio.SetMaximum(1.5)
-        h_ratio.SetMinimum(0.5)
-        h_ratio.GetYaxis().SetNdivisions(4,ROOT.kFALSE)
+        h_ratio.SetMaximum(1.2)
+        h_ratio.SetMinimum(0.85)
+        h_ratio.GetYaxis().SetNdivisions(4)
         h_ratio.GetYaxis().SetTitleOffset(0.3)
         h_ratio.GetYaxis().SetTitleSize(0.14)
         h_ratio.GetYaxis().SetLabelSize(0.1)
@@ -538,9 +569,7 @@ def Plot_Histogram(template_settings=dict()):
 
 
         pad1.cd()
-    latex = ROOT.TLatex()
-    latex.SetTextSize(0.035)
-    latex.SetTextAlign(12)  
+
 
     ###########################
     if "rtc" in template_settings['coupling_value']:
@@ -553,11 +582,26 @@ def Plot_Histogram(template_settings=dict()):
         raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
     value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
+
+    latex = ROOT.TLatex()
+    latex.SetTextSize(0.038)
+    latex.SetTextAlign(12)
+    latex.SetNDC()
+    latex.SetTextFont(42);
+    latex.DrawLatex(0.21, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
+    if template_settings["interference"]:
+      latex.DrawLatex(0.21, 0.54, "m_{A} - m_{H} = 50 GeV");
+
     ### CMS Pad #####
     
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
-    CMS_lumi.extraText = "Internal"
+    if template_settings['paper']:
+      CMS_lumi.extraText = ""
+      CMS_lumi.relPosX = 0.06
+      CMS_lumi.relPosY = 0.03
+    else:
+      CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
