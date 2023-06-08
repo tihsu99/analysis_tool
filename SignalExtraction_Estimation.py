@@ -75,6 +75,7 @@ parser.add_argument('--group', type = int, default = 0)
 
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 
+parser.add_argument('--group', type = int, default = 0)
 args = parser.parse_args()
 
 '''
@@ -118,8 +119,8 @@ settings ={
     'correlation': args.correlation,
     'saveNormalizations': args.saveNormalizations,
     'shape_type': args.shape_type,
-    'group': args.group,
-    'paper': args.paper
+    'paper': args.paper,
+    'group': args.group
 }
 
 if args.mode =='PlotShape':
