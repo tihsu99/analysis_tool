@@ -75,7 +75,6 @@ parser.add_argument('--group', type = int, default = 0)
 
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 
-parser.add_argument('--group', type = int, default = 0)
 args = parser.parse_args()
 
 '''
