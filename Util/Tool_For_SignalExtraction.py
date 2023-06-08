@@ -519,8 +519,6 @@ def Plot_Histogram(template_settings=dict()):
     hh_total.SetLineWidth(0)
     legend.AddEntry(hh_total,'Total-Unc','F')
     hh_total.Draw("SAME E2")
-    nbin = hh_total.GetNbinsX()
-            
 
     if template_settings['unblind']:
         template_settings['Histogram']["Data"].Draw("SAME P*")
