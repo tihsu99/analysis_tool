@@ -77,6 +77,7 @@ If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for examp
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
+- data_info/NuisanceList/nuisance_group_{YEAR}_mm.json # contain the group element information, which will feed into datacards.
 
 
 ## 1.3 Calculate logN uncertainty for category (Option)
