@@ -266,11 +266,9 @@ def Plot_Impacts(settings=dict()):
 def PlotShape(settings=dict()):
     
     if settings['shape_type'].lower() == 'postfit':
-        outputFile = '/eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/SignalExtraction/run2/C/rtc10/A_interfered_with_S0/350/Unblind/results/PostFitShapesFromWorkspace_output_.root'
-        #outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+        outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
     else:
-        outputFile = '/eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/SignalExtraction/run2/C/rtc10/A_interfered_with_S0/350/Unblind/results/fitDiagnostics_run2_C_A_interfered_with_S0_350_rtc10.root'
-        #outputFile = settings['FitDiagnostics_file']
+        outputFile = settings['FitDiagnostics_file']
     
     if CheckFile(outputFile,False,False):pass
     else:
@@ -357,12 +355,9 @@ def PlotShape(settings=dict()):
             elif category == 'total_background':
                 category = 'TotalBkg' 
             Integral[category] += h_postfix.Integral()
-            if category == 'TAToTTQ_350_s_300_rtc04':
-                print('category: {category}, {I}'.format(category = category, I = h_postfix.Integral()))
             Histogram[category].Add(h_postfix)
             
             print('Access Histogram {fpath}'.format(fpath = fpath))
-    print(Integral['TAToTTQ_350_s_300_rtc04'])
     for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
         if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
@@ -563,7 +558,6 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings['unblind']:
         template_settings['Histogram']["Data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
-        print('YES')
         h_sig.Scale(2.5)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
@@ -598,12 +592,7 @@ def Plot_Histogram(template_settings=dict()):
         yerror_u = [];
         yerror_d = [];
         
-        DATA_CENTRAL = template_settings['Histogram']["Data"].Clone().GetBinContent(1)
-        DATA_ERR = template_settings['Histogram']["Data"].Clone().GetBinError(1) 
-        MC_CENTRAL = hMC.Clone().GetBinContent(1) 
-        MC_ERR = hMC.Clone().GetBinError(1) 
         
-        print('unc: {}'.format((DATA_CENTRAL/MC_CENTRAL) * math.sqrt((DATA_ERR/DATA_CENTRAL)**2 + (MC_ERR/MC_CENTRAL)**2))) 
         
         for i in range(0,h_ratio.GetNbinsX()):
           x.append(h_ratio.GetBinCenter(i+1))
