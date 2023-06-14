@@ -264,7 +264,14 @@ def Plot_Impacts(settings=dict()):
     print("\033[1;33m* Your impact json file is : \033[4m{impacts_json_prefix}\033[0;m".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json']))) 
 
 def PlotShape(settings=dict()):
-    outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    
+    if settings['shape_type'].lower() == 'postfit':
+        outputFile = '/eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/SignalExtraction/run2/C/rtc10/A_interfered_with_S0/350/Unblind/results/PostFitShapesFromWorkspace_output_.root'
+        #outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    else:
+        outputFile = '/eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/SignalExtraction/run2/C/rtc10/A_interfered_with_S0/350/Unblind/results/fitDiagnostics_run2_C_A_interfered_with_S0_350_rtc10.root'
+        #outputFile = settings['FitDiagnostics_file']
+    
     if CheckFile(outputFile,False,False):pass
     else:
         raise ValueError('\033[0;31mCheck :{outputFile} exists or not.'.format(outputFile = outputFile))
@@ -274,61 +281,94 @@ def PlotShape(settings=dict()):
 
     FileIn = ROOT.TFile(outputFile,"READ")
     Histogram_Names = []
-    for first_level in FileIn.GetListOfKeys():
+    RootLevel = FileIn
+    if settings['shape_type'].lower() == 'prefit':
+        RootLevel = FileIn.Get('shapes_prefit')
+        #RootLevel.cd()
+    ## This part is only for creating the keys which corresponds to category defintion 
+    for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
-        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+        if type(RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+
+        for second_level in RootLevel.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName() 
-            if category == 'data_obs': category = 'Data'
+            if category == 'data_obs' or category == 'data': category = 'Data'
             Histogram_Names.append(category)
         break
-    
     
     Histogram = dict()
     Integral= dict()
 
     for category in Histogram_Names:
-        if ('TotalSig' in category) or  ('TotalProcs' in category):continue
-        if category == 'data_obs': category = 'Data'
+        if ('TotalSig' in category) or  ('TotalProcs' in category):continue #In PostFitWorkspace
+        if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+        if category == 'data_obs': category = 'Data' # In PostFitWorkspace, for postFit
+        
+        if category == 'data': #For preFit 
+            category = 'Data' # In FitDiagnostics
+        elif category == 'total_background':
+            category = 'TotalBkg' 
         Histogram[category] = ROOT.TH1F(category, '', len(binning) - 1, binning) 
         Integral[category] = 0
     
     Maximum = -1
     Histogram_Registered = False 
-    for first_level in FileIn.GetListOfKeys():
+    for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
-        if not(settings['shape_type'].lower() in first_level_name) : 
+        if not(settings['shape_type'].lower() in first_level_name) and settings['shape_type'].lower() == 'postfit': 
             continue
-        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+        if type(RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+        
+        for second_level in RootLevel.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName()
-            if "TAToTTQ" in category:
-              first_level_name_ = first_level_name.replace("postfit","prefit")
-            else:
-              first_level_name_ = first_level_name
-            fpath = first_level_name_+'/'+category
             
-            if (category =='TotalSig') or  (category == 'TotalProcs'):continue
-            h = FileIn.Get(fpath).Clone()
-            if type(h) != ROOT.TH1F: raise TypeError('No such Histogram in file: {}'.format(fpath))
+            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
+                first_level_name = first_level_name.replace('postfit', 'prefit') # preFit make the signal looks significant
+            if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
+            if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+            fpath = first_level_name + '/' + category
             
+            h = RootLevel.Get(fpath).Clone()
+            if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
+
             h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
+                    
+                    
+                
             nbin = h_postfix.GetNbinsX()
             
             for ibin in range(nbin):
-                h_postfix.SetBinContent(ibin+1,h.GetBinContent(ibin+1)) # Modify the x-axis value
-                if category == 'data_obs':
-                    error   = h.GetBinError(ibin+1) # just symmetrical error
+                
+                if category == 'data_obs' or category == 'data':
+                    if settings['shape_type'].lower()  == 'prefit':
+                        # h is TGraphAsymmetryError in prefit case. See FitDiagnostics file.
+                        error = h.GetErrorY(ibin + 1)
+                        bincontent = h.Eval(ibin + 0.5) #Graph
+                    else:
+                        error   = h.GetBinError(ibin+1) # just symmetrical error
+                        bincontent = h.GetBinContent(ibin+1) 
                     h_postfix.SetBinError(ibin+1, error)
-            if category == 'data_obs':
+                else:
+                    bincontent = h.GetBinContent(ibin+1) 
+                h_postfix.SetBinContent(ibin+1, bincontent) # Modify the x-axis value
+            
+            if category == 'data_obs' or category == 'data':
                 category = 'Data'
-            Integral[category] += h.Integral()
+            elif category == 'total_background':
+                category = 'TotalBkg' 
+            Integral[category] += h_postfix.Integral()
+            if category == 'TAToTTQ_350_s_300_rtc04':
+                print('category: {category}, {I}'.format(category = category, I = h_postfix.Integral()))
             Histogram[category].Add(h_postfix)
             
             print('Access Histogram {fpath}'.format(fpath = fpath))
-
-    
+    print(Integral['TAToTTQ_350_s_300_rtc04'])
     for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
-        if category == 'data_obs': category = 'Data'
+        if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+        if category == 'total_background':
+            category = 'TotalBkg' 
+        elif category == 'data_obs' or category == 'data': category = 'Data'
         if Maximum < Histogram[category].GetMaximum():
             Maximum = Histogram[category].GetMaximum()
 
@@ -495,7 +535,7 @@ def Plot_Histogram(template_settings=dict()):
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + template_settings['Integral'][Histogram_Name] + ']', 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + str(template_settings['Integral'][Histogram_Name]) + ']', 'F')
 
     h_stack.SetTitle("{};BDT score;Events / bin ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
@@ -523,6 +563,7 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings['unblind']:
         template_settings['Histogram']["Data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
+        print('YES')
         h_sig.Scale(2.5)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
@@ -530,6 +571,7 @@ def Plot_Histogram(template_settings=dict()):
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
         h_ratio = (template_settings['Histogram']["Data"].Clone())
+        h_ratio.Sumw2()
         h_ratio.Divide(hMC)
         h_ratio.SetMarkerStyle(20)
         h_ratio.SetMarkerSize(0.85)
@@ -547,7 +589,7 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetYaxis().SetLabelSize(0.1)
         h_ratio.GetXaxis().SetTitleSize(0.14)
         h_ratio.GetXaxis().SetLabelSize(0.1)
-        h_ratio.Draw()
+        h_ratio.Draw("E 2")
 
         x = [];
         y = [];
@@ -555,13 +597,24 @@ def Plot_Histogram(template_settings=dict()):
         xerror_r = [];
         yerror_u = [];
         yerror_d = [];
+        
+        DATA_CENTRAL = template_settings['Histogram']["Data"].Clone().GetBinContent(1)
+        DATA_ERR = template_settings['Histogram']["Data"].Clone().GetBinError(1) 
+        MC_CENTRAL = hMC.Clone().GetBinContent(1) 
+        MC_ERR = hMC.Clone().GetBinError(1) 
+        
+        print('unc: {}'.format((DATA_CENTRAL/MC_CENTRAL) * math.sqrt((DATA_ERR/DATA_CENTRAL)**2 + (MC_ERR/MC_CENTRAL)**2))) 
+        
         for i in range(0,h_ratio.GetNbinsX()):
           x.append(h_ratio.GetBinCenter(i+1))
           y.append(1.0)
           xerror_l.append(0.5*h_ratio.GetBinWidth(i+1))
           xerror_r.append(0.5*h_ratio.GetBinWidth(i+1))
-          yerror_u.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
-          yerror_d.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
+          #yerror_u.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
+          #yerror_d.append(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1))
+          #yerror_u.append(h_ratio.GetBinError(i+1))
+          #yerror_d.append(h_ratio.GetBinError(i+1))
+          #print(hh_total.GetBinError(i+1))
         ru = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
         ru.SetFillColor(1);
         ru.SetFillStyle(3005);
