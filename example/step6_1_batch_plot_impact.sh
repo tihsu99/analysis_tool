@@ -34,7 +34,7 @@ do
     do
       for interfere in interference pure
       do
-        for mass in 350 900
+        for mass in 350 700 900
         do
           # Remember for 2016-2018, default minimizer setting is 1 0.1
           #          for run2,                                   0 1.0

@@ -1,5 +1,5 @@
 unblind="${3:-''}"
-for CHANNEL in C
+for CHANNEL in ee em mm C
 do
   for ERA in run2
   do
