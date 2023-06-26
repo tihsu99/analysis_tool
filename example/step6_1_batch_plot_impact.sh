@@ -24,7 +24,7 @@ BWhite='\033[1;37m'       # White
 
 outdir=${2:-"./"}
 workdir=$(pwd)
-unblind=${3:-""}
+unblind=$3
 
 for ERA in run2
 do

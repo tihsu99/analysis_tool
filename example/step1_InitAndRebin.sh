@@ -3,7 +3,7 @@ python Init.py --year 2018 --channel all
 python Init.py --year 2016apv --channel all
 python Init.py --year 2016postapv --channel all
 
-unblind="${2:-''}"
+unblind=$2
 
 for Era in 2016apv 2016postapv 2017 2018
 do 
