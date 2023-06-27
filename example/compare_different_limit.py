@@ -125,10 +125,12 @@ for idx, coupling_value in enumerate(coupling_values):
     value = coupling_value.split('rtc')[-1]
     value = int(value.replace('p',''))*0.1
     prefix = '#rho_{tc} = %.1f'%(value)
+    coupling_type = 'rtc'
   elif 'rtu' in coupling_value :
     value = coupling_value.split('rtu')[-1]
     value = int(value.replace('p',''))*0.1
     prefix = '#rho_{tu} = %.1f'%(value)
+    coupling_type = 'rtu'
   Limit_Name = prefix
 
   First_exp[coupling_value].SetLineWidth(2)
@@ -170,7 +172,8 @@ c.Update()
 interference_text = 'pure'
 if args.interference:
   interference_text = 'interference'
-c.SaveAs('comparison_limit_%s_%s_%s.png'%(year,channel,interference_text))
-c.SaveAs('comparison_limit_%s_%s_%s.pdf'%(year,channel,interference_text))
+os.system('mkdir -p plot')
+c.SaveAs('plot/comparison_limit_%s_%s_%s_%s.png'%(year,channel,coupling_type, interference_text))
+c.SaveAs('plot/comparison_limit_%s_%s_%s_%s.pdf'%(year,channel,coupling_type, interference_text))
 
 
