@@ -8,6 +8,7 @@ sys.path.append(CURRENT_WORKDIR)
 from collections import OrderedDict
 import numpy as np
 from array import array
+ROOT.gROOT.SetBatch(True) # no flashing canvases
 parser = argparse.ArgumentParser()
 channel_choices=['C','ee','em','mm']
 year_choices=['2016apv','2016postapv','2017','2018','run2']
