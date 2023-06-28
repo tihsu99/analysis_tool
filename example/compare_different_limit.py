@@ -1,3 +1,4 @@
+# python example/compare_different_limit.py --First_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/bin/run2/C --Second_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_JetMatch/bin/run2/C --coupling_values rtu0p1 rtu0p4 rtu1p0 --plot_y_min 0.01 
 import argparse
 import ROOT
 import os 
@@ -25,7 +26,8 @@ parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
 
 parser.add_argument("--First_dir", help='First directory for comparison',default='./')
-parser.add_argument("--Second_dir",help='Second directory for comparison', default='./') 
+parser.add_argument("--Second_dir",help='Second directory for comparison', default='./')
+parser.add_argument("--outdir", help='Output directory for plot', default='./') 
 parser.add_argument("--First_label", default='Approval')
 parser.add_argument("--Second_label", default='New algo')
 
@@ -50,8 +52,8 @@ ratio = dict()
 Masses = []
 
 for coupling_value in coupling_values:
-  First_limit[coupling_value] = os.path.join(args.First_dir, 'bin/{year}/{channel}/limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
-  Second_limit[coupling_value] = os.path.join(args.Second_dir, 'bin/{year}/{channel}/limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
+  First_limit[coupling_value] = os.path.join(args.First_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
+  Second_limit[coupling_value] = os.path.join(args.Second_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
 
   if args.interference:
     First_limit[coupling_value] = First_limit[coupling_value].replace(".root","_interference.root")
@@ -72,7 +74,7 @@ for coupling_value in coupling_values:
 for i in range(nbins):
   Masses.append(Second_exp[coupling_values[0]].GetX()[i])
 
-c = ROOT.TCanvas()
+c = ROOT.TCanvas('c','c', 620, 600)
 c.SetTopMargin(0.085)
 c.SetLeftMargin(0.12)
 
@@ -172,8 +174,9 @@ c.Update()
 interference_text = 'pure'
 if args.interference:
   interference_text = 'interference'
-os.system('mkdir -p plot')
-c.SaveAs('plot/comparison_limit_%s_%s_%s_%s.png'%(year,channel,coupling_type, interference_text))
-c.SaveAs('plot/comparison_limit_%s_%s_%s_%s.pdf'%(year,channel,coupling_type, interference_text))
+outdir = os.path.join(args.outdir, 'plot')
+os.system('mkdir -p %s'%outdir)
+c.SaveAs(os.path.join(outdir,'comparison_limit_%s_%s_%s_%s.png'%(year,channel,coupling_type, interference_text)))
+c.SaveAs(os.path.join(outdir,'comparison_limit_%s_%s_%s_%s.pdf'%(year,channel,coupling_type, interference_text)))
 
 
