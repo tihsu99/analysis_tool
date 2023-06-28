@@ -1,4 +1,4 @@
-# python example/compare_different_limit.py --First_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/bin/run2/C --Second_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_JetMatch/bin/run2/C --coupling_values rtu0p1 rtu0p4 rtu1p0 --plot_y_min 0.01 
+# python example/compare_different_limit.py --ref_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_withoutMETphi/bin/run2/C --new_dir /eos/user/t/tihsu/Limit_study/Limit_only_one_BDT_JetMatch_threeJet/bin/run2/C --coupling_values rtu0p1 rtu0p4 rtu1p0 --plot_y_min 0.01 
 import argparse
 import ROOT
 import os 
@@ -25,8 +25,8 @@ parser.add_argument('--coupling_values',help='coupling value [rtc0p4/rtu0p4/...]
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
 
-parser.add_argument("--First_dir", help='First directory for comparison',default='./')
-parser.add_argument("--Second_dir",help='Second directory for comparison', default='./')
+parser.add_argument("--ref_dir", help='First directory for comparison',default='./')
+parser.add_argument("--new_dir",help='Second directory for comparison', default='./')
 parser.add_argument("--outdir", help='Output directory for plot', default='./') 
 parser.add_argument("--First_label", default='Approval')
 parser.add_argument("--Second_label", default='New algo')
@@ -52,8 +52,8 @@ ratio = dict()
 Masses = []
 
 for coupling_value in coupling_values:
-  First_limit[coupling_value] = os.path.join(args.First_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
-  Second_limit[coupling_value] = os.path.join(args.Second_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
+  First_limit[coupling_value] = os.path.join(args.ref_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
+  Second_limit[coupling_value] = os.path.join(args.new_dir, 'limits_ttc_{coupling_value}_asimov_extYukawa.root'.format(year=year,channel=channel,coupling_value=coupling_value))
 
   if args.interference:
     First_limit[coupling_value] = First_limit[coupling_value].replace(".root","_interference.root")
@@ -78,8 +78,8 @@ c = ROOT.TCanvas('c','c', 620, 600)
 c.SetTopMargin(0.085)
 c.SetLeftMargin(0.12)
 
-pad1 = ROOT.TPad('pad1','',0.00, 0.22, 0.99, 0.99)
-pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.22)
+pad1 = ROOT.TPad('pad1','',0.00, 0.5, 0.99, 0.99)
+pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.5)
 pad1.SetBottomMargin(0.01);
 pad1.SetTicks(1,1)
 pad2.SetTopMargin(0.035);
@@ -99,14 +99,21 @@ for idx, coupling_value in enumerate(coupling_values):
   ratio_TGraph[coupling_value].SetLineStyle(2)
   ratio_TGraph[coupling_value].SetLineWidth(2)
   ratio_TGraph[coupling_value].SetLineColor(color[idx])
+  ratio_TGraph[coupling_value].GetYaxis().SetNdivisions(4)
+  ratio_TGraph[coupling_value].GetYaxis().SetTitleOffset(0.3)
+  ratio_TGraph[coupling_value].GetYaxis().SetTitleSize(0.14)
+  ratio_TGraph[coupling_value].GetYaxis().SetLabelSize(0.1)
+  ratio_TGraph[coupling_value].GetXaxis().SetTitleSize(0.14)
+  ratio_TGraph[coupling_value].GetXaxis().SetLabelSize(0.1)
+  ratio_TGraph[coupling_value].Draw('a')
   mg2.Add(ratio_TGraph[coupling_value],'L')
-mg2.GetYaxis().SetNdivisions(4)
-mg2.GetYaxis().SetTitleOffset(0.3)
-mg2.GetYaxis().SetTitleSize(0.14)
-mg2.GetYaxis().SetLabelSize(0.1)
-mg2.GetXaxis().SetTitleSize(0.14)
-mg2.GetXaxis().SetLabelSize(0.1)
-mg2.GetYaxis().SetLimits(0.75,1.25)
+#mg2.GetYaxis().SetNdivisions(4)
+#mg2.GetYaxis().SetTitleOffset(0.3)
+#mg2.GetYaxis().SetTitleSize(0.14)
+#mg2.GetYaxis().SetLabelSize(0.1)
+#mg2.GetXaxis().SetTitleSize(0.14)
+#mg2.GetXaxis().SetLabelSize(0.1)
+#mg2.GetYaxis().SetLimits(0.75,1.25)
 mg2.Draw('same')
 
 pad1.cd()
