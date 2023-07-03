@@ -4,8 +4,6 @@ CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 from array import  array
 from ROOT import TGraph, TFile, TGraphAsymmErrors
-import subprocess
-from subprocess import Popen, PIPE
 import ROOT as rt
 import argparse
 import csv 
