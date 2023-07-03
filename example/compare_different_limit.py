@@ -8,6 +8,8 @@ sys.path.append(CURRENT_WORKDIR)
 from collections import OrderedDict
 import numpy as np
 from array import array
+import CMS_lumi
+ROOT.gROOT.SetBatch(True) # no flashing canvases
 parser = argparse.ArgumentParser()
 channel_choices=['C','ee','em','mm']
 year_choices=['2016apv','2016postapv','2017','2018','run2']
@@ -78,8 +80,8 @@ c = ROOT.TCanvas('c','c', 620, 600)
 c.SetTopMargin(0.085)
 c.SetLeftMargin(0.12)
 
-pad1 = ROOT.TPad('pad1','',0.00, 0.5, 0.99, 0.99)
-pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.5)
+pad1 = ROOT.TPad('pad1','',0.00, 0.40, 0.99, 0.99)
+pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.40)
 pad1.SetBottomMargin(0.01);
 pad1.SetTicks(1,1)
 pad2.SetTopMargin(0.035);
@@ -157,7 +159,7 @@ mg.SetMaximum(args.plot_y_max);
 mg.Draw('same')
 leg.Draw('same')
 pad1.Update()
-import CMS_lumi
+
 CMS_lumi.writeExtraText = 1
 if args.paper:
    CMS_lumi.extraText = ""
