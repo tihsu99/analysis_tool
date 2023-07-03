@@ -4,6 +4,8 @@ CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 from array import  array
 from ROOT import TGraph, TFile, TGraphAsymmErrors
+import subprocess
+from subprocess import Popen, PIPE
 import ROOT as rt
 import argparse
 import csv 
@@ -112,8 +114,14 @@ class RunLimits:
             command_ = command_ + asimovstr
         if self.__verbose:
             command_ = command_ + '-v 3'
+
         os.system(command_+" >& "+logname)
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".AsymptoticLimits.mH120.root"
         print(command_+" >& "+logname)
+
+        # delete the output combine root file (not to make dirty your home area!)
+        os.system("rm "+output_rootfile)
+
         return logname
         
     ## category can be merged/resolved/combined
