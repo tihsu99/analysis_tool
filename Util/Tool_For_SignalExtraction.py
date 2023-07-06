@@ -163,7 +163,7 @@ def diffNuisances(settings=dict()):
 
 
 def PlotPulls(settings=dict()):
-    if settings['year'] == 'run2':n_canvas = '15'
+    if settings['year'] == 'run2':n_canvas = '10'
     elif settings['channel']  =='C':n_canvas ='20'
     else:n_canvas = '10'
 

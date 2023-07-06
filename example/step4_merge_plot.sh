@@ -3,10 +3,10 @@ unblind=$3
 ## Compare coupling value
 for ERA in run2
 do
-  for CHANNEL in C
+  for CHANNEL in ee em mm C
   do
-    python ./Merged_Plots.py --channel $CHANNEL --year $ERA --coupling_values ${1}0p1 ${1}0p4 ${1}1p0 --plot_y_max 500000 --plot_y_min 0.01 --outputdir $2/Merged_Limit_Plot_$1/pure $unblind --paper
-    python ./Merged_Plots.py --channel $CHANNEL --year $ERA --coupling_values ${1}0p1 ${1}0p4 ${1}1p0 --plot_y_max 500000 --plot_y_min 0.01 --outputdir $2/Merged_Limit_Plot_$1/interference --interference $unblind --paper
+    python ./Merged_Plots.py --channel $CHANNEL --year $ERA --coupling_values ${1}0p1 ${1}0p4 ${1}1p0 --plot_y_max 500000 --plot_y_min 0.005 --outputdir $2/Merged_Limit_Plot_$1/pure $unblind --paper
+    python ./Merged_Plots.py --channel $CHANNEL --year $ERA --coupling_values ${1}0p1 ${1}0p4 ${1}1p0 --plot_y_max 500000 --plot_y_min 0.005 --outputdir $2/Merged_Limit_Plot_$1/interference --interference $unblind --paper
   done
 done
 

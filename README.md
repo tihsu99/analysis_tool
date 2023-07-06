@@ -661,7 +661,11 @@ Move to Impact plots to AN
 sh example/step6_4_move_Impact_plot_to_AN.sh [AN directory]
 ```
 
-
+### Aux. Compare two expected limit
+To compared two expected limit, please enter the comparison directories name like following. The directory should have all the root/txt files under it.
+```
+python example/compare_different_limit.py --ref_dir [dir_for_comparison] --new_dir [dir_for_comparison] --coupling_values rtc0p1 rtc0p4 rtc1p0 [--interference]
+```
 
 # 9. Trouble Shooting 
 
