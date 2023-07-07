@@ -171,7 +171,7 @@ python prepareCards.py -y {year} -c C --For template
 To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
 Once you have it, then you just need to use [--breakdown] for template production: 
 ```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown {1,2,3}
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown {1,2,3} -reg 'SR_{channel:ee/em/mm}'
 ```
 Then you will have the uncertain category in the last line of template datacard.
 
