@@ -1,7 +1,8 @@
 import json
 from Util.General_Tool import CheckFile
+from Init_Tool.Nuisance_Group import DefineGroup
 
-def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all'):
+def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel='all', breakdown = False):
     """
 
     Uncorrelated sources (they need to be kept in the datacard):
@@ -105,6 +106,21 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     corr_nuis_Final_return =[]
     
     Index = 0
+
+    if breakdown:
+        ## Three different sets for uncertainty groups defintions
+        Set1 = dict() 
+        Set1['Total_Experimental'] = []
+        Set1['Total_SignalModeling'] = []
+        Set1['Total_BackgroundModeling'] = []
+
+        Set2 = dict()
+        Set2['Flavour_Tagger'] = []
+        Set2['Nonprompt_Lepton'] = []
+        Set2['NormttW'] = []
+        Set2['Experimental_Rest'] = []
+        Set2['Modeling_Rest'] = []
+        
     for nui in nuis_Init:
         if nui in blacklist and nui not in whitelist:pass
         else:
@@ -130,6 +146,28 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
             corr_nuis_Final_return.append(nui)
 
             Index+=1
+            if breakdown:
+                nui = nui.replace("_", "")
+                nui = nui.replace("YEAR", year)
+        
+                if "normttW" in nui:
+                    Set1['Total_BackgroundModeling'].append(nui)
+                    Set2['NormttW'].append(nui)
+                elif "sig" in nui:
+                    Set1['Total_SignalModeling'].append(nui)
+                    Set2['Modeling_Rest'].append(nui)
+                elif "fake" in nui:
+                    Set1['Total_Experimental'].append(nui)   
+                    Set2['Nonprompt_Lepton'].append(nui) 
+                elif "ctag" in nui:
+                    Set1['Total_Experimental'].append(nui)   
+                    Set2['Flavour_Tagger'].append(nui)
+                elif "norm" in nui:
+                    Set1['Total_BackgroundModeling'].append(nui)
+                    Set2['Modeling_Rest'].append(nui)
+                else:
+                    Set1['Total_Experimental'].append(nui)   
+                    Set2['Experimental_Rest'].append(nui) 
     
     CheckFile('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
     with open('{}/nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
@@ -137,5 +175,16 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     CheckFile('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),True)    
     with open('{}/corrected_nuisance_list_{}_{}.json'.format(outputdir,year,channel),'w') as f:
         json.dump(corr_nuis_Final,f,indent=4)
-        
+    
+    if breakdown:
+        File = '{}/nuisance_group_{}_{}_set1.json'.format(outputdir,year,channel)
+        CheckFile(File, True) 
+        with open(File, 'w') as f:
+            json.dump(Set1, f, indent =4 )
+        File = '{}/nuisance_group_{}_{}_set2.json'.format(outputdir,year,channel)
+        CheckFile(File, True) 
+        with open(File, 'w') as f:
+            json.dump(Set2, f, indent =4 )
+
+        DefineGroup(outputdir = outputdir) 
     return corr_nuis_Final_return

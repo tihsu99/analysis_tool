@@ -56,6 +56,20 @@ After this step, a folder, data_info, is created. And under this folder, you can
 - data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
 - data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
 
+## 1.2 Breakdown uncertainties
+
+If you want to breakdown the nuisance uncertainties:
+```
+python Init.py --year 2017 --channel all --breakdown
+python Init.py --year 2018 --channel all --breakdown
+python Init.py --year 2016apv --channel all --breakdown
+python Init.py --year 2016postapv --channel all --breakdown
+```
+Currently, the groups of uncertainties are theory and experimental. If one want to customize the group, please go to [Init_Tool/Nuisance_Producer.py](https://github.com/ExtraYukawa/LimitModel/blob/ZhengGang_dev2/Init_Tool/Nuisance_Producer.py)
+
+The additional json file name is like 
+- data_info/NuisanceList/nuisance_group_{YEAR}_{CHANNEL}.json # contain the group element information, which will feed into datacards.
+
 ## 1.2 Block unwanted nuisances (You can skip this)
 
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
@@ -64,11 +78,13 @@ cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
 python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
 ```
 
+
 ## 1.3 Calculate logN uncertainty for category (Option)
 To get information about logN uncertainty for merged category. Please use following command. With BDT cut, different signal will affect BDT shape and thus background composition. The average uncertainty will be affected but it was found to have negligible affect. `You need to enter the number to the corresponding code by hand if you want to change category uncertainty` since we want to keep the category uncertainty fixed and maintained in github in current stage.
 ```
 python study_bkg_composition.py 
 ```
+
 
 # 2. Rebin and merging of processes 
 
@@ -149,6 +165,17 @@ And after you repeat this command for all the dilepton channels, you can manage 
 ```
 python prepareCards.py -y {year} -c C --For template
 ```
+
+### 3.2.2 Uncertainties breakdown
+
+To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
+Once you have it, then you just need to use [--breakdown] for template production: 
+```
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown {1,2,3} -reg 'SR_{channel:ee/em/mm}'
+```
+Then you will have the uncertain category in the last line of template datacard.
+
+* [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm. [NB: run2 as year and C as channel will not work]
 
 ### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
 

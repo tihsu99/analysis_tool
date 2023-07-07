@@ -264,7 +264,12 @@ def Plot_Impacts(settings=dict()):
     print("\033[1;33m* Your impact json file is : \033[4m{impacts_json_prefix}\033[0;m".format(impacts_json_prefix=os.path.join(settings['outputdir'],settings['impacts_json']))) 
 
 def PlotShape(settings=dict()):
-    outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    
+    if settings['shape_type'].lower() == 'postfit':
+        outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
+    else:
+        outputFile = settings['FitDiagnostics_file']
+    
     if CheckFile(outputFile,False,False):pass
     else:
         raise ValueError('\033[0;31mCheck :{outputFile} exists or not.'.format(outputFile = outputFile))
@@ -274,61 +279,91 @@ def PlotShape(settings=dict()):
 
     FileIn = ROOT.TFile(outputFile,"READ")
     Histogram_Names = []
-    for first_level in FileIn.GetListOfKeys():
+    RootLevel = FileIn
+    if settings['shape_type'].lower() == 'prefit':
+        RootLevel = FileIn.Get('shapes_prefit')
+        #RootLevel.cd()
+    ## This part is only for creating the keys which corresponds to category defintion 
+    for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
-        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+        if type(RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+
+        for second_level in RootLevel.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName() 
-            if category == 'data_obs': category = 'Data'
+            if category == 'data_obs' or category == 'data': category = 'Data'
             Histogram_Names.append(category)
         break
-    
     
     Histogram = dict()
     Integral= dict()
 
     for category in Histogram_Names:
-        if ('TotalSig' in category) or  ('TotalProcs' in category):continue
-        if category == 'data_obs': category = 'Data'
+        if ('TotalSig' in category) or  ('TotalProcs' in category):continue #In PostFitWorkspace
+        if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+        if category == 'data_obs': category = 'Data' # In PostFitWorkspace, for postFit
+        
+        if category == 'data': #For preFit 
+            category = 'Data' # In FitDiagnostics
+        elif category == 'total_background':
+            category = 'TotalBkg' 
         Histogram[category] = ROOT.TH1F(category, '', len(binning) - 1, binning) 
         Integral[category] = 0
     
     Maximum = -1
     Histogram_Registered = False 
-    for first_level in FileIn.GetListOfKeys():
+    for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
-        if not(settings['shape_type'].lower() in first_level_name) : 
+        if not(settings['shape_type'].lower() in first_level_name) and settings['shape_type'].lower() == 'postfit': 
             continue
-        for second_level in FileIn.Get(first_level_name).GetListOfKeys():
+        if type(RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+        
+        for second_level in RootLevel.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName()
-            if "TAToTTQ" in category:
-              first_level_name_ = first_level_name.replace("postfit","prefit")
-            else:
-              first_level_name_ = first_level_name
-            fpath = first_level_name_+'/'+category
             
-            if (category =='TotalSig') or  (category == 'TotalProcs'):continue
-            h = FileIn.Get(fpath).Clone()
-            if type(h) != ROOT.TH1F: raise TypeError('No such Histogram in file: {}'.format(fpath))
+            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
+                first_level_name = first_level_name.replace('postfit', 'prefit') # preFit make the signal looks significant
+            if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
+            if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+            fpath = first_level_name + '/' + category
             
+            h = RootLevel.Get(fpath).Clone()
+            if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
+
             h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
+                    
+                    
+                
             nbin = h_postfix.GetNbinsX()
             
             for ibin in range(nbin):
-                h_postfix.SetBinContent(ibin+1,h.GetBinContent(ibin+1)) # Modify the x-axis value
-                if category == 'data_obs':
-                    error   = h.GetBinError(ibin+1) # just symmetrical error
+                
+                if category == 'data_obs' or category == 'data':
+                    if settings['shape_type'].lower()  == 'prefit':
+                        # h is TGraphAsymmetryError in prefit case. See FitDiagnostics file.
+                        error = h.GetErrorY(ibin + 1)
+                        bincontent = h.Eval(ibin + 0.5) #Graph
+                    else:
+                        error   = h.GetBinError(ibin+1) # just symmetrical error
+                        bincontent = h.GetBinContent(ibin+1) 
                     h_postfix.SetBinError(ibin+1, error)
-            if category == 'data_obs':
+                else:
+                    bincontent = h.GetBinContent(ibin+1) 
+                h_postfix.SetBinContent(ibin+1, bincontent) # Modify the x-axis value
+            
+            if category == 'data_obs' or category == 'data':
                 category = 'Data'
-            Integral[category] += h.Integral()
+            elif category == 'total_background':
+                category = 'TotalBkg' 
+            Integral[category] += h_postfix.Integral()
             Histogram[category].Add(h_postfix)
             
             print('Access Histogram {fpath}'.format(fpath = fpath))
-
-    
     for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
-        if category == 'data_obs': category = 'Data'
+        if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+        if category == 'total_background':
+            category = 'TotalBkg' 
+        elif category == 'data_obs' or category == 'data': category = 'Data'
         if Maximum < Histogram[category].GetMaximum():
             Maximum = Histogram[category].GetMaximum()
 
@@ -495,7 +530,7 @@ def Plot_Histogram(template_settings=dict()):
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + template_settings['Integral'][Histogram_Name] + ']', 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + str(template_settings['Integral'][Histogram_Name]) + ']', 'F')
 
     h_stack.SetTitle("{};BDT score;Events / bin ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
@@ -548,7 +583,7 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetYaxis().SetLabelSize(0.1)
         h_ratio.GetXaxis().SetTitleSize(0.14)
         h_ratio.GetXaxis().SetLabelSize(0.1)
-        h_ratio.Draw()
+        h_ratio.Draw("E 2")
 
         x = [];
         y = [];
@@ -556,6 +591,9 @@ def Plot_Histogram(template_settings=dict()):
         xerror_r = [];
         yerror_u = [];
         yerror_d = [];
+        
+        
+        
         for i in range(0,h_ratio.GetNbinsX()):
           x.append(h_ratio.GetBinCenter(i+1))
           y.append(1.0)
@@ -658,37 +696,124 @@ def SubmitFromEOS(settings=dict()):
       os.chdir("{dest}".format(dest = settings['WorkDir']))
 
 def DrawNLL(settings=dict()):
-  os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
-  os.chdir(settings['outputdir'])
-  workspace_root = os.path.basename(settings['workspace_root'])
+    if settings['group'] == 0:pass 
+    else:
+        with open('./data_info/NuisanceList/group_set{group}.json'.format(group = int(settings['group']))) as f:
+            Group = json.load(f)
+    
+    
+    os.system('cd {outputdir}'.format(outputdir=settings['outputdir'])) 
+    os.chdir(settings['outputdir'])
+    workspace_root = os.path.basename(settings['workspace_root'])
+    plot1Dscan = os.path.join(CURRENT_WORKDIR, 'plot1DScan.py')
+     
+    # safety check:
+    if not os.path.isfile(workspace_root):
+          raise Exception("First run: --mode datacard2workspace step")
 
-  # safety check:
-  if not os.path.isfile(workspace_root):
-      raise Exception("First run: --mode datacard2workspace step")
+    Log_Path = os.path.basename(settings['Log_Path'])
+    commands = []
+    rMin = settings['rMin']
+    rMax = settings['rMax']
+    points = 20
+    
+    if not settings['unblind']:
+        print('Do not support blind option')
+        return
+    
+    commands.append('echo datacard_workspace File: {workspace_root}'.format(workspace_root = workspace_root ))
+    commands.append('echo Start to do likelihood Scan')
+    commands.append('echo single scan ...')
+    
+    common_pattern = '.{year}.{channel}.{coupling}.unblind.Set{group}'.format(year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], group = settings['group'])
+    
+    
+    if settings['interference']:
+        common_pattern += '.interference'
+    else:
+        common_pattern += '.pure'
+        
+    SingleScan_pattern = '.singlescan' + common_pattern 
+    Snapshot_pattern = '.snap' + common_pattern 
+         
+    SingleScan_root = 'higgsCombine' + SingleScan_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass'])
+    ### Single Fit ####
+    Snapshot_root = 'higgsCombine' + Snapshot_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass'])
+     
+    commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    
+    commands.append('{plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern)) 
+    ####################
+    ####  SnapShot #####
+    commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax']))
+    #####################
+    #### Profile Scan ###
+    
+    commands.append('echo Start to do breakdown')
+    commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    
+    FreezeGroup_root = []
+    FreezeGroup_pattern = []
+    FreezeGroup_names = []
+    chain_name = ''
+    
+    for Idx, group in enumerate(Group):
+        if Idx == len(Group) - 1:break
+        FileName = 'higgsCombine.freeze'
+        chain_name += '.' + group
+        FreezeGroup_names.append(' + '.join(Group[:Idx+1]) )
+        FileName = FileName + chain_name + common_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass']) 
+        freeze_pattern = '.freeze' + chain_name + common_pattern  
+        FreezeGroup_root.append(FileName)
+        FreezeGroup_pattern.append(freeze_pattern)
+    FREEZE = '' 
+    
+    for Idx, group in enumerate(Group):
+        if Idx == len(Group) - 1: break
+        FREEZE += group if Idx == 0 else ',' + group
+        commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE))
+    
+    freeze_pattern = '.freeze.All' + common_pattern  
+    
+    FileName = 'higgsCombine' + freeze_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass']) 
+    FreezeGroup_root.append(FileName)
+    FreezeGroup_pattern.append(freeze_pattern) 
+    
+    
+    
+    commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+     
+    ## Plot ##
+    Queue = ''
+    
+    for Idx, File in enumerate(FreezeGroup_root):
+        if Idx != len(FreezeGroup_root) - 1:
+            Queue += '{File}:"Freeze {FreezeGroup_name}":{Idx} '.format(File = File, FreezeGroup_name = FreezeGroup_names[Idx], Idx = Idx+1) 
+        else:
+            Queue += '{File}:"Stat. Only":{Idx} '.format(File = File, Idx = Idx + 1) 
 
-  Log_Path = os.path.basename(settings['Log_Path'])
-  commands = []
-  rMin = -4
-  rMax = 4
-  points = 80
-  if settings['unblind']:
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points}".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("combine -M MultiDimFit {workspace_root} -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --saveWorkspace".format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("combine -M MultiDimFit higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.snapshot.MultiDimFit.mH{mass}.root -m {mass} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --algo grid --points {points} --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=rMin,rMax=rMax,points=points,cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance']))
-    commands.append("python {plotNLLcode} higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.DrawNLL.MultiDimFit.mH{mass}.root --others 'higgsCombine_{year}_{channel}_{higgs}_{mass}_{coupling_value}.freezeAll.MultiDimFit.mH{mass}.root:FreezeAll:2' -o results/POI_NLL --breakdown Syst,Stat".format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],plotNLLcode=settings['plotNLLcode']))
-    commands.append("combineTool.py -M FastScan -w {workspace_root}:w".format(workspace_root=workspace_root))
-    commands.append("mv nll.pdf results/Nuisance_NLL.pdf")
-
+    BREAKDOWN_LIST = ','.join(Group)        
+    
+    if settings['interference']:
+        POSTFIX = '--interference'
+    else:
+        POSTFIX = '' 
+    commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) 
+    
+    ### Scan NLL under each nuisance variation
+    #commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root)) 
+     
     for i in range(len(commands)):
-      print(ts+commands[i]+ns)
-      if i == 0:
-        commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
-      else:
-        commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
+        print(ts+commands[i]+ns)
+        if i == 0:
+            commands[i] = commands[i] + ' &> {Log_Path}'.format(Log_Path=Log_Path)
+        else:
+            commands[i] = commands[i] + ' &>> {Log_Path}'.format(Log_Path=Log_Path)
     command = ';'.join(commands)
     os.system(command)
-  else:
-    print("Do not have blind option now")
+
+
+
 def plotCorrelationRanking(settings=dict()):
 
     outputdir = os.path.join(settings['outputdir'], 'results')
