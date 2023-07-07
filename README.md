@@ -445,15 +445,6 @@ python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_
 
 
 
-### Additional steps for producing NLL with uncertainty breakdown
-
-Please make sure you already have follow Section 1.2 & Section3.2.2 to produce the datacards with nuisance group definitions
-Then, you can plot the Profile Scan with uncertainty breakdown.
-Note: only valid with [--unblind]
-```
-./DrawNLL.sh 2018 ee rtc04 800 pure unblind -0.5 3.5
-```
-
 # Final Yield computation:
 
 exmaple script is taken from combine central repo:
