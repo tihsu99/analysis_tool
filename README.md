@@ -438,6 +438,12 @@ Note: FitDiagnostics files and impact json are necessary in this step.
 ```
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
 ```
+Step 11: Profile Scan plot
+```
+python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_value rtu04 --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
+```
+
+
 
 ### Additional steps for producing NLL with uncertainty breakdown
 
