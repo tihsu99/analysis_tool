@@ -274,7 +274,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
         value = (args.coupling_value.split('rtc')[-1]).replace('p','.')
         coupling_term = r'$\rho_{{tc}} = {value}$'.format(value=value)
 
-    LimitTable.write(r'\begin{table}[h!]'+'\n')
+    LimitTable.write(r'\begin{sidewaystable}'+'\n')
     LimitTable.write(r'\begin{center}'+'\n')
     
     if args.channel == 'C':
@@ -326,7 +326,7 @@ def WriteTableForAN(args,FileIn='',TableName=''):
     LimitTable.write(r'\hline'+'\n')
     LimitTable.write(r'\end{tabular}'+'\n')
     LimitTable.write(r'\end{center}'+'\n')
-    LimitTable.write(r'\end{table}'+'\n')
+    LimitTable.write(r'\end{sidewaystable}'+'\n')
 
 
     FileIn.close()

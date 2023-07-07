@@ -70,7 +70,11 @@ parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choic
 parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
 parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit', 'postFit'], type = str, default = None)
+
+parser.add_argument('--group', type = int, default = 0)
+
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
+
 args = parser.parse_args()
 
 '''
@@ -114,7 +118,8 @@ settings ={
     'correlation': args.correlation,
     'saveNormalizations': args.saveNormalizations,
     'shape_type': args.shape_type,
-    'paper': args.paper
+    'paper': args.paper,
+    'group': args.group
 }
 
 if args.mode =='PlotShape':

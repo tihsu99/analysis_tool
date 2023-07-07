@@ -19,7 +19,7 @@ channel_choices=['all','ee','em','mm']
 
 parser.add_argument('-y','--year',help='Years of data.',default='2017')
 parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=channel_choices)
-
+parser.add_argument('--breakdown', action = "store_true")
 parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=[''],nargs='*')
 
 #if os.path.isdir('')
@@ -40,9 +40,9 @@ if args.channel =='all':
     nuisances_for_data_card = dict()
     for channel in channel_choices:
         if channel=='all':continue
-        nuisances_for_data_card[channel] = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=channel)
+        nuisances_for_data_card[channel] = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=channel, breakdown = args.breakdown)
 else:
-    nuisances_for_data_card = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=args.channel)
+    nuisances_for_data_card = nui_producer(year=args.year,blacklist=args.blacklist,outputdir='./data_info/NuisanceList',channel=args.channel, breakdown = args.breakdown)
 
 ####Datacard Input #################################
 CheckDir("data_info/Datacard_Input/{}/".format(args.year),MakeDir=True)

@@ -285,9 +285,9 @@ class RunLimits:
             print ("***Unblinding BOX***")
             obs =  f.Get("obs")
             obs.SetMarkerStyle(20)
-            obs.SetMarkerColor(4)
+            obs.SetMarkerColor(1)
             obs.SetMarkerSize(1.1)
-            obs.SetLineColor(4)
+            obs.SetLineColor(1)
             obs.SetLineWidth(3)
             obs.Draw("L same")
     
