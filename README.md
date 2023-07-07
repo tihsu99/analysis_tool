@@ -171,11 +171,11 @@ python prepareCards.py -y {year} -c C --For template
 To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
 Once you have it, then you just need to use [--breakdown] for template production: 
 ```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown
+python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown {1,2,3}
 ```
 Then you will have the uncertain category in the last line of template datacard.
 
-* [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm.
+* [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm. [NB: run2 as year and C as channel will not work]
 
 ### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
 
