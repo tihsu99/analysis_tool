@@ -106,7 +106,7 @@ else:
         
         logname = RL.getLimits(card_name,asimov=False,mass_point="MA"+imass,cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance)
         
-        mode_ = "a"
+        mode_ = "w"
         
         if counter==0: mode_="w"
         Higgs = "MA"
