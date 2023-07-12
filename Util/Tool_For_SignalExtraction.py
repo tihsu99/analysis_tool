@@ -325,7 +325,6 @@ def PlotShape(settings=dict()):
             fpath = first_level_name + '/' + category
             if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
                 fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
-            print(fpath)          
             h = RootLevel.Get(fpath).Clone()
             if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
 
