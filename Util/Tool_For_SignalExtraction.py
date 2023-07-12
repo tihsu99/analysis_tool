@@ -320,12 +320,11 @@ def PlotShape(settings=dict()):
         for second_level in RootLevel.Get(first_level_name).GetListOfKeys():
             category = second_level.GetName()
             
-            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
-                first_level_name = first_level_name.replace('postfit', 'prefit') # preFit make the signal looks significant
             if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
             if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
             fpath = first_level_name + '/' + category
-            
+            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
+                fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
             h = RootLevel.Get(fpath).Clone()
             if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
 
@@ -371,7 +370,7 @@ def PlotShape(settings=dict()):
         Title = 'Pre-Fit Distribution'
     else:
         Title = 'Post-Fit Distribution'
-
+   
     template_settings= {
             "Maximum":Maximum,
             "Integral":Integral,

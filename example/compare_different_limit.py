@@ -8,8 +8,6 @@ sys.path.append(CURRENT_WORKDIR)
 from collections import OrderedDict
 import numpy as np
 from array import array
-import CMS_lumi
-ROOT.gROOT.SetBatch(True) # no flashing canvases
 parser = argparse.ArgumentParser()
 channel_choices=['C','ee','em','mm']
 year_choices=['2016apv','2016postapv','2017','2018','run2']
@@ -109,23 +107,23 @@ for idx, coupling_value in enumerate(coupling_values):
   ratio_TGraph[coupling_value].GetXaxis().SetLabelSize(0.1)
   ratio_TGraph[coupling_value].Draw('a')
   mg2.Add(ratio_TGraph[coupling_value],'L')
-#mg2.GetYaxis().SetNdivisions(4)
-#mg2.GetYaxis().SetTitleOffset(0.3)
-#mg2.GetYaxis().SetTitleSize(0.14)
-#mg2.GetYaxis().SetLabelSize(0.1)
-#mg2.GetXaxis().SetTitleSize(0.14)
-#mg2.GetXaxis().SetLabelSize(0.1)
-#mg2.GetYaxis().SetLimits(0.75,1.25)
+mg2.GetYaxis().SetNdivisions(4)
+mg2.GetYaxis().SetTitleOffset(0.5)
+mg2.GetYaxis().SetTitleSize(0.1)
+mg2.GetYaxis().SetLabelSize(0.075)
+mg2.GetXaxis().SetTitleSize(0.1)
+mg2.GetXaxis().SetLabelSize(0.075)
+mg2.GetYaxis().SetLimits(0.75,1.25)
 mg2.Draw('same')
 
 pad1.cd()
 
-leg = ROOT.TLegend(.15, .60, .40, .85);
+leg = ROOT.TLegend(.15, .55, .40, .85);
 leg.SetBorderSize(0);
 leg.SetFillColorAlpha(0,0.0);
 leg.SetShadowColor(0);
 leg.SetTextFont(42);
-leg.SetTextSize(0.03)
+leg.SetTextSize(0.05)
 
 pad1.SetLogy()
 mg =ROOT.TMultiGraph("mg","mg")
@@ -153,13 +151,15 @@ for idx, coupling_value in enumerate(coupling_values):
   Second_exp[coupling_value].SetLineColor(color[idx])
   leg.AddEntry(Second_exp[coupling_value], Limit_Name + " Expected (new.)",'L')
   mg.Add(Second_exp[coupling_value],"L")
+mg.GetYaxis().SetTitleOffset(0.8)
+mg.GetYaxis().SetLabelSize(0.06)
+mg.GetYaxis().SetTitleSize(0.06)
 mg.SetMinimum(args.plot_y_min);
 mg.SetMaximum(args.plot_y_max);
-#mg.GetYaxis().SetLimits(0.1, 1000)
 mg.Draw('same')
 leg.Draw('same')
 pad1.Update()
-
+import CMS_lumi
 CMS_lumi.writeExtraText = 1
 if args.paper:
    CMS_lumi.extraText = ""
