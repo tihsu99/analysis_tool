@@ -289,7 +289,7 @@ class RunLimits:
             obs.SetMarkerSize(1.1)
             obs.SetLineColor(1)
             obs.SetLineWidth(3)
-            obs.Draw("L same")
+            obs.Draw("LP same")
     
         leg = rt.TLegend(.6, .65, .88, .890);
         leg.SetBorderSize(0);
