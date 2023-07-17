@@ -1007,8 +1007,8 @@ def GoFPlot(settings = dict()):
 
     nBins = 100
     xMax = {}
-    xMax["saturated"] = 2000
-    xMax["KS"] = 2000.0
+    xMax["saturated"] = 200.0
+    xMax["KS"] = 200.0
     xMax["AD"] = 200.0
     xMin = dict()
     xMin["saturated"] = 0
