@@ -1136,6 +1136,12 @@ def GoFPlot(settings = dict()):
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
 
+    # Now clean up the results directory:
+    print (ts +"You may Clean up the following files"+ ns)
+    print (os.path.join(settings['outputdir']+'/results',OutputFile))
+    print (os.path.join(settings['outputdir']+'/results',rootToysFiles))
+    print (os.path.join(settings['outputdir']+'/results',rootDataFiles))
+
 
 def FinalYieldComputation(settings=dict()):
 
