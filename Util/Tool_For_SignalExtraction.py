@@ -448,18 +448,24 @@ def Plot_Histogram(template_settings=dict()):
     ROOT.gStyle.SetOptStat(0)
     ROOT.gROOT.SetBatch(1)
     
-    canvas = ROOT.TCanvas("","",620,600)
+    canvas = ROOT.TCanvas("","",1500,1500)
     
 
     Set_Logy = template_settings['logy']
 
     if template_settings['plotRatio']:
-      pad1 = ROOT.TPad('pad1','',0.00, 0.22, 0.99, 0.99)
-      pad2 = ROOT.TPad('pad2','',0.00, 0.00, 0.99, 0.22)
-      pad1.SetBottomMargin(0.01);
+      pad1 = ROOT.TPad('pad1','',0.00, 0.25, 1, 1)
+      pad2 = ROOT.TPad('pad2','',0.00, 0.00, 1, 0.25)
+      pad1.SetBottomMargin(0.02)
+      pad1.SetLeftMargin(0.1)
+      pad1.SetRightMargin(0.01)
+      pad2.SetTopMargin(0.005);
+      pad2.SetLeftMargin(0.1)
+      pad2.SetRightMargin(0.01)
+      pad2.SetBottomMargin(0.40);
+      pad1.SetBorderMode(1)
+      pad2.SetBorderMode(1)
       pad1.SetTicks(1,1)
-      pad2.SetTopMargin(0.035);
-      pad2.SetBottomMargin(0.45);
       pad2.SetTicks(1,1)
       pad1.Draw()
       pad2.Draw()
@@ -473,7 +479,7 @@ def Plot_Histogram(template_settings=dict()):
 
     if Set_Logy:
         pad1.SetLogy(1)
-        Histogram_MaximumScale = 1000
+        Histogram_MaximumScale = 100000
     else:
         Histogram_MaximumScale = 2.0
 
@@ -484,13 +490,13 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.15, .62, .15+0.37*(legend_NCol-1), .86);
+    legend = ROOT.TLegend(.105, .62, .24+0.37*(legend_NCol-1), .86);
     legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
-    legend.SetTextSize(0.038);
+    legend.SetTextSize(0.047);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -515,15 +521,16 @@ def Plot_Histogram(template_settings=dict()):
         if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
             h_sig = template_settings['Histogram'][Histogram_Name]
             h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
-            h_sig.SetLineWidth(4)
+            h_sig.SetLineWidth(5)
     #        h_sig.SetLineStyle(9)
         else:    
             if Histogram_Name == 'Data':
                 if template_settings['unblind']:
                     legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
+                    template_settings['Histogram'][Histogram_Name].SetMarkerSize(3.5)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
-                    template_settings['Histogram'][Histogram_Name].SetLineWidth(2)
+                    template_settings['Histogram'][Histogram_Name].SetLineWidth(4)
                     template_settings['Histogram'][Histogram_Name].SetLineColor(1)
             else:
                 if Histogram_Name == 'TotalBkg': continue
@@ -539,15 +546,20 @@ def Plot_Histogram(template_settings=dict()):
       h_stack.SetMinimum(0.1)
     h_stack.Draw()
     h_stack.GetYaxis().SetTitle("Events / bin")
-    h_stack.GetYaxis().SetTitleSize(0.042) # THStack should first be drawn and then can do this step
-    h_stack.GetYaxis().SetTitleOffset(1.0)
+    h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
+    h_stack.GetYaxis().SetLabelSize(0.055)
+    h_stack.GetYaxis().SetTitleOffset(0.9)
+    h_stack.GetXaxis().SetTitleSize(0.05)
+    h_stack.GetXaxis().SetLabelOffset(3.0)
+    h_stack.GetXaxis().SetLabelSize(0)
+    h_stack.GetYaxis().SetTickLength(0.02)
 #    pad1.Modified()
 #    pad1.Update()
     h_stack.Draw("HIST")
     # For uncert.
     hh_total.SetFillStyle(3005)
     hh_total.SetFillColor(12) #ROOT.kGray + 2)
-    hh_total.SetMarkerSize(0)
+    hh_total.SetMarkerSize(4)
     hh_total.SetMarkerStyle(0)
     hh_total.SetMarkerColor(12) #ROOT.kGray + 2)
     hh_total.SetLineWidth(0)
@@ -567,21 +579,23 @@ def Plot_Histogram(template_settings=dict()):
         # h_ratio.Sumw2()
         h_ratio.Divide(hh_total)
         h_ratio.SetMarkerStyle(20)
-        h_ratio.SetMarkerSize(0.85)
+        h_ratio.SetMarkerSize(3.5)
         h_ratio.SetMarkerColor(1)
-        h_ratio.SetLineWidth(1)
+        h_ratio.SetLineWidth(3)
           
         h_ratio.GetYaxis().SetTitle("Obs / Exp")
         h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
-        h_ratio.SetMaximum(1.2)
+        h_ratio.SetMaximum(1.15)
         h_ratio.SetMinimum(0.85)
         h_ratio.GetYaxis().SetNdivisions(4)
-        h_ratio.GetYaxis().SetTitleOffset(0.3)
-        h_ratio.GetYaxis().SetTitleSize(0.14)
-        h_ratio.GetYaxis().SetLabelSize(0.1)
-        h_ratio.GetXaxis().SetTitleSize(0.14)
-        h_ratio.GetXaxis().SetLabelSize(0.1)
+        h_ratio.GetYaxis().SetTitleOffset(0.33)
+        h_ratio.GetYaxis().SetTitleSize(0.15)
+        h_ratio.GetYaxis().SetLabelSize(0.17)
+        h_ratio.GetYaxis().SetTickLength(0.02)
+        h_ratio.GetXaxis().SetTitleSize(0.2)
+        h_ratio.GetXaxis().SetLabelSize(0.17)
+        h_ratio.GetXaxis().SetTitleOffset(0.8)
         h_ratio.Draw("E 2")
 
         x = [];
@@ -625,13 +639,13 @@ def Plot_Histogram(template_settings=dict()):
     legend.Draw("SAME")
 
     latex = ROOT.TLatex()
-    latex.SetTextSize(0.038)
+    latex.SetTextSize(0.05)
     latex.SetTextAlign(12)
     latex.SetNDC()
     latex.SetTextFont(42);
-    latex.DrawLatex(0.21, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
+    latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
     if template_settings["interference"]:
-      latex.DrawLatex(0.21, 0.54, "m_{A} - m_{H} = 50 GeV");
+      latex.DrawLatex(0.180, 0.53, "m_{A} - m_{H} = 50 GeV");
 
     ### CMS Pad #####
     
