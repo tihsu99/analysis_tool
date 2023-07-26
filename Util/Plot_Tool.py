@@ -588,6 +588,9 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
   Hist_interp_extra.GetYaxis().SetTitleSize(0.055)
   Hist_interp_extra.GetYaxis().SetTitleOffset(0.45) #gkole
+  Hist_interp_extra.GetXaxis().SetTitleSize(0.05)
+  Hist_interp_extra.GetXaxis().SetTitleOffset(0.80)
+
   Hist_interp_extra.Draw("COLZ")
   if unblind:
     exclusion_extra.Draw("same")
