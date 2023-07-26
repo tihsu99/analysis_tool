@@ -101,7 +101,7 @@ else:
         table_pure[coupling] = dict()
         for mass in ['200', '1000']:
             table_pure[coupling][mass] = dict()
-            for set in ['1', '2']:
+            for set in ['1', '2', '3']:
                 with open('SignalExtraction/run2/C/{coupling}/A/{mass}/Unblind/uncertainty-run2-C-mH{mass}-pure-Set{set}.json'.format(coupling = coupling, mass = mass, set = set )) as f:
                 
                     table_pure[coupling][mass][int(set)] = json.load(f)
@@ -111,7 +111,7 @@ else:
         table_interference[coupling] = dict()
         for mass in ['250', '1000']:
             table_interference[coupling][mass] = dict()
-            for set in ['1', '2']:
+            for set in ['1', '2', '3']:
                 with open('SignalExtraction/run2/C/{coupling}/A_interfered_with_S0/{mass}/Unblind/uncertainty-run2-C-mH{mass}-interference-Set{set}.json'.format(coupling = coupling, mass = mass, set = set )) as f:
                 
                     table_interference[coupling][mass][int(set)] = json.load(f)
