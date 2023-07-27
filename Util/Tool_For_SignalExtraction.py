@@ -1021,8 +1021,8 @@ def GoFPlot(settings = dict()):
 
     nBins = 100
     xMax = {}
-    xMax["saturated"] = 2000
-    xMax["KS"] = 2000.0
+    xMax["saturated"] = 200.0
+    xMax["KS"] = 200.0
     xMax["AD"] = 200.0
     xMin = dict()
     xMin["saturated"] = 0
@@ -1149,6 +1149,12 @@ def GoFPlot(settings = dict()):
     plotname = os.path.join(settings['outputdir']+'/results', plotname) 
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
+
+    # Now clean up the results directory:
+    print (ts +"You may Clean up the following files"+ ns)
+    print (os.path.join(settings['outputdir']+'/results',OutputFile))
+    print (os.path.join(settings['outputdir']+'/results',rootToysFiles))
+    print (os.path.join(settings['outputdir']+'/results',rootDataFiles))
 
 
 def FinalYieldComputation(settings=dict()):

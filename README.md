@@ -443,53 +443,6 @@ Step 11: Profile Scan plot
 python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_value rtu04 --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
 ```
 
-
-
-# Final Yield computation:
-
-exmaple script is taken from combine central repo:
-
-https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/290b8260808891936aab06e5996f293a9f8954c3/test/mlfitNormsToText.py
-
-https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations
-
-For this we need fit_diagonatic root file
-```
-cd Util/
-python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
-```
-
-
-
--- Final Yield computation:
-exmaple script is taken from combine central repo:
-https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/290b8260808891936aab06e5996f293a9f8954c3/test/mlfitNormsToText.py
-https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/nonstandard/#normalizations
-
-For this we need fit_diagonatic root file
-```
-cd Util/
-python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
-```
-Step9 : Goodness of Test 
-Firstly, you need to submit the jobs to condor for 50 toys for GoF
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitGOF --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
-```
-Then, after all the jobs are completed, you can plot it with
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode GoFPlot --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
-```
-
-Step 10: plotCorrelation
-Currently, only the correlated uncertainties to JES are plotted (Under development)
-Note: FitDiagnostics files and impact json are necessary in this step.
-```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
-```
-
-
-
 # Final Yield computation:
 
 exmaple script is taken from combine central repo:

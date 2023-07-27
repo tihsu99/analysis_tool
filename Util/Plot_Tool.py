@@ -548,12 +548,12 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
 
   ## Legend
-  leg = rt.TLegend(.55, .72, .78, .80);
+  leg = rt.TLegend(.40, .82, .78, .80);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
-  leg.SetTextSize(0.03);
+  leg.SetTextSize(0.10);
   if unblind:
     leg.AddEntry(exclusion, "Observed", "L")
   leg.AddEntry(exclusion_exp, "Expected", "L")
@@ -586,6 +586,11 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
   exclusion_extra_exp.SetLineStyle(2)
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
+  Hist_interp_extra.GetYaxis().SetTitleSize(0.055)
+  Hist_interp_extra.GetYaxis().SetTitleOffset(0.45) #gkole
+  Hist_interp_extra.GetXaxis().SetTitleSize(0.05)
+  Hist_interp_extra.GetXaxis().SetTitleOffset(0.80)
+
   Hist_interp_extra.Draw("COLZ")
   if unblind:
     exclusion_extra.Draw("same")
@@ -609,12 +614,13 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
     latex.DrawLatex(0.24,0.68, "excluded")
 
   ## Legend
-  leg = rt.TLegend(.6, .72, .80, .80);
+  # gkole
+  leg = rt.TLegend(.55, .72, .75, .80);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);
   leg.SetTextFont(42);
-  leg.SetTextSize(0.03);
+  leg.SetTextSize(0.04);
   if unblind:
     leg.AddEntry(exclusion_extra, "Observed", "L")
   leg.AddEntry(exclusion_extra_exp, "Expected", "L")
@@ -625,6 +631,10 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}_interp_extra.pdf'.format(year=year,channel=channel))
   c.SaveAs(limit_pdf_file)
   c.SaveAs(limit_pdf_file.replace(".pdf",".png"))
+  c.SaveAs(limit_pdf_file.replace(".pdf",".C"))
+  c.SaveAs(limit_pdf_file.replace(".pdf",".root"))
+
+
 
   ## Contour version
 
