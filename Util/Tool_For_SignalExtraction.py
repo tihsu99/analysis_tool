@@ -655,7 +655,6 @@ def Plot_Histogram(template_settings=dict()):
       CMS_lumi.extraText = ""
       CMS_lumi.relPosX = 0.06
       CMS_lumi.relPosY = 0.03
-      CMS_lumi.extraText = "Preliminary"
     else:
       CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
