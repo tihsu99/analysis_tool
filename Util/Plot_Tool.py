@@ -614,8 +614,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
     latex.DrawLatex(0.24,0.68, "excluded")
 
   ## Legend
-  # gkole
-  leg = rt.TLegend(.55, .72, .75, .80);
+  leg = rt.TLegend(.60, .72, .80, .80);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);
