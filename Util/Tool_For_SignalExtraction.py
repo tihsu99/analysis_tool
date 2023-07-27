@@ -379,7 +379,7 @@ def PlotShape(settings=dict()):
             "year":settings['year'],      
             "Title":Title,
             "xaxisTitle":'BDT score',
-            "yaxisTitle":'Events / bin',
+            "yaxisTitle":'Events/bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
             "mass":settings["mass"],
@@ -538,14 +538,14 @@ def Plot_Histogram(template_settings=dict()):
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
                 legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + str(template_settings['Integral'][Histogram_Name]) + ']', 'F')
 
-    h_stack.SetTitle("{};BDT score;Events / bin ".format(template_settings['Title']))
+    h_stack.SetTitle("{};BDT score;Events/bin ".format(template_settings['Title']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     if Set_Logy:
       h_stack.SetMinimum(3.2)
     else:
       h_stack.SetMinimum(0.1)
     h_stack.Draw()
-    h_stack.GetYaxis().SetTitle("Events / bin")
+    h_stack.GetYaxis().SetTitle("Events/bin")
     h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
     h_stack.GetYaxis().SetLabelSize(0.055)
     h_stack.GetYaxis().SetTitleOffset(0.9)
@@ -563,7 +563,7 @@ def Plot_Histogram(template_settings=dict()):
     hh_total.SetMarkerStyle(0)
     hh_total.SetMarkerColor(12) #ROOT.kGray + 2)
     hh_total.SetLineWidth(0)
-    legend.AddEntry(hh_total,'Total-Unc','F')
+    legend.AddEntry(hh_total,'Total unc.','F')
     hh_total.Draw("SAME E2")
 
     if template_settings['unblind']:
@@ -583,7 +583,7 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.SetMarkerColor(1)
         h_ratio.SetLineWidth(3)
           
-        h_ratio.GetYaxis().SetTitle("Obs / Exp")
+        h_ratio.GetYaxis().SetTitle("Obs/Exp")
         h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
         h_ratio.SetMaximum(1.15)
@@ -655,6 +655,7 @@ def Plot_Histogram(template_settings=dict()):
       CMS_lumi.extraText = ""
       CMS_lumi.relPosX = 0.06
       CMS_lumi.relPosY = 0.03
+      CMS_lumi.extraText = "Preliminary"
     else:
       CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
@@ -672,6 +673,7 @@ def Plot_Histogram(template_settings=dict()):
     canvas.Update()
     canvas.SaveAs('{prefix}{log}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag))
     canvas.SaveAs('{prefix}{log}.png'.format(prefix=template_settings['outputfilename'],log=log_tag))
+    canvas.SaveAs('{prefix}{log}.C'.format(prefix=template_settings['outputfilename'],log=log_tag))
 
 
 
