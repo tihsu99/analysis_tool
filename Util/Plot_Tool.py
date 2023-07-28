@@ -93,6 +93,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       for idx,coupling_value in enumerate(Coupling_value):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
+        coupling_type = coupling_value.replace('0.1','').replace('0.4','').replace('0.8','').replace('1.0','').replace('r','') #gkole
         #### Set the Name in legend ####
         if 'rtc' in coupling_value :
             value = coupling_value.split('rtc')[-1]
@@ -260,8 +261,8 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
     iPeriod=year
-
-    CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.09)
+    CMS_lumi.relPosX = 0.15 #gkole
+    CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.14)
 
     
     
@@ -285,21 +286,31 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     
     c.Update()
     
+    if interference:
+      type_ = "interference"
+    else:
+      type_ = "pure"
 
     ### Output File Setting ###
-    OUT_DIR = os.path.join(outputFolder,"plots_limit")
+    OUT_DIR = os.path.join(outputFolder,"plots_limit","r" + coupling_type, type_)
     
     CheckDir(OUT_DIR,True)
     limit_pdf_file  = os.path.join(OUT_DIR,limit_pdf_file)
-    
     CheckFile(limit_pdf_file,True)
-    
     c.SaveAs(limit_pdf_file)
-    limit_png_file = limit_pdf_file.replace(".pdf",".png")
 
+    limit_png_file = limit_pdf_file.replace(".pdf",".png")
     CheckFile(limit_png_file,True)
     c.SaveAs(limit_png_file)
+
+    limit_C_file = limit_pdf_file.replace(".pdf",".C")
+    CheckFile(limit_C_file,True)
+    c.SaveAs(limit_C_file)
     
+    limit_root_file = limit_pdf_file.replace(".pdf",".root")
+    CheckFile(limit_root_file,True)
+    c.SaveAs(limit_root_file)
+
     c.Close()
 
 def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.Interpolation.kPOLYNOMIAL, EPS=5E-2, Title=""):
