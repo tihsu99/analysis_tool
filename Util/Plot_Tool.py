@@ -255,14 +255,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     mg.SetMaximum(y_max);
     mg.Draw("same") 
     leg.Draw("same")
-    #latex_leg = rt.TLatex()
-    #latex_leg.SetNDC()
-    #latex_leg.SetIndiceSize(3)
-    #latex_leg.SetLimitIndiceSize(2)
-    ##latex_leg.SetTextFont(42)
-    ##latex_leg.SetTextSize(0.038)
-    ##latex_leg.SetTextAlign(12)
-    #latex_leg.DrawLatex(0.60,0.82,Limit_Name)
     
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
