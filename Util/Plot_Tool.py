@@ -507,7 +507,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   else:
     Target_Object = "expmed"
 
-  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma/#sigma_{theory}(%s)"%(coupling_type, Target_Object)
+  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(coupling_type, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -613,9 +613,17 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   exclusion_extra_exp.SetLineStyle(2)
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
   Hist_interp_extra.GetYaxis().SetTitleSize(0.055)
-  Hist_interp_extra.GetYaxis().SetTitleOffset(0.45) #gkole
+  Hist_interp_extra.GetYaxis().SetLabelSize(0.044)
+  Hist_interp_extra.GetYaxis().SetTitleOffset(0.45)
   Hist_interp_extra.GetXaxis().SetTitleSize(0.05)
-  Hist_interp_extra.GetXaxis().SetTitleOffset(0.80)
+  Hist_interp_extra.GetXaxis().SetLabelSize(0.044)
+  Hist_interp_extra.GetXaxis().SetTitleOffset(0.86)
+  # Zaxis should be affected while you draw plot with "colz" option
+  Hist_interp_extra.GetZaxis().SetTitleOffset(1.28)
+  Hist_interp_extra.GetZaxis().SetTitleSize(0.05)
+  Hist_interp_extra.GetZaxis().SetLabelOffset(0.002)
+  Hist_interp_extra.GetZaxis().SetLabelSize(0.044)
+
 
   Hist_interp_extra.Draw("COLZ")
   if unblind:
@@ -626,21 +634,24 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex =  rt.TLatex();
   latex.SetNDC();
   latex.SetTextFont(42);
-  latex.SetTextSize(0.03);
+  latex.SetTextSize(0.042);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-  latex.DrawLatex(0.16, 0.84, "g2HDM")
+  latex.DrawLatex(0.15, 0.84, "g2HDM")
   if interference:
-    latex.DrawLatex(0.16, 0.80, "m_{A} - m_{H} = 50 GeV");
+    latex.DrawLatex(0.15, 0.80, "m_{A} - m_{H} = 50 GeV");
   latex.SetTextSize(0.05)
   latex.SetTextColor(rt.kRed)
   if not interference and coupling_type == "tc":
-    latex.DrawLatex(0.20, 0.72, "excluded")
+    latex.DrawLatex(0.15, 0.65, "excluded")
   else:
-    latex.DrawLatex(0.24,0.68, "excluded")
+    latex.DrawLatex(0.15,0.65, "excluded")
 
   ## Legend
-  leg = rt.TLegend(.60, .72, .80, .80);
+  if interference:
+    leg = rt.TLegend(.14, .68, .35, .76);
+  else:
+    leg = rt.TLegend(.14, .70, .35, .78);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);
