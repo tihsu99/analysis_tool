@@ -63,22 +63,20 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     ##Frame    
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.57, .62, .80, .86);
+    leg = rt.TLegend(.52, .58, .75, .88);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
     leg.SetTextFont(42);
-    leg.SetTextSize(0.03);
+    leg.SetTextSize(0.042);
     
     
     colors = [2,4,6,28]     
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma_{theory}")
-    mg.SetMinimum(y_min);
-    mg.SetMaximum(y_max);
-
+    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
+    
     keys = log_files_dict.keys()
     end_point = len(keys)-1
 
@@ -143,12 +141,14 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
             OBS.append(obs)
+        if idx==0:
+          if unblind:
+            leg.AddEntry(obs, "Observed", "L");
         leg.AddEntry(exp, Limit_Name+" Expected", "LP");
         if idx==end_point:
             leg.AddEntry(exp1s,"68% expected","F")
             leg.AddEntry(exp2s,"95% expected","F")
-            if unblind:
-              leg.AddEntry(obs, "Observed", "L");
+
         else:pass
       if unblind:
         for obs in OBS:
@@ -245,9 +245,16 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
 
 
     c.cd()
+    mg.GetYaxis().SetTitleSize(0.044)
+    mg.GetYaxis().SetLabelSize(0.044)
+    mg.GetYaxis().SetTitleOffset(1.22)
+    mg.GetXaxis().SetTitleSize(0.044)
+    mg.GetXaxis().SetLabelSize(0.044)
+    mg.GetXaxis().SetTitleOffset(1.00)
+    mg.SetMinimum(y_min);
+    mg.SetMaximum(y_max);
     mg.Draw("same") 
     leg.Draw("same")
-
     
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
@@ -274,7 +281,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex =  rt.TLatex();
     latex.SetNDC();
     latex.SetTextFont(42);
-    latex.SetTextSize(0.03);
+    latex.SetTextSize(0.042);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
     latex.DrawLatex(0.19, 0.82, "g2HDM")
@@ -492,7 +499,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   else:
     Target_Object = "expmed"
 
-  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma/#sigma_{theory}(%s)"%(coupling_type, Target_Object)
+  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(coupling_type, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -598,9 +605,17 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   exclusion_extra_exp.SetLineStyle(2)
   Hist_interp_extra.GetYaxis().SetNdivisions(505)
   Hist_interp_extra.GetYaxis().SetTitleSize(0.055)
-  Hist_interp_extra.GetYaxis().SetTitleOffset(0.45) #gkole
+  Hist_interp_extra.GetYaxis().SetLabelSize(0.044)
+  Hist_interp_extra.GetYaxis().SetTitleOffset(0.45)
   Hist_interp_extra.GetXaxis().SetTitleSize(0.05)
-  Hist_interp_extra.GetXaxis().SetTitleOffset(0.80)
+  Hist_interp_extra.GetXaxis().SetLabelSize(0.044)
+  Hist_interp_extra.GetXaxis().SetTitleOffset(0.86)
+  # Zaxis should be affected while you draw plot with "colz" option
+  Hist_interp_extra.GetZaxis().SetTitleOffset(1.28)
+  Hist_interp_extra.GetZaxis().SetTitleSize(0.05)
+  Hist_interp_extra.GetZaxis().SetLabelOffset(0.002)
+  Hist_interp_extra.GetZaxis().SetLabelSize(0.044)
+
 
   Hist_interp_extra.Draw("COLZ")
   if unblind:
@@ -611,21 +626,24 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   latex =  rt.TLatex();
   latex.SetNDC();
   latex.SetTextFont(42);
-  latex.SetTextSize(0.03);
+  latex.SetTextSize(0.042);
   latex.SetTextAlign(31);
   latex.SetTextAlign(12);
-  latex.DrawLatex(0.16, 0.84, "g2HDM")
+  latex.DrawLatex(0.15, 0.84, "g2HDM")
   if interference:
-    latex.DrawLatex(0.16, 0.80, "m_{A} - m_{H} = 50 GeV");
+    latex.DrawLatex(0.15, 0.80, "m_{A} - m_{H} = 50 GeV");
   latex.SetTextSize(0.05)
   latex.SetTextColor(rt.kRed)
   if not interference and coupling_type == "tc":
-    latex.DrawLatex(0.20, 0.72, "excluded")
+    latex.DrawLatex(0.15, 0.65, "excluded")
   else:
-    latex.DrawLatex(0.24,0.68, "excluded")
+    latex.DrawLatex(0.15,0.65, "excluded")
 
   ## Legend
-  leg = rt.TLegend(.60, .72, .80, .80);
+  if interference:
+    leg = rt.TLegend(.14, .68, .35, .76);
+  else:
+    leg = rt.TLegend(.14, .70, .35, .78);
   leg.SetBorderSize(0);
   leg.SetFillColorAlpha(0,0.0);
   leg.SetShadowColor(0);
