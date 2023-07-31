@@ -63,22 +63,20 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     ##Frame    
     model_ = '2HDM+a'
     ### Legend ####
-    leg = rt.TLegend(.57, .62, .80, .86);
+    leg = rt.TLegend(.52, .58, .75, .88);
     leg.SetBorderSize(0);
     leg.SetFillColor(0);
     leg.SetShadowColor(0);
     leg.SetTextFont(42);
-    leg.SetTextSize(0.03);
+    leg.SetTextSize(0.042);
     
     
     colors = [2,4,6,28]     
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma_{theory}")
-    mg.SetMinimum(y_min);
-    mg.SetMaximum(y_max);
-
+    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
+    
     keys = log_files_dict.keys()
     end_point = len(keys)-1
 
@@ -143,12 +141,14 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
             obs.SetMarkerSize(1.1)
             obs.SetLineWidth(3)
             OBS.append(obs)
+        if idx==0:
+          if unblind:
+            leg.AddEntry(obs, "Observed", "L");
         leg.AddEntry(exp, Limit_Name+" Expected", "LP");
         if idx==end_point:
             leg.AddEntry(exp1s,"68% expected","F")
             leg.AddEntry(exp2s,"95% expected","F")
-            if unblind:
-              leg.AddEntry(obs, "Observed", "L");
+
         else:pass
       if unblind:
         for obs in OBS:
@@ -245,9 +245,24 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
 
 
     c.cd()
+    mg.GetYaxis().SetTitleSize(0.044)
+    mg.GetYaxis().SetLabelSize(0.044)
+    mg.GetYaxis().SetTitleOffset(1.22)
+    mg.GetXaxis().SetTitleSize(0.044)
+    mg.GetXaxis().SetLabelSize(0.044)
+    mg.GetXaxis().SetTitleOffset(1.00)
+    mg.SetMinimum(y_min);
+    mg.SetMaximum(y_max);
     mg.Draw("same") 
     leg.Draw("same")
-
+    #latex_leg = rt.TLatex()
+    #latex_leg.SetNDC()
+    #latex_leg.SetIndiceSize(3)
+    #latex_leg.SetLimitIndiceSize(2)
+    ##latex_leg.SetTextFont(42)
+    ##latex_leg.SetTextSize(0.038)
+    ##latex_leg.SetTextAlign(12)
+    #latex_leg.DrawLatex(0.60,0.82,Limit_Name)
     
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
@@ -274,7 +289,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex =  rt.TLatex();
     latex.SetNDC();
     latex.SetTextFont(42);
-    latex.SetTextSize(0.03);
+    latex.SetTextSize(0.042);
     latex.SetTextAlign(31);
     latex.SetTextAlign(12);
     latex.DrawLatex(0.19, 0.82, "g2HDM")
