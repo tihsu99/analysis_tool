@@ -14,6 +14,7 @@ from operator import itemgetter
 from Util.aux import *
 import numpy as np
 import ctypes
+from ROOT import gStyle
 #from Util.OverlappingPlots import *
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
@@ -446,6 +447,7 @@ def Plot_Histogram(template_settings=dict()):
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetErrorX(0.001)
     ROOT.gROOT.SetBatch(1)
     
     canvas = ROOT.TCanvas("","",1500,1500)
