@@ -568,12 +568,12 @@ def Plot_Histogram(template_settings=dict()):
     legend.AddEntry(hh_total,'Total unc.','F')
     hh_total.Draw("SAME E2")
 
-    if template_settings['unblind']:
-        template_settings['Histogram']["Data"].Draw("SAME P*")
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(2.5)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
+    if template_settings['unblind']:
+        template_settings['Histogram']["Data"].Draw("SAME P*")
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
@@ -624,8 +624,8 @@ def Plot_Histogram(template_settings=dict()):
         ru.SetFillStyle(3005);
         ru.Draw("SAME 2");
 
-
         pad1.cd()
+
 
 
     ###########################
