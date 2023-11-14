@@ -1,0 +1,209 @@
+{
+  "met_pt":{
+    "Title": ";MET [GeV];nEntries",
+    "xlow":  20,
+    "xhigh": 200,
+    "nbin":  18,
+    "Label": ["Normal"]
+  },
+
+  "bh_l1_pt":{
+    "Title": ";Leading Lepton Pt [GeV];nEntries",
+    "xlow":  20,
+    "xhigh": 200,
+    "nbin":  18,
+    "Label": ["Normal"]
+  },
+
+  "bh_l1_eta":{
+    "Title": ";Leading Lepton #eta [GeV];nEntries",
+    "xlow":  -2.4,
+    "xhigh": 2.4,
+    "nbin":  12,
+    "Label": ["Normal"]
+  },
+
+  "j1_pt":{
+    "Title": ";Leading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "j2_pt":{
+    "Title": ";SubLeading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "j3_pt":{
+    "Title": ";Third leading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j1_pt":{
+    "Title": ";Leading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j2_pt":{
+    "Title": ";Subleading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j3_pt":{
+    "Title": ";Third leading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]
+  },
+
+  "j1_eta":{
+    "Title": ";Leading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "j2_eta":{
+    "Title": ";Subleading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "j3_eta":{
+    "Title": ";Third leading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j1_eta":{
+    "Title": ";Leading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j2_eta":{
+    "Title": ";Subleading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "DeepB_medium_j3_eta":{
+    "Title": ";Third leading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "Label": ["Normal"]
+  },
+
+  "n_tight_jet":{
+    "Title": ";nJet;nEntries",
+    "xlow": 2,
+    "xhigh": 7,
+    "nbin": 5,
+    "Label": ["Normal"]
+  },
+
+  "n_tight_muon":{
+    "Title": ";nMuon;nEntries",
+    "xlow": 0,
+    "xhigh": 3,
+    "nbin": 3,
+    "Label": ["Normal"]
+  },
+
+  "n_tight_ele":{
+    "Title": ";nElectron;nEntries",
+    "xlow": 0,
+    "xhigh": 3,
+    "nbin": 3,
+    "Label": ["Normal"]
+  },
+
+  "n_bjet_DeepB_medium": {
+    "Title": ";nbJet;nEntries",
+    "xlow": 2,
+    "xhigh": 6,
+    "nbin": 4,
+    "Label": ["Normal"]
+  },
+
+  "bh_HT": {
+    "Title": ";HT;nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "Label": ["Normal"]    
+  },
+
+  "MET_reco_pz":{
+    "Title": ";MET Pz^{reco} [GeV]; nEntries",
+    "xlow": -200,
+    "xhigh":  200,
+    "nbin":  40,
+    "Label": ["Reco", "Normal"]
+  },
+
+  "W_reco_mass":{
+    "Title": ";mW^{reco} [GeV];nEntries",
+    "xlow":60,
+    "xhigh": 100,
+    "nbin": 40,
+    "Label": ["Reco","Normal"]
+  },
+
+  "top_reco_mass_medium":{
+    "Title": ";mt^{reco} [GeV];nEntries",
+    "xlow":100,
+    "xhigh": 400,
+    "nbin": 30,
+    "Label": ["Reco", "Normal"]
+  },
+
+  "top_reco_mass_tight":{
+    "Title": ";mt^{reco} [GeV];nEntries",
+    "xlow":100,
+    "xhigh": 250,
+    "nbin": 15,
+    "Label": ["Reco","Normal"]
+  },
+
+  "top_reco_mass_loose":{
+    "Title": ";mt^{reco} [GeV];nEntries",
+    "xlow":100,
+    "xhigh": 400,
+    "nbin": 30,
+    "Label": ["Reco","Normal"]
+  },
+
+  "DY_z_mass":{
+    "Title": ";m(Z) [GeV]; nEntries",
+    "xlow": 60,
+    "xhigh": 120,
+    "nbin": 24,
+    "Label": ["Normal"]
+  }
+}

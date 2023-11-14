@@ -1,0 +1,72 @@
+{
+  "puWeight":{
+    "Nominal": ["puWeight"],
+    "Def":     "RVecF{puWeightDown, puWeightUp}",
+    "Label": ["MC", "Background", "Signal", "Shape"]  
+  },
+
+  "prefire":{
+    "Nominal": ["PrefireWeight"],
+    "Def":      "RVecF{PrefireWeight_Down, PrefireWeight_Up}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Era":   ["2016apv", "2016postapv", "2017"]
+  },
+
+  "btag":{
+    "Nominal": ["Jet_btagSF_deepjet_L"],
+    "Def": "RVec<RVecF>{Jet_btagSF_deepjet_L_down, Jet_btagSF_deepjet_L_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  }, 
+
+  "jes":{
+    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jesSUBDown,Jet_pt_jesSUBUp},{Jet_mass_jesSUBDown,Jet_mass_jesSUBUp}, {{MET_T1Smear_pt_jesSUBDown}, {MET_T1Smear_pt_jesSUBUp}}, {{MET_T1Smear_phi_jesSUBDown},{MET_T1Smear_phi_jesSUBUp}}}",
+    "Label":  ["MC", "Background", "Signal", "Shape"],
+    "sub_cat": ["EC2_YEAR", "HF_YEAR", "FlavorQCD", "RelativeBal", "BBEC1", "HF", "EC2", "Absolute","BBEC1_YEAR","RelativeSample_YEAR","Absolute_YEAR"]
+  }, 
+
+  "jerYEAR":{
+    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jerDown,Jet_pt_jerUp},{Jet_mass_jerDown,Jet_mass_jerUp}, {{MET_T1Smear_pt_jerDown}, {MET_T1Smear_pt_jerUp}}, {{MET_T1Smear_phi_jerDown},{MET_T1Smear_phi_jerUp}}}",
+    "Label":  ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "unclusterE_YEAR":{
+    "Nominal": ["MET_T1Smear_pt", "MET_T1Smear_phi"],
+    "Def": "RVec<RVecF>{{MET_T1Smear_pt_unclustEnDown, MET_T1Smear_pt_unclustEnUp},{MET_T1Smear_phi_unclustEnDown, MET_T1Smear_phi_unclustEnUp}}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "muPt":{
+    "Nominal": ["bh_l1_pt"],
+    "Def": "RVecF{Muon_correctedDown_pt[bh_l1_id], Muon_correctedUp_pt[bh_l1_id]}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Channel": ["mu", "mm"]
+  },
+
+  "lumi2016":{
+    "value": 1.01,
+    "Label": ["lnN", "Background", "Signal"],
+    "Era": ["2016apv", "2016postapv"]
+  },
+
+  "lumiYEAR":{
+    "value": {"2017": 1.02, "2018": 1.015},
+    "vary" : ["Era"],
+    "Label": ["lnN", "Background", "Signal"],
+    "Era": ["2017", "2018"]
+  },
+
+  "lumiCorr1718": {
+    "value": {"2017": 1.006, "2018": 1.002},
+    "vary":  ["Era"],
+    "Label": ["lnN", "Background", "Signal"],
+    "Era": ["2017", "2018"]
+  },
+
+  "lumiCorrFullRun2":{
+    "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
+    "vary":  ["Era"],
+    "Label": ["lnN", "Background", "Signal"]
+  }
+}

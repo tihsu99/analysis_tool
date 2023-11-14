@@ -1,0 +1,191 @@
+{
+  "TTTo2L":{
+     "xsec": 88.29,
+     "xsec_err": 6.1,
+     "Category": "TT2L",
+     "Label": ["MC", "Background"]
+  },
+  "TTTo1L":{
+     "xsec": 365.34,
+     "xsec_err": 10,
+     "Category": "TT1L",
+     "Label": ["MC", "Background"]
+  },
+  "ttWLNu":{
+    "xsec": 0.2352,
+    "xsec_err": 10.7,
+    "Category": "ttW",
+    "Label":  ["MC", "Background"]
+  },
+  "ttWToQQ":{
+    "xsec": 0.4867,
+    "xsec_err": 10.7,
+    "Category": "ttW",
+    "Label":  ["MC", "Background"]
+  },
+  "DYnlo":{
+    "xsec": 6077.22,
+    "xsec_err": 0.3,
+    "Category": "DY",
+    "Label":  ["MC", "Background"]
+  },
+  "tW":{
+    "xsec": 35.85,
+    "xsec_err": 5.4,
+    "Category": "SingleTop",
+    "Label":  ["MC", "Background"] 
+  },
+
+  "tbarW":{
+    "xsec": 35.85,
+    "xsec_err": 5.4,
+    "Category": "SingleTop",
+    "Label": ["MC", "Background"]
+  },
+ 
+  "WJet":{
+    "xsec": 61526.7,
+    "xsec_err": 10,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "tbar_tch":{
+    "xsec": 80.95,
+    "xsec_err": 10,
+    "Category": "SingleTop",
+    "Label": ["MC", "Background"]
+  },
+
+  "t_tch":{
+    "xsec": 136.02,
+    "xsec_err": 10,
+    "Category": "SingleTop",
+    "Label": ["MC", "Background"]
+  },
+
+  "t_sch":{
+    "xsec": 3.36,
+    "xsec_err": 10,
+    "Category": "SingleTop",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttH":{
+    "xsec": 0.5638,
+    "xsec_err": 7.8,
+    "Category": "ttH",
+    "Label": ["MC", "Background"]
+  },
+  
+  "SingleEG":{
+    "xsec": 1,
+    "Category": "data",
+    "Label":  ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee"]
+  },
+  "SingleMuon":{
+    "xsec": 1,
+    "Category": "data",
+    "Label":  ["Data", "mu", "mm"],
+    "Channel": ["mu", "mm"]
+  },
+
+  "CGToBHpm_a_200_rtt06_rtc04":{
+    "xsec": 6.456,
+    "Category": "bH^#pm(200)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_300_rtt06_rtc04":{
+    "xsec": 5.246,
+    "Category": "bH^#pm(300)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_350_rtt06_rtc04":{
+    "xsec": 3.276,
+    "Category": "bH^#pm(350)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_400_rtt06_rtc04":{
+    "xsec": 1.965,
+    "Category": "bH^#pm(400)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_500_rtt06_rtc04":{
+    "xsec": 0.7911,
+    "Category": "bH^#pm(500)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_600_rtt06_rtc04":{
+    "xsec": 0.3749,
+    "Category": "bH^#pm(600)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_700_rtt06_rtc04":{
+    "xsec": 0.19,
+    "Category": "bH^#pm(700)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_800_rtt06_rtc04":{
+    "xsec": 0.09575,
+    "Category": "bH^#pm(800)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_900_rtt06_rtc04":{
+    "xsec": 0.04865,
+    "Category": "bH^#pm(900)",
+    "Label": ["MC","Signal"]
+  },
+  "CGToBHpm_a_1000_rtt06_rtc04":{
+    "xsec": 0.02919,
+    "Category": "bH^#pm(1000)",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_200_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_300_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_400_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_500_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_600_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_700_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_800_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_900_rtt06_rtc04":{
+    "xsec": 5,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  } 
+}
+
+
+
+
+
+
+
