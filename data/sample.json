@@ -3,13 +3,21 @@
      "xsec": 88.29,
      "xsec_err": 6.1,
      "Category": "TT2L",
+     "subfile": ["_1", "_2"],
      "Label": ["MC", "Background"]
   },
   "TTTo1L":{
      "xsec": 365.34,
      "xsec_err": 10,
      "Category": "TT1L",
+     "subfile": ["_1", "_2", "_3", "_4", "_5", "_6"],
      "Label": ["MC", "Background"]
+  },
+  "TTtoHadronic":{
+    "xsec": 377.96,
+    "xsec_err": 6.1,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
   },
   "ttWLNu":{
     "xsec": 0.2352,
@@ -96,6 +104,7 @@
     "Category": "bH^#pm(200)",
     "Label": ["MC","Signal"]
   },
+
   "CGToBHpm_a_300_rtt06_rtc04":{
     "xsec": 5.246,
     "Category": "bH^#pm(300)",

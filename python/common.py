@@ -124,12 +124,14 @@ def Get_Sample(json_file_name, Labels, era, withTail=True):
     if Flag:
       if withTail:
         dirs = os.listdir(inputFile_path[era])
-        for file_ in dirs:
-          if os.path.isdir(os.path.join(inputFile_path[era], file_)): continue
-          if((process + ".") in file_) or ((process + "_") in file_):
-            if "default" in file_: continue
-            else:
-              File_List.append(file_)
+        if "subfile" in desc: sublist_ = desc["subfile"]
+        elif "Data" in desc["Label"]: sublist_ = ["_" + subera for subera in subera_list[era]]
+        else: sublist_ = [""]
+        for sub_ in sublist_:
+          file_ = process + sub_ + ".root"
+          if not os.path.exists(os.path.join(inputFile_path[era], file_)): print(os.path.join(inputFile_path[era], file_), 'not exists')
+          else:
+            File_List.append(file_)
       else:
         File_List.append(process)
   return File_List
