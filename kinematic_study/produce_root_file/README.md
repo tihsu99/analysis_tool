@@ -6,8 +6,8 @@ python runcondor.py [args]
 The arguments are:
 1. `--outdir`: Target stored directory. It can be in `\eos`.
 2. `--era`: Target era. Default is `all`, which runs all four eras
-3. `--region`: List of regions
-4. `--channels`: List of channels
+3. `--region`: List of regions (Default follows the setting in `--cut_json`)
+4. `--channels`: List of channels (Default follows the setting in `--cut_json`) 
 5. `--Labels`: Target label/group of `variables`
 6. `--Black_list`: Banned label/group of `variables`
 7. `--POIs`: List of `variables` that will perform nuisance varition.
