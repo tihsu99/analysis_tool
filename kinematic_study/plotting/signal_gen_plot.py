@@ -100,7 +100,8 @@ def get_signal(lepton_pdgId='11', fname=None):
   print(get_decay_chain(decay_mode))
   events = NanoEventsFactory.from_root(fname, schemaclass=NanoAODSchema.v6).events()
   decay_genpart, mask = get_signal_genpart(decay_chain, events)
-  return get_all_genpart(decay_genpart, mask)
+  Eventweight = events[mask]["genWeight"]/abs(events[mask]["genWeight"])
+  return get_all_genpart(decay_genpart, mask), Eventweight
 
 def plot_histogram(fname=dict(), lepton_pdgId='11', era='2017'):
   canvas = SimpleCanvas(" ", " ", Lumi[era])
@@ -108,16 +109,19 @@ def plot_histogram(fname=dict(), lepton_pdgId='11', era='2017'):
 
   Histograms = dict()
   for sig_idx, signal_name in enumerate(fname):
-    signal_ = get_signal(lepton_pdgId, fname[signal_name])
+    signal_, weight_ = get_signal(lepton_pdgId, fname[signal_name])
     Histograms[signal_name] = ROOT.TH1F(str(signal_name), str(";mass[GeV];nEntries"), 100, 0, 1000)
-    for mass in signal_["5000003"]["GenPart"].mass:
-      Histograms[signal_name].Fill(mass)
+    print(len(signal_["5000003"]["GenPart"].mass), len(weight_))
+    print(type(weight_))
+    for idx, mass in enumerate(signal_["5000003"]["GenPart"].mass):
+      Histograms[signal_name].Fill(mass, weight_[idx])
     Histograms[signal_name].Scale(1./Histograms[signal_name].Integral())
     canvas.addHistogram(Histograms[signal_name], drawOpt = 'HIST E')
     canvas.legend.add(Histograms[signal_name], title=signal_name, opt = 'LP', color = Color_List_Signal[sig_idx], fstyle=0, lwidth=4)
+    del signal_, weight_
   print(Histograms)
   canvas.applyStyles()
-  canvas.printWeb('./', 'test', logy=False)
+  canvas.printWeb('./', 'gen_distribution', logy=False)
 
 if __name__ == '__main__':
   
@@ -125,5 +129,10 @@ if __name__ == '__main__':
            "300": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_300_rtt06_rtc04.root",
            "350": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_350_rtt06_rtc04.root",
            "400": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_400_rtt06_rtc04.root",
-           "500": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_500_rtt06_rtc04.root"}
+           "500": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_500_rtt06_rtc04.root",
+           "600": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_600_rtt06_rtc04.root",
+           "700": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_700_rtt06_rtc04.root",
+           "800": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_800_rtt06_rtc04.root",
+           "900": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_900_rtt06_rtc04.root",
+           "1000": "/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/CGToBHpm_a_1000_rtt06_rtc04.root"}
   plot_histogram(fname)

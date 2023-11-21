@@ -13,7 +13,7 @@ sys.path.append('../../python')
 from plotstyle import *
 from common import *
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json"):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -21,7 +21,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   ## Load Histogram Info  ##
   ##########################
 
-  jsonfile   = open(os.path.join("../../data", "histogram.json"))
+  jsonfile   = open(histogram_json)
   Histograms = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
   jsonfile.close()
 
@@ -51,7 +51,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Load sample list ##
     ######################
 
-    json_file_name = "../../data/sample_%s.json"%era
+    json_file_name = sample_json
     jsonfile = open(json_file_name)
     samples  = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     jsonfile.close()
@@ -167,7 +167,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
           else:
             canvas.addSignal(Histogram[sample_], title = sample_, color = color)
-        elif "Data" in data_type:
+        elif "Data" in data_type and unblind:
           canvas.addObs(Histogram[sample_])
     
     #############################
@@ -209,6 +209,8 @@ if __name__ == "__main__":
   parser.add_argument("--region_json", dest = 'region_json', default = '../../data/cut.json')
   parser.add_argument("--channels", dest = 'channels', default = ['all'], nargs = '+')
   parser.add_argument('--region', dest = 'region', default = ['all'], type=str, nargs = '+')
+  parser.add_argument('--sample_json', dest='sample_json', default='../../data/sample.json', type=str)
+  parser.add_argument('--histogram_json', dest='histogram_json', default='../../data/histogram.json', type=str)
   parser.add_argument("--only_signal", dest = 'only_signal', action = 'store_true')
   parser.add_argument("--overflow", dest = 'overflow', action = 'store_true')
   parser.add_argument("--normalize", dest = 'normalize', action = 'store_true')
@@ -243,7 +245,7 @@ if __name__ == "__main__":
  
   for region in region_channel_dict:
     for channel in region_channel_dict[region]: 
-      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize)
+      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json)
 
   
 
