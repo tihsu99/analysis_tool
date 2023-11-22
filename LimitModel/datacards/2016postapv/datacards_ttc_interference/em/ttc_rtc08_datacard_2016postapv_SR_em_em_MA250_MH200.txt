@@ -1,0 +1,58 @@
+Date: Tue Nov 29 16:42:39 CET 2022
+
+
+------------
+
+imax *  number of channels
+jmax *  number of backgrounds
+
+kmax *  number of nuisance parameterS (sources of systematical uncertainties)
+
+------------
+shapes * SR_em FinalInputs/2016postapv/ttc_a_250_s_200_rtc04/TMVApp_250_em.root ttc2016postapv_$PROCESS ttc2016postapv_$PROCESS_$SYSTEMATIC
+
+------------
+bin SR_em
+observation -1
+------------
+bin                                  SR_em  SR_em  SR_em  SR_em  SR_em  SR_em  SR_em  SR_em      SR_em   SR_em  SR_em  SR_em  SR_em      SR_em
+process  TAToTTQ_250_s_200_rtc04    tZq    ttZ   ttVH    VVV    ttW    VBS   ttVV  Nonprompt  TTTo2L     VV     DY   tttX  SingleTop
+process                                  0      1      2      3      4      5      6      7          8       9     10     11     12         13
+rate                                    -1     -1     -1     -1     -1     -1     -1     -1         -1      -1     -1     -1     -1         -1
+lumi2016                       lnN   1.01   1.01   1.01   1.01   1.01   1.01   1.01   1.01     -   1.01   1.01   1.01   1.01   1.01
+lumiCorrFullRun2               lnN  1.006  1.006  1.006  1.006  1.006  1.006  1.006  1.006     -  1.006  1.006  1.006  1.006  1.006
+pileup                       shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+prefire                      shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muon2016postapvptCorrection  shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2016postapvsys           shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2016postapvstat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+eleID2016postapvsys          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+eleID2016postapvstat         shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+elemuTrigger2016postapv      shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016postapvstat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016postapvExtrap        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016postapvInterp        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSb                    shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSc                    shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagWJetsXSc                 shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+met2016postapvunclusterE     shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jes                          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jer2016postapv               shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+fake                           lnN      -      -      -      -      -      -      -      -  1.30      -      -      -      -      -
+normTTTo2L                     lnN      -      -      -      -      -      -      -      -     -  1.061      -      -      -      -
+normSingleTop                  lnN      -      -      -      -      -      -      -      -     -      -      -      -      -  1.054
+normDY                         lnN      -      -      -      -      -      -      -      -     -      -      -  1.003      -      -
+normVV                         lnN      -      -      -      -      -      -      -      -     -      -  1.187      -      -      -
+normVBS                        lnN      -      -      -      -      -      -   1.30      -     -      -      -      -      -      -
+normttVV                       lnN      -      -      -      -      -      -      -   1.18     -      -      -      -      -      -
+normttVH                       lnN      -      -      -   1.50      -      -      -      -     -      -      -      -      -      -
+normttZ                        lnN      -      -  1.147      -      -      -      -      -     -      -      -      -      -      -
+normttW                        lnN      -      -      -      -      -   1.20      -      -     -      -      -      -      -      -
+normtZq                        lnN      -   1.10      -      -      -      -      -      -     -      -      -      -      -      -
+normtttX                       lnN      -      -      -      -      -      -      -      -     -      -      -      -   1.30      -
+normVVV                        lnN      -      -      -      -   1.20      -      -      -     -      -      -      -      -      -
+sigscale                     shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigpdf                       shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigps                        shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+* autoMCStats 10 0 1  
+SigScale rateParam * TAToTTQ_250_s_200_rtc04 3.105172 [2.556123,3.654221]

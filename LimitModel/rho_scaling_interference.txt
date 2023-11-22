@@ -1,0 +1,7 @@
+rho-type rho-value scale-w.r.t.rho0.4      delta(scale)
+rtu      0.1       0.068                   0.014
+rtu      0.8       4.002                   0.797
+rtu      1.0       5.924                   1.145
+rtc      0.1       0.063                   0.012
+rtc      0.8       3.415                   0.659
+rtc      1.0       4.715                   0.903

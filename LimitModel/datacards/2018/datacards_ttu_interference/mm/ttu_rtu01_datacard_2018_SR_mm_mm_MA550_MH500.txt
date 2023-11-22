@@ -1,0 +1,56 @@
+Date: Tue Nov 29 16:42:59 CET 2022
+
+
+------------
+
+imax *  number of channels
+jmax *  number of backgrounds
+
+kmax *  number of nuisance parameterS (sources of systematical uncertainties)
+
+------------
+shapes * SR_mm FinalInputs/2018/ttc_a_550_s_500_rtu04/TMVApp_550_mm.root ttc2018_$PROCESS ttc2018_$PROCESS_$SYSTEMATIC
+
+------------
+bin SR_mm
+observation -1
+------------
+bin                                  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm      SR_mm   SR_mm  SR_mm  SR_mm  SR_mm      SR_mm
+process  TAToTTQ_550_s_500_rtu04    tZq    ttZ   ttVH    VVV    ttW    VBS   ttVV  Nonprompt  TTTo2L     VV     DY   tttX  SingleTop
+process                                  0      1      2      3      4      5      6      7          8       9     10     11     12         13
+rate                                    -1     -1     -1     -1     -1     -1     -1     -1         -1      -1     -1     -1     -1         -1
+lumi2018                lnN  1.015  1.015  1.015  1.015  1.015  1.015  1.015  1.015     -  1.015  1.015  1.015  1.015  1.015
+lumiCorr1718            lnN  1.002  1.002  1.002  1.002  1.002  1.002  1.002  1.002     -  1.002  1.002  1.002  1.002  1.002
+lumiCorrFullRun2        lnN  1.020  1.020  1.020  1.020  1.020  1.020  1.020  1.020     -  1.020  1.020  1.020  1.020  1.020
+pileup                shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muon2018ptCorrection  shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2018sys           shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2018stat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+dimuTrigger2018       shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018stat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018Extrap        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2018Interp        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSb             shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSc             shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagWJetsXSc          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+met2018unclusterE     shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jes                   shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jer2018               shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+fake                    lnN      -      -      -      -      -      -      -      -  1.30      -      -      -      -      -
+normTTTo2L              lnN      -      -      -      -      -      -      -      -     -  1.061      -      -      -      -
+normSingleTop           lnN      -      -      -      -      -      -      -      -     -      -      -      -      -  1.054
+normDY                  lnN      -      -      -      -      -      -      -      -     -      -      -  1.003      -      -
+normVV                  lnN      -      -      -      -      -      -      -      -     -      -  1.187      -      -      -
+normVBS                 lnN      -      -      -      -      -      -   1.30      -     -      -      -      -      -      -
+normttVV                lnN      -      -      -      -      -      -      -   1.18     -      -      -      -      -      -
+normttVH                lnN      -      -      -   1.50      -      -      -      -     -      -      -      -      -      -
+normttZ                 lnN      -      -  1.147      -      -      -      -      -     -      -      -      -      -      -
+normttW                 lnN      -      -      -      -      -   1.20      -      -     -      -      -      -      -      -
+normtZq                 lnN      -   1.10      -      -      -      -      -      -     -      -      -      -      -      -
+normtttX                lnN      -      -      -      -      -      -      -      -     -      -      -      -   1.30      -
+normVVV                 lnN      -      -      -      -   1.20      -      -      -     -      -      -      -      -      -
+sigscale              shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigpdf                shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigps                 shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+* autoMCStats 10 0 1  
+SigScale rateParam * TAToTTQ_550_s_500_rtu04 0.068365 [0.054756,0.081974]

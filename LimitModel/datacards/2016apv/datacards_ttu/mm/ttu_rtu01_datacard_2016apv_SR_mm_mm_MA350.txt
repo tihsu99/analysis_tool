@@ -1,0 +1,56 @@
+Date: Tue Nov 29 16:42:34 CET 2022
+
+
+------------
+
+imax *  number of channels
+jmax *  number of backgrounds
+
+kmax *  number of nuisance parameterS (sources of systematical uncertainties)
+
+------------
+shapes * SR_mm FinalInputs/2016apv/ttc_a_rtu04_MA350/TMVApp_350_mm.root ttc2016apv_$PROCESS ttc2016apv_$PROCESS_$SYSTEMATIC
+
+------------
+bin SR_mm
+observation -1
+------------
+bin                                  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm  SR_mm      SR_mm   SR_mm  SR_mm  SR_mm  SR_mm      SR_mm
+process  TAToTTQ_rtu04_MA350    tZq    ttZ   ttVH    VVV    ttW    VBS   ttVV  Nonprompt  TTTo2L     VV     DY   tttX  SingleTop
+process                                  0      1      2      3      4      5      6      7          8       9     10     11     12         13
+rate                                    -1     -1     -1     -1     -1     -1     -1     -1         -1      -1     -1     -1     -1         -1
+lumi2016                   lnN   1.01   1.01   1.01   1.01   1.01   1.01   1.01   1.01     -   1.01   1.01   1.01   1.01   1.01
+lumiCorrFullRun2           lnN  1.006  1.006  1.006  1.006  1.006  1.006  1.006  1.006     -  1.006  1.006  1.006  1.006  1.006
+pileup                   shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+prefire                  shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muon2016apvptCorrection  shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2016apvsys           shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+muID2016apvstat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+dimuTrigger2016apv       shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016apvstat          shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016apvExtrap        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctag2016apvInterp        shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSb                shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagDYXSc                shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+ctagWJetsXSc             shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+met2016apvunclusterE     shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jes                      shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+jer2016apv               shape      1      1      1      1      1      1      1      1     -      1      1      1      1      1
+fake                       lnN      -      -      -      -      -      -      -      -  1.30      -      -      -      -      -
+normTTTo2L                 lnN      -      -      -      -      -      -      -      -     -  1.061      -      -      -      -
+normSingleTop              lnN      -      -      -      -      -      -      -      -     -      -      -      -      -  1.054
+normDY                     lnN      -      -      -      -      -      -      -      -     -      -      -  1.003      -      -
+normVV                     lnN      -      -      -      -      -      -      -      -     -      -  1.187      -      -      -
+normVBS                    lnN      -      -      -      -      -      -   1.30      -     -      -      -      -      -      -
+normttVV                   lnN      -      -      -      -      -      -      -   1.18     -      -      -      -      -      -
+normttVH                   lnN      -      -      -   1.50      -      -      -      -     -      -      -      -      -      -
+normttZ                    lnN      -      -  1.147      -      -      -      -      -     -      -      -      -      -      -
+normttW                    lnN      -      -      -      -      -   1.20      -      -     -      -      -      -      -      -
+normtZq                    lnN      -   1.10      -      -      -      -      -      -     -      -      -      -      -      -
+normtttX                   lnN      -      -      -      -      -      -      -      -     -      -      -      -   1.30      -
+normVVV                    lnN      -      -      -      -   1.20      -      -      -     -      -      -      -      -      -
+sigscale                 shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigpdf                   shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+sigps                    shape      1      -      -      -      -      -      -      -     -      -      -      -      -      -
+* autoMCStats 10 0 1  
+SigScale rateParam * TAToTTQ_rtu04_MA350 0.075144 [0.063238,0.087050]
