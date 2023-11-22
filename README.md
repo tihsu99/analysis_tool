@@ -26,7 +26,7 @@ Install our `LimitModel` under `analysis_tool`
 ```
 git clone https://github.com/ExtraYukawa/LimitModel.git -b tihsu_json_input
 ```
-#Structure
+# Structure
 ## Input - sample
 The sample information should be keep in `data/sample.json`. It contains following information:
 1. **xsec**:  cross section for MC samples.

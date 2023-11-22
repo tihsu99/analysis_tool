@@ -19,6 +19,60 @@
     "Category": "Nonprompt",
     "Label": ["MC", "Background", "Nonprompt"]
   },
+  "QCD_HT50to100":{
+    "xsec": 187700000,
+    "xsec_err": 0.85,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"] 
+  },
+  "QCD_HT100to200":{
+    "xsec": 23640000,
+    "xsec_err": 0.89,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT200to300":{
+    "xsec": 1546000,
+    "xsec_err": 0.91,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT300to500":{
+    "xsec": 321600,
+    "xsec_err": 0.92,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT500to700":{
+    "xsec": 30980,
+    "xsec_err": 0.92,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT700to1000":{
+    "xsec": 6364,
+    "xsec_err": 0.95,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT1000to1500":{
+    "xsec": 1117,
+    "xsec_err": 0.96,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT1500to2000":{
+    "xsec": 108.4,
+    "xsec_err": 0.93,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT2000toInf":{
+    "xsec": 22.36,
+    "xsec_err": 0.95,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
   "ttWLNu":{
     "xsec": 0.2352,
     "xsec_err": 10.7,
