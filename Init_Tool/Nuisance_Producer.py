@@ -26,7 +26,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     ## Add NormUnc ##
     #################
 
-    jsonfile = open("data/sample_{}.json".format(year))
+    jsonfile = open("data/sample.json")
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:

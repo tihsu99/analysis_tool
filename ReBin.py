@@ -99,7 +99,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   ##  unblind  ##
   ###############
   if unblind:
-    jsonfile = open("data/sample_{}.json".format(era))
+    jsonfile = open("data/sample.json")
     if python_version == 2:
       samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
     else:
@@ -169,7 +169,7 @@ for era_ in eras:
     for channel_ in region_channel_dict[region_]:
       signal_list = []
       if "all" in args.signal:
-        jsonfile = open("data/sample_{}.json".format(era_))
+        jsonfile = open("data/sample.json")
         if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
         else: samples = json.load(jsonfile)
         for sample_ in samples:

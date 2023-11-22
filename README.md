@@ -1,4 +1,4 @@
-# 0. Suit-up!
+# 0. Suit-up! (No need under analysis_tool structure)
 
 In this section, you can just copy and past the command.
 
@@ -42,9 +42,9 @@ git clone git@github.com:ExtraYukawa/LimitModel.git
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
-Note: the initialization is to be done only once. 
+Note: the initialization is to be done only once. You can block certain nuisances via `-b`.
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
+cp -r ../data .
 python Init.py --year 2017 --channel all
 python Init.py --year 2018 --channel all
 python Init.py --year 2016apv --channel all
@@ -96,31 +96,17 @@ Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
 ```
 
-Normally, you should use the following commands. (Note that we always use mA as our Mass input in interference case.)
+Normally, you should use the following commands. (By default, the code will wrong all the channels, regions, and signals contain in the `data/sample.json` and `data/cut.json`)
 ```
-python ReBin.py -c all --Couplings  [0p1/0p4/0p8/1p0] --Coupling_Name [rtc/rtu/rtt] --y [year: 2016apv/2016postapv/2017/2018] --Masses [Mass points you want to take into account] --inputdir [input/provided/by/Gouranga] [--interference]; 
+python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] 
 ```
 
-
-## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time):
+## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
 
 ```
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/; 
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/;
-
-#Interference
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016apv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2016postapv --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2017 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
-
-python ReBin.py -c all --Couplings  0p4 --Coupling_Name rtc --y 2018 --Masses 250 300 350 400 550 700 --inputdir /eos/cms/store/group/phys_top/ExtraYukawa/BDT_Jan2023/BDT_output/ --interference;
+cp -r ../data .
+python Init.py --year 2017 --channel all -b muPt btag
+python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
 ```
 
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
@@ -129,13 +115,11 @@ And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
-python ReBin.py -c all --Couplings  0p4 --y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000 --inputdir /afs/cern.ch/user/g/gkole/work/public/forTTC/BDT_output_with_signalXS_correctNevents -q; 
+python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] [--quiet]
 ```
 Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there is any nuisances you do not set correctly, like typo. 
 
 And once this step is done, there are several rebined root files under `FinalInputs`.
-
-
 
 # 3. Datacard preparation
 
