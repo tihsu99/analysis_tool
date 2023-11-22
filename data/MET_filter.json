@@ -1,0 +1,13 @@
+{
+  "MET_Filter": [
+        "Flag_goodVertices",
+        "Flag_globalSuperTightHalo2016Filter",
+        "Flag_HBHENoiseFilter",
+        "Flag_HBHENoiseIsoFilter",
+        "Flag_EcalDeadCellTriggerPrimitiveFilter",
+        "Flag_BadPFMuonFilter",
+        "Flag_BadPFMuonDzFilter",
+        "Flag_eeBadScFilter",
+        "Flag_ecalBadCalibFilter"
+    ]
+}

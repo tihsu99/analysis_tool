@@ -1,0 +1,12 @@
+{
+  "SingleMuon_trigger": {
+    "Channel": ["mu", "mm"],
+    "Dataset": ["SingleMuon"],
+    "Triggers": {"2017": ["HLT_IsoMu27"]}
+  },
+  "SingleEG_trigger": {
+    "Channel": ["ele", "ee"],
+    "Dataset": ["SingleEG"],
+    "Triggers": {"2017": ["HLT_passEle32WPTight"]}
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "MET_T1Smear_phi":{
+    "Def": "Defined",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "MET_T1Smear_phi_RVec":{
+    "Def": "ROOT::RVec{MET_T1Smear_phi}",
+    "Label": ["Normal", "MC"],
+    "Save": []  
+  },
+
+  "MET_T1Smear_phi_v":{
+    "Def": "MET_T1Smear_phi_RVec[0]",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "MET_T1Smear_pt": {
+    "Def": "Defined",
+    "Label": ["Normal", "MC"],
+    "Save":[]
+  },
+
+  "MET_T1Smear_pt_RVec": {
+    "Def": "ROOT::RVec{MET_T1Smear_pt}",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "MET_T1Smear_pt_v": {
+    "Def": "MET_T1Smear_pt_RVec[0]",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "Jet_pt":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": []
+  },
+
+  "Jet_mass":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":[]
+  },
+
+  "nElectron":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":  ["Normal"]
+  },
+
+  "nMuon":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":  ["Normal"]
+  },
+
+  "nJet":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":  ["Normal"]
+  },
+
+  "puWeight":{
+    "Def": "Defined",
+    "Label": ["Normal", "MC"],
+    "Save":  []
+  },
+
+  "PrefireWeight":{
+    "Def": "Defined",
+    "Label": ["Normal", "MC"],
+    "Era": ["2016apv", "2016postapv", "2017"],
+    "Save": []
+  },
+
+  "Jet_btagSF_deepjet_L":{
+    "Def": "Defined",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "btag_sf_L":{
+    "Def": "btag_SF(tightJets_id_in24, Jet_btagSF_deepjet_L)",
+    "Label": ["Normal", "MC"],
+    "Save": []
+  },
+
+  "met_pt":{
+    "Def": "MC_Data_Dep",
+    "Label": ["Normal"],
+    "Category": {"MC": "MET_T1Smear_pt_v",
+                 "Data": "MET_T1_pt"},
+    "Save": []
+  },
+
+  "met_phi":{
+    "Def": "MC_Data_Dep",
+    "Label": ["Normal"],
+    "Category": {"MC": "MET_T1Smear_phi_v",
+                 "Data": "MET_T1_pt"},
+    "Save": []
+  },
+
+  "MET_reco_pz":{
+    "Def": "MET_pz_reconstruction(bh_l1_pt, bh_l1_eta, bh_l1_phi, met_pt, met_phi)",
+    "Label": ["Reco","Normal"],
+    "Save":[]
+  },
+
+  "MET_reco_E":{
+    "Def": "sqrt(met_pt*met_pt + MET_reco_pz*MET_reco_pz)",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "bh_l1_E":{
+    "Def": "sqrt(bh_l1_pt*bh_l1_pt*(cosh(bh_l1_eta)*cosh(bh_l1_eta)) + bh_l1_mass*bh_l1_mass)",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "W_reco_E":{
+    "Def": "MET_reco_E + bh_l1_E",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "W_reco_px":{
+    "Def": "bh_l1_pt*cos(bh_l1_phi) + bh_met*cos(met_phi)",
+    "Label": ["Reco", "Normal"],
+    "Save":  []
+  },
+
+  "W_reco_py":{
+    "Def": "bh_l1_pt*sin(bh_l1_phi) + met_pt*sin(met_phi)",
+    "Label": ["Reco", "Normal"],
+    "Save":  []
+  },
+
+  "W_reco_pz":{
+    "Def": "bh_l1_pt*sinh(bh_l1_eta) + MET_reco_pz",
+    "Label": ["Reco", "Normal"],
+    "Save":  []
+  },
+
+  "W_reco_mass":{
+    "Def": "sqrt(W_reco_E*W_reco_E - W_reco_px*W_reco_px - W_reco_py*W_reco_py - W_reco_pz*W_reco_pz)",
+    "Label": ["Reco", "Normal"],
+    "Save":  []
+  },
+
+  "top_reco_mass_medium":{
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetmedium_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "top_reco_mass_tight":{
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJettight_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "top_reco_mass_loose":{
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetloose_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
+    "Label": ["Reco", "Normal"],
+    "Save": []
+  },
+
+  "bh_HT":{
+    "Def": "HT_(tightJets_id_in24, Jet_pt)",
+    "Label": ["Normal"],
+    "Save": []
+  }
+}
