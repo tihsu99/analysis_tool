@@ -26,21 +26,14 @@ import argparse
 import time
 from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
 from Util.aux import *
-
+from collections import OrderedDict
 
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 
 start = time.time()
 
-channel_choices = ['ee','em','mm','C']
 year_choices = ['2016apv','2016postapv','2017','2018','run2']
-
-coupling_value_choices = []
-
-for coupling in ['rtc','rtu','rtt']:
-    for value in ['01','04','08','10']:
-        coupling_value_choices.append(coupling+value)
 
 
 mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
@@ -49,8 +42,10 @@ mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-y','--year',help='Years of data.',default='2017',choices=year_choices)
-parser.add_argument('-c','--channel',help='Years of data.',default='ee',choices=channel_choices)
-parser.add_argument('--coupling_value',help='Coupling_values',default='rtu04',choices=coupling_value_choices)
+parser.add_argument('-r','--region', help='Region of data', default='SR')
+parser.add_argument('-c','--channel',help='Years of data.',default='ee')
+parser.add_argument('--rtc', help='rtc value', default=0.4, type=float)
+parser.add_argument('--rtt', help='rtt value', default=0.6, type=float)
 parser.add_argument('--mass_point',help='Mass point of dataset.',type=str)
 parser.add_argument('-M','--mode',default='Nothing',choices=mode_choices,help='Mode of the executation')
 parser.add_argument('--unblind',action='store_true',help = 'Unblind or not.')
@@ -60,7 +55,6 @@ parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
 parser.add_argument('--logy',help='log y in pre/post-fit plots',action='store_true')
-parser.add_argument('--interference',help ='If you want to calculate for interference samples, then activate this option.',action="store_true")
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
 parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
@@ -70,11 +64,9 @@ parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choic
 parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
 parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit', 'postFit'], type = str, default = None)
-
 parser.add_argument('--group', type = int, default = 0)
-
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
-
+parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
 args = parser.parse_args()
 
 '''
@@ -86,30 +78,30 @@ elif 'rtt' in args.coupling_value:
     signal_process = 'ttt'
 else:raise ValueError("No such coupling value: {}".format(args.coupling_value))
 '''
-signal_process = 'ttc'
-
-higgs = 'A'
-
-
-
-datacards = 'datacards_{year}_{signal_process}/{signal_process}_{coupling_value}_datacard_{year}_SR_{channel}_{channel}_M{higgs}{mass}.txt'.format(year = args.year,signal_process=signal_process,coupling_value=args.coupling_value,channel=args.channel,higgs=higgs,mass=args.mass_point)
-
-if args.interference:
-    higgs += '_interfered_with_S0'
-    datacards = './datacards_{year}_ttc/ttc_{coupling_value}_datacard_{year}_SR_{channel}_{channel}_MA{mass}_MS{mass2}.txt'.format(year = args.year, coupling_value=args.coupling_value,channel=args.channel,higgs=higgs,mass=args.mass_point,mass2=str(int(args.mass_point)-50))
+####### Analysis dependent bin ########
+signal_process = 'bH'
+higgs = 'H'
+signal_param = OrderedDict()
+signal_param["rtt"] = str(args.rtt).replace('.','p')
+signal_param["rtc"] = str(args.rtc).replace('.','p')
+signal_name_template = "CGToBHpm_a_MASS_rtt{}_rtc{}".format(signal_param["rtt"].replace('p',''), signal_param["rtc"].replace('p',''))
+signal_name_template = signal_name_template.replace('MASS', args.mass_point)
+datacards = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=args.year, signal=signal_name_template, region=args.region, channel=args.channel).replace('MASS', args.mass_point)
+coupling_name = "rtt{}_rtc{}".format(signal_param["rtt"], signal_param["rtc"])
+x_variable = 'HT'
+#######################################
 
 settings ={
     'year':args.year,
+    'region':args.region,
     'channel':args.channel,
-    'coupling_value':args.coupling_value,
+    'coupling_value': coupling_name,
     'mass':args.mass_point,
-    'mass2':str(int(args.mass_point)-50),
     'higgs':higgs,
     'unblind':args.unblind,
     'expectSignal':args.expectSignal,
     'rMin': args.rMin,
     'rMax': args.rMax,
-    'interference' : args.interference,
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
@@ -119,18 +111,21 @@ settings ={
     'saveNormalizations': args.saveNormalizations,
     'shape_type': args.shape_type,
     'paper': args.paper,
-    'group': args.group
+    'group': args.group,
+    'signal_name': signal_name_template,
+    'POI': x_variable,
+    'datacard_dir': '/'.join(datacards.split('/')[:-1]),
+    'datacard_name': datacards.split('/')[-1]
 }
 
 if args.mode =='PlotShape':
     settings['text_y'] = float(args.text_y)
     settings['logy'] = args.logy
-    settings['plotRatio'] = ((args.plotRatio) and args.unblind)
+    settings['plotRatio'] = ((args.plotRatio))
 elif args.mode=='ResultsCopy':
     settings['dest'] = args.dest
 
 MODE = eval(args.mode) 
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
-
 
     

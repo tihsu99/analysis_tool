@@ -9,43 +9,35 @@ import argparse
 import csv 
 import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
-#import yaml
-#f = open('systematicsDict.yaml') 
-#doc = yaml.safe_load(f)
-
+from collections import OrderedDict
 
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="ttc", analysisbin="em", postfix="asimov", coupling='rtc',coupling_value=0.1, model="extYukawa",unblind=False, interference=False, verbose=False, rMax=5):
+    def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict()):
         self.year_                 = year
         self.analysis_             = analysis 
-        self.analysisbin_          = analysisbin 
+        self.region_               = region
+        self.channel_              = channel
         self.postfix_              = postfix
         self.model_                = model
-        self.coupling_             = coupling_value
-        self.coupling_str_         = str(self.coupling_).replace(".","p")
-        self.interference_         = interference
-        self.rMax_                 = rMax
-        
-        #self.limitlog              = "bin/limits_ttc"+self.year_+"_"+self.analysisbin_+"_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt"
-        #self.limitlog_scaled       = self.limitlog.replace(".txt","_scaled.txt")
-        #self.limit_root_file       = self.limitlog.replace(".txt",".root")
-        
-        self.limit_dir = "bin/"+self.year_+"/"+analysisbin
+        self.rMax_                 = rMax        
+        self.signal_param_         = signal_param
+        self.limit_dir             = os.path.join("bin", self.year_, self.region_, self.channel_)
         if CheckDir(self.limit_dir,MakeDir=True):pass
         else:pass
-
-        self.limitlog = os.path.join(self.limit_dir,"limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".txt")
-        self.limit_pdf_file = "limits_ttc_"+coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+"_"+analysisbin+".pdf"
-        if interference: 
-          self.limitlog = self.limitlog.replace(".txt","_interference.txt")
-          self.limit_pdf_file = self.limit_pdf_file.replace(".pdf","_interference.pdf")
-        self.limit_root_file = self.limitlog.replace(".txt",".root")
+        
+        param_string = []
+        for key in self.signal_param_:
+          param_string.append(str(key) + str(self.signal_param_[key]))
+        param_string = '_'.join(param_string)
+        self.signal_str_ = param_string
+        self.limitlog = os.path.join(self.limit_dir,"limits_" + self.analysis_ + "_" + param_string + "_"+self.postfix_+"_"+self.model_+".txt")
+        self.limit_pdf_file    = "limits_" + self.analysis_ + "_"+ param_string + "_" + self.postfix_+"_"+self.model_ + "_" + self.region_ + "_" + self.channel_ + ".pdf"
+        self.limit_root_file   = self.limitlog.replace(".txt",".root")
         self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
-        self.Coupling = coupling
         self.__unblind = unblind
         self.__verbose = verbose
         #self.runmode = runmode
@@ -55,7 +47,6 @@ class RunLimits:
     ''' convert a text file with just one columns into a list '''
     def TextFileToList(self, textfile):
         return [iline.rstrip() for iline in open (textfile)]
-        
         
     def PrintSpacing(self, nLine=1):
         for iline in range(nLine):
@@ -75,8 +66,6 @@ class RunLimits:
             os.system('cp index.php '+idir.rstrip())
         return 0
 
-    
-    
     def datacard_to_mparameters(self, name_):
         analysis_ = self.analysis_
         print ("LimitHelper.py::datacard_to_mparameters: ",analysis_, self.model_, name_)
@@ -98,23 +87,24 @@ class RunLimits:
             return ([mparameters_[1], mparameters_[3] ])
             
 
-    def getLimits(self, dc, asimov=True,mass_point='MA200',cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0):
+    def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None):
         asimovstr =""
         logname = dc.replace(".txt",".log")
-        logname = logname.replace( logname.split("/")[-1], os.path.join("log",logname.split("/")[-1] ) )
+        logname = logname.replace(dc_dir, log_dir)
+        CheckDir('/'.join(logname.split('/')[:-1]), True)
         print ("logname: ",logname)
         
         if self.__unblind:
-            command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' '
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' '
         else:
-            command_ = "combine -M AsymptoticLimits "+dc+" "+"-n "+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' '
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  #TODO check -t -1 is correct
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
             command_ = command_ + '-v 3'
 
         os.system(command_+" >& "+logname)
-        output_rootfile = "higgsCombine"+self.year_+"_"+self.analysisbin_+"_"+mass_point+"_"+self.Coupling+self.coupling_str_+"_"+self.postfix_+"_"+self.model_+".AsymptoticLimits.mH120.root"
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+".AsymptoticLimits.mH120.root"
         print(command_+" >& "+logname)
 
         # delete the output combine root file (not to make dirty your home area!)
@@ -144,7 +134,6 @@ class RunLimits:
             if "Expected 97.5%: r < " in ilongline:
                 expected975_ = ilongline.replace("Expected 97.5%: r < ","").rstrip()
         
-        #allparameters  = self.datacard_to_mparameters(logfile)
         print "allparameters:", allparameters
         towrite =  str(allparameters[2])+" "+str(allparameters[1])+" "+expected25_+" "+expected16_+" "+ expected50_+" "+ expected84_+" "+ expected975_+" "+ observed_+"\n"
         
@@ -166,7 +155,7 @@ class RunLimits:
         #limit_root_file = filename.replace(".txt",".root")
         
         med=array('f')
-        mchi=array('f')
+        #mchi=array('c')
         expm2=array('f')
         expm1=array('f')
         expmed=array('f')
@@ -177,8 +166,7 @@ class RunLimits:
 
         counter = 0
         Merged_txt_file = open(self.limitlog,'w')
-        
-        
+         
         
         for imass in Masses:
             input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
@@ -190,8 +178,7 @@ class RunLimits:
             for line in f:
                 if len(line.rsplit())<7: continue
                 med.append(float(line.rstrip().split()[1]))
-                mchi.append(float(line.rstrip().split()[0]))
-                
+                #mchi.append(chr(line.rstrip().split()[0]))                
                 expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
                 expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
                 expmed.append(float(line.rstrip().split()[4]))
@@ -327,24 +314,18 @@ class RunLimits:
         if( iPos==0 ): CMS_lumi.relPosX = 0.12
         iPeriod=self.year_
 
-        CMS_lumi.CMS_lumi(c, iPeriod, iPos)
-
-        if self.Coupling =='rtc':
-            sig_process_name = 'tt#bar{c}  '
-        elif self.Coupling =='rtu':
-            sig_process_name = 'tt#bar{u}  '
-        elif self.Coupling =='rtt':
-            sig_process_name = 'tt#bar{t}  '
-
-        if self.interference_:
-          latex.DrawLatex(0.20, 0.76, "m_{A}-m_{H} = 50 GeV");
-        latex.DrawLatex(0.20, 0.7, sig_process_name+self.analysisbin_);
-        latex.DrawLatex(0.20, 0.64, "Extra Yukawa");
-        latex.DrawLatex(0.15, 0.58, "{} =".format(self.Coupling)+str(self.coupling_)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
-        #latex.DrawLatex(0.15, 0.52, "sin#theta = 0.7, m_{\chi} = 1 GeV");
+        param_string = ''
+        for param_ in self.signal_param_:
+          if type(self.signal_param_[param_]) == str:
+            value = self.signal_param_[param_].replace("p",".")
+          param_string += "{}={} ".format(param_, value)
+        CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.09)
+        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format(self.analysis_, self.region_, self.channel_));
+        latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
+        latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
-        OUT_DIR = os.path.join(outputdir,"plots_limit")
+        OUT_DIR = os.path.join(outputdir,"plots_limit", self.year_)
         
         #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
 

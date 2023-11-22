@@ -1,157 +1,90 @@
-
 import json
-from Util.General_Tool import CheckFile
+from Util.General_Tool import CheckFile, python_version
+from collections import OrderedDict
 
+def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=[]):
 
-def Datacard_Input_Producer(year,channel='',process=['TAToTTQ_COUPLINGVALUE_MAMASSPOINT','TTTo1L','TTTo2L','ttWtoLNu','ttVV','ttV','tttX','VVV','t_tbar_W','tt_V_H','DY','tzq'],nuisances=[]):
-    Input = dict()
-    
+    Input = dict()    
+
     Input['bin']=dict()
-    Input['Process'] = []
+
     Input['Process'] = process
-    if 'TAToTTQ_COUPLINGVALUE_MAMASSPOINT' in process:pass
+    if 'SIGNAL' in process:
+      pass
     else:
-        Input['Process'].insert(0,'TAToTTQ_COUPLINGVALUE_MAMASSPOINT')
-    Input['bin']['SR_{}'.format(channel)] = len(Input['Process'])
-    Input['process1'] =[]
-    Input['rate'] =[]
-    Input['NuisForProc'] = dict()
-    N_process = len(Input['Process'])
-    Input['UnclnN'] = dict()
+        Input['Process'].insert(0,'SIGNAL')
+
     process = Input['Process']
+    Input['bin'][region] = len(Input['Process'])
+    Input['process1'] =range(len(Input['Process']))
+    Input['rate'] = [-1 for i in range(len(Input['Process']))]
+    Input['NuisForProc'] = dict()
+    Input['UnclnN'] = dict()
+
+    jsonfile = open("data/nuisance.json")
+    if python_version == 2:
+      nuisance_dict = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
+    else:
+      nuisance_dict = json.load(jsonfile, object_pairs_hook=OrderedDict)
+    jsonfile.close()
     
-    for idx in range(N_process):
-        Input['process1'].append(idx)
-        Input['rate'].append(-1)
     for nuisance in nuisances:
-        nuisance=nuisance.split('_')[-1].strip()
-        print(nuisance)
-        Input['NuisForProc'][nuisance] = []
-        
-        if year=='2016apv' or year=='2016postapv':
-            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttH","normttW","lumi2016","lumiCorrFullRun2","lumiCorr1718"]
+        nuisance=str(nuisances[nuisance]).split('_')[-1].strip()
+        if nuisance not in nuisance_dict: continue # NormUnc will be defined specifically in next part 
+        ############
+        ## UnclnN ##
+        ############
+        if 'sub_cat' in nuisance_dict[nuisance]:
+          sub_cat_list = nuisance_dict[nuisance]['sub_cat']
         else:
-            lnN_nuisance =  ["fakeYEAR","normTTTo2L","normOthers","normVV","normVBS","normttH","normttW","lumiYEAR","lumiCorrFullRun2","lumiCorr1718"]
-
-        sig_nuisance = ['sigpdf','sigscale','sigps']
+          sub_cat_list = ['']
+        for sub_cat in sub_cat_list:
+          nuisance_name = nuisance+sub_cat          
+          if 'Shape' in nuisance_dict[nuisance]["Label"]:
+            Input['UnclnN'][nuisance_name]='shape'
+          else:
+            if isinstance(nuisance_dict[nuisance]["value"], float):
+              Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"])
+            if isinstance(nuisance_dict[nuisance]["value"], dict):
+              label_list = []
+              if "Era" in nuisance_dict[nuisance]["vary"]: label_list.append(year)
+              if "Region" in nuisance_dict[nuisance]["vary"]: label_list.append(region)
+              if "Channel" in nuisance_dict[nuisance]["vary"]: label_list.append(channel)
+              label_search = '_'.join(label_list)
+              Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"][label_search])
         
-        if nuisance not in lnN_nuisance:
-            Input['UnclnN'][nuisance]='shape'
-        else:pass
-        if nuisance in lnN_nuisance or nuisance in sig_nuisance:
-            if nuisance == 'fakeYEAR':
-                if "2016apv" in year:
-                  Input['UnclnN'][nuisance]='1.27'
-                if "2016postapv" in year:
-                  Input['UnclnN'][nuisance]='1.15'
-                if "2017" in year:
-                  Input['UnclnN'][nuisance]='1.11'
-                if "2018" in year:
-                  Input['UnclnN'][nuisance]='1.10'
-                Input['NuisForProc'][nuisance].append('Nonprompt')
-            elif nuisance == 'lumiYEAR' or nuisance == 'lumi2016':
-                if "2016" in year:
-                    Input['UnclnN'][nuisance] = '1.01'
-                elif "2017" in year:
-                    Input['UnclnN'][nuisance] = '1.02'
-                elif "2018" in year:
-                    Input['UnclnN'][nuisance] = '1.015'
-                else:raise ValueError("No such year: {year}".format(year=year))
-                for proc in process:
-                    if proc !='Nonprompt':
-                        Input['NuisForProc'][nuisance].append(proc)
-                    else:pass 
-            elif nuisance == 'lumiCorrFullRun2' :
-                if "2016" in year:
-                    Input['UnclnN'][nuisance] = '1.006'
-                elif "2017" in year:
-                    Input['UnclnN'][nuisance] = '1.009'
-                elif "2018" in year:
-                    Input['UnclnN'][nuisance] = '1.020'
-                else:raise ValueError("No such year: {year}".format(year=year))
-                for proc in process:
-                    if proc !='Nonprompt':
-                        Input['NuisForProc'][nuisance].append(proc)
-                    else:pass 
-            elif nuisance == 'lumiCorr1718':
-                print(nuisance)
-                if "2017" == year:
-                    Input['UnclnN'][nuisance] = '1.006'
-                elif "2018" ==  year:
-                    Input['UnclnN'][nuisance] = '1.002'
-                else:raise ValueError("No such year: {year}".format(year=year))
-                for proc in process:
-                    if proc !='Nonprompt':
-                        Input['NuisForProc'][nuisance].append(proc)
-                    else:pass 
-            elif nuisance =='normTTTo2L':
-                Input['UnclnN'][nuisance]='1.061'
-                Input['NuisForProc'][nuisance].append('TTTo2L')
-            elif nuisance =='normOthers':
-                Input['UnclnN'][nuisance]='1.054'
-                Input['NuisForProc'][nuisance].append('Others')
-            elif nuisance =='normSingleTop':
-                Input['UnclnN'][nuisance]='1.054'
-                Input['NuisForProc'][nuisance].append('SingleTop')
-            elif nuisance =='normDY':
-                Input['NuisForProc'][nuisance].append('DY')
-                Input['UnclnN'][nuisance]='1.003'
-            elif nuisance =='normVV':
-                Input['NuisForProc'][nuisance].append('VV')
-                Input['UnclnN'][nuisance]='1.045'
-            elif nuisance =='normVBS':
-                Input['NuisForProc'][nuisance].append('VBS')
-                Input['UnclnN'][nuisance]='1.104'
-            elif nuisance =='normttVV':
-                Input['UnclnN'][nuisance]='1.18'
-                Input['NuisForProc'][nuisance].append('ttVV')
-            elif nuisance =='normttH':
-                Input['NuisForProc'][nuisance].append('ttH')
-                Input['UnclnN'][nuisance]='1.078'
-            elif nuisance =='normttZ':
-                Input['UnclnN'][nuisance]='1.147'
-                Input['NuisForProc'][nuisance].append('ttZ')
-            elif nuisance =='normttW':
-                Input['UnclnN'][nuisance]='1.107'
-                Input['NuisForProc'][nuisance].append('ttW')
-            elif nuisance =='normtZq':
-                Input['UnclnN'][nuisance]='1.10'
-                Input['NuisForProc'][nuisance].append('tZq')
-            elif nuisance =='normtttX':
-                Input['UnclnN'][nuisance]='1.30'
-                Input['NuisForProc'][nuisance].append('tttX')
-            elif nuisance =='normVVV':
-                Input['NuisForProc'][nuisance].append('VVV')
-                Input['UnclnN'][nuisance]='1.20'
+          Input['NuisForProc'][nuisance_name] = []
+          if "Background" in nuisance_dict[nuisance]["Label"]: 
+            Input['NuisForProc'][nuisance_name] = process[1:]
+          if "Signal" in nuisance_dict[nuisance]["Label"]:
+            Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
+ 
+    ######################
+    ## Norm Uncertainty ##
+    ######################
 
-            elif nuisance in sig_nuisance:
-                Input['NuisForProc'][nuisance].append('TAToTTQ_COUPLINGVALUE_MAMASSPOINT')
-            
-            else:
-                print(repr(nuisance))
-                raise ValueError('No such nuisance: {nuisance}'.format(nuisance=nuisance))
-        for proc in process:
-            if nuisance not in lnN_nuisance and nuisance not in sig_nuisance:
-                if 'fakeYEAR' in nuisance:
-                  if proc == 'Nonprompt':
-                    Input['NuisForProc'][nuisance].append(proc)
-                elif proc !='Nonprompt':
-                    if channel=='ee':
-                        if nuisance=='muIDYEARsys' or nuisance=='muIDYEARstat' or nuisance=='elemuTriggerYEAR' or nuisance=='dimuTriggerYEAR':continue
-                        elif 'chargeflipYEAR' in nuisance and proc=='TAToTTQ_COUPLINGVALUE_MAMASSPOINT':continue 
-                    elif channel=='em':
-                        if nuisance=='dieleTriggerYEAR' or nuisance=='dimuTriggerYEAR' or nuisance=='chargeflipYEAR':continue
-                    else:
-                        if nuisance=='eleIDYEARsys' or nuisance=='eleIDYEARstat' or nuisance=='dieleTriggerYEAR' or 'chargeflipYEAR' in nuisance or nuisance=='elemuTriggerYEAR':continue
-                    Input['NuisForProc'][nuisance].append(proc)
-                else:pass
-            else:pass
-    
-    CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}.json'.format(year,channel),True)
-    with open('./data_info/Datacard_Input/{}/Datacard_Input_{}.json'.format(year,channel),'w') as f:
+    jsonfile = open("data/sample_{}.json".format(year))
+    if python_version == 2:
+      samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
+    else:
+      samples = json.load(jsonfile, object_pairs_hook=OrderedDict)
+    jsonfile.close()
+    xsec_err_dict = dict()
+    for sample_ in samples:
+      ## Current use conservative method to estimate the xsec_err
+      if not "Background" in samples[sample_]["Label"]: continue
+      if samples[sample_]["Category"] not in xsec_err_dict: xsec_err_dict[samples[sample_]["Category"]] = samples[sample_]["xsec_err"]
+      else: xsec_err_dict[samples[sample_]["Category"]] = max(xsec_err_dict[samples[sample_]["Category"]], samples[sample_]["xsec_err"])  
+    for category_ in xsec_err_dict:
+      Input['UnclnN']['norm' + category_] = str(1. + 0.01 * xsec_err_dict[category_])
+      Input['NuisForProc']['norm' + category_] = [category_]
+
+
+    CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(year, region, channel),True)
+    with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(year, region, channel),'w') as f:
         json.dump(Input,f,indent=4)
  
-    print("Write Datacard_Input into ./data_info/Datacard_Input/{}/Datacard_Input_{}.json".format(year,channel))
+    print("Write Datacard_Input into ./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json".format(year, region, channel))
     print("")
     return Input
 

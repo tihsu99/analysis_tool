@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
-from Util.General_Tool import CheckDir,CheckFile,CheckFile,binning
+from Util.General_Tool import CheckDir,CheckFile,CheckFile,binning,read_json
 from collections import OrderedDict
 from operator import itemgetter
 from Util.aux import *
@@ -16,6 +16,18 @@ import numpy as np
 import ctypes
 from ROOT import gStyle
 #from Util.OverlappingPlots import *
+
+#####################
+## Dict of regions ##
+#####################
+
+region_channel_dict = dict()
+cut_regions = read_json('data/cut.json')
+for region_ in cut_regions:
+  region_channel_dict[region_] = []
+  for channel_ in cut_regions[region_]["channel_cut"]:
+    region_channel_dict[region_].append(channel_)
+
 def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     
     #Check And Create Folder: SignalExtraction
@@ -40,37 +52,35 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
             settings['expectSignal']= 0
     
         
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'])),False)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'], region=settings['region'])), True)
     
     
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction"),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}".format(year=settings['year'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}".format(year=settings['year'],channel=settings['channel'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/err".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/output".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/log_condor".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/results".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
-    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/root".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'])),True)
+#    CheckDir(os.path.join(settings['outdir'],"SignalExtraction"),True)
+#    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}".format(year=settings['year'])),True)
+#    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}".format(year=settings['year'],channel=settings['channel'])),True)
+#    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'])),True)
+ #   CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'])),True)
+  #  CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/err".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/output".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/log_condor".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/results".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
+    CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}/root".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region'])),True)
 
 
-    Final_Output_Dir = os.path.join(settings['outdir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
+    Final_Output_Dir = os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region']))
 
     settings['outputdir'] = Final_Output_Dir
     settings['WorkDir'] = CURRENT_WORKDIR
-    settings['condorDir'] = os.path.join(settings['WorkDir'],"SignalExtraction/{year}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass']))
+    settings['condorDir'] = os.path.join(settings['WorkDir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/{Fit_type}".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],higgs=settings['higgs'],Fit_type=Fit_type,mass=settings['mass'],region=settings['region']))
     
     Log_Path = os.path.relpath(datacards,os.path.dirname(datacards)).replace(".txt","_{}.log".format(mode))
     workspace_root = os.path.relpath(datacards,os.path.dirname(datacards)).replace("txt","root")
-    FitDiagnostics_file = 'fitDiagnostics_{year}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'])
+    FitDiagnostics_file = 'fitDiagnostics_{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value}.root'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'], region=settings['region'])
     diffNuisances_File = os.path.join(Final_Output_Dir,FitDiagnostics_file.replace("fitDiagnostics","diffNuisances"))
-    impacts_json = 'results/impacts_t0_{year}_{channel}_M{higgs}{mass}_{coupling_value}.json'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value']) 
-
-    
-    
+    impacts_json = 'results/impacts_t0_{year}_{region}_{channel}_M{higgs}{mass}_{coupling_value}.json'.format(year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],region=settings['region']) 
+ 
     settings['Log_Path'] = os.path.join(settings['outputdir'],Log_Path)
     settings['workspace_root'] = os.path.join(settings['outputdir'],workspace_root)
     settings['datacards'] = os.path.join(settings['WorkDir'],datacards)
@@ -117,9 +127,9 @@ def FitDiagnostics(settings=dict()):
     
 
     if settings['unblind']:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])
     else: 
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],region=settings['region'], channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
     
     if settings['correlation']:
         command += ' --plots '
@@ -168,7 +178,7 @@ def PlotPulls(settings=dict()):
     elif settings['channel']  =='C':n_canvas ='20'
     else:n_canvas = '10'
 
-    command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{channel}_{higgs}_{mass}_{coupling_value}",{n_canvas},"{year}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],n_canvas=n_canvas)+"'"
+    command = 'root -l -b -q '+"'PlotPulls.C"+'("{diffNuisances_File}","","_{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value}",{n_canvas},"{year}")'.format(diffNuisances_File=settings['diffNuisances_File'],year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],n_canvas=n_canvas,region=settings['region'])+"'"
     print(ts+command+ns)
 
     command += ' >& {}'.format(settings['Log_Path'])
@@ -216,9 +226,9 @@ def Impact_doFits(settings=dict()):
     
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], region=settings['region'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
     else:
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
 
     print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
@@ -233,9 +243,9 @@ def Plot_Impacts(settings=dict()):
     os.chdir(settings['outputdir'])
     Log_Path = os.path.basename(settings['Log_Path'])
     
-    os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.err err".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-    os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.log log_condor".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
-    os.system("mv *{year}-{channel}-{coupling_value}-M{higgs}{mass}*.out output".format(year=settings['year'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+    os.system("mv *{year}-{region}-{channel}-{coupling_value}-M{higgs}{mass}*.err err".format(year=settings['year'],region=settings['region'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+    os.system("mv *{year}-{region}-{channel}-{coupling_value}-M{higgs}{mass}*.log log_condor".format(year=settings['year'],region=settings['region'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
+    os.system("mv *{year}-{region}-{channel}-{coupling_value}-M{higgs}{mass}*.out output".format(year=settings['year'],region=settings['region'],channel=settings['channel'],coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass']))
     os.system("mv higgsCombine_paramFit*.root root/")
     os.system("mv higgsCombine_initialFit*.root root/")
     
@@ -379,7 +389,7 @@ def PlotShape(settings=dict()):
             "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],      
             "Title":Title,
-            "xaxisTitle":'BDT score',
+            "xaxisTitle":settings['POI'],
             "yaxisTitle":'Events/bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
@@ -389,19 +399,14 @@ def PlotShape(settings=dict()):
             "unblind":settings['unblind'],
             "expectSignal":settings['expectSignal'],
             "plotRatio":settings['plotRatio'],
-            "interference":settings['interference'],
             "paper":settings['paper']
             }
-    if settings["unblind"] or settings["expectSignal"]:
-        if not settings['interference']:    
-            template_settings["Signal_Name"] = "TAToTTQ_{coupling_value}_M{higgs}{mass}".format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'])
-        else:
-                
-            template_settings["Signal_Name"] = 'TAToTTQ_{mass}_s_{mass2}_{coupling_value}'.format(coupling_value=settings['coupling_value'],higgs=settings['higgs'],mass=settings['mass'],mass2=settings['mass2'])
-    else:
-            template_settings["Signal_Name"] = "DEFAULT"
+    #if settings["unblind"] or settings["expectSignal"]:
+    template_settings["Signal_Name"] = settings['signal_name'] 
+    #else:
+    #  template_settings["Signal_Name"] = "DEFAULT"
     print("\n")
-    template_settings["Signal_Name"] = template_settings["Signal_Name"].replace("01","04").replace("10","04")
+    #template_settings["Signal_Name"] = template_settings["Signal_Name"].replace("01","04").replace("10","04")
 
     Plot_Histogram(template_settings=template_settings) 
 
@@ -430,10 +435,12 @@ def Plot_Histogram(template_settings=dict()):
             'tttX':ROOT.kPink-3,
             'Nonprompt':ROOT.kViolet-4,
             'tZq':ROOT.kYellow-4,
-            'TTTo2L':ROOT.kBlue,
+            'TT2L':ROOT.kBlue,
+            'TT1L':ROOT.kGreen+3,
             'ttW':ROOT.kGreen-2,
             'ttZ':ROOT.kCyan-2,
             'VBS':ROOT.kBlue-6,
+            'WJet':ROOT.kBlue+6,
             'ttH':ROOT.kRed-9,
             'ttVV':ROOT.kOrange+3,
             'SingleTop':ROOT.kGray,
@@ -441,17 +448,19 @@ def Plot_Histogram(template_settings=dict()):
             }
     if template_settings["unblind"]:
         Color_Dict['Data'] = ROOT.kBlack
-    if template_settings["unblind"] or template_settings["expectSignal"]:
-        Color_Dict[template_settings["Signal_Name"]] = ROOT.kRed
-
+    #if template_settings["unblind"] or template_settings["expectSignal"]:
+    Color_Dict[template_settings["Signal_Name"]] = ROOT.kRed
+    print(template_settings["Signal_Name"])
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetErrorX(0.001)
     ROOT.gROOT.SetBatch(1)
-    
-    canvas = ROOT.TCanvas("","",1500,1500)
-    
+   
+    if template_settings['plotRatio']: 
+      canvas = ROOT.TCanvas("","",1500,1500)
+    else:
+      canvas = ROOT.TCanvas("","",500,500)
 
     Set_Logy = template_settings['logy']
 
@@ -498,7 +507,10 @@ def Plot_Histogram(template_settings=dict()):
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
-    legend.SetTextSize(0.047);
+    if not template_settings['plotRatio']:
+      legend.SetTextSize(0.03);
+    else:
+      legend.SetTextSize(0.047);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -538,9 +550,9 @@ def Plot_Histogram(template_settings=dict()):
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [' + str(template_settings['Integral'][Histogram_Name]) + ']', 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [%.1f]'%template_settings['Integral'][Histogram_Name], 'F')
 
-    h_stack.SetTitle("{};BDT score;Events/bin ".format(template_settings['Title']))
+    h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     if Set_Logy:
       h_stack.SetMinimum(3.2)
@@ -548,9 +560,15 @@ def Plot_Histogram(template_settings=dict()):
       h_stack.SetMinimum(0.1)
     h_stack.Draw()
     h_stack.GetYaxis().SetTitle("Events/bin")
-    h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
-    h_stack.GetYaxis().SetLabelSize(0.055)
-    h_stack.GetYaxis().SetTitleOffset(0.9)
+    if template_settings['plotRatio']:
+      h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
+      h_stack.GetYaxis().SetLabelSize(0.055)
+      h_stack.GetYaxis().SetTitleOffset(0.9)
+    else:
+      h_stack.GetYaxis().SetTitleSize(0.03) # THStack should first be drawn and then can do this step
+      h_stack.GetYaxis().SetLabelSize(0.03)
+      h_stack.GetYaxis().SetTitleOffset(1.5)
+      h_stack.GetXaxis().SetTitleOffset(0.5)
     h_stack.GetXaxis().SetTitleSize(0.05)
     h_stack.GetXaxis().SetLabelOffset(3.0)
     h_stack.GetXaxis().SetLabelSize(0)
@@ -598,7 +616,10 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetXaxis().SetTitleSize(0.2)
         h_ratio.GetXaxis().SetLabelSize(0.17)
         h_ratio.GetXaxis().SetTitleOffset(0.8)
-        h_ratio.Draw("E 2")
+        if template_settings['unblind']:
+          h_ratio.Draw("E 2")
+        else:
+          h_ratio.Draw("AXIS")
 
         x = [];
         y = [];
@@ -629,15 +650,7 @@ def Plot_Histogram(template_settings=dict()):
 
 
     ###########################
-    if "rtc" in template_settings['coupling_value']:
-        quark = "c"
-        coupling ="rtc"
-    elif "rtu" in template_settings['coupling_value']:
-        quark = "u"
-        coupling ="rtu"
-    else:
-        raise ValueError("Check the bugs: {coupling_value}".format(coupling_value = template_settings['coupling_value']))
-    value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
+    #value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
 
     latex = ROOT.TLatex()
@@ -645,9 +658,7 @@ def Plot_Histogram(template_settings=dict()):
     latex.SetTextAlign(12)
     latex.SetNDC()
     latex.SetTextFont(42);
-    latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
-    if template_settings["interference"]:
-      latex.DrawLatex(0.180, 0.53, "m_{A} - m_{H} = 50 GeV");
+    #latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
 
     ### CMS Pad #####
     
@@ -662,10 +673,13 @@ def Plot_Histogram(template_settings=dict()):
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
+
     iPeriod=template_settings['year']
-
-    CMS_lumi.CMS_lumi(pad1, iPeriod, iPos)
-
+    
+    if template_settings['plotRatio']:
+      CMS_lumi.CMS_lumi(pad1, iPeriod, iPos)
+    else:
+      CMS_lumi.CMS_lumi(pad1, iPeriod, iPos, 0.09)
     ######
     if Set_Logy:
       log_tag = "_log"
@@ -741,13 +755,9 @@ def DrawNLL(settings=dict()):
     commands.append('echo Start to do likelihood Scan')
     commands.append('echo single scan ...')
     
-    common_pattern = '.{year}.{channel}.{coupling}.unblind.Set{group}'.format(year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], group = settings['group'])
+    common_pattern = '.{year}.{region}.{channel}.{coupling}.unblind.Set{group}'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], coupling = settings['coupling_value'], group = settings['group'])
     
     
-    if settings['interference']:
-        common_pattern += '.interference'
-    else:
-        common_pattern += '.pure'
         
     SingleScan_pattern = '.singlescan' + common_pattern 
     Snapshot_pattern = '.snap' + common_pattern 
@@ -809,12 +819,7 @@ def DrawNLL(settings=dict()):
             Queue += '{File}:"Stat. Only":{Idx} '.format(File = File, Idx = Idx + 1) 
 
     BREAKDOWN_LIST = ','.join(Group)        
-    
-    if settings['interference']:
-        POSTFIX = '--interference'
-    else:
-        POSTFIX = '' 
-    commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) 
+    commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) #TODO add region 
     
     ### Scan NLL under each nuisance variation
     #commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root)) 
@@ -933,7 +938,7 @@ def plotCorrelationRanking(settings=dict()):
 
 def SubmitGOF(settings = dict()):
 
-    command = "./SubmitGOF.sh {algo} {year} {channel} {coupling} {mass} ".format(algo = settings['GoF_Algorithm'], year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], mass = settings['mass'])
+    command = "./SubmitGOF.sh {algo} {year} {region} {channel} {coupling} {Higgs} {mass}".format(algo = settings['GoF_Algorithm'], year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], mass = settings['mass'], region = settings['region'], Higgs = settings['higgs'])
 
     if settings['unblind']:
         command += ' unblind'
@@ -942,14 +947,7 @@ def SubmitGOF(settings = dict()):
             command += ' sig_bkg'
         else:
             command += ' bkg'
-
-    if settings['interference']:
-        
-        command += ' interference'
-
-    else:
-        command += ' pure'
-    
+    command += ' {datacard_dir} {datacard_name}'.format(datacard_dir=settings['datacard_dir'], datacard_name=settings['datacard_name'])
 
     print(ts+command+ns)
     
@@ -966,9 +964,9 @@ def GoFPlot(settings = dict()):
     print('Processing {algo} algorithm...'.format(algo = algo))
 
     analysis = "ExtraYukawa"
-    OutputFile = 'GoF_{algo}_{coupling_value}_{year}_{channel}_mH{mass}.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-    rootToysFiles = 'higgsCombinetoys*.{coupling_value}.{year}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.*.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
-    rootDataFiles = 'higgsCombineData.{coupling_value}.{year}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.root'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
+    OutputFile = 'GoF_{algo}_{coupling_value}_{year}_{region}_{channel}_mH{mass}.root'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    rootToysFiles = 'higgsCombinetoys*.{coupling_value}.{year}.{region}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.*.root'.format(year = settings['year'], region = settings['region'],  channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
+    rootDataFiles = 'higgsCombineData.{coupling_value}.{year}.{region}.{channel}.{mass}.{algo}.GoodnessOfFit.mH{mass}.root'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'],  algo = algo)
     CheckFile(OutputFile, True, True) 
     if len(rootToysFiles) > 0:
         print('Merging \"{rootToysFiles}\" ROOT files into\"{OutputFile}\"'.format(OutputFile = OutputFile, rootToysFiles = rootToysFiles))
@@ -1006,7 +1004,7 @@ def GoFPlot(settings = dict()):
     toys     = []
     minToy   = +99999999
     maxToy   = -99999999
-    settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_SR_{channel}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_{region}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
     with open(settings['Log_Path'], 'w') as f:
         for i in range(0, tToys.GetEntries()):
             tToys.GetEntry(i)
@@ -1144,7 +1142,7 @@ def GoFPlot(settings = dict()):
 
 
 
-    plotname = 'GoF_{algo}.{coupling_value}.{year}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
 
     c.Update()
     c.SaveAs(plotname)
@@ -1173,17 +1171,26 @@ def FinalYieldComputation(settings=dict()):
     outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
     command = "PostFitShapesFromWorkspace -w {workspace_root} -o {outputFile} -m 350 -f {FitDiagnostics_root}:fit_s --postfit --sampling --print".format(workspace_root = settings['workspace_root'], FitDiagnostics_root = settings['FitDiagnostics_file'], outputFile = outputFile)
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
-    
+    print(command)
     os.system(command) 
     FileIn = ROOT.TFile.Open(outputFile, 'READ')
     
 
     Yield = dict()
 
-    if settings['channel'] == 'C':
-        channels = ['ee', 'em', 'mm']
+    region_channel_dict_local_ = dict()
+    if settings['region'] == 'C':
+      for region_ in region_channel_dict:
+        region_channel_dict_local_[region_] = []
     else:
-        channels = [settings['channel']]
+      region_channel_dict_local_[settings['region']] = []  
+ 
+    for region_ in region_channel_dict_local_:
+      if settings['channel'] == 'C':
+        region_channel_dict_local_[region_] = region_channel_dict[region_] 
+      else:
+        region_channel_dict_local_[region_] = [settings['channel']]
+
     if settings['year'] == 'run2':
         years = ['2016apv', '2016postapv', '2017', '2018']
     
@@ -1194,11 +1201,16 @@ def FinalYieldComputation(settings=dict()):
             process_name_list.append(second_level.GetName())
         break
 
+    channel_name_list = []
+    for region_ in region_channel_dict_local_:
+      for channel_ in region_channel_dict_local_[region_]:
+        channel_name_list.append(region_ + "_" + channel_)
+
     for process in process_name_list:
         Yield[process] = dict()
         for Type in ['postfit', 'prefit']:
             Yield[process][Type] = dict()
-            for channel in channels:
+            for channel in channel_name_list:
                 Yield[process][Type][channel] = dict()
                 Yield[process][Type][channel]['Central'] = 0
                 Yield[process][Type][channel]['Error'] = 0
@@ -1209,9 +1221,12 @@ def FinalYieldComputation(settings=dict()):
         first_level_name = first_level.GetName()
         print('In Dir: {}'.format(first_level_name))
         if settings['year'] == "run2":
-            year,channel,Type = first_level_name.split('_')
+            year = first_level_name.split('_')[0]
+            Type = first_level_name.split('_')[-1]
+            channel = '_'.join(first_level_name.split('_')[1:-1])
         else:
-            channel,Type = first_level_name.split('_')
+            Type = first_level_name.split('_')[-1]
+            channel = '_'.join(first_level_name.split('_')[0:-1])
         for second_level in FileIn.Get(first_level_name).GetListOfKeys():
             process_name = second_level.GetName()
             
@@ -1224,7 +1239,7 @@ def FinalYieldComputation(settings=dict()):
     
     for process in process_name_list:
         for Type in ['prefit', 'postfit']:
-            for channel in channels:
+            for channel in channel_name_list:
                 Yield[process][Type][channel]['Error'] = math.sqrt(Yield[process][Type][channel]['Error'])
 
     FinalYield_json = os.path.join(settings['outputdir'], 'results/finalyield.json')
@@ -1237,15 +1252,12 @@ def FinalYieldComputation(settings=dict()):
     else:
         PostFixstr += 'blind'
     PostFixstr += "-" + settings['year']
+    PostFixstr += "-" + settings['region']
     PostFixstr += "-" + settings['channel']
     PostFixstr += "-" + settings['coupling_value']
-    PostFixstr += "-mA" + settings['mass']
-    if settings['interference']:
-        PostFixstr +='-interference'
-    else:
-        PostFixstr += '-pure'
+    PostFixstr += "-m" + settings['higgs'] + settings['mass']
 
-
+    return 0 #TODO work on tex file
     with open('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr), 'w') as f:
         End = '\n'
         f.write(r'\begin{table}[!htpb]'+End)
@@ -1263,7 +1275,7 @@ def FinalYieldComputation(settings=dict()):
             else:
                 f.write(r'{}'.format(category))
         
-            for channel in channels:
+            for channel in channel_name_list:
                 
                 f.write(r'& {:.1f} $\pm$ {:.1f} '.format(Yield[category]['postfit'][channel]['Central'], Yield[category]['postfit'][channel]['Error']))
             f.write(r'\\'+End)
@@ -1298,7 +1310,6 @@ def FinalYieldComputation(settings=dict()):
             elif 'rtc' in settings['coupling_value']:
                 cp = 'rtc'
                 COUPLING = r'$\rho_{tc}'
-
             COUPLING += ' = ' + str(float(settings['coupling_value'].split(cp)[1]) * 0.1) + ' $ '
             
         f.write(r'\caption{Yield table for '+CHANNEL + ' for ' + YEAR + ' with '+ COUPLING+ ' for ' + r' \mA = ' + settings['mass'] + ' \GeV {INTERFERENCE} }}'.format(INTERFERENCE = INTERFERENCE) + End)

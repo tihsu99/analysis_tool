@@ -13,211 +13,172 @@ Algorithm:
 - repeat the whole process with 6, 7, 8, 9, 10 events and see what givess the best limits. 
 '''
 
-from ROOT import TH1F, TFile 
+from ROOT import TH1F, TFile, TH1D 
 import copy
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
-#print(sys.path)
 import json, array
-from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, binning
-#processes=["TTTo1L","ttWW", "ttWZ", "ttWtoLNu", "ttZ", "ttZtoQQ", "tttW", "tttt", "tzq", "WWW", "DY", "WWZ", "WWdps", "WZ", "WZZ", "ZZZ", "osWW", "tW", "tbarW", "ttH", "ttWH", "ttWtoQQ", 
-#           "ttZH", "tttJ", "zz2l", "TAToTTQ_rtcCOUPLIING_MAMASS"]
-
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, binning, python_version
 import argparse
+
+def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', year='2017', analysis_name="bH"):
+
+  ## New definition of MakeNuisance_Hist, but compatible with current data structure
+
+  Init = True
+  Nui_Exist = False
+  h = None
+
+  for sample_ in samples_list:
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year)
+    fin = os.path.join(indir, "{}.root".format(sample_))
+    fin = TFile.Open(fin, "READ")
+    if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
+      if Init:
+        h = copy.deepcopy(fin.Get(sample_nuis_name))
+        Init = False
+        Nui_Exist=True
+      else:
+        h.Add(fin.Get(sample_nuis_name))
+    fin.Close()
+  if Nui_Exist:
+    h = h.Rebin(len(bins)-1, "h", bins)
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year)
+    h.SetNameTitle(analysis_name + year + "_" + category + nuis, year + "_" + category + nuis)
+  else:
+    if q: pass
+    else: print("\033[0;32m Warning \033[0;m: {} doesn't exist".format(sample_nuis_name))
+  return h
+
+def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH'):
+
+  fout = TFile.Open(fout_name, "RECREATE")
+
+  ######################
+  ##  Load json file  ##
+  ######################
+
+  sample_json = 'data_info/Sample_Names/process_name_{}.json'.format(era)
+  datacard_json = 'data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel)
+
+  jsonfile = open(sample_json)
+  if python_version == 2:
+    samples = json.load(jsonfile, encoding='utf-8')
+  else:
+    samples = json.load(jsonfile)
+  jsonfile.close()
+
+  jsonfile = open(datacard_json)
+  if python_version == 2:
+    datacard_inputs = json.load(jsonfile, encoding='utf-8')
+  else:
+    datacard_inputs = json.load(jsonfile)
+  jsonfile.close()
+
+  #############################
+  ##  Merge Histogram (bkg)  ##
+  #############################
+
+  Histograms = []
+  samples["SIGNAL"] = [signal] # one signal for current stage
+  for category in samples:
+    # Nominal
+    if category == "SIGNAL": category_name = signal
+    else: category_name = category
+    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name)
+    Histograms.append(MakePositive_Hist(h))
+    for nuisance in datacard_inputs["NuisForProc"]:
+      if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
+      if not category in datacard_inputs["NuisForProc"][nuisance]: continue
+      for variation in ["_up", "_down"]:
+        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, year = era, q=quiet, analysis_name=analysis_name)
+        Histograms.append(MakePositive_Hist(h))
+
+  ###############
+  ##  unblind  ##
+  ###############
+  if unblind:
+    jsonfile = open("data/sample_{}.json".format(era))
+    if python_version == 2:
+      samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
+    else:
+      samples_contain_datainfo = json.load(jsonfile)
+    jsonfile.close()
+    data_list = []
+    for sample_ in samples_contain_datainfo:
+      if not "Data" in samples_contain_datainfo[sample_]["Label"]: continue
+      if "Region" in samples_contain_datainfo[sample_] and region not in samples_contain_datainfo[sample_]["Region"]: continue
+      if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
+      data_list.append(sample_)
+    print(data_list)
+    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name)
+    Histograms.append(h)
+
+  fout.cd()
+  for hist_ in Histograms:
+    hist_.Write()
+  fout.Close()
+    
 
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-y','--year',help='List of Years of data. Default value=["2016postapv"].',default=['2016postapv'],nargs='*')
-parser.add_argument('--Couplings',help='List of various couplings you want to consider. The format must be like: 0.4 -> 0p4, 1.0 -> 1p0. Default value=["0p4"]',default=["0p4"],nargs='*')
-parser.add_argument('--Masses',help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
-parser.add_argument('-c','--category',help='List of dilepton channels. Default value=["all"]. *In general, you do not need to tune this value',default=["all"],nargs='+')
+parser.add_argument('--region', help='List of regions', default=['all'], nargs='+')
+parser.add_argument('--channel', help='List of channels', default=['all'], nargs='+')
+parser.add_argument('--signal', help='List of signals', default=['all'], nargs='+')
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
+parser.add_argument('--analysis_name', default='bH')
 parser.add_argument('--unblind',action='store_true')
-parser.add_argument('--interference',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
-parser.add_argument('--Coupling_Name',default = 'rtc',choices=['rtc','rtu','rtt'])
+parser.add_argument('--POI', default = 'BDT')
 args = parser.parse_args()
 
 
-signal_process_name = 'ttc' #Keep the name rule, instead of ttu/ttt. Suggested by Gouranga.
-
-if not args.interference:
-  name_fix = 'ttc_a_{}'.format(args.Coupling_Name)
-  args.inputdir=args.inputdir+'/{}/'+name_fix+'{}_MA{}'
-
-if args.interference:
-  name_fix = 'ttc_a_{}_s_{}_' + args.Coupling_Name + '{}'
-  args.inputdir = args.inputdir + '/{}/'+name_fix
-
-
-#print ("allvariations: ", allvariations)
-if 'all' in args.category:
-    regions = ["ee","mm","em"]
+if "all" in args.year:
+  eras = ["2016postapv", "2016apv", "2017", "2018"]
 else:
-    regions=args.category
-couplings=args.Couplings
-masses=args.Masses
-years=args.year
-inputdir=args.inputdir ## YEAR, coupling, mass needs to be provided
-#inputdir="/afs/cern.ch/work/k/khurana/NTU/ttc/CMSSW_10_6_29/src/ttcbar/LimitModel/BDT_output/{}/ttc_a_rtc{}_MA{}" ## YEAR, coupling, mass needs to be provided
+  eras = args.year
 
-outputdir=args.outputdir
-#outputdir="/afs/cern.ch/work/k/khurana/NTU/ttc/CMSSW_10_6_29/src/ttcbar/LimitModel/FinalInputs"
-
-filename="TMVApp_{}_{}.root"
-
-##filename_ = filename.format("400","ee")
-##print (filename_)
-
-if not args.interference:
-  signal_="TAToTTQ_{}COUPLIING_MAMASS".format(args.Coupling_Name)
+region_channel_dict = dict()
+jsonfile = open("data/cut.json")
+if python_version == 2:
+  regions = json.load(jsonfile, encoding='utf-8')
 else:
-  signal_="TAToTTQ_MAMASS_s_MSMASS_{}COUPLIING".format(args.Coupling_Name)
+  regions = json.load(jsonfile)
 
-sample_names = dict()
-nuisances = dict()
+if "all" in args.region:
+  for region_ in regions:
+    region_channel_dict[region_] = []
+else:
+  for region_ in args.region:
+    region_channel_dict[region_] = []
 
-for iyear in years:
-    with open('./data_info/Sample_Names/process_name_{}.json'.format(iyear),'r') as f:
-        sample_names[iyear] = json.load(f)
-    nuisances[iyear] = dict()
-    for ichannel in regions:
-        with open('./data_info/NuisanceList/nuisance_list_{}_{}.json'.format(iyear,ichannel),'r') as f:
-            Nuisances_dict = json.load(f)
-        nuisances[iyear][ichannel] =[]
-        for key in Nuisances_dict.keys():
-            nuisances[iyear][ichannel].append(str(Nuisances_dict[key]))
+if "all" in args.channel:
+  for region_ in region_channel_dict:
+    for channel_ in regions[region_]["channel_cut"]:
+      region_channel_dict[region_].append(channel_)
+else:
+  for region_ in region_channel_dict:
+    region_channel_dict[region_] = args.channel
 
-##### Correlated Nuisance List -> Manually#####
-Correlated_Nuisance_List = ['_sigYEARscale','_sigYEARpdf','_sigYEARps' ,'_jesYEAR']
-
-
-Process_Categories = sample_names[iyear].keys()
-
-#First remove the output folder for the era to be processed
-for iyear in years:
-    for ir in regions:
-        for imass in masses: 
-            for ic in couplings:
-                filename_ = filename.format(str(imass), ir)
-                ic_ = ic.replace("p","")
-                if not args.interference:
-                  inputdir_ = inputdir.format(iyear, ic_, str(imass)) 
-                else:
-                  inputdir_ = inputdir.format(iyear, str(imass), str(int(imass)-50), ic_)
-                print (" filename: ", inputdir_+"/"+filename_)
-                # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
-                if not args.interference:
-                  rootfiilename=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
-                else:
-                  rootfiilename=signal_process_name+'_a_'+imass+'_s_'+str(int(imass)-50)+'_'+args.Coupling_Name+ic.replace("p","")+'/'+filename_
-                #./FinalInputs/2016apv/ttc_a_rtu04_MA600/TMVApp_600_ee.root
-                print("rm -rf " + outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
-                #os.system("rm -rf "+outputdir+"/"+iyear+'/'+rootfiilename.split("/")[-2])
-
-for iyear in years:
-    Correlated_Nuisance_List_YEAR =[]
-    for nui in Correlated_Nuisance_List:
-        for U_or_D in ["Up","Down"]:
-            correlated_nui = nui+U_or_D
-            Correlated_Nuisance_List_YEAR.append(correlated_nui.replace("YEAR",iyear))
-            #print(correlated_nui)
-    for ir in regions:
-        #print(nuisances[iyear][ir])
-        variations=["Up", "Down"]
-        allvariations= [inuis+iv for iv in variations for inuis in nuisances[iyear][ir]]
-        allvariations.append("")
-        for imass in masses: 
-            for ic in couplings:
-                filename_ = filename.format(str(imass), ir)
-                ic_ = ic.replace("p","")
-                if not args.interference:
-                  inputdir_ = inputdir.format(iyear, ic_, str(imass))
-                else:
-                  inputdir_ = inputdir.format(iyear, str(imass), str(int(imass)-50), ic_)
-                print (" fiilename: ", inputdir_+"/"+filename_)
-                # print (inputdir+iyear+"/rtc"+ic.replace("p","")+"/"+filename_)
-                print (inputdir_+"/"+filename_)
-                rootfiilename_IN=inputdir_+"/"+filename_
-                f_in = TFile(rootfiilename_IN,"R")
-                
-                f_in.cd()
-                #f_in.ls()
-                prefix="ttc"+iyear+"_"
-
-                # Look carefully the final binning in Util/General_Tool.py(change as per needed)
-                xbins = binning
-                if not args.interference:
-                  rootfiilename_OUT=signal_process_name+'_a_'+args.Coupling_Name+ic.replace("p","")+'_MA'+imass+'/'+filename_
-                else:
-                  rootfiilename_OUT=signal_process_name+'_a_'+imass+'_s_'+str(int(imass)-50)+'_'+args.Coupling_Name+ic.replace("p","")+'/'+filename_
-
-                print(rootfiilename_OUT.split("/")[-2])
-
-                print("mkdir -p "+outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2])
-                CheckDir(outputdir+"/"+iyear+"/"+rootfiilename_OUT.split("/")[-2],True,True)
-                outputfilename=outputdir+"/"+iyear+"/"+rootfiilename_OUT
-                CheckFile(outputfilename,True)
-                
-                fout = TFile(outputfilename,"RECREATE")
-                print ("Output file is created. -> : {}\n\n".format(outputfilename))
-
-                
-                ## This list needs to be altered for each year, 
-                allvariations = [iv.replace("YEAR",iyear) for iv in allvariations]
-                #print(allvariations)
-                #print ("systematic variations: ", allvariations)
-                for inuis in allvariations:
-                    Hist = dict()
-                    
-                    ### Correlate Nuisance###
-                    correct_nuisance_name=''
-                    if inuis in Correlated_Nuisance_List_YEAR:
-                        correct_nuisance_name = inuis.replace(iyear,"")
-                        #print(iyear,ir,ic,imass,inuis,correct_nuisance_name)
-                    else:
-                        correct_nuisance_name = inuis
-                        #print(iyear,ir,ic,imass,inuis,correct_nuisance_name)
-                    #print(correct_nuisance_name) 
-                    #########################
-                    
-                    for Category in Process_Categories:
-                        
-                        Category = str(Category)
-                        f_in.cd()
-                        Hist[Category] = MakeNuisance_Hist(prefix=prefix,samples_list=sample_names[iyear][Category],nuis=inuis,f=f_in,process_category=Category,bins=xbins,year=iyear,q=args.quiet,correct_nuisance_name=correct_nuisance_name)
-                        if Hist[Category] is None:pass
-                        else:
-                            fout.cd()
-                            Hist[Category] = MakePositive_Hist(Hist[Category])
-                            Hist[Category].Write()
-                         
-                    
-
-                    ### data_obs ###
-                    if (type(f_in.Get(prefix+"data_obs"+inuis))) is TH1F:
-                        h_data_obs = copy.deepcopy(f_in.Get(prefix+"data_obs"+inuis))
-                        # h_data_obs.Rebin(rebin_);
-                        h_data_obs = h_data_obs.Rebin(len(xbins)-1, "h_data_obs", xbins)
-                        h_data_obs.SetNameTitle("ttc"+iyear+"_data_obs"+inuis,"ttc"+iyear+"_data_obs"+inuis)
-                        fout.cd()
-                        h_data_obs.Write()
-                    ### Signal Sample ####
-                    if not args.interference:
-                      sig_name_ = prefix+(signal_.replace("MASS",str(imass))).replace("COUPLIING",ic_)
-                    else:
-                      sig_name_ = prefix+(signal_.replace("MAMASS",str(imass))).replace("MSMASS",str(int(imass)-50)).replace("COUPLIING",ic_)
-                    f_in.cd()
-                    if (type(f_in.Get(str(sig_name_+inuis)))) is TH1F:
-                        h_signal_ = copy.deepcopy( f_in.Get(str(sig_name_+inuis)));
-                        # h_signal_.Rebin(rebin_);
-                        h_signal_ = h_signal_.Rebin(len(xbins)-1, "h_signal_", xbins);
-                        h_signal_.SetNameTitle(str(sig_name_+correct_nuisance_name), str(sig_name_+correct_nuisance_name))
-                        fout.cd()
-                        h_signal_.Write()
-
-                    
+for era_ in eras:
+  for region_ in region_channel_dict:
+    for channel_ in region_channel_dict[region_]:
+      signal_list = []
+      if "all" in args.signal:
+        jsonfile = open("data/sample_{}.json".format(era_))
+        if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
+        else: samples = json.load(jsonfile)
+        for sample_ in samples:
+          if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
+      else:
+        signal_list = args.signal
+      for signal_ in signal_list:
+        inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
+        fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
+        CheckDir(os.path.join(args.outputdir, era_, signal_), MakeDir=True)
+        ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=args.POI, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name)
                                         

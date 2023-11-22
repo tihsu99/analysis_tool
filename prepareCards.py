@@ -20,13 +20,14 @@ for coupling in couplings_List:
 usage = "python prepareCards.py -y 2017 -c em -reg 'SR_em'"
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-y", "--year", dest="year", default="2016postapv",choices=["2016postapv","2016apv","2017","2018","run2"])
+parser.add_argument("--region", dest="region", default=["all"], nargs='+')
+parser.add_argument("--channel", dest="channel", default=["all"], nargs='+')
 #parser.add_argument("-m", "--model", dest="model", default="ExY")
-parser.add_argument("-c", "--category",  dest="category",default="all",choices=['ee','em','mm','all','C'])
-parser.add_argument("-reg", nargs="+", default=["a", "b"])
+#parser.add_argument("-c", "--category",  dest="category",default="all",choices=['ee','em','mm','all','C'])
+#parser.add_argument("-reg", nargs="+", default=["a", "b"])
 parser.add_argument("--reset",action="store_true")
 parser.add_argument("--coupling_value",default='rtc0p4',type=str,choices=coupling_value_choices)
 parser.add_argument("--scale", action="store_true")
-parser.add_argument("--interference", action="store_true")
 parser.add_argument("--review", action="store_true")
 parser.add_argument("--For",default='template',type=str,choices=['template','specific'])
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
@@ -36,8 +37,10 @@ args = parser.parse_args()
 
 
 year     = args.year
-category = args.category
-regions  = args.reg
+regions  = args.region
+channels = args.channel
+#category = args.category
+#regions  = args.reg
 cp_scaleTo = args.coupling_value
 
 if "rtc" in args.coupling_value:

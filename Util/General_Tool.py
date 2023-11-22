@@ -4,11 +4,14 @@ import copy
 import os 
 import numpy as np
 import sys, array
-
+from collections import OrderedDict
+import json
 CURRENT_WORKDIR = os.getcwd()
 
-binning = array.array('d', [-0.6, -0.2, 0.2, 0.6, 1.0])
-
+#binning = array.array('d', [-0.6, -0.2, 0.2, 0.6, 1.0])
+HT_bin = [ 50*i for i in range(11)]
+binning = array.array('d', HT_bin)
+python_version = int(sys.version.split('.')[0])
 
 def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):
     Init = True
@@ -85,5 +88,11 @@ def CheckFile(File_to_check='',RemoveFile=False,quiet=False):
             print('\n \033[0;32m Warning \033[0;m : File->\033[0;33m\033[4m{}\033[0;m does not exist\n'.format(File_to_check))
 
         return False
-
-
+def read_json(fname):
+  jsonfile = open(fname)
+  if python_version == 2:
+    return_ =  json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
+  else:
+    return_ =  json.load(jsonfile, object_pairs_hook=OrderedDict)
+  jsonfile.close()
+  return return_
