@@ -1,10 +1,38 @@
 # Analysis Tool
-This tool is made for plotting distribution, skim the root files (`kinematic_study`), and further proceed to limit extraction. The main input is controled by the `json` files in `data` and main functions are defined in the `h` files in `script`. Since it utilize the novel function in RDataFrame, it **requires ROOT v6.26** and thus **do not run cmsenv**(expect for limit study) , otherwise it will conflict with each other. 
+This tool is made for plotting distribution, skim the root files (`kinematic_study`), and further proceed to limit extraction. The main input is controled by the `json` files in `data` and main functions are defined in the `h` files in `script`. Since it utilize the novel function in RDataFrame, it **requires ROOT v6.26** and thus **do not run cmsenv**(except for **limit study**) , otherwise it will conflict with each other.
+# Installation
+To install combine tools, we follow combine v9 recommodation
+```
+cmsrel CMSSW_11_3_4
+cd CMSSW_11_3_4/src
+cmsenv
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+```
+Update to a recommended tag - currently the recommended tag is v9.1.0.
+```
+cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v9.1.0
+scramv1 b clean; scramv1 b # always make a clean build
+```
+Install this package
+```
+cd $CMSSW_BASE/src
+git clone https://github.com/AlbertHsuNTUphys/analysis_tool.git
+cd analysis_tool
+```
+Install our `LimitModel` under `analysis_tool`
+```
+git clone https://github.com/ExtraYukawa/LimitModel.git -b tihsu_json_input
+```
+#Structure
 ## Input - sample
 The sample information should be keep in `data/sample.json`. It contains following information:
 1. **xsec**:  cross section for MC samples.
-2. **Label**: Indicate whether this sample is MC or data or data drivien, background or signal.
-3. **Category**: The group/process this sample belongs to.
+2. **xsec_err**: ratio of cross section error (Percentage).
+3. **Label**: Indicate whether this sample is MC or data or data drivien, background or signal.
+4. **Category**: The group/process this sample belongs to.
 ## Input - cut
 The region definition is kept in `data/cut.json`. It supports multiple regions and channels definition. It follows the structure below:
 - Region name
