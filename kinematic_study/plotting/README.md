@@ -16,9 +16,13 @@ The arguments:
 10. `--overflow`: add overflow bin into the first/last bin
 11. `--only_signal`: Only plot signal
 12. `--normalize`: Normalize the distributions to one. Recommend only used with `--only_signal`
+13. `--unblind`: Unblind or not (Default is blind)
+14. `--block_sample`: List of samples that should be blocked
+15. `--Yield`: Add yield in legend or not.
+
 For example, you can plot it with following command
 ```
-python plot_histo.py --indir [YOUR DIRECTORY] --era 2017
+python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 [--unblind] [--Yield]
 ```
 Or for signal only plot
 ```

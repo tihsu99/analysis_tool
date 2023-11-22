@@ -13,7 +13,7 @@ sys.path.append('../../python')
 from plotstyle import *
 from common import *
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json"):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -67,6 +67,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
       canvas.legend.setPosition(0.35,0.77,0.8,0.9)
     else:
       canvas = SimpleCanvas(" ", " ", Lumi[era]) 
+    if Yield:
+      canvas.legend.SetTextSize(0.02)
+      canvas.legend.SetX2(0.95)
     canvas.ytitle = "nEvents/bin"
     
     ####################
@@ -88,7 +91,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         if "Channel" in samples[sample] and channel not in samples[sample]["Channel"]:
           print("Do not satisfied channel criteria. sample_name: {}, channel: {}".format(sample, channel))
           continue
-
+        category = samples[sample]['Category']
+        if category in block_sample: continue
 
         ##################################
         ## Lumi & cross section scaling ##
@@ -133,7 +137,6 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         ## Add Hist to correspond group ##
         ##################################
 
-        category = samples[sample]['Category']
         if category not in Histogram:
           Histogram[category] = htemp.Clone()
           Integral[category]  = htemp.Integral()
@@ -157,7 +160,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           canvas.ytitle = "Normalized"
 
         if "Background" in data_type:
-          canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
+          if Yield:
+            canvas.addStacked(Histogram[sample_], title = "%s[%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+          else:
+            canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
         elif "Signal" in data_type:
           color = Color_List_Signal[sig_idx]
           sig_idx += 1
@@ -214,6 +220,8 @@ if __name__ == "__main__":
   parser.add_argument("--only_signal", dest = 'only_signal', action = 'store_true')
   parser.add_argument("--overflow", dest = 'overflow', action = 'store_true')
   parser.add_argument("--normalize", dest = 'normalize', action = 'store_true')
+  parser.add_argument("--block_sample", dest='block_sample', nargs='+', default=[])
+  parser.add_argument("--Yield", action = 'store_true', default=False)
   args = parser.parse_args()
 
   if args.outdir is None:
@@ -245,7 +253,7 @@ if __name__ == "__main__":
  
   for region in region_channel_dict:
     for channel in region_channel_dict[region]: 
-      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json)
+      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield)
 
   
 
