@@ -1,13 +1,16 @@
-# 0. Suit-up! (No need under analysis_tool structure)
-
-In this section, you can just copy and past the command.
+# 0. Cheat sheet 
+## 0.1 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
+To initialization and rebin:
+```
+python Init.py --year 2017 --channel all -b muPt btag
+python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
+```
 
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
 Note: the initialization is to be done only once. You can block certain nuisances via `-b`.
 ```
-cp -r ../data .
 python Init.py --year 2017 --channel all
 python Init.py --year 2018 --channel all
 python Init.py --year 2016apv --channel all
@@ -64,16 +67,9 @@ Normally, you should use the following commands. (By default, the code will wron
 python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] 
 ```
 
-## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
-
-```
-python Init.py --year 2017 --channel all -b muPt btag
-python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
-```
-
 And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
 
-## 2.3 Quiet the thousands of warning message 
+## 2.2 Quiet the thousands of warning message 
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
