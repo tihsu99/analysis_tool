@@ -2,43 +2,6 @@
 
 In this section, you can just copy and past the command.
 
-## 0.1 Enviroment Setup
-
-Move to your workspace first or
-```
-mkdir workspace
-cd workspace
-```
-Then,
-```
-export SCRAM_ARCH=slc7_amd64_gcc700
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v8.2.0
-scramv1 b clean; scramv1 b # always make a clean build
-```
-## 0.2 Install the CombineHarvester Tool
-
-```
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
-cd $CMSSW_BASE/src
-cd CombineHarvester
-scram b -j 8
-```
-
-## 0.3 Install the code 
-
-The code is part of the repository ttcbar, to get it simply do git clone: 
-```
-cd $CMSSW_BASE/src/HiggsAnalysis
-git clone git@github.com:ExtraYukawa/LimitModel.git
-```
-
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
@@ -104,7 +67,6 @@ python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/prov
 ## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
 
 ```
-cp -r ../data .
 python Init.py --year 2017 --channel all -b muPt btag
 python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
 ```

@@ -99,7 +99,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   ##  unblind  ##
   ###############
   if unblind:
-    jsonfile = open("data/sample.json")
+    jsonfile = open("../data/sample.json")
     if python_version == 2:
       samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
     else:
@@ -111,7 +111,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       if "Region" in samples_contain_datainfo[sample_] and region not in samples_contain_datainfo[sample_]["Region"]: continue
       if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
       data_list.append(sample_)
-    print(data_list)
+    print(channel, ' channel uses data:', data_list)
     h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name)
     Histograms.append(h)
 
@@ -143,7 +143,7 @@ else:
   eras = args.year
 
 region_channel_dict = dict()
-jsonfile = open("data/cut.json")
+jsonfile = open("../data/cut.json")
 if python_version == 2:
   regions = json.load(jsonfile, encoding='utf-8')
 else:
@@ -169,7 +169,7 @@ for era_ in eras:
     for channel_ in region_channel_dict[region_]:
       signal_list = []
       if "all" in args.signal:
-        jsonfile = open("data/sample.json")
+        jsonfile = open("../data/sample.json")
         if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
         else: samples = json.load(jsonfile)
         for sample_ in samples:

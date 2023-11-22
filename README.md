@@ -22,10 +22,6 @@ cd $CMSSW_BASE/src
 git clone https://github.com/AlbertHsuNTUphys/analysis_tool.git
 cd analysis_tool
 ```
-Install our `LimitModel` under `analysis_tool`
-```
-git clone https://github.com/ExtraYukawa/LimitModel.git -b tihsu_json_input
-```
 # Structure
 ## Input - sample
 The sample information should be keep in `data/sample.json`. It contains following information:

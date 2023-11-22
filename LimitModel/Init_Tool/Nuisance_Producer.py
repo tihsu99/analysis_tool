@@ -7,7 +7,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
 
     nuis_List = dict()
     nuis_idx  = 0
-    jsonfile = open("data/nuisance.json")
+    jsonfile = open("../data/nuisance.json")
     if python_version == 2:
       nuisances = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict).items()
     else:
@@ -26,7 +26,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     ## Add NormUnc ##
     #################
 
-    jsonfile = open("data/sample.json")
+    jsonfile = open("../data/sample.json")
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:
