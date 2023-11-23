@@ -5,7 +5,10 @@ To initialization and rebin:
 python Init.py --year 2017 --channel all -b muPt btag
 python ReBin.py -y 2017  --inputdir [--YOUR DIRECTORY]  --unblind --POI bh_HT
 ```
-
+To produce datacard:
+```
+python prepareCards.py --combined --year 2017
+```
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
@@ -92,21 +95,16 @@ So make sure you already `have/update` them, otherwise the datacard would give t
 
 ## 3.2 Datacard production Explanation
 
-### 3.2.1 Template Datacard production for certain year
+### 3.2.1 Datacard production
 
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
 
 ``` 
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
+python prepareCards.py --year {list of 2016apv/2016postapv/2017/2018} [--channel] [--region] [--combined] [--signal/--mass] [--outdir]
 ```
-- Result: Datacard template for certain channel in certain year
+By default, the code will run through all the channels, regions, so no need to specify `--channel`, `--year`, `--region`. `--signal` can specify the wanted list of signals, and if it is not specified `--mass` can be used instead to specify the signal Higgs mass (the signal sample naming rule is hardcoded in the code). `--outdir` means the datacard output directory name. `--combined` triggers the combination of all the era, channel, and region for all the combination (i.e. accumulate the lists of years to `run2`, all the channels to `C`)
 
-And after you repeat this command for all the dilepton channels, you can manage to get the combined-channel datacards:
-```
-python prepareCards.py -y {year} -c C --For template
-```
-
-### 3.2.2 Uncertainties breakdown
+### 3.2.2 Uncertainties breakdown (TODO)
 
 To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
 Once you have it, then you just need to use [--breakdown] for template production: 
@@ -116,128 +114,6 @@ python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em
 Then you will have the uncertain category in the last line of template datacard.
 
 * [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm. [NB: run2 as year and C as channel will not work]
-
-### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
-
-Once you have the datacard template for certain channel, you can use the following command to produce the datacard for certain mass points:
-```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel: em/mm/ee} --For specific -reg 'SR_{channel:ee/em/mm}' --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for certain channel
-```
-- Result: Datacard for certain mass point of certain year in certain channel.
-
-And for channel-combined one, the command is similar:
-```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for combined-channel
-```
-- Result: Datacard for certain mass point of certain year in combined-channel.
-
-### 3.2.3 Template Datacard production for run2 for certain dilepton channel
-
-So, to produce the template datacard for `full run2` in certain dilepton channels, you need the template datacard of all the years for this certain channel, and with the following command:
-```
-python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
-```
-
-- Result: Datacard template for full run2 in certain channel.
-
-### 3.2.4 Datacard production for each mass point with certain coupling value for run2
-
-You should already have run2 datacard template for certain channel, and  
-```
-python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700};
-```
-- Result: Datacard for certain mass point with certain coupling value for run2.
-
-### 3.2.5 Template Datacard production for full run2 in combined-channel
-
-You should already have run2 datacard template for all dilepton channels, and
-```
-python prepareCards.py -y run2 -c C  --For template 
-
-```
-- Result: Datacard template for full run2 with channels combined.
-
-### 3.2.6 Datacard production for each mass point for certain coupling value for full run2 in combined-channel
-
-Once you have the datacard template for full run2 with channels combined, then you can obtain the datacard for each mass point for full run2 in combined-channel with
-```
-python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700} [--interference] [--scale];
-```
-- Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
-
-## 3.3 Quick command-list for datacard productions
-
-Example for rtc = 0.4 in low mass regime
-```
-python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2016apv -c C  --For template 
-
-python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2016postapv -c C  --For template 
-
-
-python prepareCards.py -y 2017 -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2017 -c C  --For template 
-
-python prepareCards.py -y 2018 -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2018 -c C  --For template 
-
-python prepareCards.py -y run2 -c C --For template  
-python prepareCards.py -y run2 -c em -reg 'SR_em' --For template 
-python prepareCards.py -y run2 -c ee -reg 'SR_ee' --For template 
-python prepareCards.py -y run2 -c mm -reg 'SR_mm' --For template 
-
-
-python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2017 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2018 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-
-python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-```
-
-### 3.3.1 Quick command-list for datacard productions with scaling and interference sample
-
-Take 2018 for example, just add `--scale` in the command line. Code automatically take coupling value 0p4 as scaling reference.
-```
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-
-```
-Similar to interference samples. (Note that we always use mA as our Mass input in interference case.)
-```
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 250 300 350 400 550 700 --scale --interference;
-```
-
 
 # 4. Limit Plots
 

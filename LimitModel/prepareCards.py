@@ -29,7 +29,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
   
   # List of regions
   region_channel_dict = dict()
-  cut_regions = read_json('data/cut.json')
+  cut_regions = read_json('../data/cut.json')
   if 'all' in regions:
     for region_ in cut_regions:
       region_channel_dict[region_] = []
@@ -117,6 +117,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         for channel in region_channel_dict[region]:
           merge_command += '{}={} '.format(channel, '{}_{}_{}_{}.txt'.format(signal, era, region, channel))
         merge_command += ' > {}'.format(output_datacard_txt)
+        print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_, output_datacard_txt)))
         os.system(merge_command)
         region_tmp = region
       # Combine region
@@ -133,6 +134,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         for region in region_channel_dict:
           merge_command += '{}={} '.format(region, '{}_{}_{}_{}.txt'.format(signal, era, region, channel))
         merge_command += ' > {}'.format(output_datacard_txt)
+        print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_,output_datacard_txt)))
         os.system(merge_command)
     # Combine era
     for region in region_channel_dict:
@@ -153,6 +155,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         merge_command += ' >{};'.format(output_datacard_txt)
         for era in years:
           merge_command += 'rm {}; '.format(output_datacard_txt.replace('run2', era))
+        print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_, output_datacard_txt)))
         os.system(merge_command)
 
 if __name__ == "__main__":
