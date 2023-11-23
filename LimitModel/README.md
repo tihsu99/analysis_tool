@@ -3,7 +3,7 @@
 To initialization and rebin:
 ```
 python Init.py --year 2017 --channel all -b muPt btag
-python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
+python ReBin.py -y 2017  --inputdir [--YOUR DIRECTORY]  --unblind --POI bh_HT
 ```
 
 # 1. Initialization
@@ -66,8 +66,6 @@ Normally, you should use the following commands. (By default, the code will wron
 ```
 python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] 
 ```
-
-And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
 
 ## 2.2 Quiet the thousands of warning message 
 
