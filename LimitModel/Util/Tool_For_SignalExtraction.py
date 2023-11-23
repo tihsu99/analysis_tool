@@ -22,7 +22,7 @@ from ROOT import gStyle
 #####################
 
 region_channel_dict = dict()
-cut_regions = read_json('data/cut.json')
+cut_regions = read_json('../data/cut.json')
 for region_ in cut_regions:
   region_channel_dict[region_] = []
   for channel_ in cut_regions[region_]["channel_cut"]:
@@ -1169,7 +1169,7 @@ def FinalYieldComputation(settings=dict()):
       raise Exception("First run: --mode datacard2workspace and --mode FitDiagnostics steps")
 
     outputFile = os.path.join(settings['outputdir'], 'results/PostFitShapesFromWorkspace_output_.root')
-    command = "PostFitShapesFromWorkspace -w {workspace_root} -o {outputFile} -m 350 -f {FitDiagnostics_root}:fit_s --postfit --sampling --print".format(workspace_root = settings['workspace_root'], FitDiagnostics_root = settings['FitDiagnostics_file'], outputFile = outputFile)
+    command = "PostFitShapesFromWorkspace -w {workspace_root} --output {outputFile} -m 350 -f {FitDiagnostics_root}:fit_s --postfit --sampling --print".format(workspace_root = settings['workspace_root'], FitDiagnostics_root = settings['FitDiagnostics_file'], outputFile = outputFile)
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
     print(command)
     os.system(command) 

@@ -9,6 +9,29 @@ To produce datacard:
 ```
 python prepareCards.py --combined --year 2017
 ```
+To run limits:
+```
+python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000
+python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000 --plot_only #plot
+```
+To run impacts:
+```
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode datacard2workspace --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FitDiagnostics --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FinalYieldComputation --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type preFit --plotRatio
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type postFit --plotRatio
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode diffNuisances --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotPulls --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doInitFit --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doFits --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode SubmitGOF --mass_point 800 
+```
+After condor finishes the job.
+```
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Plot_Impacts --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode GoFPlot --mass_point 800  
+```
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
@@ -122,57 +145,15 @@ N.B: if you want to compute unblinded results, then add ``--unblind`` while run 
 Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
-#### 2016postapv
 ```
-python runlimits.py -c em --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c mm --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c ee --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c C --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
-```
-
-#### 2016 apv 
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c mm --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c ee --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c C --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-```
-#### 2017
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c mm --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c ee --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c C --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-```
-#### 2018
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c mm --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c ee --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C  --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-```
-### Run2
-```
-python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-```
-### Run2(Interference)
-```
-python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 250 300 350 400 550 700 --interference
+python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] 
 ```
 #### Plot Limits 
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016apv,2016postapv,2017,2018] --Masses [Mass list] --outputdir [your/favoured/output/folder] --plot_only [--interference];
+python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] --outputdir [your/favoured/output/folder] --plot_only;
 ```
-
-
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls and post/pre-fit distribution
@@ -185,78 +166,78 @@ N.B: if you want to do some parameter optimization and wanted to same output to 
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode datacard2workspace [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )  
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FitDiagnostics [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> FinalYieldComputation.
 After this, you will have latex table with yields value (and error values) for each background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FinalYieldComputation --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FinalYieldComputation [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> preFit distribution. O(time) ~ 1 sec 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode diffNuisances [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step6 -> Plot the pulls.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotPulls [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doInitFit [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.2 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. --outdir [path/to/workspace]
 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doFits [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
-Step7.3: Submit from EOS (Only when workspace is under eos)
+Step7.3: Submit from EOS (Only when workspace is under eos) (**TODO:Check the code**)
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitFromEOS --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitFromEOS [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Plot_Impacts [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 Step9 : Goodness of Test 
 Firstly, you need to submit the jobs to condor for 50 toys for GoF
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitGOF --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
 ```
 Then, after all the jobs are completed, you can plot it with
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode GoFPlot --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode GoFPlot [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
 ```
 
-Step 10: plotCorrelation
+Step 10: plotCorrelation (**TODO:Modify to `analysis_tool` structure**)
 Currently, only the correlated uncertainties to JES are plotted (Under development)
 Note: FitDiagnostics files and impact json are necessary in this step.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode plotCorrelationRanking [--rtt] [--rtc] --mass_point 800
 ```
-Step 11: Profile Scan plot
+Step 11: Profile Scan plot (**TODO: Modify to `analysis_tool` structure**)
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_value rtu04 --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode DrawNLL [--rtt] [--rtc] --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
 ```
 
 # Final Yield computation:
@@ -273,7 +254,7 @@ cd Util/
 python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
 ```
 
-# 6. Condor Jobs
+# 6. Condor Jobs (TODO: Rest sections are not yet compatible with `analysis_tool` structure)
 
 ## 6.1 Condor Jobs for limit plots
 The first step is create a Job_bus file (just a text file) with
