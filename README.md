@@ -16,6 +16,14 @@ git fetch origin
 git checkout v9.1.0
 scramv1 b clean; scramv1 b # always make a clean build
 ```
+Install CombineHarvester package
+```
+cd $CMSSW_BASE/src
+git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
+cd CombineHarvester
+git checkout v2.0.0
+scram b
+```
 Install this package
 ```
 cd $CMSSW_BASE/src
