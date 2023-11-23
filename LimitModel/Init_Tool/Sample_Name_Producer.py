@@ -9,7 +9,7 @@ You need to fill in the process name for MC sample in root file manually.
 
 def Bkg_MC_SAMPLE_NAME(year='',outputdir=''):
 
-    jsonfile = open("data/sample.json")
+    jsonfile = open("../data/sample.json")
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict).items()
     else:

@@ -152,7 +152,7 @@
   },
 
   "bh_HT": {
-    "Title": ";HT;nEntries",
+    "Title": ";HT[GeV];nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 50,

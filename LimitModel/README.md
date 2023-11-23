@@ -1,50 +1,42 @@
-# 0. Suit-up! (No need under analysis_tool structure)
-
-In this section, you can just copy and past the command.
-
-## 0.1 Enviroment Setup
-
-Move to your workspace first or
+# 0. Cheat sheet 
+## 0.1 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
+To initialization and rebin:
 ```
-mkdir workspace
-cd workspace
+python Init.py --year 2017 --channel all -b muPt btag
+python ReBin.py -y 2017  --inputdir [--YOUR DIRECTORY]  --unblind --POI bh_HT
 ```
-Then,
+To produce datacard:
 ```
-export SCRAM_ARCH=slc7_amd64_gcc700
-cmsrel CMSSW_10_2_13
-cd CMSSW_10_2_13/src
-cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-
-cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
-git fetch origin
-git checkout v8.2.0
-scramv1 b clean; scramv1 b # always make a clean build
+python prepareCards.py --combined --year 2017
 ```
-## 0.2 Install the CombineHarvester Tool
-
+To run limits:
 ```
-bash <(curl -s https://raw.githubusercontent.com/cms-analysis/CombineHarvester/master/CombineTools/scripts/sparse-checkout-ssh.sh)
-cd $CMSSW_BASE/src
-cd CombineHarvester
-scram b -j 8
+python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000
+python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000 --plot_only #plot
 ```
-
-## 0.3 Install the code 
-
-The code is part of the repository ttcbar, to get it simply do git clone: 
+To run impacts:
 ```
-cd $CMSSW_BASE/src/HiggsAnalysis
-git clone git@github.com:ExtraYukawa/LimitModel.git
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode datacard2workspace --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FitDiagnostics --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FinalYieldComputation --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type preFit --plotRatio
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type postFit --plotRatio
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode diffNuisances --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotPulls --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doInitFit --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doFits --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode SubmitGOF --mass_point 800 
 ```
-
+After condor finishes the job.
+```
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Plot_Impacts --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode GoFPlot --mass_point 800  
+```
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
 Note: the initialization is to be done only once. You can block certain nuisances via `-b`.
 ```
-cp -r ../data .
 python Init.py --year 2017 --channel all
 python Init.py --year 2018 --channel all
 python Init.py --year 2016apv --channel all
@@ -101,17 +93,7 @@ Normally, you should use the following commands. (By default, the code will wron
 python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] 
 ```
 
-## 2.2 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
-
-```
-cp -r ../data .
-python Init.py --year 2017 --channel all -b muPt btag
-python ReBin.py -y 2017  --inputdir /eos/user/t/tihsu/bHplus/test_git/  --unblind --POI bh_HT
-```
-
-And you will see thousands of message like `Warning: ttc2018_TTTo1L_dieleTrigger2018Down doesn't exist`, you could just ignore it.
-
-## 2.3 Quiet the thousands of warning message 
+## 2.2 Quiet the thousands of warning message 
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
@@ -136,21 +118,16 @@ So make sure you already `have/update` them, otherwise the datacard would give t
 
 ## 3.2 Datacard production Explanation
 
-### 3.2.1 Template Datacard production for certain year
+### 3.2.1 Datacard production
 
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
 
 ``` 
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
+python prepareCards.py --year {list of 2016apv/2016postapv/2017/2018} [--channel] [--region] [--combined] [--signal/--mass] [--outdir]
 ```
-- Result: Datacard template for certain channel in certain year
+By default, the code will run through all the channels, regions, so no need to specify `--channel`, `--year`, `--region`. `--signal` can specify the wanted list of signals, and if it is not specified `--mass` can be used instead to specify the signal Higgs mass (the signal sample naming rule is hardcoded in the code). `--outdir` means the datacard output directory name. `--combined` triggers the combination of all the era, channel, and region for all the combination (i.e. accumulate the lists of years to `run2`, all the channels to `C`)
 
-And after you repeat this command for all the dilepton channels, you can manage to get the combined-channel datacards:
-```
-python prepareCards.py -y {year} -c C --For template
-```
-
-### 3.2.2 Uncertainties breakdown
+### 3.2.2 Uncertainties breakdown (TODO)
 
 To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
 Once you have it, then you just need to use [--breakdown] for template production: 
@@ -161,128 +138,6 @@ Then you will have the uncertain category in the last line of template datacard.
 
 * [--breakdown] only works for `template` with various combinations of 2016apv-2018 & ee/em/mm. [NB: run2 as year and C as channel will not work]
 
-### 3.2.2 Datacard production for each mass point with certain coupling value for certain year
-
-Once you have the datacard template for certain channel, you can use the following command to produce the datacard for certain mass points:
-```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel: em/mm/ee} --For specific -reg 'SR_{channel:ee/em/mm}' --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for certain channel
-```
-- Result: Datacard for certain mass point of certain year in certain channel.
-
-And for channel-combined one, the command is similar:
-```
-python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700}; #prerequiest: corresponing datacard template for combined-channel
-```
-- Result: Datacard for certain mass point of certain year in combined-channel.
-
-### 3.2.3 Template Datacard production for run2 for certain dilepton channel
-
-So, to produce the template datacard for `full run2` in certain dilepton channels, you need the template datacard of all the years for this certain channel, and with the following command:
-```
-python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For template
-```
-
-- Result: Datacard template for full run2 in certain channel.
-
-### 3.2.4 Datacard production for each mass point with certain coupling value for run2
-
-You should already have run2 datacard template for certain channel, and  
-```
-python prepareCards.py -y run2 -c {channel:ee/em/mm} -reg 'SR_{channel:ee/em/mm}' --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700};
-```
-- Result: Datacard for certain mass point with certain coupling value for run2.
-
-### 3.2.5 Template Datacard production for full run2 in combined-channel
-
-You should already have run2 datacard template for all dilepton channels, and
-```
-python prepareCards.py -y run2 -c C  --For template 
-
-```
-- Result: Datacard template for full run2 with channels combined.
-
-### 3.2.6 Datacard production for each mass point for certain coupling value for full run2 in combined-channel
-
-Once you have the datacard template for full run2 with channels combined, then you can obtain the datacard for each mass point for full run2 in combined-channel with
-```
-python prepareCards.py -y run2 -c C --For specific --coupling_value [rtc0p4,rtu0p4,rtt0p4... etc] --Masses {List like: 200 300 350 400 500 600 700} [--interference] [--scale];
-```
-- Result: Datacard template for each mass point for certain coupling value for full run2 in combined-channel.
-
-## 3.3 Quick command-list for datacard productions
-
-Example for rtc = 0.4 in low mass regime
-```
-python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2016apv -c C  --For template 
-
-python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2016postapv -c C  --For template 
-
-
-python prepareCards.py -y 2017 -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2017 -c C  --For template 
-
-python prepareCards.py -y 2018 -c em -reg 'SR_em' --For template
-python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For template
-python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For template
-python prepareCards.py -y 2018 -c C  --For template 
-
-python prepareCards.py -y run2 -c C --For template  
-python prepareCards.py -y run2 -c em -reg 'SR_em' --For template 
-python prepareCards.py -y run2 -c ee -reg 'SR_ee' --For template 
-python prepareCards.py -y run2 -c mm -reg 'SR_mm' --For template 
-
-
-python prepareCards.py -y 2016apv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016apv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2016postapv -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2016postapv -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2017 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2017 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-python prepareCards.py -y 2018 -c em -reg 'SR_em' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-python prepareCards.py -y 2018 -c ee -reg 'SR_ee' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-python prepareCards.py -y 2018 -c mm -reg 'SR_mm' --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 ;
-
-python prepareCards.py -y run2 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700;
-
-```
-
-### 3.3.1 Quick command-list for datacard productions with scaling and interference sample
-
-Take 2018 for example, just add `--scale` in the command line. Code automatically take coupling value 0p4 as scaling reference.
-```
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 200 300 350 400 500 600 700 800 900 1000 --scale;
-
-```
-Similar to interference samples. (Note that we always use mA as our Mass input in interference case.)
-```
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p1 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p4 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc0p8 --Masses 250 300 350 400 550 700 --scale --interference;
-python prepareCards.py -y 2018 -c C  --For specific --coupling_value rtc1p0 --Masses 250 300 350 400 550 700 --scale --interference;
-```
-
-
 # 4. Limit Plots
 
 N.B: if you want to compute unblinded results, then add ``--unblind`` while run the command.
@@ -290,57 +145,15 @@ N.B: if you want to compute unblinded results, then add ``--unblind`` while run 
 Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
-#### 2016postapv
 ```
-python runlimits.py -c em --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c mm --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c ee --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c C --coupling_value rtc04 -y 2016postapv --Masses 200 300 350 400 500 600 700   
-```
-
-#### 2016 apv 
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700  
-python runlimits.py -c mm --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c ee --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-python runlimits.py -c C --coupling_value rtc04 -y 2016apv --Masses 200 300 350 400 500 600 700   
-```
-#### 2017
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c mm --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c ee --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-python runlimits.py -c C --coupling_value rtc04 -y 2017 --Masses 200 300 350 400 500 600 700 800 900 1000  
-```
-#### 2018
-```
-python runlimits.py -c em --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c mm --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c ee --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C  --coupling_value rtc04 -y 2018 --Masses 200 300 350 400 500 600 700 800 900 1000 
-```
-### Run2
-```
-python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 200 300 350 400 500 600 700 800 900 1000 
-```
-### Run2(Interference)
-```
-python runlimits.py -c C --coupling_value rtc01 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc04 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc08 -y run2  --Masses 250 300 350 400 550 700 --interference
-python runlimits.py -c C --coupling_value rtc10 -y run2  --Masses 250 300 350 400 550 700 --interference
+python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] 
 ```
 #### Plot Limits 
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py -c [C,ee,em,ee] --coupling_value [rtc04,rtu04 etc] -y [2016apv,2016postapv,2017,2018] --Masses [Mass list] --outputdir [your/favoured/output/folder] --plot_only [--interference];
+python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] --outputdir [your/favoured/output/folder] --plot_only;
 ```
-
-
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls and post/pre-fit distribution
@@ -353,78 +166,78 @@ N.B: if you want to do some parameter optimization and wanted to same output to 
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode datacard2workspace [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )  
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FitDiagnostics [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> FinalYieldComputation.
 After this, you will have latex table with yields value (and error values) for each background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FinalYieldComputation --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FinalYieldComputation [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> preFit distribution. O(time) ~ 1 sec 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotShape --coupling_value rtu04 --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode diffNuisances [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step6 -> Plot the pulls.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotPulls [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doInitFit [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.2 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. --outdir [path/to/workspace]
 
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doFits [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
-Step7.3: Submit from EOS (Only when workspace is under eos)
+Step7.3: Submit from EOS (Only when workspace is under eos) (**TODO:Check the code**)
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitFromEOS --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitFromEOS [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 --outdir [path/to/workspace]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Plot_Impacts [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 Step9 : Goodness of Test 
 Firstly, you need to submit the jobs to condor for 50 toys for GoF
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode SubmitGOF --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
 ```
 Then, after all the jobs are completed, you can plot it with
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode GoFPlot --coupling_value rtu04 --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode GoFPlot [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
 ```
 
-Step 10: plotCorrelation
+Step 10: plotCorrelation (**TODO:Modify to `analysis_tool` structure**)
 Currently, only the correlated uncertainties to JES are plotted (Under development)
 Note: FitDiagnostics files and impact json are necessary in this step.
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode plotCorrelationRanking --coupling_value rtu04 --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode plotCorrelationRanking [--rtt] [--rtc] --mass_point 800
 ```
-Step 11: Profile Scan plot
+Step 11: Profile Scan plot (**TODO: Modify to `analysis_tool` structure**)
 ```
-python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode DrawNLL --coupling_value rtu04 --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode DrawNLL [--rtt] [--rtc] --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
 ```
 
 # Final Yield computation:
@@ -441,7 +254,7 @@ cd Util/
 python mlfitNormsToText.py ../SignalExtraction/run2/C/rtc04/A/900/ratio_test_Unblind/fitDiagnostics_run2_C_A_900_rtc04_plot.root  -u
 ```
 
-# 6. Condor Jobs
+# 6. Condor Jobs (TODO: Rest sections are not yet compatible with `analysis_tool` structure)
 
 ## 6.1 Condor Jobs for limit plots
 The first step is create a Job_bus file (just a text file) with

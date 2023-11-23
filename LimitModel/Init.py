@@ -50,7 +50,7 @@ for era in era_list:
 ## Write Nuisances List ##
 ##########################
 
-jsonfile = open("data/cut.json")
+jsonfile = open("../data/cut.json")
 if python_version == 2:
     regions = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
 else:

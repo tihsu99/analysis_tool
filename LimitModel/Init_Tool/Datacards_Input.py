@@ -21,7 +21,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     Input['NuisForProc'] = dict()
     Input['UnclnN'] = dict()
 
-    jsonfile = open("data/nuisance.json")
+    jsonfile = open("../data/nuisance.json")
     if python_version == 2:
       nuisance_dict = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:
@@ -63,7 +63,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     ## Norm Uncertainty ##
     ######################
 
-    jsonfile = open("data/sample.json")
+    jsonfile = open("../data/sample.json")
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:
