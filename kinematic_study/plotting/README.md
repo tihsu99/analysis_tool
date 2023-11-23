@@ -19,7 +19,9 @@ The arguments:
 13. `--unblind`: Unblind or not (Default is blind)
 14. `--block_sample`: List of samples that should be blocked
 15. `--Yield`: Add yield in legend or not.
-
+16. `--ratio_min`: ratio y axis lower bound.
+17. `--ratio_max`: ratio y axis higher bound.
+18. `--ratio_Ndiv`: ratio y axis Ndivisions.
 For example, you can plot it with following command
 ```
 python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 [--unblind] [--Yield]

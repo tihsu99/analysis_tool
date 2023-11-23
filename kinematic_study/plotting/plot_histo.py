@@ -13,7 +13,7 @@ sys.path.append('../../python')
 from plotstyle import *
 from common import *
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -65,6 +65,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if not only_signal: 
       canvas = DataMCCanvas(" "," ", Lumi[era])
       canvas.legend.setPosition(0.35,0.77,0.8,0.9)
+      canvas.raxis.SetNdivisions(ratio_Ndiv)
+      canvas.rlimits = (ratio_min, ratio_max)
     else:
       canvas = SimpleCanvas(" ", " ", Lumi[era]) 
     if Yield:
@@ -221,6 +223,11 @@ if __name__ == "__main__":
   parser.add_argument("--overflow", dest = 'overflow', action = 'store_true')
   parser.add_argument("--normalize", dest = 'normalize', action = 'store_true')
   parser.add_argument("--block_sample", dest='block_sample', nargs='+', default=[])
+  parser.add_argument("--ymax", dest='ymax', default=None) #TODO
+  parser.add_argument("--ymin", dest='ymin', default=None) #TODO
+  parser.add_argument("--ratio_max", dest='ratio_max', default=1.25, type=float)
+  parser.add_argument("--ratio_min", dest='ratio_min', default=0.75, type=float)
+  parser.add_argument("--ratio_Ndiv", dest='ratio_Ndiv', default=205, type=int)
   parser.add_argument("--Yield", action = 'store_true', default=False)
   args = parser.parse_args()
 
@@ -253,7 +260,8 @@ if __name__ == "__main__":
  
   for region in region_channel_dict:
     for channel in region_channel_dict[region]: 
-      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield)
+      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv)
+
 
   
 
