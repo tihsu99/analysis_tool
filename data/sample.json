@@ -104,7 +104,19 @@
     "Category": "SingleTop",
     "Label": ["MC", "Background"]
   },
- 
+  "ttZLNu":{
+    "xsec": 0.2589,
+    "xsec_err":12.0,
+    "Category": "ttZ",
+    "Label": ["MC", "Background"]
+  }, 
+  "ttZToQQ":{
+    "xsec": 0.6012,
+    "xsec_err":12.0,
+    "Category": "ttZ",
+    "Label": ["MC", "Background"]
+  },
+
   "WJet":{
     "xsec": 61526.7,
     "xsec_err": 10,
@@ -154,23 +166,23 @@
   },
 
   "CGToBHpm_a_200_rtt06_rtc04":{
-    "xsec": 6.456,
+    "xsec": 6.609,
     "Category": "bH^#pm(200)",
     "Label": ["MC","Signal"]
   },
 
   "CGToBHpm_a_300_rtt06_rtc04":{
-    "xsec": 5.246,
+    "xsec": 5.370,
     "Category": "bH^#pm(300)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_350_rtt06_rtc04":{
-    "xsec": 3.276,
+    "xsec": 3.391,
     "Category": "bH^#pm(350)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_400_rtt06_rtc04":{
-    "xsec": 1.965,
+    "xsec": 1.887,
     "Category": "bH^#pm(400)",
     "Label": ["MC","Signal"]
   },
@@ -180,7 +192,7 @@
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_600_rtt06_rtc04":{
-    "xsec": 0.3749,
+    "xsec": 0.3790,
     "Category": "bH^#pm(600)",
     "Label": ["MC","Signal"]
   },
@@ -200,32 +212,38 @@
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_1000_rtt06_rtc04":{
-    "xsec": 0.02919,
+    "xsec": 0.02755,
     "Category": "bH^#pm(1000)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_200_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.3807,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_300_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.1061,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
+  "BGToTHpm_a_350_rtt06_rtc04":{
+    "xsec": 0.0687,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+
   "BGToTHpm_a_400_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.04373,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_500_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.02144,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_600_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.01133,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
@@ -235,15 +253,21 @@
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_800_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.003615,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_900_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.002011,
+    "Category": "bgToth",
+    "Label": ["MC","Signal"]
+  },
+  "BGToTHpm_a_1000_rtt06_rtc04":{
+    "xsec": 0.001246,
     "Category": "bgToth",
     "Label": ["MC","Signal"]
   } 
+
 }
 
 
