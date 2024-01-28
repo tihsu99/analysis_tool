@@ -15,6 +15,15 @@ using namespace ROOT::VecOps;
 
 TString era = "EraToBeReplaced";
 
+// Trigger Scale Factor
+TFile*f_trigger=TFile::Open("../../data/Trigger_scale_factor_"+era+".root");
+TH2D*trigger_sf_electron_HLT_resolved = (TH2D*)f_trigger->Get("bh_Electron_scale_factor");
+TH2D*trigger_sf_electron_HLT_boost    = (TH2D*)f_trigger->Get("boost_Electron_scale_factor");
+TH2D*trigger_sf_muon_HLT_resolved     = (TH2D*)f_trigger->Get("bh_Muon_scale_factor");
+TH2D*trigger_sf_muon_HLT_boost        = (TH2D*)f_trigger->Get("boost_Muon_scale_factor");
+const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->GetBinUpEdge(trigger_sf_electron_HLT_resolved->GetNbinsX());
+
+
 int iArray(ROOT::VecOps::RVec<int> Array, int idx, int Is_pdgId = 0){
   if(idx < 0) return -99;
   int output = Array[idx];
@@ -42,7 +51,6 @@ template <typename T>T iArray(std::vector<T> Array, int idx, int Is_pdgId = 0){
   if(Is_pdgId == 1 and Array[idx] ==-5000003) return -26;
   return Array[idx];
 }
-
 
 std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
 
@@ -439,6 +447,17 @@ float HT_(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> jetpt)
 //  BTag SF  //
 ///////////////
 
+ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<Int_t> jetid){
+  ROOT::VecOps::RVec<Int_t> return_id;
+  for(int i = 0; i < jetid.size(); i++){
+    if (jetid[i] < 0) continue;
+    if (abs(Jet_eta[jetid[i]]) > 2.4) continue;
+    return_id.push_back(jetid[i]);
+  }
+  return return_id;
+}
+
+
 float btag_SF(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> btag_sf){
   float sf = 1.0;
   for(int i=0; i < jetid.size(); i++){
@@ -446,4 +465,38 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> btag_sf
     sf*=btag_sf[jetid[i]];
   }
   return sf;
-} 
+}
+
+//////////////////
+//  Trigger SF  //
+//////////////////
+
+float trigger_SF(float pt, float eta, int boost_region, int resolved_region, float variation)
+{
+  if(pt > trigger_highest_pt) pt = trigger_highest_pt-1.0;
+  float trigger_weight = 1.0;
+  float central_weight = 1.0;
+  float weight_error   = 1.0;
+
+  if((boost_region == -1) && (resolved_region == 1)){
+    central_weight = trigger_sf_muon_HLT_resolved->GetBinContent(trigger_sf_muon_HLT_resolved->FindBin(pt, abs(eta)));
+    weight_error   = trigger_sf_muon_HLT_resolved->GetBinError(trigger_sf_muon_HLT_resolved->FindBin(pt, abs(eta)));
+    trigger_weight *= (central_weight + variation*weight_error);
+  }
+  else if((boost_region == -1) && (resolved_region == 2)){
+    central_weight = trigger_sf_electron_HLT_resolved->GetBinContent(trigger_sf_electron_HLT_resolved->FindBin(pt, abs(eta)));
+    weight_error   = trigger_sf_electron_HLT_resolved->GetBinError(trigger_sf_electron_HLT_resolved->FindBin(pt, abs(eta)));
+    trigger_weight *= (central_weight + variation*weight_error);
+  }
+  else if((resolved_region == -1) && (boost_region == 1)){
+    central_weight = trigger_sf_muon_HLT_boost->GetBinContent(trigger_sf_muon_HLT_boost->FindBin(pt, abs(eta)));
+    weight_error   = trigger_sf_muon_HLT_boost->GetBinError(trigger_sf_muon_HLT_boost->FindBin(pt, abs(eta)));
+    trigger_weight *= (central_weight + variation*weight_error);
+  }
+  else if((resolved_region == -1) && (boost_region == 2)){
+    central_weight = trigger_sf_electron_HLT_boost->GetBinContent(trigger_sf_electron_HLT_boost->FindBin(pt, abs(eta)));
+    weight_error   = trigger_sf_electron_HLT_boost->GetBinError(trigger_sf_electron_HLT_boost->FindBin(pt, abs(eta)));
+    trigger_weight *= (central_weight + variation*weight_error);
+   }
+  return trigger_weight;
+}

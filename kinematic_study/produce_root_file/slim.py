@@ -8,6 +8,7 @@ from collections import OrderedDict
 from math import sqrt
 from common import inputFile_path
 
+
 def Slim_module(filein,
                 era,
                 output_dir,
@@ -16,7 +17,7 @@ def Slim_module(filein,
                 Black_list=[],
                 POIs=[],
                 sample_labels = [],
-                weight_def="puWeight*genWeight*PrefireWeight/abs(genWeight)",
+                weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Trigger_sf",
                 scale = 1.0,
                 sample_json = "../../data/sample.json",
                 nuisance_json = "../../data/nuisance.json",
@@ -26,6 +27,7 @@ def Slim_module(filein,
                 MET_filter_json = "../../data/MET_filter.json",
                 histogram_json = "../../data/histogram.json",
                 region="signal_region",
+                Btag_WP="Medium",
                 start = -1,
                 end   = -1,
                 index = -1):
@@ -131,6 +133,10 @@ def Slim_module(filein,
     if not (variables[variable]["Def"] == "Defined"):
       if(variables[variable]["Def"] == "MC_Data_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][sample_type]))
+      elif(variables[variable]["Def"] == "Channel_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
+      elif(variables[variable]["Def"] == "Btag_WP_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
     if variable in nuisances_valid:
@@ -142,7 +148,8 @@ def Slim_module(filein,
         if "sub_cat" in nuisances[nuisance]: sub_category = nuisances[nuisance]["sub_cat"]
         for sub_cat in sub_category:
           nuisance_def =  nuisances[nuisance]["Def"].replace('SUB', sub_cat).replace('YEAR', era)
-          nuisance_name = nuisance+sub_cat.replace('YEAR', era)
+          nuisance_name = nuisance+sub_cat.replace('YEAR', era).replace('CHANNEL', channel)
+          print(nuisances[nuisance]["Nominal"], nuisance_def, nuisance_name)
           df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, {"Down", "Up"}, nuisance_name)
           nuisance_list.append(nuisance_name)
   ##############
@@ -179,9 +186,13 @@ def Slim_module(filein,
   for trigger_name in triggers:
     if not channel in triggers[trigger_name]["Channel"]: continue
     if "Data" in sample_labels and not sample_name in triggers[trigger_name]["Dataset"]: continue
-    df = df.Define(str(trigger_name), str('||'.join(triggers[trigger_name]["Triggers"][era])))
+    trigger_set = []
+    for trigger_ in triggers[trigger_name]['Triggers'][era]:
+        if trigger_ in BranchList:
+            trigger_set.append(trigger_)
+    df = df.Define(str(trigger_name), str('||'.join(trigger_set)))
     df = df.Filter(str(trigger_name), str(trigger_name))
-    print(trigger_name, str('||'.join(triggers[trigger_name]["Triggers"][era])))
+    print(trigger_name, str('||'.join(trigger_set)))
   cutflow[trigger_name] = df.Sum("weight").GetValue() 
   # general cut
   for cut_name in cuts[region]["general_cut"]:
@@ -260,7 +271,7 @@ def Slim_module(filein,
 
     Flag = False
     for Label in Labels:
-      if Label in variables[variable]["Save"]: Flag = True
+      if "Save" in variables[variable] and Label in variables[variable]["Save"]: Flag = True
     if not Flag: continue
     columns.push_back(str(variable))
 
@@ -284,7 +295,7 @@ if __name__ == "__main__":
 
   usage  = 'usage: %prog [options]'
   parser = argparse.ArgumentParser(description=usage)
-  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2106postapv/2017/2018]', default='2018', type=str)
+  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2016postapv/2017/2018]', default='2018', type=str)
   parser.add_argument('-i', '--iin',    dest='iin', help='input file name', default=None, type=str)
   parser.add_argument('-o', '--outdir', dest='out', help='ouput directory', default='./', type=str)
   parser.add_argument('--start',        dest='start', default=-1, type=int)
@@ -301,7 +312,8 @@ if __name__ == "__main__":
   parser.add_argument('--region',       dest='region', default = 'signal_region', type = str)
   parser.add_argument("--Labels", dest = 'Labels', default = ['Normal'], nargs='+')
   parser.add_argument("--Black_list", dest = 'Black_list', default = [], nargs='+')
-  parser.add_argument("--sample_labels", dest='sample_labels', default = ["MC", "Background"], nargs='+') 
+  parser.add_argument("--sample_labels", dest='sample_labels', default = ["MC", "Background"], nargs='+')
+  parser.add_argument("--Btag_WP", default='Medium')
   parser.add_argument("--POIs",   dest = 'POIs',   default = [], nargs='+')
   parser.add_argument("--scale",  dest = 'scale',  default = 1.0, type=float) 
   args = parser.parse_args()
@@ -315,6 +327,7 @@ if __name__ == "__main__":
               trigger_json = args.trigger_json,\
               MET_filter_json = args.MET_filter_json,\
               nuisance_json = args.nuisance_json,\
+              Btag_WP = args.Btag_WP,\
               region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale)
   #end = time.clock()
   #print('process time', end - start)
