@@ -6,27 +6,27 @@
   },
 
   "prefire":{
-    "Nominal": ["PrefireWeight"],
-    "Def":      "RVecF{PrefireWeight_Down, PrefireWeight_Up}",
+    "Nominal": ["L1PreFiringWeight_Nom"],
+    "Def":      "RVecF{L1PreFiringWeight_Dn, L1PreFiringWeight_Up}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Era":   ["2016apv", "2016postapv", "2017"]
   },
 
   "btag":{
-    "Nominal": ["Jet_btagSF_deepjet_L"],
-    "Def": "RVec<RVecF>{Jet_btagSF_deepjet_L_down, Jet_btagSF_deepjet_L_up}",
+    "Nominal": ["Jet_btagSF_deepJet_L"],
+    "Def": "RVec<RVecF>{Jet_btagSF_deepJet_L_down, Jet_btagSF_deepJet_L_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   }, 
 
   "jes":{
-    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
     "Def": "RVec<RVec<RVecF>>{{Jet_pt_jesSUBDown,Jet_pt_jesSUBUp},{Jet_mass_jesSUBDown,Jet_mass_jesSUBUp}, {{MET_T1Smear_pt_jesSUBDown}, {MET_T1Smear_pt_jesSUBUp}}, {{MET_T1Smear_phi_jesSUBDown},{MET_T1Smear_phi_jesSUBUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"],
     "sub_cat": ["EC2_YEAR", "HF_YEAR", "FlavorQCD", "RelativeBal", "BBEC1", "HF", "EC2", "Absolute","BBEC1_YEAR","RelativeSample_YEAR","Absolute_YEAR"]
   }, 
 
   "jerYEAR":{
-    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
     "Def": "RVec<RVec<RVecF>>{{Jet_pt_jerDown,Jet_pt_jerUp},{Jet_mass_jerDown,Jet_mass_jerUp}, {{MET_T1Smear_pt_jerDown}, {MET_T1Smear_pt_jerUp}}, {{MET_T1Smear_phi_jerDown},{MET_T1Smear_phi_jerUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"]
   },
@@ -68,5 +68,11 @@
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
+  },
+
+  "Trigger_CHANNEL":{
+    "Nominal": ["trigger_SF"],
+    "Def": "RVecF{trigger_SF_down, trigger_SF_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
   }
 }

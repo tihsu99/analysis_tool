@@ -2,11 +2,11 @@
   "SingleMuon_trigger": {
     "Channel": ["mu", "mm"],
     "Dataset": ["SingleMuon"],
-    "Triggers": {"2017": ["HLT_IsoMu27"]}
+    "Triggers": {"2017": ["HLT_IsoMu27", "HLT_Mu50", "HLT_TkMu100", "HLT_OldMu100"]}
   },
   "SingleEG_trigger": {
     "Channel": ["ele", "ee"],
     "Dataset": ["SingleEG"],
-    "Triggers": {"2017": ["HLT_passEle32WPTight"]}
+    "Triggers": {"2017": ["(HLT_passEle32WPTight == 1)", "HLT_Ele115_CaloIdVT_GsfTrkIdT", "HLT_Photon200"]}
   }
 }
