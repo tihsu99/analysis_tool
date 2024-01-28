@@ -127,6 +127,22 @@
   
   },
 
+  "Lepton_ID_SF_err":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "sqrt(pow(Electron_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Electron_topMVA_Tight_SFerr_stat[Lepton_id],2))",
+                 "mu_resolved":  "sqrt(pow(Muon_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Muon_topMVA_Tight_SFerr_stat[Lepton_id],2))"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_ID_SF":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_topMVA_Tight_SF[Lepton_id]",
+	         "mu_resolved":  "Electron_topMVA_Tight_SF[Lepton_id]"
+                },
+    "Label": ["Normal", "MC"]
+  },
+
+
   "Jet_btagSF_deepJet_L":{
     "Def": "Defined",
     "Label": ["Normal", "MC"]
