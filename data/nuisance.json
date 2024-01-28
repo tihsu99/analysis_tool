@@ -18,10 +18,17 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "LeptonID":{
+  "LeptonID_CHANNEL":{
     "Nominal": ["Lepton_ID_SF"],
     "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}", 
     "Label": ["MC", "Background", "Signal", "Shape"] 
+  },
+
+  "RECO":{
+    "Nominal": ["Lepton_RECO_SF"],
+    "Def": "RVecF{(float)(Lepton_RECO_SF-Lepton_RECO_SF_err), (float)(Lepton_RECO_SF+Lepton_RECO_SF_err)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
   "btag":{
@@ -50,10 +57,10 @@
   },
 
   "muPt":{
-    "Nominal": ["bh_l1_pt"],
-    "Def": "RVecF{Muon_correctedDown_pt[bh_l1_id], Muon_correctedUp_pt[bh_l1_id]}",
+    "Nominal": ["Lepton_pt"],
+    "Def": "RVecF{Muon_correctedDown_pt[Lepton_id], Muon_correctedUp_pt[Lepton_id]}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Channel": ["mu", "mm"]
+    "Channel": ["mu_resolved"]
   },
 
   "lumi2016":{

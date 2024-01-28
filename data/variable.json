@@ -84,6 +84,14 @@
     "Era": ["2016apv", "2016postapv", "2017"]
   },
 
+  "Lepton_id":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_id",
+	         "mu_resolved":  "bh_l1_id"},
+    "Label": ["Normal"]
+  },
+
+
   "Lepton_pt":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "bh_l1_pt",
@@ -112,12 +120,6 @@
     "Label": ["Normal"]
   },
 
-  "Lepton_id":{
-    "Def": "Channel_Dep",
-    "Category": {"ele_resolved": "bh_l1_id",
-	         "mu_resolved":  "bh_l1_id"},
-    "Label": ["Normal"]
-  },
 
   "Lepton_region":{
     "Def": "Channel_Dep",
@@ -140,6 +142,20 @@
 	         "mu_resolved":  "Electron_topMVA_Tight_SF[Lepton_id]"
                 },
     "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_RECO_SF_err":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_RECO_SFerr[Lepton_id]",
+	         "mu_resolved":  "0.0"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_RECO_SF":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_RECO_SF[Lepton_id]",
+	         "mu_resolved":  "1.0"},
+    "Label":[ "Normal", "MC"]
   },
 
 
