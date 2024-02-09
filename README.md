@@ -27,7 +27,7 @@ scram b
 Install this package
 ```
 cd $CMSSW_BASE/src
-git clone git@github.com:tihsu99/analysis_tool.git
+git clone git@github.com:ExtraYukawa/bHplusAnalysis.git
 cd analysis_tool
 ```
 # Structure
