@@ -13,8 +13,8 @@
   },
 
   "Trigger_CHANNEL":{
-    "Nominal": ["trigger_SF"],
-    "Def": "RVecF{trigger_SF_down, trigger_SF_up}",
+    "Nominal": ["Trigger_sf"],
+    "Def": "RVecF{Trigger_sf_down, Trigger_sf_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
@@ -31,11 +31,30 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "btag":{
-    "Nominal": ["Jet_btagSF_deepJet_L"],
-    "Def": "RVec<RVecF>{Jet_btagSF_deepJet_L_down, Jet_btagSF_deepJet_L_up}",
+  "btagSF_udsg_correlated":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
-  }, 
+  },
+
+  "btagSF_udsg_YEAR":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+
+  "btagSF_bc_correlated":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "btagSF_bc_YEAR":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
 
   "jes":{
     "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
