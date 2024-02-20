@@ -7,7 +7,7 @@
 #include "Math/Vector4Dfwd.h"
 #include "TStyle.h"
 #include "TString.h"
-
+#include "TVector2.h"
 
 using namespace ROOT;
 using namespace std;
@@ -23,6 +23,18 @@ TH2D*trigger_sf_muon_HLT_resolved     = (TH2D*)f_trigger->Get("bh_Muon_scale_fac
 TH2D*trigger_sf_muon_HLT_boost        = (TH2D*)f_trigger->Get("boost_Muon_scale_factor");
 const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->GetBinUpEdge(trigger_sf_electron_HLT_resolved->GetNbinsX());
 
+// Btag Efficiency
+TFile*f_btag_efficiency=TFile::Open("../../data/BTagEfficiency_"+era+".root");
+TH2D*btag_efficiency_loose_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_b"))->CreateHistogram());
+TH2D*btag_efficiency_loose_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_c"))->CreateHistogram());
+TH2D*btag_efficiency_loose_udsg = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_udsg"))->CreateHistogram());
+TH2D*btag_efficiency_medium_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_MEff_b"))->CreateHistogram());
+TH2D*btag_efficiency_medium_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_MEff_c"))->CreateHistogram());
+TH2D*btag_efficiency_medium_udsg = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_MEff_udsg"))->CreateHistogram());
+TH2D*btag_efficiency_tight_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_b"))->CreateHistogram());
+TH2D*btag_efficiency_tight_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_c"))->CreateHistogram());
+TH2D*btag_efficiency_tight_udsg = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_udsg"))->CreateHistogram());
+const float btag_efficiency_highest_pt  = btag_efficiency_loose_b->GetXaxis()->GetBinUpEdge(btag_efficiency_loose_b->GetNbinsX());
 
 int iArray(ROOT::VecOps::RVec<int> Array, int idx, int Is_pdgId = 0){
   if(idx < 0) return -99;
@@ -314,7 +326,7 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
   }
 }
 
-float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass){
+float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass, int var){
 
   float top_E = -1.;
   float top_px = -1.;
@@ -348,6 +360,8 @@ float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::Ve
     }
   }
 
+  float top_pT = sqrt(pow(top_px,2) + pow(top_py,2));
+  if(var == 1) return top_pT;
   return top_mass;
 }
 
@@ -458,11 +472,62 @@ ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<float> Jet_eta, R
 }
 
 
-float btag_SF(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> btag_sf){
+float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp, ROOT::VecOps::RVec<float> btag_sf_var, int variation){
   float sf = 1.0;
-  for(int i=0; i < jetid.size(); i++){
-    if(jetid[i]<0) continue;
-    sf*=btag_sf[jetid[i]];
+  int hadflav, idx;
+  bool isbtag;
+  float efficiency, pt, eta;
+  for(int i=0; i < tight_jet_id.size(); i++){
+    idx = tight_jet_id[i];
+    if(idx<0) continue;
+    isbtag = false;
+    pt     = std::min(Jet_pt[idx],btag_efficiency_highest_pt);
+    eta    = Jet_eta[idx];
+    for(int j=0; j < b_jet_id.size(); j++){
+      if (b_jet_id[j] == idx){
+        isbtag = true;
+	continue;
+      }
+    }
+    
+    if(jethadflav[idx] == 5){
+      if(wp == 1) efficiency = btag_efficiency_loose_b->GetBinContent(btag_efficiency_loose_b->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_b->GetBinContent(btag_efficiency_medium_b->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_b->GetBinContent(btag_efficiency_tight_b->FindBin(pt, abs(eta)));
+    }
+    else if(jethadflav[idx] == 4){
+      if(wp == 1) efficiency = btag_efficiency_loose_c->GetBinContent(btag_efficiency_loose_c->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_c->GetBinContent(btag_efficiency_medium_c->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_c->GetBinContent(btag_efficiency_tight_c->FindBin(pt, abs(eta)));
+    }
+    else{
+      if(wp == 1) efficiency = btag_efficiency_loose_udsg->GetBinContent(btag_efficiency_loose_udsg->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_udsg->GetBinContent(btag_efficiency_medium_udsg->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_udsg->GetBinContent(btag_efficiency_tight_udsg->FindBin(pt, abs(eta)));
+    }
+
+    if(isbtag){
+      if(variation == 0) sf *= btag_sf[idx]; // nominal
+      else if (variation == 1){  // flav udsg vary
+	if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf[idx];
+        else {sf *= btag_sf_var[idx];}
+      }
+      else{ // flav c & b vary
+        if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf_var[idx];
+	else {sf *= btag_sf[idx];};
+      }
+    }      
+    else{
+      if(variation == 0) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
+      else if (variation == 1){
+        if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
+	else {sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);}
+      }
+      else{
+        if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);
+        else {sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);}
+      }
+    }
   }
   return sf;
 }
@@ -499,4 +564,103 @@ float trigger_SF(float pt, float eta, int boost_region, int resolved_region, flo
     trigger_weight *= (central_weight + variation*weight_error);
    }
   return trigger_weight;
+}
+
+///////////////
+//  deltaR  //
+//////////////
+
+ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float l1_phi, float l1_mass, ROOT::VecOps::RVec<Float_t> Jet_pt, ROOT::VecOps::RVec<Float_t> Jet_eta, ROOT::VecOps::RVec<Float_t> Jet_phi, ROOT::VecOps::RVec<Float_t> Jet_mass, ROOT::VecOps::RVec<Float_t> Jet_FlavB, ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, float MET_phi){
+
+  float deltaR_lb[3] = {-99., -99., -99.};
+  float deltaR_b1b2 = -99.;
+  float deltaR_b2b3 = -99.;
+  float deltaR_b1b3 = -99.;
+
+  float non_b_j1_pt = -99.;
+  float non_b_j1_eta = -99.;
+  float non_b_j1_phi = -99.;
+  float non_b_j1_mass = -99.;
+  float non_b_j1_FlavB = -99.;
+  float deltaR_non_b_l = -99.;
+
+
+  float bjet_pt[3]   = {-99., -99., -99.};
+  float bjet_eta[3]  = {-99., -99., -99.};
+  float bjet_phi[3]  = {-99., -99., -99.};
+  float bjet_mass[3] = {-99., -99., -99.};
+  float bjet_FlavB[3]  = {-99., -99., -99.};
+
+  int b_jet_idx = 0;
+  bool is_btag;
+  std::vector<int> new_b_id;
+  int non_b_jet_idx = -1;
+  int jet_idx;
+
+  float inv_mass_lb[3] = {-99., -99., -99.};
+  float inv_mass_b1b2 = -99.;
+  float inv_mass_b2b3 = -99.;
+  float inv_mass_b1b3 = -99.;
+  float inv_mass_non_b_l = -99.;
+  float inv_mass_lb1b2 = -99.;
+  float inv_mass_lb2b3 = -99.;
+  float inv_mass_lb1b3 = -99.;
+
+  float delta_phi_l_met = TVector2::Phi_mpi_pi((l1_phi -  MET_phi));
+
+  ROOT::Math::PtEtaPhiMVector lepton(l1_pt, l1_eta, l1_phi, l1_mass);
+  ROOT::Math::PtEtaPhiMVector bjet[3];
+  ROOT::Math::PtEtaPhiMVector non_b_jet;
+
+  for(int idx; idx < tight_jet_id.size(); idx++){
+    jet_idx = tight_jet_id[idx];
+    if(jet_idx < 0) continue;
+    is_btag = (std::find(b_jet_id.begin(), b_jet_id.end(), jet_idx) != b_jet_id.end());
+    if((is_btag) && (b_jet_idx < 3)){
+      bjet[b_jet_idx] = ROOT::Math::PtEtaPhiMVector(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+
+      bjet_pt[b_jet_idx]   = bjet[b_jet_idx].Pt();
+      bjet_eta[b_jet_idx]  = bjet[b_jet_idx].Eta();
+      bjet_phi[b_jet_idx]  = bjet[b_jet_idx].Phi();
+      bjet_mass[b_jet_idx] = bjet[b_jet_idx].M();
+
+      bjet_FlavB[b_jet_idx]  = Jet_FlavB[jet_idx];
+
+      deltaR_lb[b_jet_idx] = ROOT::Math::VectorUtil::DeltaR(bjet[b_jet_idx], lepton);
+      inv_mass_lb[b_jet_idx] = (lepton + bjet[b_jet_idx]).M(); 
+      b_jet_idx += 1;
+      new_b_id.push_back(jet_idx);
+    }  
+    else if(non_b_jet_idx < 0){
+      non_b_jet     = ROOT::Math::PtEtaPhiMVector(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+      non_b_j1_pt   = non_b_jet.Pt();
+      non_b_j1_eta  = non_b_jet.Eta();
+      non_b_j1_phi  = non_b_jet.Phi();
+      non_b_j1_mass = non_b_jet.M();
+      non_b_j1_FlavB  = Jet_FlavB[jet_idx];
+      deltaR_non_b_l = ROOT::Math::VectorUtil::DeltaR(non_b_jet, lepton);
+      inv_mass_non_b_l = (non_b_jet + lepton).M();
+      non_b_jet_idx = jet_idx;
+    }  
+  }
+
+  if(new_b_id.size() > 1){
+    deltaR_b1b2 = ROOT::Math::VectorUtil::DeltaR(bjet[0], bjet[1]);
+    inv_mass_b1b2 = (bjet[0] + bjet[1]).M();
+    inv_mass_lb1b2 = (lepton + bjet[0] + bjet[1]).M();
+    if (new_b_id.size() > 2){
+      deltaR_b1b3 = ROOT::Math::VectorUtil::DeltaR(bjet[0], bjet[2]);
+      deltaR_b2b3 = ROOT::Math::VectorUtil::DeltaR(bjet[1], bjet[2]);
+      inv_mass_b1b3 = (bjet[0] + bjet[2]).M();
+      inv_mass_b2b3 = (bjet[1] + bjet[2]).M();
+      inv_mass_lb1b3 = (bjet[0] + bjet[2] + lepton).M();
+      inv_mass_lb2b3 = (bjet[1] + bjet[2] + lepton).M();
+    }
+  }
+
+  ROOT::VecOps::RVec<Float_t> final_return = {deltaR_lb[0], deltaR_lb[1], deltaR_lb[2], deltaR_b1b2, deltaR_b2b3, deltaR_b1b3, deltaR_non_b_l, non_b_j1_pt, non_b_j1_eta, non_b_j1_phi, non_b_j1_mass, bjet_pt[0], bjet_eta[0], bjet_phi[0], bjet_mass[0], bjet_pt[1], bjet_eta[1], bjet_phi[1], bjet_mass[1], bjet_pt[2], bjet_eta[2], bjet_phi[2], bjet_mass[2], bjet_FlavB[0], bjet_FlavB[1], bjet_FlavB[2], non_b_j1_FlavB, inv_mass_b1b2, inv_mass_b2b3, inv_mass_b1b3, inv_mass_lb1b2, inv_mass_lb2b3, inv_mass_lb1b3, inv_mass_non_b_l, delta_phi_l_met};
+
+  return final_return; 
+
+
 }

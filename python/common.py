@@ -28,7 +28,7 @@ inputFile_path = {
   '2016apv':     '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/',
   '2016postapv': '/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/',
   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v2',
-  '2018':        '/eos/cms/store/group/phys_top/ExtraYukawa/2018/'
+  '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/'
 }
 
 subera_list = {
