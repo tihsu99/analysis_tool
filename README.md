@@ -1,5 +1,10 @@
 # Analysis Tool
 This tool is made for plotting distribution, skim the root files (`kinematic_study`), and further proceed to limit extraction. The main input is controled by the `json` files in `data` and main functions are defined in the `h` files in `script`. Since it utilize the novel function in RDataFrame, it **requires ROOT v6.26** and thus **do not run cmsenv**(except for **limit study**) , otherwise it will conflict with each other.
+
+To run on lxplus9:
+```
+cmssw-el7
+```
 # Installation
 To install combine tools, we follow combine v9 recommodation
 ```
@@ -27,7 +32,7 @@ scram b
 Install this package
 ```
 cd $CMSSW_BASE/src
-git clone https://github.com/AlbertHsuNTUphys/analysis_tool.git
+git clone git@github.com:ExtraYukawa/bHplusAnalysis.git
 cd analysis_tool
 ```
 # Structure
