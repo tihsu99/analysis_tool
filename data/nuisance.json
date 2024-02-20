@@ -6,27 +6,65 @@
   },
 
   "prefire":{
-    "Nominal": ["PrefireWeight"],
-    "Def":      "RVecF{PrefireWeight_Down, PrefireWeight_Up}",
+    "Nominal": ["L1PreFiringWeight_Nom"],
+    "Def":      "RVecF{L1PreFiringWeight_Dn, L1PreFiringWeight_Up}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Era":   ["2016apv", "2016postapv", "2017"]
   },
 
-  "btag":{
-    "Nominal": ["Jet_btagSF_deepjet_L"],
-    "Def": "RVec<RVecF>{Jet_btagSF_deepjet_L_down, Jet_btagSF_deepjet_L_up}",
+  "Trigger_CHANNEL":{
+    "Nominal": ["Trigger_sf"],
+    "Def": "RVecF{Trigger_sf_down, Trigger_sf_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
-  }, 
+  },
+
+  "LeptonID_CHANNEL":{
+    "Nominal": ["Lepton_ID_SF"],
+    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}", 
+    "Label": ["MC", "Background", "Signal", "Shape"] 
+  },
+
+  "RECO":{
+    "Nominal": ["Lepton_RECO_SF"],
+    "Def": "RVecF{(float)(Lepton_RECO_SF-Lepton_RECO_SF_err), (float)(Lepton_RECO_SF+Lepton_RECO_SF_err)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "btagSF_udsg_correlated":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "btagSF_udsg_YEAR":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+
+  "btagSF_bc_correlated":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "btagSF_bc_YEAR":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
 
   "jes":{
-    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
     "Def": "RVec<RVec<RVecF>>{{Jet_pt_jesSUBDown,Jet_pt_jesSUBUp},{Jet_mass_jesSUBDown,Jet_mass_jesSUBUp}, {{MET_T1Smear_pt_jesSUBDown}, {MET_T1Smear_pt_jesSUBUp}}, {{MET_T1Smear_phi_jesSUBDown},{MET_T1Smear_phi_jesSUBUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"],
     "sub_cat": ["EC2_YEAR", "HF_YEAR", "FlavorQCD", "RelativeBal", "BBEC1", "HF", "EC2", "Absolute","BBEC1_YEAR","RelativeSample_YEAR","Absolute_YEAR"]
   }, 
 
   "jerYEAR":{
-    "Nominal": ["Jet_pt","Jet_mass", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
+    "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
     "Def": "RVec<RVec<RVecF>>{{Jet_pt_jerDown,Jet_pt_jerUp},{Jet_mass_jerDown,Jet_mass_jerUp}, {{MET_T1Smear_pt_jerDown}, {MET_T1Smear_pt_jerUp}}, {{MET_T1Smear_phi_jerDown},{MET_T1Smear_phi_jerUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"]
   },
@@ -38,10 +76,10 @@
   },
 
   "muPt":{
-    "Nominal": ["bh_l1_pt"],
-    "Def": "RVecF{Muon_correctedDown_pt[bh_l1_id], Muon_correctedUp_pt[bh_l1_id]}",
+    "Nominal": ["Lepton_pt"],
+    "Def": "RVecF{Muon_correctedDown_pt[Lepton_id], Muon_correctedUp_pt[Lepton_id]}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Channel": ["mu", "mm"]
+    "Channel": ["mu_resolved"]
   },
 
   "lumi2016":{
@@ -69,4 +107,5 @@
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
   }
+
 }

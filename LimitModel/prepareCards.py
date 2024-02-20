@@ -96,6 +96,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         os.system('sed -i "s/FAKE/FinalInputs\/%s\/%s\/TMVApp\_%s\_%s.root %s%s\_\$PROCESS %s%s\_\$PROCESS\_\$SYSTEMATIC/g"  %s'%(era, signal, region, channel, analysis_name, era, analysis_name, era, output_datacard_txt))
         # Replace template setting
         os.system('sed -i "s/YEAR/%s/g" %s'%(era, output_datacard_txt))
+        os.system('sed -i "s/CHANNEL/%s/g" %s'%(channel, output_datacard_txt))
         os.system('sed -i "s/observation  -1.0/observation  -1/g" %s'%(output_datacard_txt)) #TODO 
         print("\033[0;32m info \033[0;m: create datacard: %s"%(output_datacard_txt)) 
 

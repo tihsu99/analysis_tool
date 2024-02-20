@@ -27,8 +27,8 @@ python_version = int(sys.version.split('.')[0])
 inputFile_path = {
   '2016apv':     '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/',
   '2016postapv': '/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/',
-  '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/',
-  '2018':        '/eos/cms/store/group/phys_top/ExtraYukawa/2018/'
+  '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v2',
+  '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/'
 }
 
 subera_list = {
@@ -167,4 +167,40 @@ def overunder_flowbin(h1):
   h1.SetBinError(1,sqrt(h1.GetBinError(0)*h1.GetBinError(0)+h1.GetBinError(1)*h1.GetBinError(1)))
   h1.SetBinContent(h1.GetNbinsX(),h1.GetBinContent(h1.GetNbinsX())+h1.GetBinContent(h1.GetNbinsX()+1))
   h1.SetBinError(h1.GetNbinsX(),sqrt(h1.GetBinError(h1.GetNbinsX())*h1.GetBinError(h1.GetNbinsX())+h1.GetBinError(h1.GetNbinsX()+1)*h1.GetBinError(h1.GetNbinsX()+1)))
+  return h1
+
+########################
+##  OverFlow Binning  ##
+########################
+
+
+def overunder_flowbin(h1):
+  h1.SetBinContent(1,h1.GetBinContent(0)+h1.GetBinContent(1))
+  h1.SetBinError(1,sqrt(h1.GetBinError(0)*h1.GetBinError(0)+h1.GetBinError(1)*h1.GetBinError(1)))
+  h1.SetBinContent(h1.GetNbinsX(),h1.GetBinContent(h1.GetNbinsX())+h1.GetBinContent(h1.GetNbinsX()+1))
+  h1.SetBinError(h1.GetNbinsX(),sqrt(h1.GetBinError(h1.GetNbinsX())*h1.GetBinError(h1.GetNbinsX())+h1.GetBinError(h1.GetNbinsX()+1)*h1.GetBinError(h1.GetNbinsX()+1)))
+  return h1
+
+def Add_2Dbin(h,addedX,addedY,addX,addY):
+  h.SetBinContent(addedX, addedY, h.GetBinContent(addedX,addedY) + h.GetBinContent(addX,addY))
+  h.SetBinError(addedX, addedY, sqrt(h.GetBinError(addedX, addedY)*h.GetBinError(addedX, addedY) + h.GetBinError(addX,addY)*h.GetBinError(addX,addY)))
+  return h
+
+def overunder_flowbin2D(h1):
+  nbinX = h1.GetNbinsX()
+  nbinY = h1.GetNbinsY()
+
+  # Add Edge
+  for i in range(nbinX):
+    h1 = Add_2Dbin(h1, i+1,     1, i+1,       0)
+    h1 = Add_2Dbin(h1, i+1, nbinY, i+1, nbinY+1)
+  for i in range(nbinY):
+    h1 = Add_2Dbin(h1,     1, i+1,       0, i+1)
+    h1 = Add_2Dbin(h1, nbinX, i+1, nbinX+1, i+1)
+
+  # Add Corner
+  h1 = Add_2Dbin(h1, 1,         1,       0,       0)
+  h1 = Add_2Dbin(h1, 1,     nbinY,       0, nbinY+1)
+  h1 = Add_2Dbin(h1, nbinX,     1, nbinX+1,       0)
+  h1 = Add_2Dbin(h1, nbinX, nbinY, nbinX+1, nbinY+1)
   return h1

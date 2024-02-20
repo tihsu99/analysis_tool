@@ -43,13 +43,17 @@ if __name__ == "__main__":
   parser.add_argument('--histogram_json', dest='histogram_json', default='../../data/histogram.json', type=str)
   parser.add_argument('--trigger_json', dest='trigger_json', default='../../data/trigger.json', type=str)
   parser.add_argument('--MET_filter_json', dest='MET_filter_json', default='../../data/MET_filter.json', type=str)
+  parser.add_argument('--MVA_json', dest = 'MVA_json', default = '../../data/MVA.json', type=str)
+  parser.add_argument('--MVA_weight_dir', dest = 'MVA_weight_dir', default="None", type=str)
   parser.add_argument('--nuisance_json', dest='nuisance_json', default='../../data/nuisance.json', type=str)
   parser.add_argument("--region", dest='region', type=str, default=['all'], nargs='+')
   parser.add_argument("--channel", dest='channel', type=str, default=['all'], nargs='+')
+  parser.add_argument("--Btag_WP", default='Medium')
   parser.add_argument("--Labels", dest = 'Labels', default = ['Normal'], nargs='+')
   parser.add_argument("--Black_list", dest = 'Black_list', default = ['Bug'], nargs='+')
   parser.add_argument("--POIs",   dest = 'POIs',   default = ["DEFAULT"], nargs='+')
   parser.add_argument("--clear",  dest = 'clear', action='store_true')
+  parser.add_argument("--data",   dest = 'data',  action='store_true')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -91,7 +95,9 @@ if __name__ == "__main__":
      if len(args_dict[arg]) > 0:
       check_text = check_text + " --" + arg + " " + ' '.join(args_dict[arg])
     elif isinstance(args_dict[arg], bool):
-      pass
+      if args.data: check_text = check_text + "--data "
+      else:
+        pass
     else:
       check_text = check_text + " --" + arg + " " + str(args_dict[arg])
   clear_text = check_text + " --clear"
@@ -129,9 +135,9 @@ if __name__ == "__main__":
   condor.write('log    = %s/job_common_$(Process).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = %s\n'%args.universe)
-  condor.write('requirements = (OpSysAndVer =?= "CentOS7")\n')
+#  condor.write('requirements = (OpSysAndVer =?= "CentOS7")\n')
   condor.write('+JobFlavour = "%s"\n'%args.JobFlavour)
-  #condor.write('+MaxRuntime = 7200\n')
+#  condor.write('+MaxRuntime = 7200\n')
   cwd = os.getcwd()
 
   ##############
@@ -152,7 +158,8 @@ if __name__ == "__main__":
        os.system('cp %s/../../script/env.sh script/.'%cwd)
 
        json_file_name = args.sample_json
-       for sample_Label in [["MC", "Background"], ["MC", "Signal"], ["Data"]]:
+       sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
+       for sample_Label in sample_label_list:
 
          print("Creating configuration for slim")
          python_file   =  os.path.join(cwd, 'slim.py')
@@ -191,11 +198,11 @@ if __name__ == "__main__":
              continue
 
 
-           json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json)
+           json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
 
            if args.blocksize == -1:
              shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
-             command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor)
+             command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
              command += json_command
              prepare_shell(shell_file, command, condor, farm_dir)
 
@@ -208,13 +215,19 @@ if __name__ == "__main__":
                    if f.IsZombie():
                      print(os.path.join(Outdir, str(idx) + "_" + iin), "is zombie")
                      Check_GreenLight = False
-                   continue
+                   elif (f.GetNkeys() == 0):
+                     print(os.path.join(Outdir, str(idx) + "_" + iin), "has zero key")
+                     Check_GreenLight = False
+                   else:
+                     f.Close()
+                     continue
+                   f.Close()
                  except:
                    Check_GreenLight = False
                    print(os.path.join(Outdir, str(idx) + "_" + iin), "not exist")
                start = ranges[idx]
                end   = ranges[idx+1]
-               command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor)
+               command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
                command += json_command
                shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
                prepare_shell(shell_file,command, condor, farm_dir)
@@ -229,7 +242,7 @@ if __name__ == "__main__":
     for Era in Eras:
      for region in region_channel_dict:
        for channel in region_channel_dict[region]:
-        for sample_Label in [["MC", "Background"], ["MC", "Signal"], ["Data"]]:
+        for sample_Label in sample_label_list:
          Outdir = os.path.join(args.outdir, Era, region, channel)
          json_file_name = args.sample_json
          File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples

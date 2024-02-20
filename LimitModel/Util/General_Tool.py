@@ -8,9 +8,10 @@ from collections import OrderedDict
 import json
 CURRENT_WORKDIR = os.getcwd()
 
-#binning = array.array('d', [-0.6, -0.2, 0.2, 0.6, 1.0])
-HT_bin = [ 50*i for i in range(11)]
-binning = array.array('d', HT_bin)
+BDT_bin = [ 0.1*i for i in range(11) ]
+binning = array.array('d', BDT_bin)
+#HT_bin = [ 50*i for i in range(11)]
+#binning = array.array('d', HT_bin)
 python_version = int(sys.version.split('.')[0])
 
 def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):

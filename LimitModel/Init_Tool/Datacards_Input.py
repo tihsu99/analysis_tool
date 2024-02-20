@@ -27,9 +27,9 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     else:
       nuisance_dict = json.load(jsonfile, object_pairs_hook=OrderedDict)
     jsonfile.close()
-    
+   
     for nuisance in nuisances:
-        nuisance=str(nuisances[nuisance]).split('_')[-1].strip()
+        nuisance='_'.join(str(nuisances[nuisance]).split('_')[1:]).strip()
         if nuisance not in nuisance_dict: continue # NormUnc will be defined specifically in next part 
         ############
         ## UnclnN ##
