@@ -3,75 +3,15 @@
      "xsec": 88.29,
      "xsec_err": 6.1,
      "Category": "TT2L",
-     "subfile": ["_1", "_2"],
+     "subfile": ["_1", "_2", "_3"],
      "Label": ["MC", "Background"]
   },
   "TTTo1L":{
      "xsec": 365.34,
      "xsec_err": 10,
      "Category": "TT1L",
-     "subfile": ["_1", "_2", "_3", "_4", "_5", "_6"],
+     "subfile": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
      "Label": ["MC", "Background"]
-  },
-  "TTtoHadronic":{
-    "xsec": 377.96,
-    "xsec_err": 6.1,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT50to100":{
-    "xsec": 187700000,
-    "xsec_err": 0.85,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"] 
-  },
-  "QCD_HT100to200":{
-    "xsec": 23640000,
-    "xsec_err": 0.89,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT200to300":{
-    "xsec": 1546000,
-    "xsec_err": 0.91,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT300to500":{
-    "xsec": 321600,
-    "xsec_err": 0.92,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT500to700":{
-    "xsec": 30980,
-    "xsec_err": 0.92,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT700to1000":{
-    "xsec": 6364,
-    "xsec_err": 0.95,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT1000to1500":{
-    "xsec": 1117,
-    "xsec_err": 0.96,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT1500to2000":{
-    "xsec": 108.4,
-    "xsec_err": 0.93,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT2000toInf":{
-    "xsec": 22.36,
-    "xsec_err": 0.95,
-    "Category": "Nonprompt",
-    "Label": ["MC", "Background", "Nonprompt"]
   },
   "ttWLNu":{
     "xsec": 0.2352,
@@ -156,13 +96,20 @@
     "xsec": 1,
     "Category": "data",
     "Label":  ["Data", "ele", "ee"],
-    "Channel": ["ele", "ee"]
+    "Channel": ["ele", "ee", "ele_resolved"]
   },
   "SingleMuon":{
     "xsec": 1,
     "Category": "data",
     "Label":  ["Data", "mu", "mm"],
-    "Channel": ["mu", "mm"]
+    "Channel": ["mu", "mm", "mu_resolved"]
+  },
+
+  "SinglePhoton":{
+    "xsec": 1,
+    "Category": "data",
+    "Label": ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee", "ele_resolved"]
   },
 
   "CGToBHpm_a_200_rtt06_rtc04":{

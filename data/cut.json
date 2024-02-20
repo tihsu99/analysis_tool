@@ -104,7 +104,27 @@
        "b jet cut":    "n_bjet_DeepB_v >= 3",
        "njet":         "n_tight_jet ==3"
      }
+  },
+  "SR_2b2j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "bh_region == 2",
+	 "lepton_pt":      "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+	 "lepton_pt"     : "bh_l1_pt > 30"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "one lepton":   "bh_nl==1",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 2",
+       "njet":         "n_tight_jet == 2"
+     }
   }
+
 }
 
 
