@@ -15,7 +15,7 @@ using namespace ROOT::VecOps;
 
 TString era = "EraToBeReplaced";
 
-// Trigger Scale Factor
+// Trigger Scale Factor (Derived by ourselves)
 TFile*f_trigger=TFile::Open("../../data/Trigger_scale_factor_"+era+".root");
 TH2D*trigger_sf_electron_HLT_resolved = (TH2D*)f_trigger->Get("bh_Electron_scale_factor");
 TH2D*trigger_sf_electron_HLT_boost    = (TH2D*)f_trigger->Get("boost_Electron_scale_factor");
@@ -23,7 +23,7 @@ TH2D*trigger_sf_muon_HLT_resolved     = (TH2D*)f_trigger->Get("bh_Muon_scale_fac
 TH2D*trigger_sf_muon_HLT_boost        = (TH2D*)f_trigger->Get("boost_Muon_scale_factor");
 const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->GetBinUpEdge(trigger_sf_electron_HLT_resolved->GetNbinsX());
 
-// Btag Efficiency
+// Btag Efficiency (Derived by ourgroup)
 TFile*f_btag_efficiency=TFile::Open("../../data/BTagEfficiency_"+era+".root");
 TH2D*btag_efficiency_loose_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_b"))->CreateHistogram());
 TH2D*btag_efficiency_loose_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_c"))->CreateHistogram());
