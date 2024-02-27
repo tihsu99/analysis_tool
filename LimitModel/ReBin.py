@@ -22,7 +22,7 @@ import json, array
 from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, binning, python_version
 import argparse
 
-def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', year='2017', analysis_name="bH"):
+def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', year='2017', analysis_name="bH", channel='ele_resolved'):
 
   ## New definition of MakeNuisance_Hist, but compatible with current data structure
 
@@ -31,7 +31,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
   h = None
 
   for sample_ in samples_list:
-    sample_nuis_name = str(prefix + nuis).replace('YEAR', year)
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel)
     fin = os.path.join(indir, "{}.root".format(sample_))
     fin = TFile.Open(fin, "READ")
     if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
@@ -44,7 +44,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     fin.Close()
   if Nui_Exist:
     h = h.Rebin(len(bins)-1, "h", bins)
-    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year)
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel)
     h.SetNameTitle(analysis_name + year + "_" + category + nuis, year + "_" + category + nuis)
   else:
     if q: pass
@@ -54,7 +54,6 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
 def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH'):
 
   fout = TFile.Open(fout_name, "RECREATE")
-
   ######################
   ##  Load json file  ##
   ######################
@@ -86,13 +85,13 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
     # Nominal
     if category == "SIGNAL": category_name = signal
     else: category_name = category
-    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name)
+    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name, channel=channel)
     Histograms.append(MakePositive_Hist(h))
     for nuisance in datacard_inputs["NuisForProc"]:
       if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
       if not category in datacard_inputs["NuisForProc"][nuisance]: continue
       for variation in ["_up", "_down"]:
-        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, year = era, q=quiet, analysis_name=analysis_name)
+        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, year = era, q=quiet, analysis_name=analysis_name, channel=channel)
         Histograms.append(MakePositive_Hist(h))
 
   ###############
@@ -112,7 +111,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
       data_list.append(sample_)
     print(channel, ' channel uses data:', data_list)
-    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name)
+    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name, channel=channel)
     Histograms.append(h)
 
   fout.cd()
@@ -180,5 +179,11 @@ for era_ in eras:
         inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
         fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
         CheckDir(os.path.join(args.outputdir, era_, signal_), MakeDir=True)
+
+        #########  Specific Rule ###########
+        if args.POI == 'BDT':
+            args.POI = signal_.replace('BGToTH', 'CGToBH') # Case by case naming rule
+        ####################################
+
         ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=args.POI, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name)
                                         

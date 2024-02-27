@@ -13,6 +13,8 @@ sys.path.append('../../python')
 from plotstyle import *
 from common import *
 
+ROOT.gROOT.SetBatch(True)
+
 def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210):
 
   Indir = os.path.join(indir, era, region, channel)
@@ -21,9 +23,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   ## Load Histogram Info  ##
   ##########################
 
-  jsonfile   = open(histogram_json)
-  Histograms = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
-  jsonfile.close()
+  Histograms = read_json(histogram_json)
 
   #########################
   ## Add Extra Histogram ##
@@ -51,10 +51,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Load sample list ##
     ######################
 
-    json_file_name = sample_json
-    jsonfile = open(json_file_name)
-    samples  = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
-    jsonfile.close()
+    samples  = read_json(sample_json)
    
 
     ####################
@@ -79,8 +76,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ####################
 
     for data_type in [["MC", "Background"], ["Data"], ["MC", "Signal"]]:
-      File_List      = Get_Sample(json_file_name, data_type, era, withTail=True) # Use all the MC backgrounds
-      Process_List   = Get_Sample(json_file_name, data_type, era, withTail=False)
+      if not unblind and "Data" in data_type: continue
+      File_List      = Get_Sample(sample_json, data_type, era, withTail=True) # Use all the MC backgrounds
+      Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
       Histogram = dict()
       Integral  = dict()
 
@@ -205,7 +203,7 @@ if __name__ == "__main__":
 
   usage  = 'usage: %prog [options]'
   parser = argparse.ArgumentParser(description=usage)
-  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2106postapv/2017/2018]', default='2017', type=str)
+  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2016postapv/2017/2018]', default='2017', type=str)
   parser.add_argument('-i', '--indir',  dest='indir', help='input directory', default='./', type=str)
   parser.add_argument('-o', '--outdir', dest='outdir', help='output directory', default=None, type=str)
   parser.add_argument("--Labels", dest = 'Labels', default = ['Normal'], nargs='+')
