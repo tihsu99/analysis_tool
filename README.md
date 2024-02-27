@@ -33,7 +33,7 @@ Install this package
 ```
 cd $CMSSW_BASE/src
 git clone git@github.com:ExtraYukawa/bHplusAnalysis.git
-cd analysis_tool
+cd bHplusAnalysis
 ```
 Please note that `LimitModel` needs to be run under `cmssw-el7` while other parts do not. Please make sure to run `cmssw-el7` when performing limit study.
 # Structure
