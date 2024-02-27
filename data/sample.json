@@ -114,104 +114,104 @@
 
   "CGToBHpm_a_200_rtt06_rtc04":{
     "xsec": 6.609,
-    "Category": "bH^#pm(200)",
+    "Category": "bH^{#pm}(200)",
     "Label": ["MC","Signal"]
   },
 
   "CGToBHpm_a_300_rtt06_rtc04":{
     "xsec": 5.370,
-    "Category": "bH^#pm(300)",
+    "Category": "bH^{#pm}(300)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_350_rtt06_rtc04":{
     "xsec": 3.391,
-    "Category": "bH^#pm(350)",
+    "Category": "bH^{#pm}(350)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_400_rtt06_rtc04":{
     "xsec": 1.887,
-    "Category": "bH^#pm(400)",
+    "Category": "bH^{#pm}(400)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_500_rtt06_rtc04":{
     "xsec": 0.7911,
-    "Category": "bH^#pm(500)",
+    "Category": "bH^{#pm}(500)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_600_rtt06_rtc04":{
     "xsec": 0.3790,
-    "Category": "bH^#pm(600)",
+    "Category": "bH^{#pm}(600)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_700_rtt06_rtc04":{
     "xsec": 0.19,
-    "Category": "bH^#pm(700)",
+    "Category": "bH^{#pm}(700)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_800_rtt06_rtc04":{
     "xsec": 0.09575,
-    "Category": "bH^#pm(800)",
+    "Category": "bH^{#pm}(800)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_900_rtt06_rtc04":{
     "xsec": 0.04865,
-    "Category": "bH^#pm(900)",
+    "Category": "bH^{#pm}(900)",
     "Label": ["MC","Signal"]
   },
   "CGToBHpm_a_1000_rtt06_rtc04":{
     "xsec": 0.02755,
-    "Category": "bH^#pm(1000)",
+    "Category": "bH^{#pm}(1000)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_200_rtt06_rtc04":{
     "xsec": 0.3807,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(200)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_300_rtt06_rtc04":{
     "xsec": 0.1061,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(300)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_350_rtt06_rtc04":{
     "xsec": 0.0687,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(350)",
     "Label": ["MC","Signal"]
   },
 
   "BGToTHpm_a_400_rtt06_rtc04":{
     "xsec": 0.04373,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(400)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_500_rtt06_rtc04":{
     "xsec": 0.02144,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(500)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_600_rtt06_rtc04":{
     "xsec": 0.01133,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(600)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_700_rtt06_rtc04":{
     "xsec": 5,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(700)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_800_rtt06_rtc04":{
     "xsec": 0.003615,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(800)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_900_rtt06_rtc04":{
     "xsec": 0.002011,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(900)",
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_1000_rtt06_rtc04":{
     "xsec": 0.001246,
-    "Category": "bgToth",
+    "Category": "tH^{#pm}(1000)",
     "Label": ["MC","Signal"]
   } 
 
