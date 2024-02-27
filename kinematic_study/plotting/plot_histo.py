@@ -13,6 +13,8 @@ sys.path.append('../../python')
 from plotstyle import *
 from common import *
 
+ROOT.gROOT.SetBatch(True)
+
 def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210):
 
   Indir = os.path.join(indir, era, region, channel)
