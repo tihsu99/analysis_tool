@@ -29,7 +29,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   ## Add Extra Histogram ##
   #########################
 
-  Histograms['cutflow'] = {'Label': Labels, 'Title': ';cutflow;nEvents/bin'}
+  Histograms['cutflow'] = {'Label': Labels, 'Title': ';cutflow;Events/bin'}
   
 
   for histogram in Histograms:
@@ -69,7 +69,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if Yield:
       canvas.legend.SetTextSize(0.02)
       canvas.legend.SetX2(0.95)
-    canvas.ytitle = "nEvents/bin"
+    canvas.ytitle = "Events/bin"
     
     ####################
     ## Read Histogram ##
@@ -167,12 +167,14 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         elif "Signal" in data_type:
           color = Color_List_Signal[sig_idx]
           sig_idx += 1
+          Histogram[sample_].Scale(100) #Scale the signal by 10 times (DOES work, why ?) fixme gkole as general --sigscale
           if not isinstance(canvas, DataMCCanvas):
             Histogram[sample_].SetName(Histogram[sample_].GetName() + "_" + sample_) # Otherwise, the legend will point to the sample histogram
             canvas.addHistogram(Histogram[sample_], drawOpt = 'HIST E')
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
           else:
-            canvas.addSignal(Histogram[sample_], title = sample_, color = color)
+            canvas.addSignal(Histogram[sample_], title = sample_+"*(100)", color = color)
+            print (100*"=")
         elif "Data" in data_type and unblind:
           canvas.addObs(Histogram[sample_])
     
@@ -197,7 +199,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
       canvas.yaxis.SetMaxDigits(4)
  
     canvas.applyStyles()
-    canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
+    if args.unblind:
+      canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+    else:
+      canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
   
 if __name__ == "__main__":
 

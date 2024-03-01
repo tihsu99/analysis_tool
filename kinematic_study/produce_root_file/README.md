@@ -28,6 +28,10 @@ As an example, you produce the 2017 skimmed ntuple with following command (most 
 ```
 python runcondor.py --outdir [YOUR DIRECTORY] --era 2017 --POIs bh_HT
 ```
+An complte example:
+```
+python runcondor.py --outdir /eos/user/g/gkole/database/bHplus/CR_1b4j --era 2017 --POIs bh_HT --sample_json ../../data/sample.json --region CR_1b4j --channel mu_resolved --Labels Normal Control_plot
+```
 
 After running `runcondor.py`, the code will produce `check.sh` and `clear.sh`, which are cheat sheets to do the checking(merging) and clear all the unneeded files after merging.. Feel free to modify the `JobFlavour` in it etc. (TODO: it is normal to have failed job and need to resubmit again, need to fix it)
 **It is important to check and merge the files, it may take one or two more trials to make all files correct**

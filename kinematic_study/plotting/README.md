@@ -12,7 +12,7 @@ The arguments:
 6. `--Labels`: Target group of histogram
 7. `--Black_list`: Banned group of histogram
 8. `--signals`: List of signals 
-9. `--logy`
+9. `--logy` : Default is `False`
 10. `--overflow`: add overflow bin into the first/last bin
 11. `--only_signal`: Only plot signal
 12. `--normalize`: Normalize the distributions to one. Recommend only used with `--only_signal`
@@ -29,6 +29,11 @@ python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 [--unblind] [--Yield]
 Or for signal only plot
 ```
 python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 --only_signal --signals [LIST of SIGNALS] --normalize
+```
+
+Complete example:
+```
+python plot_histo.py --indir /eos/user/g/gkole/database/bHplus/CR_1b4j --era 2017 --sample_json ../../data/sample.json --region CR_1b4j --channel mu_resolved --Labels Normal Control_plot --outdir test1_CR_1b4j
 ```
 ### Signal Gen plot
 Utilizing the `coffea` to perform signal genlevel study make the code much more simpler. In `signal_gen_plot.py`, the decay dictionary defined the wanted decay mode and the code will automatically selected all the events that have this decay and reconstruct the kinematic of every `genPartons` in this decay mode. Arguments are not yet done for this code, but users can easily modify the dictionary and the code to perform the genlevel study.
