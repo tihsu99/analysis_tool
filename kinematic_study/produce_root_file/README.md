@@ -28,7 +28,7 @@ As an example, you produce the 2017 skimmed ntuple with following command (most 
 ```
 python runcondor.py --outdir [YOUR DIRECTORY] --era 2017 --POIs bh_HT
 ```
-An complte example:
+An complete example (do not forget to change the path to your area):
 ```
 python runcondor.py --outdir /eos/user/g/gkole/database/bHplus/CR_1b4j --era 2017 --POIs bh_HT --sample_json ../../data/sample.json --region CR_1b4j --channel mu_resolved --Labels Normal Control_plot
 ```
