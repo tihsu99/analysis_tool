@@ -27,7 +27,7 @@ python_version = int(sys.version.split('.')[0])
 inputFile_path = {
   '2016apv':     '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/',
   '2016postapv': '/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/',
-  '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v2',
+  '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v4',
   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/'
 }
 
