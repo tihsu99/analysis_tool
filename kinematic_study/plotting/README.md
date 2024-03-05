@@ -31,7 +31,7 @@ Or for signal only plot
 python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 --only_signal --signals [LIST of SIGNALS] --normalize
 ```
 
-Complete example:
+Complete example (do not forget to change the path to the folder to yours):
 ```
 python plot_histo.py --indir /eos/user/g/gkole/database/bHplus/CR_1b4j --era 2017 --sample_json ../../data/sample.json --region CR_1b4j --channel mu_resolved --Labels Normal Control_plot --outdir test1_CR_1b4j
 ```
