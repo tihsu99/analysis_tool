@@ -75,13 +75,6 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "muPt":{
-    "Nominal": ["Lepton_pt"],
-    "Def": "RVecF{Muon_correctedDown_pt[Lepton_id], Muon_correctedUp_pt[Lepton_id]}",
-    "Label": ["MC", "Background", "Signal", "Shape"],
-    "Channel": ["mu_resolved"]
-  },
-
   "lumi2016":{
     "value": 1.01,
     "Label": ["lnN", "Background", "Signal"],
