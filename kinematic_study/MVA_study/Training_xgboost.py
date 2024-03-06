@@ -97,7 +97,7 @@ def Training(signal_list, bkg_list, var, Hyperparameter_Tuning, outdir, valid_si
   ################
 
   df = pd.concat([signal, background], ignore_index=True)  
-  df_train, df_test = train_test_split(df, test_size=0.5, train_size=0.1, shuffle=True)
+  df_train, df_test = train_test_split(df, test_size=0.5, train_size=0.5, shuffle=True)
   del df
   del df_test
   df_train = df_train.reset_index(drop=True)
@@ -136,9 +136,9 @@ def Training(signal_list, bkg_list, var, Hyperparameter_Tuning, outdir, valid_si
                      {'subsample': [0.6, 0.7, 0.8, 0.9], 'colsample_bytree':[0.6, 0.7, 0.8, 0.9]},
                      {'reg_alpha':[1e-5, 1e-3, 5e-3, 1e-2, 5e-2, 0.1, 0.5,  1, 5, 10, 50, 100]}, 
                      {'learning_rate': [0.02]},
-                     {'n_estimators': [500 + 500*i for i in range(0,10)]}]
+                     {'n_estimators': [500 + 500*i for i in range(0,5)]}]
     for param_grid_ in grid_schedule:
-      params = GridSearch_xgb(init_params = params, X = X, Y = Y, W = W, param_grid = param_grid_, scoring = 'roc_auc', n_jobs = -1, cv = 5)
+      params = GridSearch_xgb(init_params = params, X = X[:int(len(X)/10)], Y = Y[:int(len(X)/10)], W = W[:int(len(X)/10)], param_grid = param_grid_, scoring = 'roc_auc', n_jobs = -1, cv = 2)
 
   with open(os.path.join(outdir, 'params.json'), 'w') as outfile:
     json.dump(params, outfile, indent=4)
@@ -149,7 +149,7 @@ def Training(signal_list, bkg_list, var, Hyperparameter_Tuning, outdir, valid_si
   ######################################
 
   # ROC Curve with cross validation. Reference: https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html#sphx-glr-auto-examples-model-selection-plot-roc-crossval-py
-  n_splits = 5
+  n_splits = 3
   cv = StratifiedKFold(n_splits=n_splits)
 
   tprs = []
@@ -288,7 +288,7 @@ def Training(signal_list, bkg_list, var, Hyperparameter_Tuning, outdir, valid_si
   AUC_across_signal = dict()
   for validation_signal_ in valid_signal_dict:
       if (valid_signal_dict[validation_signal_][0] in signal_list):
-          AUC_across_signal[validation_signal_] = aucs[-1] # To be consistent with current model
+          AUC_across_signal[validation_signal_] = mean_auc # To be consistent with current model
       else:
           AUC_across_signal[validation_signal_] = Evaulate(xgb_clf, valid_signal_dict[validation_signal_], var, 1, background_pred_test, background_weight_test)
   with open(os.path.join(outdir, 'AUC_accross_signal.json'), 'w') as outfile:
@@ -300,7 +300,7 @@ def Training(signal_list, bkg_list, var, Hyperparameter_Tuning, outdir, valid_si
   
 #  xgb_clf.save_model(os.path.join(outdir, 'XGB.json'))
   xgb_clf.get_booster().feature_names = ['f{}'.format(idx) for idx in range(len(xgb_clf.get_booster().feature_names))]
-  ROOT.TMVA.Experimental.SaveXGBoost(xgb_clf, "XGB", os.path.join(outdir, "XGB.root"))
+  ROOT.TMVA.Experimental.SaveXGBoost(xgb_clf, "XGB", os.path.join(outdir, "XGB.root"), num_inputs=len(var))
 
 
 if __name__ == "__main__":
