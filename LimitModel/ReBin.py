@@ -179,10 +179,14 @@ for era_ in eras:
         inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
         fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
         CheckDir(os.path.join(args.outputdir, era_, signal_), MakeDir=True)
-
         #########  Specific Rule ###########
+        if('BGToTH' in signal_): continue
+
         if args.POI == 'BDT':
             args.POI = signal_.replace('BGToTH', 'CGToBH') # Case by case naming rule
+        if args.POI == 'DNN':
+            mass     = signal_.replace('BGToTH_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','') 
+            args.POI = 'DNN{}'.format(mass)
         ####################################
 
         ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=args.POI, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name)
