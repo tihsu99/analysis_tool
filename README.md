@@ -33,9 +33,16 @@ Install this package
 ```
 cd $CMSSW_BASE/src
 git clone git@github.com:ExtraYukawa/bHplusAnalysis.git
-cd analysis_tool
+cd bHplusAnalysis
 ```
 Please note that `LimitModel` needs to be run under `cmssw-el7` while other parts do not. Please make sure to run `cmssw-el7` when performing limit study.
+
+# Running the code
+To produce root files, follow https://github.com/ExtraYukawa/bHplusAnalysis/tree/main/kinematic_study/produce_root_file 
+and once they are done, plotting instruction steps are in:
+https://github.com/ExtraYukawa/bHplusAnalysis/tree/main/kinematic_study/plotting
+
+
 # Structure
 ## Input - sample
 The sample information should be keep in `data/sample.json`. It contains following information:
