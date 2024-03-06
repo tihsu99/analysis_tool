@@ -54,6 +54,8 @@ if __name__ == "__main__":
   parser.add_argument("--POIs",   dest = 'POIs',   default = ["DEFAULT"], nargs='+')
   parser.add_argument("--clear",  dest = 'clear', action='store_true')
   parser.add_argument("--data",   dest = 'data',  action='store_true')
+  parser.add_argument("--pNN",    dest = 'pNN',   action='store_true')
+  parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -95,9 +97,8 @@ if __name__ == "__main__":
      if len(args_dict[arg]) > 0:
       check_text = check_text + " --" + arg + " " + ' '.join(args_dict[arg])
     elif isinstance(args_dict[arg], bool):
-      if args.data: check_text = check_text + "--data "
-      else:
-        pass
+      if args_dict[arg]:
+        check_text = check_text + " --{} ".format(arg)
     else:
       check_text = check_text + " --" + arg + " " + str(args_dict[arg])
   clear_text = check_text + " --clear"
@@ -130,15 +131,29 @@ if __name__ == "__main__":
   ##############
 
   condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
-  condor.write('output = %s/job_common_$(Process).out\n'%farm_dir)
-  condor.write('error  = %s/job_common_$(Process).err\n'%farm_dir)
-  condor.write('log    = %s/job_common_$(Process).log\n'%farm_dir)
+  condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+  condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+  condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = %s\n'%args.universe)
 #  condor.write('requirements = (OpSysAndVer =?= "CentOS7")\n')
   condor.write('+JobFlavour = "%s"\n'%args.JobFlavour)
+  condor.write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
+  condor.write('max_retries = 3\n')
+  condor.write('requirements     = Machine =!= LastRemoteHost\n')
+  condor.write('RequestCpus = 1\n')
 #  condor.write('+MaxRuntime = 7200\n')
   cwd = os.getcwd()
+
+  ############
+  ##  Data  ##
+  ############
+  os.system('mkdir -p script')
+  os.system('cp ../../data/DNN.dat script/.')
+  os.system('cp ../../data/DNN.hxx script/.')
+
+  os.system('mkdir -p data')
+  os.system('cp ../../data/preprocessor.pkl data/.')
 
   ##############
   ##  Script  ##
@@ -153,7 +168,6 @@ if __name__ == "__main__":
        template = "%s/../../script/slim.h"%cwd
        era_header = "script/slim_%s.h"%Era
 
-       os.system('mkdir -p script')
        os.system('cat %s | sed "s/EraToBeReplaced/%s/g" > %s'%(template,Era,era_header))
        os.system('cp %s/../../script/env.sh script/.'%cwd)
 
@@ -199,6 +213,9 @@ if __name__ == "__main__":
 
 
            json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
+           json_command += ' --pNN ' if args.pNN else ''
+           json_command += ' --cutflow ' if args.cutflow else ''
+            
 
            if args.blocksize == -1:
              shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
