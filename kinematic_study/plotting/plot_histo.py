@@ -30,7 +30,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   #########################
 
   Histograms['cutflow'] = {'Label': Labels, 'Title': ';cutflow;nEvents/bin'}
-  
+  print(Histograms) 
 
   for histogram in Histograms:
 
@@ -75,6 +75,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Read Histogram ##
     ####################
 
+    Histo_exist_in_file = True
     for data_type in [["MC", "Background"], ["Data"], ["MC", "Signal"]]:
       if not unblind and "Data" in data_type: continue
       File_List      = Get_Sample(sample_json, data_type, era, withTail=True) # Use all the MC backgrounds
@@ -114,7 +115,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         ##########################
 
         ftemp = ROOT.TFile.Open(os.path.join(Indir, sample + ".root"), "READ")
-        htemp = ftemp.Get(str(histogram)).Clone()
+        try:
+          htemp = ftemp.Get(str(histogram)).Clone()
+        except:
+          Histo_exist_in_file = False
+          break
         htemp.SetDirectory(0)
         ftemp.Close()
    
@@ -179,6 +184,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     #############################
     ## Plot Setting for Canvas ##
     #############################
+    if not Histo_exist_in_file:
+      continue
 
     if isinstance(canvas, DataMCCanvas):
 
