@@ -129,21 +129,37 @@ if __name__ == "__main__":
   ##############
   ##  Condor  ##
   ##############
+  sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
+  samples        = read_json(args.sample_json)
 
-  condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
-  condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
-  condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
-  condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
-  condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
-  condor.write('universe = %s\n'%args.universe)
-#  condor.write('requirements = (OpSysAndVer =?= "CentOS7")\n')
-  condor.write('+JobFlavour = "%s"\n'%args.JobFlavour)
-  condor.write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
-  condor.write('max_retries = 3\n')
-  condor.write('requirements     = Machine =!= LastRemoteHost\n')
-  condor.write('RequestCpus = 1\n')
-#  condor.write('+MaxRuntime = 7200\n')
-  cwd = os.getcwd()
+  condor = dict()
+  for Era in Eras:
+    condor[Era] = dict()
+    for region in region_channel_dict:
+      condor[Era][region] = dict()
+      for channel in region_channel_dict[region]:
+        condor[Era][region][channel] = dict()
+        for sample_Label in sample_label_list:
+          json_file_name = args.sample_json
+          File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+          Final_List     = []
+          for iin in File_List:
+            if "Region" in samples[iin] and region not in samples[iin]["Region"]:
+              continue
+            if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
+              continue
+            condor[Era][region][channel][iin] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, iin)), 'w')
+            condor[Era][region][channel][iin].write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+            condor[Era][region][channel][iin].write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+            condor[Era][region][channel][iin].write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+            condor[Era][region][channel][iin].write('executable = %s/$(cfgFile)\n'%farm_dir)
+            condor[Era][region][channel][iin].write('universe = %s\n'%args.universe)
+            condor[Era][region][channel][iin].write('+JobFlavour = "%s"\n'%args.JobFlavour)
+            condor[Era][region][channel][iin].write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
+            condor[Era][region][channel][iin].write('max_retries = 3\n')
+            condor[Era][region][channel][iin].write('requirements     = Machine =!= LastRemoteHost\n')
+            condor[Era][region][channel][iin].write('RequestCpus = 1\n')
+            #condor[Era][region][channel][iin].write('+MaxRuntime = 7200\n')
 
   ############
   ##  Data  ##
@@ -172,7 +188,6 @@ if __name__ == "__main__":
        os.system('cp %s/../../script/env.sh script/.'%cwd)
 
        json_file_name = args.sample_json
-       sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
        for sample_Label in sample_label_list:
 
          print("Creating configuration for slim")
@@ -180,7 +195,6 @@ if __name__ == "__main__":
       
          File_List      = Get_Sample(json_file_name, sample_Label, Era) # Use all the MC samples (List of files)
          Sample_List    = Get_Sample(json_file_name, sample_Label, Era, False) # List of process name
-         samples        = read_json(json_file_name)
          print(File_List)
 
          sample_label_text = " ".join(sample_Label)
@@ -221,7 +235,7 @@ if __name__ == "__main__":
              shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
              command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
              command += json_command
-             prepare_shell(shell_file, command, condor, farm_dir)
+             prepare_shell(shell_file, command, condor[Era][region][channel][sample_name], farm_dir)
 
            else:
              ranges = prepare_range(inputFile_path[Era], iin, args.blocksize)
@@ -247,7 +261,10 @@ if __name__ == "__main__":
                command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
                command += json_command
                shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
-               prepare_shell(shell_file,command, condor, farm_dir)
+               prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
+
+
+
   #################
   ##  Merge ROOT ##
   #################
@@ -289,8 +306,19 @@ if __name__ == "__main__":
   ##  Submit Job  ##
   ##################
 
-  condor.close()
-  if not args.test and not (args.check and Check_GreenLight):
-    print("Submitting Jobs on Condor")
-    os.system('condor_submit %s/condor.sub'%farm_dir)
+  for Era in Eras:
+    for region in region_channel_dict:
+      for channel in region_channel_dict[region]:
+        for sample_Label in sample_label_list:
+          json_file_name = args.sample_json
+          File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+          for iin in File_List: 
+            if "Region" in samples[iin] and region not in samples[iin]["Region"]:
+              continue
+            if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
+              continue
+            condor[Era][region][channel][iin].close()
+            if not args.test and not (args.check and Check_GreenLight):
+              print("Submitting Jobs on Condor")
+              os.system('condor_submit %s/condor.sub'%farm_dir)
 
