@@ -5,7 +5,7 @@ import subprocess
 import json
 import ROOT
 from collections import OrderedDict
-
+import glob
 
 def prepare_range(path, fin, step):
 
@@ -24,6 +24,52 @@ def prepare_range(path, fin, step):
   except:
     print("%s%s fail to process."%(path,fin))
     return None  
+
+def check_file(fname, key_name=None):
+  GreenLight = True
+  try:
+    f  = ROOT.TFile.Open(fname, "READ")
+    if f.IsZombie():
+      print(fname, "is zombie")
+      GreenLight = False
+    elif (f.GetNkeys() == 0):
+      print(fname, "has zero key")
+      GreenLight = False
+    else:
+      if (key_name is not None):
+        key_list = []
+        for e in f.GetListOfKeys():
+          key_list.append(e.GetName())
+        for key_ in key_name:
+          if key_ not in key_list:
+            print(fname, "lost key", key_)
+            GreenLight = False
+
+      for e in f.GetListOfKeys():
+        name = e.GetName()
+        obj = e.ReadObj()
+        isTree = obj.IsA().InheritsFrom(ROOT.TTree.Class())
+        isTH1  = obj.IsA().InheritsFrom(ROOT.TH1.Class())
+        isTH2  = obj.IsA().InheritsFrom(ROOT.TH2.Class())
+        if not (isTree or isTH1 or isTH2):
+          GreenLight = False
+          print(fname, "has invalid object:", name)
+          break
+    f.Close()
+  except:
+    GreenLight = False
+    print(fname, "not exist")
+  return GreenLight
+
+def Get_List_Union(fname_list):
+  key_name = []
+  for fname in fname_list:
+    f = ROOT.TFile.Open(fname, "READ")
+    for e in f.GetListOfKeys():
+      if e.GetName() not in key_name:
+        key_name.append(e.GetName())
+    f.Close()
+  return key_name
 
 if __name__ == "__main__":
   
@@ -65,9 +111,11 @@ if __name__ == "__main__":
 
   #cmsswBase = os.environ['CMSSW_BASE']
   farm_dir  = os.path.join('./', 'Farm')
+  farm_dir_mirror = os.path.join(args.outdir, 'Farm')
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
+  os.system('mkdir -p %s '%farm_dir_mirror)
   os.system('cp %s/../../python/common.py .'%cwd)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 
@@ -92,6 +140,7 @@ if __name__ == "__main__":
       region_channel_dict[region_] = args.channel
 
   check_text = "python runcondor.py --check "
+
   for arg in args_dict:
     if isinstance(args_dict[arg], list):
      if len(args_dict[arg]) > 0:
@@ -101,9 +150,12 @@ if __name__ == "__main__":
         check_text = check_text + " --{} ".format(arg)
     else:
       check_text = check_text + " --" + arg + " " + str(args_dict[arg])
+
   clear_text = check_text + " --clear"
+
   with open('check.sh', 'w') as shell:
     shell.write(check_text)
+
   with open('clear.sh', 'w') as shell:
     shell.write(clear_text)
   ##################
@@ -132,13 +184,21 @@ if __name__ == "__main__":
   sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
   samples        = read_json(args.sample_json)
 
-  condor = dict()
+  condor      = dict()
+  merge_shell = dict()
+  DAG_file    = open(os.path.join(farm_dir, 'workflow.dag'), 'w')
+  if args.check:
+    DAG_resubmit_file = open(os.path.join(farm_dir, 'resubmit.dag'), 'w')
+
   for Era in Eras:
-    condor[Era] = dict()
+    condor[Era]      = dict()
+    merge_shell[Era] = dict()
     for region in region_channel_dict:
-      condor[Era][region] = dict()
+      condor[Era][region]      = dict()
+      merge_shell[Era][region] = dict()
       for channel in region_channel_dict[region]:
-        condor[Era][region][channel] = dict()
+        condor[Era][region][channel]      = dict()
+        merge_shell[Era][region][channel] = dict()
         for sample_Label in sample_label_list:
           json_file_name = args.sample_json
           File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
@@ -148,6 +208,8 @@ if __name__ == "__main__":
               continue
             if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
               continue
+
+            Outdir   = os.path.join(args.outdir, Era, region, channel)
             condor[Era][region][channel][iin] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, iin)), 'w')
             condor[Era][region][channel][iin].write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
             condor[Era][region][channel][iin].write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
@@ -159,7 +221,85 @@ if __name__ == "__main__":
             condor[Era][region][channel][iin].write('max_retries = 3\n')
             condor[Era][region][channel][iin].write('requirements     = Machine =!= LastRemoteHost\n')
             condor[Era][region][channel][iin].write('RequestCpus = 1\n')
+            condor[Era][region][channel][iin].close()
+            #condor[Era][region][channel][iin].write('transfer_input_files = {}/{}\n'.format(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)))
+            #condor[Era][region][channel][iin].write('+PostCmd =  "merge_{}_{}_{}_{}.sh"\n'.format(Era, region, channel, iin))
             #condor[Era][region][channel][iin].write('+MaxRuntime = 7200\n')
+
+
+            condor_merge = open(os.path.join(farm_dir, 'condor_merge_{}_{}_{}_{}.sub'.format(Era, region, channel, iin)), 'w')
+            condor_merge.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+            condor_merge.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+            condor_merge.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+            condor_merge.write('executable = %s/$(cfgFile)\n'%farm_dir)
+            condor_merge.write('universe = %s\n'%args.universe)
+            condor_merge.write('+JobFlavour = "microcentury"\n')
+            condor_merge.write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
+            condor_merge.write('max_retries = 3\n')
+            condor_merge.write('requirements     = Machine =!= LastRemoteHost\n')
+            condor_merge.write('cfgFile={}\nqueue 1\n'.format('merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)))
+            condor_merge.close()
+
+
+            if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
+              Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+            else:
+              Outdir_revised = Outdir
+            merge_shell[Era][region][channel][iin] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)), 'w')
+            merge_shell[Era][region][channel][iin].write('#!/bin/bash\n')
+            merge_shell[Era][region][channel][iin].write('WORKDIR=%s\n'%cwd)
+            merge_shell[Era][region][channel][iin].write('cd ${WORKDIR}\n')
+            merge_shell[Era][region][channel][iin].write('source script/env.sh\n')
+#            merge_shell[Era][region][channel][iin].write('mv {}/job*err {}/.\n'.format(farm_dir, farm_dir_mirror))
+#            merge_shell[Era][region][channel][iin].write('mv {}/job*out {}/.\n'.format(farm_dir, farm_dir_mirror))
+            merge_shell[Era][region][channel][iin].write('rm %s/.sys*\n'%(Outdir))
+            merge_shell[Era][region][channel][iin].write("rm %s.root\n"%os.path.join(Outdir, iin))
+            merge_shell[Era][region][channel][iin].write("python %s/haddnano.py %s.root"%(cwd, os.path.join(Outdir_revised, iin)))
+            merge_shell[Era][region][channel][iin].close()
+
+            job_name = "{}_{}_{}_{}".format(Era, region, channel, iin)
+            DAG_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
+            DAG_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
+            DAG_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
+
+  DAG_file.close()
+
+  #############
+  ##  Check  ##
+  #############
+  Failed_Sample = dict()
+  for Era in Eras:
+    Failed_Sample[Era] = dict()
+    for region in region_channel_dict:
+      Failed_Sample[Era][region] = dict()
+      for channel in region_channel_dict[region]:
+        Failed_Sample[Era][region][channel] = dict()
+        Failed_Sample[Era][region][channel]['sample'] = []
+        Failed_Sample[Era][region][channel]['key'] = []
+        Outdir = os.path.join(args.outdir, Era, region, channel)
+        for sample_label in sample_label_list:
+          File_List = Get_Sample(args.sample_json, sample_label, Era)
+          Sample_List = Get_Sample(args.sample_json, sample_label, Era, False)
+          for sample in Sample_List:
+            if "Region" in samples[sample] and region not in samples[sample]["Region"]:
+              continue
+            if "Channel" in samples[sample] and channel not in samples[sample]["Channel"]:
+              continue
+            job_name = "{}_{}_{}_{}".format(Era, region, channel, sample)
+            if not check_file(os.path.join(Outdir, '{}.root'.format(sample))):
+              condor[Era][region][channel][sample] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample)), 'a')
+              Failed_Sample[Era][region][channel]['sample'].append(sample)
+              matched_files = glob.glob(os.path.join(Outdir, '*{}*.root'.format(sample)))
+              Failed_Sample[Era][region][channel]['key'] = Get_List_Union(matched_files)
+              DAG_resubmit_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
+              DAG_resubmit_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
+              DAG_resubmit_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
+              prepare_shell('dummy.sh'.format(job_name), 'echo pass', condor[Era][region][channel][sample], farm_dir)
+              condor[Era][region][channel][sample].close()
+
+  print(Failed_Sample)
+  DAG_resubmit_file.close()
+  
 
   ############
   ##  Data  ##
@@ -230,6 +370,8 @@ if __name__ == "__main__":
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
             
+           condor[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample_name)), 'a')
+           merge_shell[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, sample_name)), 'a')
 
            if args.blocksize == -1:
              shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
@@ -240,28 +382,21 @@ if __name__ == "__main__":
            else:
              ranges = prepare_range(inputFile_path[Era], iin, args.blocksize)
              for idx, num in enumerate(ranges[:-1]):
-               if args.check:
-                 try:
-                   f  = ROOT.TFile.Open(os.path.join(Outdir, str(idx) + "_" + iin), "READ")
-                   if f.IsZombie():
-                     print(os.path.join(Outdir, str(idx) + "_" + iin), "is zombie")
-                     Check_GreenLight = False
-                   elif (f.GetNkeys() == 0):
-                     print(os.path.join(Outdir, str(idx) + "_" + iin), "has zero key")
-                     Check_GreenLight = False
-                   else:
-                     f.Close()
-                     continue
-                   f.Close()
-                 except:
-                   Check_GreenLight = False
-                   print(os.path.join(Outdir, str(idx) + "_" + iin), "not exist")
                start = ranges[idx]
                end   = ranges[idx+1]
                command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
                command += json_command
                shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
-               prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
+               if args.check and sample_name in Failed_Sample[Era][region][channel]['sample']:
+                 if not check_file(os.path.join(Outdir, '{}_{}'.format(idx, iin)), Failed_Sample[Era][region][channel]['key']):
+                   prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
+               if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
+                 Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+               else:
+                 Outdir_revised = Outdir
+               merge_shell[Era][region][channel][sample_name].write(" %s"%(os.path.join(Outdir_revised, '{}_{}'.format(idx, iin)))) 
+           condor[Era][region][channel][sample_name].close()
+           merge_shell[Era][region][channel][sample_name].close()
 
 
 
@@ -270,42 +405,43 @@ if __name__ == "__main__":
   #################
 
   
-  if args.check and Check_GreenLight:
-    print("All files are produced successfully. Start to merge the files.")
-
-    for Era in Eras:
-     for region in region_channel_dict:
-       for channel in region_channel_dict[region]:
-        for sample_Label in sample_label_list:
-         Outdir = os.path.join(args.outdir, Era, region, channel)
-         json_file_name = args.sample_json
-         File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
-         Final_List     = []
-         for iin in File_List:
-
-           if "Region" in samples[iin] and region not in samples[iin]["Region"]:
-             continue
-           if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
-             continue
-
-           print("start merging %s"%os.path.join(Outdir, iin))
-           merge_list = []
-           for file_ in os.listdir(Outdir):
-             if "_" + iin + "." in file_ or "_" + iin + "_" in file_:
-               merge_list.append(os.path.join(Outdir,file_))
-           if not args.clear:
-             os.system("rm %s.root"%os.path.join(Outdir, iin))
-             os.system("python haddnano.py %s.root %s"%(os.path.join(Outdir, iin), ' '.join(merge_list)))
-           if os.path.exists(os.path.join(Outdir, iin + ".root")):
-             f = ROOT.TFile.Open(os.path.join(Outdir, iin + ".root"), "READ")
-             if f.IsZombie(): #Any other failing situation? TODO
-                print(os.path.join(Outdir, iin), "merge failed. Please fixed by hand (at this stage)")
-             elif args.clear:
-               os.system("rm %s"%os.path.join(Outdir, "*_{}*.root".format(iin)))
+#  if args.check and Check_GreenLight:
+#    print("All files are produced successfully. Start to merge the files.")
+#
+#    for Era in Eras:
+#     for region in region_channel_dict:
+#       for channel in region_channel_dict[region]:
+#        for sample_Label in sample_label_list:
+#         Outdir = os.path.join(args.outdir, Era, region, channel)
+#         json_file_name = args.sample_json
+#         File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+#         Final_List     = []
+#         for iin in File_List:
+#
+#           if "Region" in samples[iin] and region not in samples[iin]["Region"]:
+#             continue
+#           if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
+#             continue
+#
+#           print("start merging %s"%os.path.join(Outdir, iin))
+#           merge_list = []
+#           for file_ in os.listdir(Outdir):
+#             if "_" + iin + "." in file_ or "_" + iin + "_" in file_:
+#               merge_list.append(os.path.join(Outdir,file_))
+#           if not args.clear:
+#             os.system("rm %s.root"%os.path.join(Outdir, iin))
+#             os.system("python haddnano.py %s.root %s"%(os.path.join(Outdir, iin), ' '.join(merge_list)))
+#           if os.path.exists(os.path.join(Outdir, iin + ".root")):
+#             f = ROOT.TFile.Open(os.path.join(Outdir, iin + ".root"), "READ")
+#             if f.IsZombie(): #Any other failing situation? TODO
+#                print(os.path.join(Outdir, iin), "merge failed. Please fixed by hand (at this stage)")
+#             elif args.clear:
+#               os.system("rm %s"%os.path.join(Outdir, "*_{}*.root".format(iin)))
   ##################
   ##  Submit Job  ##
   ##################
 
+  os.system('chmod +x haddnano.py')
   for Era in Eras:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
@@ -317,8 +453,11 @@ if __name__ == "__main__":
               continue
             if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
               continue
-            condor[Era][region][channel][iin].close()
+            #condor[Era][region][channel][iin].close()
+            #merge_shell[Era][region][channel][iin].close()
+            os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, iin)))
             if not args.test and not (args.check and Check_GreenLight):
               print("Submitting Jobs on Condor")
-              os.system('condor_submit %s/condor.sub'%farm_dir)
+              os.system('rm {}/workflow.dag.*'%farm_dir)
+              os.system('condor_submit_dag %s/workflow.dag'%farm_dir)
 
