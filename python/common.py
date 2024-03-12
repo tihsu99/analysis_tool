@@ -146,7 +146,7 @@ Color_Dict_ref = {
   'cgTotH':ROOT.kRed,
   'bgTotH':ROOT.kCyan-9,
   'VVV':ROOT.kSpring - 9,
-  'tttX':ROOT.kPink-3,
+  'ttXY':ROOT.kPink-3,
   'TT1L':ROOT.kViolet-4,
   'tZq':ROOT.kYellow-4,
   'TT2L':ROOT.kBlue,
@@ -157,7 +157,7 @@ Color_Dict_ref = {
   'WJet':ROOT.kOrange+3,
   'SingleTop':ROOT.kGray,
   'DY': ROOT.kYellow-4,
-  'Nonprompt': ROOT.kOrange-2
+  'Nonprompt': ROOT.kOrange-2,
 }
 
 Color_List_Signal = [ROOT.kRed, ROOT.kOrange, ROOT.kBlue, ROOT.kViolet, ROOT.kPink, ROOT.kCyan, ROOT.kCyan-9, ROOT.kBlue+2, ROOT.kOrange+3, ROOT.kViolet-1, ROOT.kRed+2]
