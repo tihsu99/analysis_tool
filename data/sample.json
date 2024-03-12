@@ -57,12 +57,62 @@
     "Label": ["MC", "Background"]
   },
 
-  "WJet":{
-    "xsec": 61526.7,
-    "xsec_err": 10,
+  "WJet_HT70to100":{
+    "xsec": 1443.7,
+    "xsec_err": 3.8,
     "Category": "WJet",
     "Label": ["MC", "Background"]
   },
+
+  "WJet_HT100to200":{
+    "xsec": 1434.5,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT200to400":{
+    "xsec": 383.19,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT400to600":{
+    "xsec": 51.68,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT600to800":{
+    "xsec": 12.53,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT800to1200":{
+    "xsec": 5.62,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT1200to2500":{
+    "xsec": 1.32,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
+  "WJet_HT2500toInf":{
+    "xsec": 0.009,
+    "xsec_err": 3.8,
+    "Category": "WJet",
+    "Label": ["MC", "Background"]
+  },
+
 
   "tbar_tch":{
     "xsec": 80.95,
@@ -91,7 +141,159 @@
     "Category": "ttH",
     "Label": ["MC", "Background"]
   },
-  
+
+  "ttHH":{
+    "xsec": 0.000792,
+    "xsec_err": 10.4,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "tttJ": {
+    "xsec": 0.0003974,
+    "xsec_err": 14.0,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "tttt":{
+    "xsec": 0.0134,
+    "xsec_err": 13.0,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "tttW":{
+    "xsec": 0.0007314,
+    "xsec_err": 15.5,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttWH":{
+    "xsec": 0.001582,
+    "xsec_err": 10.9,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttWW":{
+    "xsec": 0.01184,
+    "xsec_err": 11.4,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttWZ":{
+    "xsec": 0.004157,
+    "xsec_err": 10.8,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttZH":{
+    "xsec": 0.001535,
+    "xsec_err": 7.7,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "ttZZ":{
+    "xsec": 0.002117,
+    "xsec_err": 8.8,
+    "Category": "ttXY",
+    "Label": ["MC", "Background"]
+  },
+
+  "WWW":{
+    "xsec": 0.2086,
+    "xsec_err": 10.0,
+    "Category": "VVV",
+    "Label": ["MC", "Background"]
+  },
+
+  "WWZ":{
+    "xsec": 0.1707,
+    "xsec_err": 10.0,
+    "Category": "VVV",
+    "Label":["MC", "Background"]
+  },
+
+  "WZ": {
+    "xsec": 27.6,
+    "xsec_err": 10.0,
+    "Category": "VVV",
+    "Label":["MC", "Background"]
+  },
+
+  "WZZ":{
+    "xsec": 0.0571,
+    "xsec_err": 10.0,
+    "Category": "VVV",
+    "Label": ["MC", "Background"]
+  },
+
+  "ZZZ":{
+    "xsec": 0.0148,
+    "xsec_err": 10.0,
+    "Category": "VVV",
+    "Label": ["MC", "Background"]
+  },
+
+  "QCD_HT50to100":{
+    "xsec": 188800000,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT100to200":{
+    "xsec": 23600000,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT200to300":{
+    "xsec": 1550000,
+    "xsec_err": 6.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT300to500":{
+    "xsec": 321600,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  }, 
+  "QCD_HT500to700":{
+    "xsec": 30980,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT700to1000":{
+    "xsec": 6364,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT1000to1500":{
+    "xsec": 1117,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT1500to2000":{
+    "xsec": 108.4,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
+  "QCD_HT2000toInf":{
+    "xsec": 22.36,
+    "xsec_err": 1.0,
+    "Category": "Nonprompt",
+    "Label": ["MC", "Background", "Nonprompt"]
+  },
   "SingleEG":{
     "xsec": 1,
     "Category": "data",
