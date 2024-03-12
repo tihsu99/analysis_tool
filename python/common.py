@@ -157,7 +157,7 @@ Color_Dict_ref = {
   'WJet':ROOT.kOrange+3,
   'SingleTop':ROOT.kGray,
   'DY': ROOT.kYellow-4,
-  'Nonprompt': ROOT.kOrange-2,
+  'Nonprompt': ROOT.kOrange-2
 }
 
 Color_List_Signal = [ROOT.kRed, ROOT.kOrange, ROOT.kBlue, ROOT.kViolet, ROOT.kPink, ROOT.kCyan, ROOT.kCyan-9, ROOT.kBlue+2, ROOT.kOrange+3, ROOT.kViolet-1, ROOT.kRed+2]
