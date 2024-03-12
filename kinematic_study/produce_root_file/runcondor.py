@@ -386,7 +386,9 @@ if __name__ == "__main__":
                command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
                command += json_command
                shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
-               if args.check and sample_name in Failed_Sample[Era][region][channel]['sample']:
+               if not args.check:
+                   prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
+               elif args.check and sample_name in Failed_Sample[Era][region][channel]['sample']:
                  if not check_file(os.path.join(Outdir, '{}_{}'.format(idx, iin)), Failed_Sample[Era][region][channel]['key']):
                    prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
                if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
