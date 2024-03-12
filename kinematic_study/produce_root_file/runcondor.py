@@ -187,8 +187,7 @@ if __name__ == "__main__":
   condor      = dict()
   merge_shell = dict()
   DAG_file    = open(os.path.join(farm_dir, 'workflow.dag'), 'w')
-  if args.check:
-    DAG_resubmit_file = open(os.path.join(farm_dir, 'resubmit.dag'), 'w')
+  DAG_resubmit_file = open(os.path.join(farm_dir, 'resubmit.dag'), 'w')
 
   for Era in Eras:
     condor[Era]      = dict()
@@ -286,7 +285,7 @@ if __name__ == "__main__":
             if "Channel" in samples[sample] and channel not in samples[sample]["Channel"]:
               continue
             job_name = "{}_{}_{}_{}".format(Era, region, channel, sample)
-            if not check_file(os.path.join(Outdir, '{}.root'.format(sample))):
+            if args.check and not check_file(os.path.join(Outdir, '{}.root'.format(sample))):
               condor[Era][region][channel][sample] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample)), 'a')
               Failed_Sample[Era][region][channel]['sample'].append(sample)
               matched_files = glob.glob(os.path.join(Outdir, '*{}*.root'.format(sample)))
@@ -456,8 +455,8 @@ if __name__ == "__main__":
             #condor[Era][region][channel][iin].close()
             #merge_shell[Era][region][channel][iin].close()
             os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, iin)))
-            if not args.test and not (args.check and Check_GreenLight):
-              print("Submitting Jobs on Condor")
-              os.system('rm {}/workflow.dag.*'%farm_dir)
-              os.system('condor_submit_dag %s/workflow.dag'%farm_dir)
+  if not args.test and not (args.check and Check_GreenLight):
+    print("Submitting Jobs on Condor")
+    os.system('rm {}/workflow.dag.*'%farm_dir)
+    os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
 
