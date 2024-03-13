@@ -154,7 +154,7 @@ Color_Dict_ref = {
   'ttZ':ROOT.kCyan-2,
   'VBS':ROOT.kBlue-6,
   'ttH':ROOT.kRed-9,
-  'WJet':ROOT.kOrange+3,
+  'WJets':ROOT.kOrange+3,
   'SingleTop':ROOT.kGray,
   'DY': ROOT.kYellow-4,
   'Nonprompt': ROOT.kOrange-2

@@ -57,59 +57,59 @@
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT70to100":{
+  "WJets_HT70to100":{
     "xsec": 1443.7,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT100to200":{
+  "WJets_HT100to200":{
     "xsec": 1434.5,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT200to400":{
+  "WJets_HT200to400":{
     "xsec": 383.19,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT400to600":{
+  "WJets_HT400to600":{
     "xsec": 51.68,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT600to800":{
+  "WJets_HT600to800":{
     "xsec": 12.53,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT800to1200":{
+  "WJets_HT800to1200":{
     "xsec": 5.62,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT1200to2500":{
+  "WJets_HT1200to2500":{
     "xsec": 1.32,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
-  "WJet_HT2500toInf":{
+  "WJets_HT2500toInf":{
     "xsec": 0.009,
     "xsec_err": 3.8,
-    "Category": "WJet",
+    "Category": "WJets",
     "Label": ["MC", "Background"]
   },
 
@@ -417,7 +417,7 @@
     "Label": ["MC","Signal"]
   } 
 
-}
+
 
 
 
