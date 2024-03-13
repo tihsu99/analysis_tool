@@ -457,8 +457,13 @@ if __name__ == "__main__":
             #condor[Era][region][channel][iin].close()
             #merge_shell[Era][region][channel][iin].close()
             os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, iin)))
-  if not args.test and not (args.check and Check_GreenLight):
-    print("Submitting Jobs on Condor")
-    os.system('rm %s/workflow.dag.*'%farm_dir)
-    os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
+  if not args.test:
+    if args.check:
+      if not Check_GreenLight:
+        os.system('rm %s/resubmit.dag.*'%farm_dir)
+        os.system('condor_submit_dag -f %s/resubmit.dag'%farm_dir)
+    else:
+      print("Submitting Jobs on Condor")
+      os.system('rm %s/workflow.dag.*'%farm_dir)
+      os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
 
