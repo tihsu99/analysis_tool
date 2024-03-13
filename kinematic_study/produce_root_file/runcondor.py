@@ -6,6 +6,7 @@ import json
 import ROOT
 from collections import OrderedDict
 import glob
+import re
 
 def prepare_range(path, fin, step):
 
@@ -343,15 +344,14 @@ if __name__ == "__main__":
            ###########################
            ## MC Lumi x xSec / nDAS ##
            ###########################
-           for sample_ in Sample_List:
-             if ((sample_ + "_") in iin) or ((sample_ + ".") in iin):
-               sample_name = sample_
+           sample_name = re.sub(r'(?:_(\d+|\w))?\.root','', iin)
 
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
              for file_ in File_List:
-               if ((sample_name + "_") in file_) or ((sample_name + ".") in file_):
+               sample_name_file = re.sub(r'(?:_(\d+|\w))?\.root','', file_)
+               if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                  ftemp.Close()
@@ -459,6 +459,6 @@ if __name__ == "__main__":
             os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, iin)))
   if not args.test and not (args.check and Check_GreenLight):
     print("Submitting Jobs on Condor")
-    os.system('rm {}/workflow.dag.*'%farm_dir)
+    os.system('rm %s/workflow.dag.*'%farm_dir)
     os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
 
