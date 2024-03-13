@@ -344,13 +344,13 @@ if __name__ == "__main__":
            ###########################
            ## MC Lumi x xSec / nDAS ##
            ###########################
-           sample_name = re.sub(r'(?:_(\d+|\w))?\.root','', iin)
+           sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
 
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
              for file_ in File_List:
-               sample_name_file = re.sub(r'(?:_(\d+|\w))?\.root','', file_)
+               sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', file_).replace('.root','')
                if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
