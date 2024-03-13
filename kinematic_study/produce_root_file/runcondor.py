@@ -267,6 +267,9 @@ if __name__ == "__main__":
   #############
   ##  Check  ##
   #############
+
+  Check_GreenLight = True
+
   Failed_Sample = dict()
   for Era in Eras:
     Failed_Sample[Era] = dict()
@@ -296,6 +299,7 @@ if __name__ == "__main__":
               DAG_resubmit_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
               prepare_shell('dummy.sh'.format(job_name), 'echo pass', condor[Era][region][channel][sample], farm_dir)
               condor[Era][region][channel][sample].close()
+              Check_GreenLight = False
 
   print(Failed_Sample)
   DAG_resubmit_file.close()
@@ -315,7 +319,6 @@ if __name__ == "__main__":
   ##  Script  ##
   ##############
 
-  Check_GreenLight = True
 
   for Era in Eras:
    for region in region_channel_dict:
