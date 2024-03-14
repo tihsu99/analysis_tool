@@ -146,7 +146,7 @@ Color_Dict_ref = {
   'cgTotH':ROOT.kRed,
   'bgTotH':ROOT.kCyan-9,
   'VVV':ROOT.kSpring - 9,
-  'tttX':ROOT.kPink-3,
+  'ttXY':ROOT.kPink-3,
   'TT1L':ROOT.kViolet-4,
   'tZq':ROOT.kYellow-4,
   'TT2L':ROOT.kBlue,
@@ -154,7 +154,7 @@ Color_Dict_ref = {
   'ttZ':ROOT.kCyan-2,
   'VBS':ROOT.kBlue-6,
   'ttH':ROOT.kRed-9,
-  'WJet':ROOT.kOrange+3,
+  'WJets':ROOT.kOrange+3,
   'SingleTop':ROOT.kGray,
   'DY': ROOT.kYellow-4,
   'Nonprompt': ROOT.kOrange-2

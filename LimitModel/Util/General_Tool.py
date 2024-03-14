@@ -8,7 +8,7 @@ from collections import OrderedDict
 import json
 CURRENT_WORKDIR = os.getcwd()
 
-BDT_bin = [ 0.1*i for i in range(11) ]
+BDT_bin = [ 0.1*i for i in range(11)]
 binning = array.array('d', BDT_bin)
 #HT_bin = [ 50*i for i in range(11)]
 #binning = array.array('d', HT_bin)
