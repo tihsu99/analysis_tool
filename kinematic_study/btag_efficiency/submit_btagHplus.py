@@ -11,7 +11,7 @@ def sub_writer(era, infile, outpath) :
     f.write("universe                = vanilla\n")
     f.write("x509userproxy           = $(Proxy_path)\n")
     f.write("use_x509userproxy       = true\n")
-    f.write("transfer_input_files    = $(Proxy_path) \n")
+    f.write("transfer_input_files    = $(Proxy_path), datamodel.py, treeReaderArrayTools.py \n")
     f.write("+JobFlavour             = \"workday\"\n") # options are espresso = 20 minutes, microcentury = 1 hour, longlunch = 2 hours, workday = 8 hours, tomorrow = 1 day, testmatch = 3 days, nextweek     = 1 week
     f.write("executable              = btageff_producer.py\n")
     f.write("arguments               = -i " + infile + " -o  " + outpath + " -e " + era + "\n")
@@ -38,6 +38,8 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   outfolder = args.out
+  if not os.path.exists(outfolder):
+      os.makedirs(outfolder)
   era = args.era
   path    = str(inputFile_path[era])
   #print(path)
@@ -47,10 +49,10 @@ if __name__ == "__main__":
   for infile in files_list:
     print(infile)
     if args.run == "local":
-        os.popen("python ")
+        os.popen("python btageff_producer_nat.py -i " + infile + " -o " + outfolder + " -e " + era)
+        break
     elif args.run == "condor":
         if 'eos' in infile and 'root://eosuser.cern.ch//' not in infile:
             infile = 'root://eosuser.cern.ch//' + infile
         sub_writer(era, infile, outfolder)
-        #os.system('condor_submit condor.sub')
-    #print('condor_submit condor.sub')
+        os.system('condor_submit condor.sub')

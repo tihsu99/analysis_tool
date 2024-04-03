@@ -5,6 +5,8 @@ import ROOT
 import datetime
 from array import array
 import argparse
+from datamodel import Event, Collection
+from treeReaderArrayTools import InputTree
 
 # b-tag working points: mistagging efficiency tight = 0.1%, medium 1% and loose = 10%
 WPbtagger = {
@@ -14,9 +16,9 @@ WPbtagger = {
     '2018':{'L': 0.0490, 'M': 0.2783, 'T': 0.7100}
 }
 
-def btageff_producer(era, infile, outpath):
+def btageff_producer(era, infile, outpath, debug):
 
-    Debug = False
+    Debug = debug
     startTime = datetime.datetime.now()
     print("Starting running at " + str(startTime))
     
@@ -24,10 +26,11 @@ def btageff_producer(era, infile, outpath):
     
     chain = ROOT.TChain('Events')
     chain.Add(infile)
-    print("Number of entries: " +str(chain.GetEntries()))
+    tree = InputTree(chain)
+    print("Number of entries: " +str(tree.GetEntries()))
 
 
-    outTreeFile = ROOT.TFile(outpath + infile.replace(".root","").rsplit("/", 1)[1] + "_out.root", "RECREATE") #some name of the output file
+    outTreeFile = ROOT.TFile(outpath + "/" + infile.replace(".root","").rsplit("/", 1)[1] + "_out.root", "RECREATE") #some name of the output file
     
     #++++++++++++++++++++++++++++++++++
     #++      Efficiency studies      ++
@@ -39,7 +42,9 @@ def btageff_producer(era, infile, outpath):
     etaMin = -3.
     etaMax = 3.
     ptbins = array('f', [30., 40., 60., 80, 140., 200., 300, 500, 1000])
-    etabins = array('f', [0.0, 0.8, 1.6, 2.4])
+    etabins = array('f', [0.0, 0.8, 1.6, 2.5])
+    if '2016' in era:
+        etabins = array('f', [0.0, 0.8, 1.6, 2.4])
     nptbins = len(ptbins)-1
     netabins = len(etabins)-1
     
@@ -55,10 +60,12 @@ def btageff_producer(era, infile, outpath):
     h2_BTaggingTEff_Num_b     = ROOT.TH2D("h2_BTaggingTEff_Num_b", ";p_{T} [GeV];#eta", nptbins, ptbins, netabins, etabins)
     h2_BTaggingTEff_Num_c     = ROOT.TH2D("h2_BTaggingTEff_Num_c", ";p_{T} [GeV];#eta", nptbins, ptbins, netabins, etabins)
     h2_BTaggingTEff_Num_udsg  = ROOT.TH2D("h2_BTaggingTEff_Num_udsg", ";p_{T} [GeV];#eta", nptbins, ptbins, netabins, etabins)
+
+
     #++++++++++++++++++++++++++++++++++
     #++   looping over the events    ++
     #++++++++++++++++++++++++++++++++++
-    for i in range(chain.GetEntries()):
+    for i in range(tree.GetEntries()):
         #++++++++++++++++++++++++++++++++++
         #++        taking objects        ++
         #++++++++++++++++++++++++++++++++++
@@ -67,39 +74,39 @@ def btageff_producer(era, infile, outpath):
                 break
         if not Debug and i%5000 == 0:
             print("Event #", i+1, " out of ", chain.GetEntries())
-        chain.GetEntry(i)
-        njets = chain.nJet
+        event = Event(tree,i)
+        jets = Collection(event, "Jet")
         
         ###########################################
         ## Selecting only tight jets with pt>30  ##
         ###########################################
-        for ijet in range(chain.nJet):
-            if not (chain.Jet_jetId[ijet]==6 and chain.Jet_pt_nom[ijet] > 30):
+        for jet in jets:
+            if not (jet.jetId==6 and jet.pt_nom > 30):
                 continue #tight jets with pT > 30 GeV
-            if(abs(chain.Jet_partonFlavour[ijet]) == 5):
-                h2_BTaggingEff_Denom_b.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['L']):
-                    h2_BTaggingLEff_Num_b.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['M']):
-                    h2_BTaggingMEff_Num_b.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['T']):
-                    h2_BTaggingTEff_Num_b.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-            elif(abs(chain.Jet_partonFlavour[ijet]) == 4):
-                h2_BTaggingEff_Denom_c.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['L']):
-                    h2_BTaggingLEff_Num_c.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['M']):
-                    h2_BTaggingMEff_Num_c.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['T']):
-                    h2_BTaggingTEff_Num_c.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
+            if(abs(jet.partonFlavour) == 5):
+                h2_BTaggingEff_Denom_b.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['L']):
+                    h2_BTaggingLEff_Num_b.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['M']):
+                    h2_BTaggingMEff_Num_b.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['T']):
+                    h2_BTaggingTEff_Num_b.Fill(jet.pt_nom, abs(jet.eta))
+            elif(abs(jet.partonFlavour) == 4):
+                h2_BTaggingEff_Denom_c.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['L']):
+                    h2_BTaggingLEff_Num_c.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['M']):
+                    h2_BTaggingMEff_Num_c.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['T']):
+                    h2_BTaggingTEff_Num_c.Fill(jet.pt_nom, abs(jet.eta))
             else:
-                h2_BTaggingEff_Denom_udsg.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['L']):
-                    h2_BTaggingLEff_Num_udsg.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['M']):
-                    h2_BTaggingMEff_Num_udsg.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
-                if(chain.Jet_btagDeepFlavB[ijet] > WPbtagger[str(era)]['T']):
-                    h2_BTaggingTEff_Num_udsg.Fill(chain.Jet_pt_nom[ijet], abs(chain.Jet_eta[ijet]))
+                h2_BTaggingEff_Denom_udsg.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['L']):
+                    h2_BTaggingLEff_Num_udsg.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['M']):
+                    h2_BTaggingMEff_Num_udsg.Fill(jet.pt_nom, abs(jet.eta))
+                if(jet.btagDeepFlavB > WPbtagger[str(era)]['T']):
+                    h2_BTaggingTEff_Num_udsg.Fill(jet.pt_nom, abs(jet.eta))
                     
     outTreeFile.cd()
     h2_BTaggingEff_Denom_b.Write()
@@ -154,7 +161,7 @@ if __name__ == "__main__":
   parser.add_argument('-e', '--era', dest='era', help='[2016apv/2016postapv/2017/2018]', default='2017', type=str)
   parser.add_argument('-o', '--outdir', dest='out', help='ouput directory', default='./', type=str)
   parser.add_argument('-i', '--infile', dest='infile', help='input file', default='./', type=str)
-
+  parser.add_argument('--debug', dest='debug', help='Debug will run only 2k events',  action='store_true')
   args = parser.parse_args()
   
-  btageff_producer(args.era, args.infile, args.out)
+  btageff_producer(args.era, args.infile, args.out, args.debug)
