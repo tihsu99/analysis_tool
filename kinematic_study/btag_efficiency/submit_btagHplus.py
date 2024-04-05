@@ -34,6 +34,7 @@ if __name__ == "__main__":
   parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2016postapv/2017/2018]', default='2018', type=str)
   parser.add_argument('-o', '--outdir', dest='out', help='ouput directory', default='./', type=str)
   parser.add_argument('-r', '--run', dest='run', help='local or condor', default='local', type=str)
+  parser.add_argument("--test", action="store_true")
 
   args = parser.parse_args()
 
@@ -55,4 +56,6 @@ if __name__ == "__main__":
         if 'eos' in infile and 'root://eosuser.cern.ch//' not in infile:
             infile = 'root://eosuser.cern.ch//' + infile
         sub_writer(era, infile, outfolder)
-        os.system('condor_submit condor.sub')
+        if not args.test:
+            print ("Submitting Jobs on Condor")
+            os.system('condor_submit condor.sub')
