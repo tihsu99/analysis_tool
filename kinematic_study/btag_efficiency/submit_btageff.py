@@ -50,7 +50,7 @@ if __name__ == "__main__":
   for infile in files_list:
     print(infile)
     if args.run == "local":
-        os.popen("python btageff_producer_nat.py -i " + infile + " -o " + outfolder + " -e " + era)
+        os.popen("python btageff_producer.py -i " + infile + " -o " + outfolder + " -e " + era)
         break
     elif args.run == "condor":
         if 'eos' in infile and 'root://eosuser.cern.ch//' not in infile:
