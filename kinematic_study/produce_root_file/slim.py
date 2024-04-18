@@ -152,6 +152,9 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
+      elif(variables[variable]["Def"] == "top_ptweight_Dep"):
+        print ("gkole -> top_pt test:--> ", str(variable))
+        df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))  
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
@@ -326,6 +329,7 @@ def Slim_module(filein,
     xlow   = Histograms[Histogram]["xlow"]
     xhigh  = Histograms[Histogram]["xhigh"]
     nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
+    # print ("total weight", df['weight'].GetValue()) #gkole (not wotking this way)
     df_histo = df.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), str(Histogram), "weight")
     Histos_from_df[Histogram] = df_histo
 
@@ -385,7 +389,8 @@ def Slim_module(filein,
     columns.push_back('weight')
     df = df.Define("weight_n_Norm", "weight * %f"%(scale))
     columns.push_back('weight_n_Norm')
-  
+    columns.push_back('toppt_weight') #gkole
+    
   if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
     fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
   df.Snapshot(treeOut, fileOut, columns)

@@ -13,6 +13,9 @@ using namespace ROOT;
 using namespace std;
 using namespace ROOT::VecOps;
 
+using Vec_f = ROOT::VecOps::RVec<float>;
+using Vec_i = ROOT::VecOps::RVec<int>;
+
 TString era = "EraToBeReplaced";
 
 // Trigger Scale Factor (Derived by ourselves)
@@ -187,6 +190,7 @@ std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<
 }
 
 
+
 std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_genPartIdxMother, ROOT::VecOps::RVec<int> GenPart_pdgId, ROOT::VecOps::RVec<int> GenPart_statusFlags){
 
   // Find mother particle id for genPart
@@ -223,6 +227,31 @@ std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_
 
   return match_idx;
 
+}
+// gkole
+float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status){
+  
+  int daughter_id, daughter_statusflags, mother_idx, mother_id, mother_statusflags, daughter_status;
+  bool isdaughter_HardProcess;
+  float gentoppt = 0.0, genantitoppt = 0.0, maxtoppt = 500.0, weight = 1.0;
+  
+  for(int index_ = 0; index_ < genPart_pdgId.size(); index_++){
+    daughter_id     = genPart_pdgId[index_];
+    daughter_status = genPart_status[index_];
+    //daughter_statusflags = GenPart_statusFlags[index_];
+    if (abs(daughter_id) == 6){
+      std::cout << "Particle id: " << daughter_id << std::endl;
+      std::cout << "Particle status: " << daughter_status << std::endl;
+      std::cout << "Particle pt: " << genPart_pt[index_] << std::endl;
+      if (daughter_id == 6)  gentoppt = genPart_pt[index_];
+      if (daughter_id == -6) genantitoppt = genPart_pt[index_];
+      weight = sqrt(
+                    exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt))*exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt))
+		    );
+      cout << "weight: " << weight << endl;
+      return weight;
+    }
+  }
 }
 
 int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match, std::vector<int> Part_mother_match){
