@@ -228,7 +228,7 @@ std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_
   return match_idx;
 
 }
-// gkole
+
 float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status){
   
   int daughter_id, daughter_statusflags, mother_idx, mother_id, mother_statusflags, daughter_status;
@@ -240,15 +240,15 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
     daughter_status = genPart_status[index_];
     //daughter_statusflags = GenPart_statusFlags[index_];
     if (abs(daughter_id) == 6){
-      std::cout << "Particle id: " << daughter_id << std::endl;
-      std::cout << "Particle status: " << daughter_status << std::endl;
-      std::cout << "Particle pt: " << genPart_pt[index_] << std::endl;
+      //std::cout << "Particle id: " << daughter_id << std::endl;
+      //std::cout << "Particle status: " << daughter_status << std::endl;
+      //std::cout << "Particle pt: " << genPart_pt[index_] << std::endl;
       if (daughter_id == 6)  gentoppt = genPart_pt[index_];
       if (daughter_id == -6) genantitoppt = genPart_pt[index_];
       weight = sqrt(
                     exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt))*exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt))
 		    );
-      cout << "weight: " << weight << endl;
+      //cout << "weight: " << weight << endl;
       return weight;
     }
   }

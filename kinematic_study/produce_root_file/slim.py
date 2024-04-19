@@ -153,7 +153,6 @@ def Slim_module(filein,
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
       elif(variables[variable]["Def"] == "top_ptweight_Dep"):
-        print ("gkole -> top_pt test:--> ", str(variable))
         df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))  
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
@@ -180,6 +179,9 @@ def Slim_module(filein,
   if "Data" in sample_labels:
     weight_def = 1       # Data weight is also to be 1
     nuisances_valid = [] # Nuisances only affect MC
+  if "TTTo1L" in filein or "TTTo2L" in filein:
+    print ("--> For ttbar apply toppt_weight")
+    weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
   df = df.Define("weight", str(weight_def))
 
   #########
