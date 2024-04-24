@@ -241,25 +241,25 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
     isdaughter_lastcopy    = (genPart_statusFlags[index_]>>13) & 0x1;
 
     if (isdaughter_lastcopy && abs(daughter_id) == 6){
-      cout << "Particle id: " << daughter_id << std::endl;
-      cout << "Particle status: " << daughter_status << std::endl;
-      cout << "Particle pt: " << genPart_pt[index_] << std::endl;
+      //cout << "Particle id: " << daughter_id << std::endl;
+      //cout << "Particle status: " << daughter_status << std::endl;
+      //cout << "Particle pt: " << genPart_pt[index_] << std::endl;
       if (daughter_id == 6){
 	gentoppt = genPart_pt[index_];
 	w1 = exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt));
-	cout << "w1: " << w1 << endl;
+	//cout << "w1: " << w1 << endl;
       }
       if (daughter_id == -6){
 	genantitoppt = genPart_pt[index_];
 	w2 = exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt));
-	cout << "w2: " << w2 << endl;
+	//cout << "w2: " << w2 << endl;
       }
       weight = sqrt(w1*w2);
-      cout << "weight (intermediate): " << weight << endl;
+      //cout << "weight (intermediate): " << weight << endl;
       //return weight; //not correct (because you consider only one top)
     }
   }
-  cout << "weight (final): " << weight << endl;
+  //cout << "weight (final): " << weight << endl;
   return weight;
 }
 
