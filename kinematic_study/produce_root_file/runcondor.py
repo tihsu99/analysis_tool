@@ -103,6 +103,7 @@ if __name__ == "__main__":
   parser.add_argument("--POIs",   dest = 'POIs',   default = ["DEFAULT"], nargs='+')
   parser.add_argument("--clear",  dest = 'clear', action='store_true')
   parser.add_argument("--data",   dest = 'data',  action='store_true')
+  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
   parser.add_argument("--pNN",    dest = 'pNN',   action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   args = parser.parse_args()

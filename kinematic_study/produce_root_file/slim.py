@@ -38,7 +38,8 @@ def Slim_module(filein,
                 end   = -1,
                 index = -1,
                 pNN = False,
-                cutflow_store=False):
+                cutflow_store=False,
+                toppt = False):
 
   ###################
   ##  Sample type  ##
@@ -179,11 +180,12 @@ def Slim_module(filein,
   if "Data" in sample_labels:
     weight_def = 1       # Data weight is also to be 1
     nuisances_valid = [] # Nuisances only affect MC
-  if "TTTo1L" in filein or "TTTo2L" in filein:
-    print ("--> For ttbar apply toppt_weight")
-    weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
+  if toppt:
+    if "TTTo1L" in filein or "TTTo2L" in filein:
+      print ("--> For ttbar apply toppt_weight")
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf"
   df = df.Define("weight", str(weight_def))
-
+  
   #########
   ## Cut ##
   #########
@@ -464,7 +466,9 @@ if __name__ == "__main__":
               MVA_weight_dir = args.MVA_weight_dir, \
               region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale,\
               pNN = args.pNN,\
-              cutflow_store = args.cutflow)
+              cutflow_store = args.cutflow, \\
+              toppt = args.toppt
+              )
   end_time = time.time()
   print('process time', end_time - start_time)
 
