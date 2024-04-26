@@ -317,53 +317,101 @@
   "CGToBHpm_a_200_rtt06_rtc04":{
     "xsec": 6.609,
     "Category": "bH^{#pm}(200)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess": {
+      "CGToBHpm_a_200_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_200_rtt06_rtc04_3b": "LHE_Nb >  2"
+    }
   },
 
   "CGToBHpm_a_300_rtt06_rtc04":{
     "xsec": 5.370,
     "Category": "bH^{#pm}(300)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_300_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_300_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
   },
   "CGToBHpm_a_350_rtt06_rtc04":{
     "xsec": 3.391,
     "Category": "bH^{#pm}(350)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_350_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_350_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_400_rtt06_rtc04":{
     "xsec": 1.887,
     "Category": "bH^{#pm}(400)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_400_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_400_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_500_rtt06_rtc04":{
     "xsec": 0.7911,
     "Category": "bH^{#pm}(500)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_500_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_500_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_600_rtt06_rtc04":{
     "xsec": 0.3790,
     "Category": "bH^{#pm}(600)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_600_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_600_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_700_rtt06_rtc04":{
     "xsec": 0.19,
     "Category": "bH^{#pm}(700)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_700_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_700_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_800_rtt06_rtc04":{
     "xsec": 0.09575,
     "Category": "bH^{#pm}(800)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_800_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_800_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_900_rtt06_rtc04":{
     "xsec": 0.04865,
     "Category": "bH^{#pm}(900)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_900_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_900_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "CGToBHpm_a_1000_rtt06_rtc04":{
     "xsec": 0.02755,
     "Category": "bH^{#pm}(1000)",
-    "Label": ["MC","Signal"]
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_1000_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_1000_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+
   },
   "BGToTHpm_a_200_rtt06_rtc04":{
     "xsec": 0.3807,
@@ -397,7 +445,7 @@
     "Label": ["MC","Signal"]
   },
   "BGToTHpm_a_700_rtt06_rtc04":{
-    "xsec": 5,
+    "xsec": 0.0064,
     "Category": "tH^{#pm}(700)",
     "Label": ["MC","Signal"]
   },
@@ -415,7 +463,19 @@
     "xsec": 0.001246,
     "Category": "tH^{#pm}(1000)",
     "Label": ["MC","Signal"]
-  } 
+  },
+  "HplusToTB_M_MASS":{
+    "xsec": 1.0,
+    "Category": "H^{#pm}(MASS)",
+    "Label": ["MC", "Signal"],
+    "MASS": [200, 300, 350, 400, 500, 600, 700, 800, 1000, 1250, 1500, 1750, 2000, 2500, 3000]
+  },
+  "WprimeTotb_leptonicDecays_M_MASS":{
+    "xsec": 1.0,
+    "Category": "W^{'}(MASS)",
+    "Label": ["MC", "Signal"],
+    "MASS": [300, 500, 700, 900, 1100]
+  }
 }
 
 
