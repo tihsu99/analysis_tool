@@ -9,6 +9,7 @@ import glob
 import re
 sys.path.insert(1, '../../python')
 from common import *
+from aux import colors
 
 def prepare_range(path, fin, step, half, isdata):
 
@@ -455,6 +456,31 @@ if __name__ == "__main__":
              merge_shell[Era][region][channel][process_].close()
 
 
+  ################# 
+  # clear individual root files
+  ################# 
+  if args.check and Check_GreenLight:
+    print("All files are produced successfully and merged as well.")
+    for Era in Eras:
+      for region in region_channel_dict:
+       for channel in region_channel_dict[region]:
+        for sample_Label in sample_label_list:
+         Outdir = os.path.join(args.outdir, Era, region, channel)
+         json_file_name = args.sample_json
+         File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+         Final_List     = []
+         for iin in File_List:
+
+           if "Region" in samples[iin] and region not in samples[iin]["Region"]:
+             continue
+           if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
+             continue
+
+           print(colors.colordict['ORANGE'] + "start deleting %s individuals"%os.path.join(Outdir, iin)+ colors.colordict['CEND']) #gkole
+           if os.path.exists(os.path.join(Outdir, iin + ".root")):
+             if args.clear:
+               # print ("rm %s"%os.path.join(Outdir, "*_{}*.root".format(iin)))
+               os.system("rm %s"%os.path.join(Outdir, "*_{}*.root".format(iin)))
 
   #################
   ##  Merge ROOT ##
