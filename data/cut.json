@@ -3,11 +3,11 @@
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+	       "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+	       "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
@@ -17,18 +17,20 @@
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 1",
        "njet":         "n_tight_jet>=4"
-     }
+     },
+     "MVA_Label": "DNN_2b",
+     "POI": ["bh_HT"]
   },
 
-  "SR_2b4j":{
+  "SR_2b_bkg_node":{
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+      	 "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+      	 "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
@@ -36,20 +38,22 @@
        "one lepton":   "bh_nl==1",
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet>=4"
-     }
+       "b jet cut":    "n_bjet_DeepB_v == 2"
+     },
+     "DNN_category": "DNNMASS_class == 0",
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN", "Higgs_reco_mass_medium"]
   },
 
-  "SR_3b4j":{
+  "SR_2b_sig2b_node":{
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+      	 "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+      	 "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
@@ -57,21 +61,22 @@
        "one lepton":   "bh_nl==1",
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v >= 3",
-       "njet":         "n_tight_jet>=4"
-     }
+       "b jet cut":    "n_bjet_DeepB_v == 2"
+     },
+     "DNN_category": "DNNMASS_class == 1",
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN", "Higgs_reco_mass_medium"]
   },
 
-
-  "SR_2b3j":{
+  "SR_2b_sig3b_node":{
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+      	 "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+      	 "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
@@ -79,21 +84,22 @@
        "one lepton":   "bh_nl==1",
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet == 3"
-     }
+       "b jet cut":    "n_bjet_DeepB_v == 2"
+     },
+     "DNN_category": "DNNMASS_class == 2",
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN", "Higgs_reco_mass_medium"]
   },
 
-
-  "SR_3b3j":{
+  "SR_3b_bkg_node":{
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+      	 "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+      	 "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
@@ -101,28 +107,57 @@
        "one lepton":   "bh_nl==1",
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v >= 3",
-       "njet":         "n_tight_jet ==3"
-     }
+       "b jet cut":    "n_bjet_DeepB_v > 2"
+     },
+     "DNN_category": "DNNMASS_class == 0",
+     "MVA_Label": "DNN_3b",
+     "POI": ["DNN", "Higgs_reco_mass_medium"]
   },
-  "SR_2b2j":{
+
+  "SR_3b_sig2b_node":{
      "channel_cut":{
        "ele_resolved": {
          "channel_lepton": "bh_region == 2",
-	 "lepton_pt":      "bh_l1_pt > 35"
+      	 "lepton_pt":      "bh_l1_pt > 35"
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	 "lepton_pt"     : "bh_l1_pt > 30"
+      	 "lepton_pt"     : "bh_l1_pt > 30"
        }
      },
      "general_cut":{
        "veto_Had_tau": "nHad_tau==0",
        "one lepton":   "bh_nl==1",
+       "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet == 2"
-     }
+       "b jet cut":    "n_bjet_DeepB_v > 2"
+     },
+     "DNN_category": "DNNMASS_class == 1",
+     "MVA_Label": "DNN_3b",
+     "POI": ["Higgs_reco_mass_medium", "DNN"]
+  },
+
+  "SR_3b_sig3b_node":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "bh_region == 2",
+      	 "lepton_pt":      "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+      	 "lepton_pt"     : "bh_l1_pt > 30"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "one lepton":   "bh_nl==1",
+       "jet cond.":    "bh_jets==1",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v > 2"
+     },
+     "DNN_category": "DNNMASS_class == 2",
+     "MVA_Label": "DNN_3b",
+     "POI": ["DNN", "Higgs_reco_mass_medium"]
   }
 
 }
