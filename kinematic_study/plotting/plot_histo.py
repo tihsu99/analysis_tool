@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -29,7 +29,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   ## Add Extra Histogram ##
   #########################
 
-  Histograms['cutflow'] = {'Label': Labels, 'Title': ';cutflow;Events/bin'}
+  if cutflow:
+    Histograms['cutflow'] = {'Label': Labels, 'Title': ';cutflow;Events/bin'}
   
 
   for histogram in Histograms:
@@ -94,7 +95,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           continue
         category = samples[sample]['Category']
         if category in block_sample: continue
-
+        if "Signal" in data_type and not os.path.exists(os.path.join(Indir, sample+".root")): continue
         ##################################
         ## Lumi & cross section scaling ##
         ##################################
@@ -119,7 +120,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           htemp = ftemp.Get(str(histogram)).Clone()
         except:
           Histo_exist_in_file = False
-          break
+          continue
         htemp.SetDirectory(0)
         ftemp.Close()
    
@@ -187,7 +188,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Plot Setting for Canvas ##
     #############################
     if not Histo_exist_in_file:
-      continue
+      pass # TODO: happens when there is zero entries
+#      continue
 
     if isinstance(canvas, DataMCCanvas):
 
@@ -205,6 +207,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
       canvas.rtitle = str("Data/MC") 
       canvas.yaxis.SetMaxDigits(4)
  
+    print('Generating png')
     canvas.applyStyles()
     if args.unblind:
       canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
@@ -239,6 +242,7 @@ if __name__ == "__main__":
   parser.add_argument("--ratio_min", dest='ratio_min', default=0.75, type=float)
   parser.add_argument("--ratio_Ndiv", dest='ratio_Ndiv', default=205, type=int)
   parser.add_argument("--Yield", action = 'store_true', default=False)
+  parser.add_argument("--cutflow", action = 'store_true', default=False)
   args = parser.parse_args()
 
   if args.outdir is None:
@@ -247,8 +251,6 @@ if __name__ == "__main__":
   args.plot_ratio = (args.plot_ratio and args.unblind)
   args.plot_ratio = True # develop purpose
 
-  os.system('cp %s/../../python/common.py .'%cwd)
-  from common import prepare_shell, Get_Sample, cmsswBase, inputFile_path, read_json, Lumi, inputFile_path
  
   # List of regions
   region_channel_dict = dict()
@@ -270,7 +272,7 @@ if __name__ == "__main__":
  
   for region in region_channel_dict:
     for channel in region_channel_dict[region]: 
-      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv)
+      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow)
 
 
   
