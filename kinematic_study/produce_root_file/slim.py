@@ -445,6 +445,8 @@ if __name__ == "__main__":
   parser.add_argument("--MVA_weight_dir", default = None, type=str)
   parser.add_argument("--pNN", action='store_true')
   parser.add_argument("--cutflow", action='store_true')
+  parser.add_argument("--toppt",   action='store_true')
+
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
   if args.MVA_weight_dir == "None": args.MVA_weight_dir = None
@@ -466,7 +468,7 @@ if __name__ == "__main__":
               MVA_weight_dir = args.MVA_weight_dir, \
               region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale,\
               pNN = args.pNN,\
-              cutflow_store = args.cutflow, \\
+              cutflow_store = args.cutflow, \
               toppt = args.toppt
               )
   end_time = time.time()

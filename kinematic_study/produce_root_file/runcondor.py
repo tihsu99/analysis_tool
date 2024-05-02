@@ -374,6 +374,7 @@ if __name__ == "__main__":
            json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
+           json_command += ' --toppt ' if args.toppt else ''
             
            condor[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample_name)), 'a')
            merge_shell[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, sample_name)), 'a')
