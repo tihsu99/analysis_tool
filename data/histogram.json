@@ -155,7 +155,7 @@
     "Title": ";HT[GeV];nEntries",
     "xlow": 0,
     "xhigh": 1000,
-    "nbin": 100,
+    "nbin": 50,
     "Label": ["Control_plot"]    
   },
 
