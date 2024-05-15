@@ -114,6 +114,7 @@ if __name__ == "__main__":
   parser.add_argument("--POIs",   dest = 'POIs',   default = ["DEFAULT"], nargs='+')
   parser.add_argument("--clear",  dest = 'clear', action='store_true')
   parser.add_argument("--data",   dest = 'data',  action='store_true')
+  parser.add_argument("--signal", dest = 'signal', action = 'store_true')
   parser.add_argument("--pNN",    dest = 'pNN',   action='store_true')
   parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
@@ -198,6 +199,7 @@ if __name__ == "__main__":
   ##  Condor  ##
   ##############
   sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
+  sample_label_list = [["MC", "Signal"]] if args.signal else sample_label_list
   samples        = read_json(args.sample_json)
   samples        = Extend_sample_dict(samples, key_word = 'MASS')
 
@@ -342,9 +344,9 @@ if __name__ == "__main__":
   os.system('mkdir -p script')
 
   os.system('mkdir -p data')
-  os.system('cp ../../data/*.pkl data/.')
-  os.system('cp ../../data/*.dat data/.')
-  os.system('cp ../../data/*.hxx data/.')
+#  os.system('cp ../../data/*.pkl data/.')
+#  os.system('cp ../../data/*.dat data/.')
+#  os.system('cp ../../data/*.hxx data/.')
 
   ##############
   ##  Script  ##
@@ -425,7 +427,7 @@ if __name__ == "__main__":
              # Clear the files except the merged one
 
              if args.blocksize == -1:
-               shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
+               shell_file = "slim_%s_%s_%s_%s_%s.sh"%(iin, Era, region, channel,process_)
                command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
                command += json_command
                prepare_shell(shell_file, command, condor[Era][region][channel][process_], farm_dir)
@@ -437,7 +439,7 @@ if __name__ == "__main__":
                  end   = ranges[idx+1]
                  command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
                  command += json_command
-                 shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
+                 shell_file = "slim_%s_%s_%s_%s_%d_%s.sh"%(iin, Era, region, channel, idx, process_)
                  outputfile_name = '{}_{}.root'.format(idx, process_) if "SubProcess" in samples[sample_name] else '{}_{}'.format(idx, iin)
 
                  if not args.check:
