@@ -136,7 +136,6 @@ if __name__ == "__main__":
   os.system('cp %s/../../python/common.py .'%cwd)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 
-  from common import prepare_shell, Get_Sample, cmsswBase, inputFile_path, read_json, Lumi, inputFile_path
 
   # List of regions
   region_channel_dict = dict()
