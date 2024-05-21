@@ -6,9 +6,9 @@ sys.path.append('../../python')
 from common import *
 import pickle
 
-def Build_DNN_Command(var):
-  ROOT.gInterpreter.Declare('#include "script/DNN.hxx"')
-  with open('data/preprocessor.pkl', 'rb') as f:
+def Build_DNN_Command(var, DNN_Label = 'DNN', DNN_dir = './'):
+  ROOT.gInterpreter.Declare('#include "../../data/{}/{}.hxx"'.format(DNN_dir,DNN_Label))
+  with open('../../data/{}/preprocessor_{}.pkl'.format(DNN_dir, DNN_Label), 'rb') as f:
      preprocessor = pickle.load(f)
 
   mean_array = []
@@ -26,12 +26,12 @@ def Build_DNN_Command(var):
   mean_array = '{' + ', '.join(mean_array) + '}'
   std_array  = '{' + ', '.join(std_array)  + '}'
 
-  func_def = 'float DNN({})'.format(','.join(func_input))
+  func_def = 'vector<float> {}({})'.format(DNN_Label, ','.join(func_input))
 
 
   command = '\
   #include "ROOT/RDataFrame.hxx"\n\
-  TMVA_SOFIE_DNN::Session model("script/DNN.dat");\n\
+  TMVA_SOFIE_{DNN_Label}::Session model("../../data/{DNN_dir}/{DNN_Label}.dat");\n\
   {func_def} {{ \n\
     float Preprocessor_mean[{nvar}] = {mean_array};\n\
     float Preprocessor_std[{nvar}]  = {std_array};\n\
@@ -40,10 +40,10 @@ def Build_DNN_Command(var):
     for(int input_idx=0; input_idx < {nvar}; input_idx++){{\n\
       input[input_idx] = (input[input_idx]-Preprocessor_mean[input_idx])/Preprocessor_std[input_idx];\n\
     }}\n\
-    float score = model.infer(input)[0];\n\
+    vector<float> score = model.infer(input);\n\
     return score;\
   }}\
-  '.format(func_def=func_def, nvar=len(var), mean_array=mean_array, std_array=std_array, input_def=input_def)
+  '.format(func_def=func_def, nvar=len(var), mean_array=mean_array, std_array=std_array, input_def=input_def, DNN_Label=DNN_Label, DNN_dir = DNN_dir)
 
   ROOT.gInterpreter.Declare(str(command))
   print(command)

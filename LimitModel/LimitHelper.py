@@ -10,6 +10,7 @@ import csv
 import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
 from collections import OrderedDict
+import numpy as np
 
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
@@ -87,17 +88,20 @@ class RunLimits:
             return ([mparameters_[1], mparameters_[3] ])
             
 
-    def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None):
+    def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None, logname = None, extraCommand=''):
         asimovstr =""
-        logname = dc.replace(".txt",".log")
-        logname = logname.replace(dc_dir, log_dir)
+        if logname is None:
+          logname = dc.replace(".txt",".log")
+          logname = logname.replace(dc_dir, log_dir)
+        else:
+          logname = os.path.join(log_dir, logname)
         CheckDir('/'.join(logname.split('/')[:-1]), True)
         print ("logname: ",logname)
         
         if self.__unblind:
-            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' '
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' ' + extraCommand + ' ' 
         else:
-            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  #TODO check -t -1 is correct
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + extraCommand + ' ' #TODO check -t -1 is correct
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
@@ -218,7 +222,7 @@ class RunLimits:
         f1.Close()
         return self.limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None):
         rootfile = self.limit_root_file
         setlogX=0
         y_max=y_max # scale of y axis 
@@ -245,7 +249,8 @@ class RunLimits:
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         #exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
-        exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
+        #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
+        exp2s.GetYaxis().SetTitle("\sigma(pp\\rightarrow XH^{\pm})Br(H^{\pm}\\rightarrow tb)[pb]")
         exp2s.GetYaxis().SetTitleOffset(1.7)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
@@ -297,6 +302,15 @@ class RunLimits:
         line.SetLineColor(rt.kRed)
         line.SetLineWidth(2)
         line.Draw('same ')
+
+        if signal_xsec_TGraph is None:
+          pass
+        else:
+          signal_xsec_TGraph.SetLineColor(rt.kRed)
+          signal_xsec_TGraph.SetFillColor(rt.kRed)
+          signal_xsec_TGraph.SetLineWidth(2)
+          signal_xsec_TGraph.Draw('3 L same')
+          leg.AddEntry(signal_xsec_TGraph, "Theoretical prediction", "L")
     
         latex =  rt.TLatex();
         latex.SetNDC();
