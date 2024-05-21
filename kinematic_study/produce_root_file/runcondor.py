@@ -246,6 +246,7 @@ if __name__ == "__main__":
               condor[Era][region][channel][process_].write('max_retries = 3\n')
               condor[Era][region][channel][process_].write('requirements     = Machine =!= LastRemoteHost\n')
               condor[Era][region][channel][process_].write('RequestCpus = 1\n')
+              condor[Era][region][channel][process_].write('queue 1 cfgFile in ')
               condor[Era][region][channel][process_].close()
               #condor[Era][region][channel][process_].write('transfer_input_files = {}/{}\n'.format(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)))
               #condor[Era][region][channel][process_].write('+PostCmd =  "merge_{}_{}_{}_{}.sh"\n'.format(Era, region, channel, process_))
