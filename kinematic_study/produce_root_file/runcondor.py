@@ -8,15 +8,26 @@ from collections import OrderedDict
 import glob
 import re
 sys.path.insert(1, '../../python')
+from common import *
 from aux import colors
 
-def prepare_range(path, fin, step):
+def prepare_range(path, fin, step, half, isdata):
 
   try:
     f_read = ROOT.TFile.Open(os.path.join(path, fin))
     entries = (f_read.Get('Events')).GetEntriesFast()
     init = 0
     index = []
+    if not isdata:
+      if half == 'first':
+        init = 0
+        entries = int(entries/2)
+      elif(half == 'second'):
+        init = int(entries/2)
+        entries = entries
+      else:
+        pass
+
     while(init < entries):
       index.append(init)
       init += step
@@ -103,9 +114,12 @@ if __name__ == "__main__":
   parser.add_argument("--POIs",   dest = 'POIs',   default = ["DEFAULT"], nargs='+')
   parser.add_argument("--clear",  dest = 'clear', action='store_true')
   parser.add_argument("--data",   dest = 'data',  action='store_true')
-  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument("--signal", dest = 'signal', action = 'store_true')
   parser.add_argument("--pNN",    dest = 'pNN',   action='store_true')
+  parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
+  parser.add_argument("--half",   dest = 'half', type=str, default=None)
+  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -123,7 +137,6 @@ if __name__ == "__main__":
   os.system('cp %s/../../python/common.py .'%cwd)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 
-  from common import prepare_shell, Get_Sample, cmsswBase, inputFile_path, read_json, Lumi, inputFile_path
 
   # List of regions
   region_channel_dict = dict()
@@ -186,7 +199,9 @@ if __name__ == "__main__":
   ##  Condor  ##
   ##############
   sample_label_list = [["Data"]] if args.data else [["MC", "Background"], ["MC", "Signal"], ["Data"]]
+  sample_label_list = [["MC", "Signal"]] if args.signal else sample_label_list
   samples        = read_json(args.sample_json)
+  samples        = Extend_sample_dict(samples, key_word = 'MASS')
 
   condor      = dict()
   merge_shell = dict()
@@ -212,58 +227,67 @@ if __name__ == "__main__":
             if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
               continue
 
-            Outdir   = os.path.join(args.outdir, Era, region, channel)
-            condor[Era][region][channel][iin] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, iin)), 'w')
-            condor[Era][region][channel][iin].write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
-            condor[Era][region][channel][iin].write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
-            condor[Era][region][channel][iin].write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
-            condor[Era][region][channel][iin].write('executable = %s/$(cfgFile)\n'%farm_dir)
-            condor[Era][region][channel][iin].write('universe = %s\n'%args.universe)
-            condor[Era][region][channel][iin].write('+JobFlavour = "%s"\n'%args.JobFlavour)
-            condor[Era][region][channel][iin].write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
-            condor[Era][region][channel][iin].write('max_retries = 3\n')
-            condor[Era][region][channel][iin].write('requirements     = Machine =!= LastRemoteHost\n')
-            condor[Era][region][channel][iin].write('RequestCpus = 1\n')
-            condor[Era][region][channel][iin].close()
-            #condor[Era][region][channel][iin].write('transfer_input_files = {}/{}\n'.format(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)))
-            #condor[Era][region][channel][iin].write('+PostCmd =  "merge_{}_{}_{}_{}.sh"\n'.format(Era, region, channel, iin))
-            #condor[Era][region][channel][iin].write('+MaxRuntime = 7200\n')
-
-
-            condor_merge = open(os.path.join(farm_dir, 'condor_merge_{}_{}_{}_{}.sub'.format(Era, region, channel, iin)), 'w')
-            condor_merge.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
-            condor_merge.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
-            condor_merge.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
-            condor_merge.write('executable = %s/$(cfgFile)\n'%farm_dir)
-            condor_merge.write('universe = %s\n'%args.universe)
-            condor_merge.write('+JobFlavour = "microcentury"\n')
-            condor_merge.write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
-            condor_merge.write('max_retries = 3\n')
-            condor_merge.write('requirements     = Machine =!= LastRemoteHost\n')
-            condor_merge.write('cfgFile={}\nqueue 1\n'.format('merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)))
-            condor_merge.close()
-
-
-            if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
-              Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+            process_list = []
+            if "SubProcess" in samples[iin]:
+              for subprocess in samples[iin]["SubProcess"]:
+                process_list.append(subprocess)
             else:
-              Outdir_revised = Outdir
-            merge_shell[Era][region][channel][iin] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, iin)), 'w')
-            merge_shell[Era][region][channel][iin].write('#!/bin/bash\n')
-            merge_shell[Era][region][channel][iin].write('WORKDIR=%s\n'%cwd)
-            merge_shell[Era][region][channel][iin].write('cd ${WORKDIR}\n')
-            merge_shell[Era][region][channel][iin].write('source script/env.sh\n')
-#            merge_shell[Era][region][channel][iin].write('mv {}/job*err {}/.\n'.format(farm_dir, farm_dir_mirror))
-#            merge_shell[Era][region][channel][iin].write('mv {}/job*out {}/.\n'.format(farm_dir, farm_dir_mirror))
-            merge_shell[Era][region][channel][iin].write('rm %s/.sys*\n'%(Outdir))
-            merge_shell[Era][region][channel][iin].write("rm %s.root\n"%os.path.join(Outdir, iin))
-            merge_shell[Era][region][channel][iin].write("python %s/haddnano.py %s.root"%(cwd, os.path.join(Outdir_revised, iin)))
-            merge_shell[Era][region][channel][iin].close()
+              process_list.append(iin)
+            Outdir   = os.path.join(args.outdir, Era, region, channel)
 
-            job_name = "{}_{}_{}_{}".format(Era, region, channel, iin)
-            DAG_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
-            DAG_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
-            DAG_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
+            for process_ in process_list:
+              condor[Era][region][channel][process_] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, process_)), 'w')
+              condor[Era][region][channel][process_].write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+              condor[Era][region][channel][process_].write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+              condor[Era][region][channel][process_].write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+              condor[Era][region][channel][process_].write('executable = %s/$(cfgFile)\n'%farm_dir)
+              condor[Era][region][channel][process_].write('universe = %s\n'%args.universe)
+              condor[Era][region][channel][process_].write('+JobFlavour = "%s"\n'%args.JobFlavour)
+              condor[Era][region][channel][process_].write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
+              condor[Era][region][channel][process_].write('max_retries = 3\n')
+              condor[Era][region][channel][process_].write('requirements     = Machine =!= LastRemoteHost\n')
+              condor[Era][region][channel][process_].write('RequestCpus = 1\n')
+              condor[Era][region][channel][process_].write('queue 1 cfgFile in ')
+              condor[Era][region][channel][process_].close()
+              #condor[Era][region][channel][process_].write('transfer_input_files = {}/{}\n'.format(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)))
+              #condor[Era][region][channel][process_].write('+PostCmd =  "merge_{}_{}_{}_{}.sh"\n'.format(Era, region, channel, process_))
+              #condor[Era][region][channel][process_].write('+MaxRuntime = 7200\n')
+
+
+              condor_merge = open(os.path.join(farm_dir, 'condor_merge_{}_{}_{}_{}.sub'.format(Era, region, channel, process_)), 'w')
+              condor_merge.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+              condor_merge.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+              condor_merge.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+              condor_merge.write('executable = %s/$(cfgFile)\n'%farm_dir)
+              condor_merge.write('universe = %s\n'%args.universe)
+              condor_merge.write('+JobFlavour = "microcentury"\n')
+              condor_merge.write('on_exit_remove   = (ExitBySignal == False) && (ExitCode == 0)\n')
+              condor_merge.write('max_retries = 3\n')
+              condor_merge.write('requirements     = Machine =!= LastRemoteHost\n')
+              condor_merge.write('cfgFile={}\nqueue 1\n'.format('merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)))
+              condor_merge.close()
+
+
+              if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
+                Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+              else:
+                Outdir_revised = Outdir
+              merge_shell[Era][region][channel][process_] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)), 'w')
+              merge_shell[Era][region][channel][process_].write('#!/bin/bash\n')
+              merge_shell[Era][region][channel][process_].write('WORKDIR=%s\n'%cwd)
+              merge_shell[Era][region][channel][process_].write('cd ${WORKDIR}\n')
+              merge_shell[Era][region][channel][process_].write('source script/env.sh\n')
+#             merge_shell[Era][region][channel][process_].write('mv {}/job*err {}/.\n'.format(farm_dir, farm_dir_mirror))
+#             merge_shell[Era][region][channel][process_].write('mv {}/job*out {}/.\n'.format(farm_dir, farm_dir_mirror))
+              merge_shell[Era][region][channel][process_].write('rm %s/.sys*\n'%(Outdir))
+              merge_shell[Era][region][channel][process_].write("rm %s.root\n"%os.path.join(Outdir, process_))
+              merge_shell[Era][region][channel][process_].write("python %s/haddnano.py %s.root"%(cwd, os.path.join(Outdir_revised, process_)))
+              merge_shell[Era][region][channel][process_].close()
+
+              job_name = "{}_{}_{}_{}".format(Era, region, channel, process_)
+              DAG_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
+              DAG_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
+              DAG_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
 
   DAG_file.close()
 
@@ -291,18 +315,25 @@ if __name__ == "__main__":
               continue
             if "Channel" in samples[sample] and channel not in samples[sample]["Channel"]:
               continue
-            job_name = "{}_{}_{}_{}".format(Era, region, channel, sample)
-            if args.check and not check_file(os.path.join(Outdir, '{}.root'.format(sample))):
-              condor[Era][region][channel][sample] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample)), 'a')
-              Failed_Sample[Era][region][channel]['sample'].append(sample)
-              matched_files = glob.glob(os.path.join(Outdir, '*{}*.root'.format(sample)))
-              Failed_Sample[Era][region][channel]['key'] = Get_List_Union(matched_files)
-              DAG_resubmit_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
-              DAG_resubmit_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
-              DAG_resubmit_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
-              prepare_shell('dummy.sh'.format(job_name), 'echo pass', condor[Era][region][channel][sample], farm_dir)
-              condor[Era][region][channel][sample].close()
-              Check_GreenLight = False
+            process_list = []
+            if "SubProcess" in samples[sample]:
+              for process in samples[sample]["SubProcess"]:
+                process_list.append(process)
+            else:
+              process_list.append(sample)
+            for process_ in process_list:
+              job_name = "{}_{}_{}_{}".format(Era, region, channel, process_)
+              if args.check and not check_file(os.path.join(Outdir, '{}.root'.format(process_))):
+                condor[Era][region][channel][process_] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, process_)), 'a')
+                Failed_Sample[Era][region][channel]['sample'].append(process_)
+                matched_files = glob.glob(os.path.join(Outdir, '*{}*.root'.format(process_)))
+                Failed_Sample[Era][region][channel]['key'] = Get_List_Union(matched_files)
+                DAG_resubmit_file.write('JOB {} {}/condor_{}.sub\n'.format(job_name, farm_dir, job_name))
+                DAG_resubmit_file.write('JOB merge_{} {}/condor_merge_{}.sub\n'.format(job_name, farm_dir, job_name))
+                DAG_resubmit_file.write('PARENT {} CHILD merge_{}\n'.format(job_name, job_name))
+                prepare_shell('dummy.sh'.format(job_name), 'echo pass', condor[Era][region][channel][process_], farm_dir)
+                condor[Era][region][channel][process_].close()
+                Check_GreenLight = False
 
   print(Failed_Sample)
   DAG_resubmit_file.close()
@@ -312,11 +343,11 @@ if __name__ == "__main__":
   ##  Data  ##
   ############
   os.system('mkdir -p script')
-  os.system('cp ../../data/DNN.dat script/.')
-  os.system('cp ../../data/DNN.hxx script/.')
 
   os.system('mkdir -p data')
-  os.system('cp ../../data/preprocessor.pkl data/.')
+#  os.system('cp ../../data/*.pkl data/.')
+#  os.system('cp ../../data/*.dat data/.')
+#  os.system('cp ../../data/*.hxx data/.')
 
   ##############
   ##  Script  ##
@@ -350,18 +381,21 @@ if __name__ == "__main__":
            ###########################
            ## MC Lumi x xSec / nDAS ##
            ###########################
-           sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
+           if 'Signal' in sample_Label: sample_name = iin.replace('.root', '')
+           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
 
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
              for file_ in File_List:
-               sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', file_).replace('.root','')
+               if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
+               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', file_).replace('.root','')
                if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
+             if not args.half is None: norm_factor = norm_factor*2
            else: # data doesn't need to be normalized by lumi x cross section
              norm_factor = 1.0
 
@@ -370,41 +404,60 @@ if __name__ == "__main__":
            if "Channel" in samples[sample_name] and channel not in samples[sample_name]["Channel"]:
              continue
 
+           process_list = []
+           if "SubProcess" in samples[sample_name]:
+             for subprocess in samples[sample_name]["SubProcess"]:
+               process_list.append(subprocess)
+           else:
+             process_list.append(sample_name)
 
            json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
            json_command += ' --pNN ' if args.pNN else ''
+           json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
            json_command += ' --toppt ' if args.toppt else ''
             
-           condor[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, sample_name)), 'a')
-           merge_shell[Era][region][channel][sample_name] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, sample_name)), 'a')
-
-           if args.blocksize == -1:
-             shell_file = "slim_%s_%s_%s_%s.sh"%(iin, Era, region, channel)
-             command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
-             command += json_command
-             prepare_shell(shell_file, command, condor[Era][region][channel][sample_name], farm_dir)
-
-           else:
-             ranges = prepare_range(inputFile_path[Era], iin, args.blocksize)
-             for idx, num in enumerate(ranges[:-1]):
-               start = ranges[idx]
-               end   = ranges[idx+1]
-               command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir)
-               command += json_command
-               shell_file = "slim_%s_%s_%s_%s_%d.sh"%(iin, Era, region, channel, idx)
-               if not args.check:
-                   prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
-               elif args.check and sample_name in Failed_Sample[Era][region][channel]['sample']:
-                 if not check_file(os.path.join(Outdir, '{}_{}'.format(idx, iin)), Failed_Sample[Era][region][channel]['key']):
-                   prepare_shell(shell_file,command, condor[Era][region][channel][sample_name], farm_dir)
-               if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
-                 Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+           for process_ in process_list:
+             if args.clear:
+               if process_ == 'TTTo1L' or process_ == 'TTTo2L':
+                 os.system('rm {outdir}/*_{process}_*.root'.format(outdir=Outdir, process=process_))
                else:
-                 Outdir_revised = Outdir
-               merge_shell[Era][region][channel][sample_name].write(" %s"%(os.path.join(Outdir_revised, '{}_{}'.format(idx, iin)))) 
-           condor[Era][region][channel][sample_name].close()
-           merge_shell[Era][region][channel][sample_name].close()
+                 os.system('rm {outdir}/*_{process}.root'.format(outdir=Outdir, process=process_))
+               continue
+             condor[Era][region][channel][process_] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, process_)), 'a')
+             merge_shell[Era][region][channel][process_] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)), 'a')
+             # Clear the files except the merged one
+
+             if args.blocksize == -1:
+               shell_file = "slim_%s_%s_%s_%s_%s.sh"%(iin, Era, region, channel,process_)
+               command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
+               command += json_command
+               prepare_shell(shell_file, command, condor[Era][region][channel][process_], farm_dir)
+
+             else:
+               ranges = prepare_range(inputFile_path[Era], iin, args.blocksize, half=args.half, isdata=("Data" in sample_Label))
+               for idx, num in enumerate(ranges[:-1]):
+                 start = ranges[idx]
+                 end   = ranges[idx+1]
+                 command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
+                 command += json_command
+                 shell_file = "slim_%s_%s_%s_%s_%d_%s.sh"%(iin, Era, region, channel, idx, process_)
+                 outputfile_name = '{}_{}.root'.format(idx, process_) if "SubProcess" in samples[sample_name] else '{}_{}'.format(idx, iin)
+
+                 if not args.check:
+                     prepare_shell(shell_file,command, condor[Era][region][channel][process_], farm_dir)
+                 elif args.check and process_ in Failed_Sample[Era][region][channel]['sample']:
+                   if not check_file(os.path.join(Outdir, outputfile_name), Failed_Sample[Era][region][channel]['key']):
+                     prepare_shell(shell_file,command, condor[Era][region][channel][process_], farm_dir)
+
+                 if 'eos' in Outdir and 'root://eosuser.cern.ch//' not in Outdir:
+                   Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
+                 else:
+                   Outdir_revised = Outdir
+                   
+                 merge_shell[Era][region][channel][process_].write(" %s"%(os.path.join(Outdir_revised, outputfile_name))) 
+             condor[Era][region][channel][process_].close()
+             merge_shell[Era][region][channel][process_].close()
 
 
   ################# 
@@ -486,9 +539,16 @@ if __name__ == "__main__":
               continue
             if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
               continue
+            process_list = []
+            if "SubProcess" in samples[iin]:
+              for process in samples[iin]['SubProcess']:
+                process_list.append(process)
+            else:
+              process_list.append(iin)
             #condor[Era][region][channel][iin].close()
             #merge_shell[Era][region][channel][iin].close()
-            os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, iin)))
+            for process in process_list:
+              os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
   if not args.test:
     if args.check:
       if not Check_GreenLight:

@@ -8,7 +8,7 @@
 #include "TStyle.h"
 #include "TString.h"
 #include "TVector2.h"
-
+#include <algorithm>
 using namespace ROOT;
 using namespace std;
 using namespace ROOT::VecOps;
@@ -364,7 +364,7 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
   }
 }
 
-float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass, int var){
+float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass, int var){
 
   float top_E = -1.;
   float top_px = -1.;
@@ -374,33 +374,50 @@ float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::Ve
   float mT = 172.69; //PDG 2023
   float jet_pt, jet_eta, jet_phi, jet_mass, jet_e, jet_px, jet_py, jet_pz;
   float top_e_tmp, top_px_tmp, top_py_tmp, top_pz_tmp, top_mass_tmp;
+  float H_E, H_px, H_py, H_pz;
+  float H_mass = -99.;
+  int b_jet_cand_idx = -1;
+  ROOT::Math::PxPyPzEVector Wjet(W_px, W_py, W_pz, W_E);
+  ROOT::Math::PtEtaPhiMVector top;
 
   for(int ijet = 0; ijet < b_jet_id.size(); ijet++){
     int jet_idx = b_jet_id[ijet];
     if(jet_idx < 0) continue;
-    jet_pt = Jet_pt[jet_idx]; jet_eta = Jet_eta[jet_idx]; jet_phi = Jet_phi[jet_idx]; jet_mass = Jet_mass[jet_idx];
-    jet_px = jet_pt * cos(jet_phi);
-    jet_py = jet_pt * sin(jet_phi);
-    jet_pz = jet_pt * sinh(jet_eta);
-    jet_e  = sqrt(jet_pt*jet_pt * (1. + cosh(jet_eta)*cosh(jet_eta)) + jet_mass*jet_mass); 
-
-    top_e_tmp  = W_E + jet_e;
-    top_px_tmp = W_px + jet_px;
-    top_py_tmp = W_py + jet_py;
-    top_pz_tmp = W_pz + jet_pz;
-    top_mass_tmp = sqrt(top_e_tmp*top_e_tmp - top_pz_tmp*top_pz_tmp - top_py_tmp*top_py_tmp - top_px_tmp*top_px_tmp);
-
+    ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+    ROOT::Math::PtEtaPhiMVector top_tmp = jet + Wjet;
+    top_mass_tmp = top_tmp.M();
     if(abs(top_mass_tmp - mT) < abs(top_mass - mT)){
       top_mass = top_mass_tmp;
-      top_px   = top_px_tmp;
-      top_py   = top_py_tmp;
-      top_pz   = top_pz_tmp;
+      b_jet_cand_idx = jet_idx;
+      top = top_tmp;
     }
   }
 
-  float top_pT = sqrt(pow(top_px,2) + pow(top_py,2));
-  if(var == 1) return top_pT;
-  return top_mass;
+  if(var == 1) return top.Pt();
+  else if(var == 0) return top_mass;
+  else{
+    if(b_jet_id.size() > 1){
+      for(int ijet = 0; ijet < b_jet_id.size(); ijet++){
+        int jet_idx = b_jet_id[ijet];
+        if(jet_idx < 0) continue;
+        if(jet_idx == b_jet_cand_idx) continue;
+        ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+        ROOT::Math::PtEtaPhiMVector Hplus = top + jet;
+        if(Hplus.M() > H_mass) H_mass = Hplus.M();
+      }
+    }
+    else{
+       for(int ijet = 0; ijet < tight_jet_id.size(); ijet++){
+        int jet_idx = tight_jet_id[ijet];
+        if(jet_idx < 0) continue;
+        if(jet_idx == b_jet_cand_idx) continue;
+        ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+        ROOT::Math::PtEtaPhiMVector Hplus = top + jet;
+        if(Hplus.M() > H_mass) H_mass = Hplus.M();
+      }
+    }
+    return H_mass;
+  }
 }
 
 
@@ -701,4 +718,29 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
   return final_return; 
 
 
+}
+
+vector<float> SoftMax(vector<float> inV){
+  vector<float> outV;
+  float sum = 0.;
+  for(int i = 0; i < inV.size(); i++){
+    sum += exp(inV[i]);
+  }
+  for(int i =0; i < inV.size(); i++){
+    if(sum > 0) outV.push_back((exp(inV[i])/sum));
+    else outV.push_back(0.0);
+  }
+  return outV;
+}
+
+int ArgMax(vector<float> inV){
+  int index = -1;
+  float current_max = -999999.;
+  for(int i = 0; i < inV.size(); i++){
+    if(inV[i] > current_max){
+      current_max = inV[i];
+      index = i;
+    }
+  }
+  return index;
 }

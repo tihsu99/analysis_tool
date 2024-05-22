@@ -7,9 +7,10 @@ import optparse, argparse
 from collections import OrderedDict
 from math import sqrt
 sys.path.insert(1, '../../python')
-from common import inputFile_path, read_json
+from common import *
 from DNN_application import Build_DNN_Command
-import ROOT
+import re
+import copy
 
 cwd = os.getcwd()
 
@@ -38,7 +39,9 @@ def Slim_module(filein,
                 end   = -1,
                 index = -1,
                 pNN = False,
+                multi_class_pNN=False,
                 cutflow_store=False,
+                SubProcess = None,
                 toppt = False):
 
   ###################
@@ -53,10 +56,19 @@ def Slim_module(filein,
   ROOT.gSystem.Load("libGenVector.so")
   header_path = os.path.join("script/slim_" + era + ".h")
   ROOT.gInterpreter.Declare('#include "{}"'.format(header_path))
-
+  Mass_bin = [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
   #################
   ##  Load File  ##
   #################
+
+
+  jsonfile = open(sample_json)
+  samples = json.load(jsonfile)
+  jsonfile.close()
+  samples = Extend_sample_dict(samples, key_word = 'MASS')
+
+  if 'Signal' in sample_labels: sample_name = filein.replace('.root', '')
+  else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', filein).replace('.root','')
 
   path    = str(inputFile_path[era])
   fin     = os.path.join(path, filein)
@@ -69,18 +81,15 @@ def Slim_module(filein,
   else:
     fileOut = os.path.join(output_dir, filein) 
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
+
+  if not SubProcess is None and ('SubProcess' in samples[sample_name]):
+    fileOut = fileOut.replace(filein, SubProcess + '.root')
   treeOut = "Events"
 
   if not os.path.isdir(output_dir):
     os.system("mkdir -p " + output_dir)
 
-  jsonfile = open(sample_json)
-  samples = json.load(jsonfile, object_pairs_hook=OrderedDict)
-  jsonfile.close()
 
-  for sample in samples:
-    if (((sample + ".") in filein) or ((sample + "_") in filein)):
-      sample_name = sample
 
   ###########################
   ## Channel/Region filter ##
@@ -204,6 +213,10 @@ def Slim_module(filein,
   MET_filters = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
 
+
+  if pNN or multi_class_pNN:
+    MVA_Label = cuts[region]["MVA_Label"]
+
   # channel cut
   for cut_name in cuts[region]["channel_cut"][channel]:
     df = df.Filter(str(cuts[region]["channel_cut"][channel][cut_name]), str(cut_name))
@@ -250,6 +263,15 @@ def Slim_module(filein,
   if cutflow_store:
     print(cutflow)
 
+  # signal cut
+  if not (SubProcess is None) and ('SubProcess' in samples[sample_name]):
+    df = df.Filter(str(samples[sample_name]['SubProcess'][SubProcess]))
+    print('Sub Process cut: {}'.format(samples[sample_name]['SubProcess'][SubProcess]))
+
+  # POIs setting
+  if 'ASCUTJSON' in POIs:
+     POIs = cuts[region]['POI']
+
   ####################
   ##  MVA Variable  ##
   ####################
@@ -267,16 +289,29 @@ def Slim_module(filein,
         POIs.append(MVA)
 
   if pNN:
-    var = MVA_json_dict['xgboost']
+    var = MVA_json_dict[MVA_Label]
     var.append('Mass')
-    Build_DNN_Command(var)
-    for mass_ in [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]:
-      define_ = 'DNN(' + ', '.join(var) + ')'
+    Build_DNN_Command(var, MVA_Label, 'pNN')
+    for mass_ in Mass_bin:
+      define_ = ('{}(' + ', '.join(var) + ')[0]').format(MVA_Label)
       define_ = define_.replace('Mass', str(mass_))
       print(define_)
       df = df.Define(str('DNN{}'.format(mass_)), str(define_))
-      POIs.append('DNN{}'.format(mass_))
 
+  if multi_class_pNN:
+    var = MVA_json_dict[MVA_Label]
+    var.append('Mass')
+    Build_DNN_Command(var, MVA_Label, 'multiClassDNN')
+    for mass_ in Mass_bin:
+      define_ = ('{}(' + ', '.join(var) + ')').format(MVA_Label)
+      define_ = define_.replace('Mass', str(mass_))
+      print(define_)
+      df = df.Define(str('DNN{}_v'.format(mass_)), str('SoftMax({})'.format(define_)))
+      df = df.Define(str('DNN{}_class'.format(mass_)), str('ArgMax(DNN{}_v)'.format(mass_)))
+      df = df.Define(str('DNN{}'.format(mass_)), str('DNN{}_v[DNN{}_class]'.format(mass_, mass_)))
+      df = df.Define(str('DNN{}_bkg'.format(mass_)), str('DNN{}_v[0]'.format(mass_)))
+      df = df.Define(str('DNN{}_2b'.format(mass_)), str('DNN{}_v[1]'.format(mass_)))
+      df = df.Define(str('DNN{}_3b'.format(mass_)), str('DNN{}_v[2]'.format(mass_)))
 
   #################
   ##  Histogram  ##
@@ -287,7 +322,7 @@ def Slim_module(filein,
   Histograms = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
 
-
+  # for BDT MVA case
   if MVA_weight_dir is not None:
     for MVA in MVA_list:
       Histograms[MVA] = {
@@ -297,17 +332,43 @@ def Slim_module(filein,
         "nbin": 10,
         "Label": ["Reco","Normal", "BDT"]
       }
-  
-  if pNN:
-    for mass_ in [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]:
+
+  # DNN score for different mass point
+  if pNN or multi_class_pNN:
+    for mass_ in Mass_bin:
       Histograms['DNN{}'.format(mass_)] = {
         "Title": ";DNN;nEntries",
         "xlow":0,
         "xhigh":1,
         "nbin": 10,
-        "Label": ["Normal", "pNN"]
+        "Label": ["Normal", "pNN"],
+        "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
       }
+      Histograms['DNN{}'.format(mass_)]['cut'] = Histograms['DNN{}'.format(mass_)]['cut'].replace('MASS', str(mass_)) if Histograms['DNN{}'.format(mass_)]['cut'] is not None else None
 
+  # Store each DNN output node (mainly for control region)
+  if multi_class_pNN:
+    if 'DNN_category' not in cuts[region]:
+      for mass_ in Mass_bin:
+        Histograms['DNN{}_bkg'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+        Histograms['DNN{}_2b'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+        Histograms['DNN{}_3b'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+
+  # POIs consider DNN for different mass
+  POIs_after_consider_mass = []
+  for POI_ in POIs:
+    if POI_ == 'DNN' and (pNN or multi_class_pNN): 
+        for mass_ in Mass_bin:
+          POIs_after_consider_mass.append('DNN{}'.format(mass_))
+    elif multi_class_pNN and ( "DNN_category" in cuts[region]):
+      for mass_ in Mass_bin:
+        Histograms['{}{}'.format(POI_, mass_)] = copy.deepcopy(Histograms[POI_])
+        Histograms['{}{}'.format(POI_, mass_)]['cut'] =  cuts[region]["DNN_category"].replace('MASS', str(mass_)) if "DNN_category" in cuts[region] else None
+        Histograms['{}{}'.format(POI_, mass_)]['definition'] = str(POI_)
+        POIs_after_consider_mass.append('{}{}'.format(POI_, mass_))
+    else:
+      POIs_after_consider_mass.append(POI_)
+  POIs = POIs_after_consider_mass
 
   Histos_from_df = dict()
   Histos_from_df_var = dict()
@@ -333,8 +394,14 @@ def Slim_module(filein,
     xlow   = Histograms[Histogram]["xlow"]
     xhigh  = Histograms[Histogram]["xhigh"]
     nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
-    # print ("total weight", df['weight'].GetValue()) #gkole (not wotking this way)
-    df_histo = df.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), str(Histogram), "weight")
+
+    if (not "cut" in Histograms[Histogram]): df_plot = df
+    elif (Histograms[Histogram]["cut"] is None): df_plot = df
+    else: df_plot = df.Filter(str(Histograms[Histogram]["cut"]))
+
+ 
+    Histogram_definition = Histograms[Histogram]['definition'] if 'definition' in Histograms[Histogram] else str(Histogram)
+    df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
     Histos_from_df[Histogram] = df_histo
 
     ## Nuisance variation for POIs
@@ -376,10 +443,13 @@ def Slim_module(filein,
   ##  Store Variable  ##
   ######################
 
+  print("start to store")
+
   columns = ROOT.std.vector("string")()
 
   for variable in variables:
-
+    if "Data" in sample_labels and "MC" in variables[variable]["Label"]: continue
+    if variable not in df.GetColumnNames(): continue
     Flag = False
     for Label in Labels:
       if "Save" in variables[variable] and Label in variables[variable]["Save"]: Flag = True
@@ -397,6 +467,8 @@ def Slim_module(filein,
     
   if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
     fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
+
+  print(columns)
   df.Snapshot(treeOut, fileOut, columns)
   #######################
   ##  Store Histogram  ##
@@ -444,9 +516,11 @@ if __name__ == "__main__":
   parser.add_argument("--MVA_json", default = "../../data/MVA.json", type=str)
   parser.add_argument("--MVA_weight_dir", default = None, type=str)
   parser.add_argument("--pNN", action='store_true')
+  parser.add_argument("--multi_class_pNN", action='store_true')
   parser.add_argument("--cutflow", action='store_true')
+  parser.add_argument("--SubProcess", type=str, default = None)
   parser.add_argument("--toppt",   action='store_true')
-
+  
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
   if args.MVA_weight_dir == "None": args.MVA_weight_dir = None
@@ -468,9 +542,10 @@ if __name__ == "__main__":
               MVA_weight_dir = args.MVA_weight_dir, \
               region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale,\
               pNN = args.pNN,\
-              cutflow_store = args.cutflow, \
-              toppt = args.toppt
-              )
+              cutflow_store = args.cutflow,\
+              SubProcess = args.SubProcess,\
+              multi_class_pNN = args.multi_class_pNN,\
+              toppt = args.toppt)
   end_time = time.time()
   print('process time', end_time - start_time)
 
