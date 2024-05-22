@@ -11,6 +11,7 @@ from common import *
 from DNN_application import Build_DNN_Command
 import re
 import copy
+from termcolor import colored
 
 cwd = os.getcwd()
 
@@ -113,7 +114,7 @@ def Slim_module(filein,
     tree.SetEntryList(entry_list)
  
   df   = ROOT.RDataFrame(tree)
-  print(fin, start, end)
+  print(colored(fin,'green'), colored(start,'cyan'), colored(end,'cyan'))
   BranchList = df.GetColumnNames()
 
   #######################
@@ -191,8 +192,8 @@ def Slim_module(filein,
     nuisances_valid = [] # Nuisances only affect MC
   if toppt:
     if "TTTo1L" in filein or "TTTo2L" in filein:
-      print ("--> For ttbar apply toppt_weight")
-      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf"
+      print (colored('--> For ttbar apply toppt_weight','yellow'))
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
   df = df.Define("weight", str(weight_def))
   
   #########
@@ -470,6 +471,7 @@ def Slim_module(filein,
 
   print(columns)
   df.Snapshot(treeOut, fileOut, columns)
+  print (colored('Output file: ','green'),colored('{}'.format(fileOut), 'cyan'))
   #######################
   ##  Store Histogram  ##
   #######################
