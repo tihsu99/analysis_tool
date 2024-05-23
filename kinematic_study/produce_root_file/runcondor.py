@@ -10,6 +10,7 @@ import re
 sys.path.insert(1, '../../python')
 from common import *
 from aux import colors
+from termcolor import colored
 
 def prepare_range(path, fin, step, half, isdata):
 
@@ -464,7 +465,7 @@ if __name__ == "__main__":
   # clear individual root files
   ################# 
   if args.check and Check_GreenLight:
-    print("All files are produced successfully and merged as well.")
+    print(colored("All files are produced successfully and merged as well.",'green'))
     for Era in Eras:
       for region in region_channel_dict:
        for channel in region_channel_dict[region]:
