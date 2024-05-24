@@ -3,7 +3,26 @@ from optparse import OptionParser
 import sys
 import os
 from array import array
+import math
+from statistics import mean
 
+def applyweights(hist, histvarup, histvardown=None):
+    '''takes a histogram and applies the weights to the central value'''
+    ''' if weights are symmetric only hist_up is needed '''
+    hist_up = hist.Clone()
+    hist_up.SetTitle("NanoGEN_var_up")
+    hist_up.Reset("ICES")
+    hist_down = hist.Clone()
+    hist_down.SetTitle("NanoGEN_var_down")
+    hist_down.Reset("ICES")
+    for i in range(1, histvarup.GetNbinsX()+1):
+        if not histvardown:
+            hist_up.SetBinContent(i, hist.GetBinContent(i) * (1+histvarup.GetBinContent(i)))
+            hist_down.SetBinContent(i, hist.GetBinContent(i) * (1-histvarup.GetBinContent(i)))
+        else:
+            hist_up.SetBinContent(i, hist.GetBinContent(i) * (1+histvarup.GetBinContent(i)))
+            hist_down.SetBinContent(i, hist.GetBinContent(i) * (1-histvardown.GetBinContent(i)))
+    return hist_up, hist_down
 
 def makehisto(list_hists, title_labels, outputname, central_hist = None, logscale = False):
     '''takes a list of histograms or a histogram and makes and stores the plot  '''
@@ -57,9 +76,10 @@ def main():
     parser.add_option('-o', '--out', dest='outputfiles', help='name output files', default=None, type='string')
     (opt, args) = parser.parse_args()
     ROOT.gROOT.SetBatch(True)
+    ROOT.TH1.SetDefaultSumw2()
 
     binning = array('d', [20, 35, 50, 80, 120, 160, 200, 260, 320, 450, 700, 1000] )
-    binning = array('d', [2, 3, 4, 5, 6, 7, 8, 9, 10] )
+    #binning = array('d', [2, 3, 4, 5, 6, 7, 8, 9, 10] )
 
     if not os.path.isfile(opt.inputfiles): 
         print(f'inputfile {opt.inputfile} does not exist!!')
@@ -71,49 +91,85 @@ def main():
     hist_PSup = ROOT.TH1F('PSup','PSup', len(binning)-1, binning)
     hist_PSdown = ROOT.TH1F('PSdown','PSdown', len(binning)-1, binning)
     hist_central = ROOT.TH1F('central','central', len(binning)-1, binning)
-    
-    variable = 'nGenJet'
-    #variable = 'Jet_pt'
+    hist_pdf = ROOT.TH1F('pdf','pdf', len(binning)-1, binning)
 
-    #for i in range(treein.GetEntries()):
-    for i in range(10001):
+
+    variable = 'GenJet_pt'
+    #variable = 'nJet'
+
+    is_comparison = False
+    max_entries = treein.GetEntries()
+
+    if is_comparison:
+        max_entries = 10001
+        file_weights = ROOT.TFile.Open('prova.root')
+        hist_scaleupGEN = file_weights.Get('scalevarup')
+        hist_scaledownGEN = file_weights.Get('scalevardown')
+        hist_PSupGEN = file_weights.Get('psvarup')
+        hist_PSdownGEN = file_weights.Get('psvardown')
+
+    for i in range(max_entries):
         treein.GetEntry(i)
         if i%5000 == 0: print(f'processing {i}th event')
         # selection
         if treein.nGenJet < 2 and treein.nGenDressedLepton != 1: continue
-        if type(getattr(treein,variable)) == type([]):
+
+        if "pt" in variable:
             fill_var = getattr(treein,variable)[0]
         else:
             fill_var = getattr(treein,variable)
+
+        # PDF weights are in the range 1-100
+        # for uncertainties we refer to section 6.2 of the PDF4LHC recommendations (https://arxiv.org/pdf/1510.03865)
+        # the uncertainties are implemented according to the formula for PDF uncertainties for Hessian sets (Eq.20) 
+        pdfweights = [treein.LHEPdfWeight[i] for i in range(1, 101)]
+        pdfmean = mean(pdfweights)
+        rms_hes = math.sqrt(sum([(x-pdfmean)**2 for x in pdfweights]))
+        alpha_var = (treein.LHEPdfWeight[102] - treein.LHEPdfWeight[101])/2
+        total_pdfunc = math.sqrt(rms_hes**2 + alpha_var**2)
+        hist_pdf.Fill(fill_var, 1+total_pdfunc)
+        #Histograms for scale uncertainties
         hist_scaleup.Fill(fill_var, max([treein.LHEScaleWeight[i] for i in range(treein.nLHEScaleWeight)]))
         hist_scaledown.Fill(fill_var, min([treein.LHEScaleWeight[i] for i in range(treein.nLHEScaleWeight)]))
-        hist_PSup.Fill(fill_var, max([treein.PSWeight[i] for i in range(0,4)]))
-        hist_PSdown.Fill(fill_var, min([treein.PSWeight[i] for i in range(0,4)]))
+        # for NanoGEN the Default PS weights (ISR-FSR = 0.5-2.0) are in the range 2-3 and 24-25. This could change in the future!!!
+        hist_PSup.Fill(fill_var, max([treein.PSWeight[i] for i in [2,3,24,25]]))
+        hist_PSdown.Fill(fill_var, min([treein.PSWeight[i] for i in [2,3,24,25]]))
+        #hist_PSup.Fill(fill_var, max([treein.PSWeight[i] for i in range(treein.nPSWeight)]))
+        #hist_PSdown.Fill(fill_var, min([treein.PSWeight[i] for i in range(treein.nPSWeight)]))
         hist_central.Fill(fill_var, 1)
-    #makehisto([hist_PSup, hist_PSdown, hist_scaleup, hist_scaledown], "; Leading jet p_{T} [GeV]; Nr. Event", f"comparison_{outname}", hist_central, logscale=True)
-    makehisto([hist_PSup, hist_PSdown, hist_scaleup, hist_scaledown], "; No. jets [GeV]; Nr. Event", f"comparison_{outname}_{variable}", hist_central)
-    hist_pdfvarup = ROOT.TH1D('pdfvarup','pdfvarup', len(binning)-1, binning)
-    hist_scalevarup = ROOT.TH1D('scalevarup','scalevarup', len(binning)-1, binning)
-    hist_psvarup = ROOT.TH1D('psvarup','psvarup', len(binning)-1, binning)
-    hist_pdfvardown = ROOT.TH1D('pdfvardown','pdfvardown', len(binning)-1, binning)
-    hist_scalevardown = ROOT.TH1D('scalevardown','scalevardown', len(binning)-1, binning)
-    hist_psvardown = ROOT.TH1D('psvardown','psvardown', len(binning)-1, binning)
-    for k in range(1, hist_central.GetNbinsX()+1):
-        #hist_pdfvarup.SetBinContent(k, hist_central.GetBinContent(k)*0.02)
-        #hist_pdfvardown.SetBinContent(k, hist_central.GetBinContent(k)*0.01)
-        hist_scalevarup.SetBinContent(k, abs(hist_scaleup.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
-        hist_scalevardown.SetBinContent(k, abs(hist_scaledown.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
-        hist_psvarup.SetBinContent(k, abs(hist_PSup.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
-        hist_psvardown.SetBinContent(k, abs(hist_PSdown.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
-    makehisto([hist_psvarup, hist_psvardown, hist_scalevarup, hist_scalevardown], "; Leading jet p_{T} [GeV]; percent var", f"percent_variation_{outname}_{variable}")
 
-    fileout = ROOT.TFile.Open(opt.outputfiles+'.root','RECREATE')
-    fileout.cd()
-    hist_scalevarup.Write()
-    hist_scalevardown.Write()
-    hist_psvarup.Write()
-    hist_psvardown.Write()
-    fileout.Close()
+    makehisto([hist_PSup, hist_PSdown, hist_scaleup, hist_scaledown, hist_pdf], "; Leading jet p_{T} [GeV]; Nr. Event", f"comparison_{outname}_{variable}", hist_central)
+    
+    if is_comparison:
+        scaleupGEN, scaledownGEN = applyweights(hist_central, hist_scaleupGEN, hist_scaledownGEN)
+        PSupGEN, PSdownGEN = applyweights(hist_central, hist_PSupGEN, hist_PSdownGEN)
+        makehisto([scaleupGEN, scaledownGEN, hist_scaleup, hist_scaledown], "; Leading jet p_{T} [GeV]; Nr. Event", f"comparison_NanoAOD-GEN_scale_{outname}_{variable}", hist_central)
+        makehisto([PSupGEN, PSdownGEN, hist_PSup, hist_PSdown], "; Leading jet p_{T} [GeV]; Nr. Event", f"comparison_NanoAOD-GEN_PS_{outname}_{variable}", hist_central)
+    else:   
+        hist_pdfvarup = ROOT.TH1D('pdfvarup','pdfvarup', len(binning)-1, binning)
+        hist_scalevarup = ROOT.TH1D('scalevarup','scalevarup', len(binning)-1, binning)
+        hist_psvarup = ROOT.TH1D('psvarup','psvarup', len(binning)-1, binning)
+        hist_pdfvardown = ROOT.TH1D('pdfvardown','pdfvardown', len(binning)-1, binning)
+        hist_scalevardown = ROOT.TH1D('scalevardown','scalevardown', len(binning)-1, binning)
+        hist_psvardown = ROOT.TH1D('psvardown','psvardown', len(binning)-1, binning)
+        for k in range(1, hist_central.GetNbinsX()+1):
+            hist_pdfvarup.SetBinContent(k, abs(hist_pdf.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+            hist_pdfvardown.SetBinContent(k, abs(hist_pdf.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+            hist_scalevarup.SetBinContent(k, abs(hist_scaleup.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+            hist_scalevardown.SetBinContent(k, abs(hist_scaledown.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+            hist_psvarup.SetBinContent(k, abs(hist_PSup.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+            hist_psvardown.SetBinContent(k, abs(hist_PSdown.GetBinContent(k) - hist_central.GetBinContent(k))/ hist_central.GetBinContent(k) if hist_central.GetBinContent(k) > 0 else 0)
+
+        fileout = ROOT.TFile.Open(opt.outputfiles+'.root','RECREATE')
+        fileout.cd()
+        hist_scalevarup.Write()
+        hist_scalevardown.Write()
+        hist_psvarup.Write()
+        hist_psvardown.Write()
+        hist_pdfvarup.Write()
+        hist_pdfvardown.Write()
+        fileout.Close()
+        makehisto([hist_psvarup, hist_psvardown, hist_scalevarup, hist_scalevardown, hist_pdfvarup, hist_pdfvardown], "; Leading jet p_{T} [GeV]; percent var", f"percent_variation_{outname}_{variable}")
 
 if __name__ == "__main__":
   sys.exit(main())
