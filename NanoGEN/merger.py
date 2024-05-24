@@ -11,4 +11,4 @@ for folder in listdirs:
                 print(f"********* No files in {all_subfolders[-2]} ")
             else:
                 print(f"Merging {path}/v3/{folder}.root")
-                os.system(f"haddnano.py {path}/v3/{folder}.root {all_subfolders[-2]}/{folder}_*.root")
+                os.system(f"python haddnano.py {path}/v3/{folder}.root {all_subfolders[-2]}/{folder}_*.root")
