@@ -15,6 +15,6 @@ for prod in productions:
             for rhotc in rhotcs:
                 filename = f"{prod}_H_M{mass}_rhott{rhott}_rhotc{rhotc}_rhotu00"
                 print(f"Producing histograms for {filename}")
-                os.system(f"python3 new_bH_GenWeight.py -i {path}{filename}.root -o {filename}_hist")
+                os.system(f"python3 bH_GenWeight.py -i {path}{filename}.root -o {filename}_hist")
 
                 
