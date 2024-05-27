@@ -121,6 +121,7 @@ if __name__ == "__main__":
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
   parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -129,8 +130,8 @@ if __name__ == "__main__":
   ############
 
   #cmsswBase = os.environ['CMSSW_BASE']
-  farm_dir  = os.path.join('./', 'Farm')
-  farm_dir_mirror = os.path.join(args.outdir, 'Farm')
+  farm_dir  = os.path.join('./', args.farm)
+  farm_dir_mirror = os.path.join(args.outdir, args.farm)
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
