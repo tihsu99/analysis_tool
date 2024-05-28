@@ -23,6 +23,7 @@ The arguments are:
 17. `--nuisance_json`: Json file that contains nuisacne information.
 18. `--trigger_json`: Json file that contains trigger information.
 19. `--MET_filter_json`: Json file that contains MET filter information.
+20. `--toppt`: to turn on top reweighting.
 
 As an example, you produce the 2017 skimmed ntuple with following command (most of the arguments can just follow default value):
 ```

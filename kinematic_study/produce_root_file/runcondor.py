@@ -10,6 +10,7 @@ import re
 sys.path.insert(1, '../../python')
 from common import *
 from aux import colors
+from termcolor import colored
 
 def prepare_range(path, fin, step, half, isdata):
 
@@ -119,6 +120,8 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
+  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -127,8 +130,8 @@ if __name__ == "__main__":
   ############
 
   #cmsswBase = os.environ['CMSSW_BASE']
-  farm_dir  = os.path.join('./', 'Farm')
-  farm_dir_mirror = os.path.join(args.outdir, 'Farm')
+  farm_dir  = os.path.join('./', args.farm)
+  farm_dir_mirror = os.path.join(args.outdir, args.farm)
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
@@ -414,6 +417,7 @@ if __name__ == "__main__":
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
+           json_command += ' --toppt ' if args.toppt else ''
             
            for process_ in process_list:
              if args.clear:
@@ -462,7 +466,7 @@ if __name__ == "__main__":
   # clear individual root files
   ################# 
   if args.check and Check_GreenLight:
-    print("All files are produced successfully and merged as well.")
+    print(colored("All files are produced successfully and merged as well.",'green'))
     for Era in Eras:
       for region in region_channel_dict:
        for channel in region_channel_dict[region]:

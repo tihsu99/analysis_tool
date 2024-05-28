@@ -11,6 +11,7 @@ from common import *
 from DNN_application import Build_DNN_Command
 import re
 import copy
+from termcolor import colored
 
 cwd = os.getcwd()
 
@@ -41,7 +42,8 @@ def Slim_module(filein,
                 pNN = False,
                 multi_class_pNN=False,
                 cutflow_store=False,
-                SubProcess = None):
+                SubProcess = None,
+                toppt = False):
 
   ###################
   ##  Sample type  ##
@@ -112,7 +114,7 @@ def Slim_module(filein,
     tree.SetEntryList(entry_list)
  
   df   = ROOT.RDataFrame(tree)
-  print(fin, start, end)
+  print(colored(fin,'green'), colored(start,'cyan'), colored(end,'cyan'))
   BranchList = df.GetColumnNames()
 
   #######################
@@ -161,6 +163,8 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
+      elif(variables[variable]["Def"] == "top_ptweight_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))  
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
@@ -186,8 +190,12 @@ def Slim_module(filein,
   if "Data" in sample_labels:
     weight_def = 1       # Data weight is also to be 1
     nuisances_valid = [] # Nuisances only affect MC
+  if toppt:
+    if "TTTo1L" in filein or "TTTo2L" in filein:
+      print (colored('--> For ttbar apply toppt_weight','yellow'))
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
   df = df.Define("weight", str(weight_def))
-
+  
   #########
   ## Cut ##
   #########
@@ -456,12 +464,14 @@ def Slim_module(filein,
     columns.push_back('weight')
     df = df.Define("weight_n_Norm", "weight * %f"%(scale))
     columns.push_back('weight_n_Norm')
-  
+    columns.push_back('toppt_weight') #gkole
+    
   if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
     fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
 
   print(columns)
   df.Snapshot(treeOut, fileOut, columns)
+  print (colored('Output file: ','green'),colored('{}'.format(fileOut), 'cyan'))
   #######################
   ##  Store Histogram  ##
   #######################
@@ -511,6 +521,8 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", action='store_true')
   parser.add_argument("--cutflow", action='store_true')
   parser.add_argument("--SubProcess", type=str, default = None)
+  parser.add_argument("--toppt",   action='store_true')
+  
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
   if args.MVA_weight_dir == "None": args.MVA_weight_dir = None
@@ -534,7 +546,8 @@ if __name__ == "__main__":
               pNN = args.pNN,\
               cutflow_store = args.cutflow,\
               SubProcess = args.SubProcess,\
-              multi_class_pNN = args.multi_class_pNN)
+              multi_class_pNN = args.multi_class_pNN,\
+              toppt = args.toppt)
   end_time = time.time()
   print('process time', end_time - start_time)
 

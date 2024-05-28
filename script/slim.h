@@ -13,6 +13,9 @@ using namespace ROOT;
 using namespace std;
 using namespace ROOT::VecOps;
 
+using Vec_f = ROOT::VecOps::RVec<float>;
+using Vec_i = ROOT::VecOps::RVec<int>;
+
 TString era = "EraToBeReplaced";
 
 // Trigger Scale Factor (Derived by ourselves)
@@ -187,6 +190,7 @@ std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<
 }
 
 
+
 std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_genPartIdxMother, ROOT::VecOps::RVec<int> GenPart_pdgId, ROOT::VecOps::RVec<int> GenPart_statusFlags){
 
   // Find mother particle id for genPart
@@ -223,6 +227,40 @@ std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_
 
   return match_idx;
 
+}
+
+float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status, Vec_i& genPart_statusFlags){
+  
+  int daughter_id, daughter_status;
+  bool isdaughter_lastcopy;
+  float gentoppt = 0.0, genantitoppt = 0.0, maxtoppt = 500.0, weight = 1.0, w1 = 1.0, w2 = 1.0;
+  
+  for(int index_ = 0; index_ < genPart_pdgId.size(); index_++){
+    daughter_id     = genPart_pdgId[index_];
+    daughter_status = genPart_status[index_];
+    isdaughter_lastcopy    = (genPart_statusFlags[index_]>>13) & 0x1;
+
+    if (isdaughter_lastcopy && abs(daughter_id) == 6){
+      //cout << "Particle id: " << daughter_id << std::endl;
+      //cout << "Particle status: " << daughter_status << std::endl;
+      //cout << "Particle pt: " << genPart_pt[index_] << std::endl;
+      if (daughter_id == 6){
+	gentoppt = genPart_pt[index_];
+	w1 = exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt));
+	//cout << "w1: " << w1 << endl;
+      }
+      if (daughter_id == -6){
+	genantitoppt = genPart_pt[index_];
+	w2 = exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt));
+	//cout << "w2: " << w2 << endl;
+      }
+      weight = sqrt(w1*w2);
+      //cout << "weight (intermediate): " << weight << endl;
+      //return weight; //not correct (because you consider only one top)
+    }
+  }
+  //cout << "weight (final): " << weight << endl;
+  return weight;
 }
 
 int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match, std::vector<int> Part_mother_match){
