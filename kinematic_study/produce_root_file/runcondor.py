@@ -170,12 +170,12 @@ if __name__ == "__main__":
     else:
       check_text = check_text + " --" + arg + " " + str(args_dict[arg])
 
-  clear_text = check_text + " --clear"
+  clear_text = check_text.replace('--check','') + " --clear"
 
-  with open('check.sh', 'w') as shell:
+  with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
     shell.write(check_text)
 
-  with open('clear.sh', 'w') as shell:
+  with open(os.path.join(farm_dir, 'clear.sh'), 'w') as shell:
     shell.write(clear_text)
   ##################
   ## Sample Label ##
