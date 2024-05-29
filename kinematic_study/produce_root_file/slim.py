@@ -302,6 +302,7 @@ def Slim_module(filein,
       df = df.Define(str('DNN{}_v'.format(mass_)), str('SoftMax({})'.format(define_)))
       df = df.Define(str('DNN{}_class'.format(mass_)), str('ArgMax(DNN{}_v)'.format(mass_)))
       df = df.Define(str('DNN{}'.format(mass_)), str('DNN{}_v[DNN{}_class]'.format(mass_, mass_)))
+      df = df.Define(str('DNNScore{}'.format(mass_)), str('DNN{}_v[DNN{}_class] / (DNN{}_v[DNN{}_class] + DNN{}_v[0])'.format(mass_, mass_, mass_, mass_, mass_)))
       df = df.Define(str('DNN{}_bkg'.format(mass_)), str('DNN{}_v[0]'.format(mass_)))
       df = df.Define(str('DNN{}_2b'.format(mass_)), str('DNN{}_v[1]'.format(mass_)))
       df = df.Define(str('DNN{}_3b'.format(mass_)), str('DNN{}_v[2]'.format(mass_)))
@@ -339,6 +340,17 @@ def Slim_module(filein,
       }
       Histograms['DNN{}'.format(mass_)]['cut'] = Histograms['DNN{}'.format(mass_)]['cut'].replace('MASS', str(mass_)) if Histograms['DNN{}'.format(mass_)]['cut'] is not None else None
 
+      if multi_class_pNN:
+        Histograms['DNNScore{}'.format(mass_)] = {
+          "Title": ";DNNScore;nEntries",
+          "xlow":0.5,
+          "xhigh":1,
+          "nbin": 10,
+          "Label": ["Normal", "pNN"],
+          "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
+        }
+        Histograms['DNNScore{}'.format(mass_)]['cut'] = Histograms['DNNScore{}'.format(mass_)]['cut'].replace('MASS', str(mass_)) if Histograms['DNNScore{}'.format(mass_)]['cut'] is not None else None
+
   # Store each DNN output node (mainly for control region)
   if multi_class_pNN:
     if 'DNN_category' not in cuts[region]:
@@ -350,9 +362,9 @@ def Slim_module(filein,
   # POIs consider DNN for different mass
   POIs_after_consider_mass = []
   for POI_ in POIs:
-    if POI_ == 'DNN' and (pNN or multi_class_pNN): 
+    if (POI_ == 'DNN' or POI_ == 'DNNScore') and (pNN or multi_class_pNN): 
         for mass_ in Mass_bin:
-          POIs_after_consider_mass.append('DNN{}'.format(mass_))
+          POIs_after_consider_mass.append('{}{}'.format(POI_, mass_))
     elif multi_class_pNN and ( "DNN_category" in cuts[region]):
       for mass_ in Mass_bin:
         Histograms['{}{}'.format(POI_, mass_)] = copy.deepcopy(Histograms[POI_])
@@ -387,6 +399,7 @@ def Slim_module(filein,
     xlow   = Histograms[Histogram]["xlow"]
     xhigh  = Histograms[Histogram]["xhigh"]
     nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
+    if (len(POIs) > 1): nbin = Histograms[Histogram]["nbin"] # When doing systematic variation, do not use large no. of bins to save memory
 
     if (not "cut" in Histograms[Histogram]): df_plot = df
     elif (Histograms[Histogram]["cut"] is None): df_plot = df
