@@ -78,9 +78,7 @@ def prepare_shell(shell_file, command, condor, FarmDir):
     shell.write('source script/env.sh\n')
     shell.write(command)
 
-  condor.write('cfgFile=%s\n'%shell_file)
-  condor.write('queue 1\n') 
- 
+  condor.write('%s,'%shell_file)
 
 ##########
 ## json ##

@@ -120,6 +120,8 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
+  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -128,8 +130,8 @@ if __name__ == "__main__":
   ############
 
   #cmsswBase = os.environ['CMSSW_BASE']
-  farm_dir  = os.path.join('./', 'Farm')
-  farm_dir_mirror = os.path.join(args.outdir, 'Farm')
+  farm_dir  = os.path.join('./', args.farm)
+  farm_dir_mirror = os.path.join(args.outdir, args.farm)
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
@@ -247,6 +249,7 @@ if __name__ == "__main__":
               condor[Era][region][channel][process_].write('max_retries = 3\n')
               condor[Era][region][channel][process_].write('requirements     = Machine =!= LastRemoteHost\n')
               condor[Era][region][channel][process_].write('RequestCpus = 1\n')
+              condor[Era][region][channel][process_].write('queue 1 cfgFile in ')
               condor[Era][region][channel][process_].close()
               #condor[Era][region][channel][process_].write('transfer_input_files = {}/{}\n'.format(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)))
               #condor[Era][region][channel][process_].write('+PostCmd =  "merge_{}_{}_{}_{}.sh"\n'.format(Era, region, channel, process_))
@@ -412,6 +415,7 @@ if __name__ == "__main__":
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
+           json_command += ' --toppt ' if args.toppt else ''
             
            for process_ in process_list:
              if args.clear:
