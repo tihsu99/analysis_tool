@@ -3,14 +3,18 @@
      "xsec": 88.29,
      "xsec_err": 6.1,
      "Category": "TT2L",
-     "subfile": ["_1", "_2", "_3"],
+     "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
      "Label": ["MC", "Background"]
   },
   "TTTo1L":{
      "xsec": 365.34,
      "xsec_err": 10,
      "Category": "TT1L",
-     "subfile": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
+     "subfile": {"2016apv": ["_1", "_2", "_3", "_4"],
+                 "2016postapv": ["_1", "_2", "_3", "_4", "_5"],
+                 "2017": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
+                 "2018": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13"]
+                 },
      "Label": ["MC", "Background"]
   },
   "ttWLNu":{
@@ -294,11 +298,13 @@
     "Category": "Nonprompt",
     "Label": ["MC", "Background", "Nonprompt"]
   },
+
   "SingleEG":{
     "xsec": 1,
     "Category": "data",
     "Label":  ["Data", "ele", "ee"],
-    "Channel": ["ele", "ee", "ele_resolved"]
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2016postapv", "2016apv", "2017"]
   },
   "SingleMuon":{
     "xsec": 1,
@@ -311,7 +317,16 @@
     "xsec": 1,
     "Category": "data",
     "Label": ["Data", "ele", "ee"],
-    "Channel": ["ele", "ee", "ele_resolved"]
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2017"]
+  },
+
+  "EGamma":{
+    "xsec": 1,
+    "Category": "data",
+    "Label": ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2018"]
   },
 
   "CGToBHpm_a_200_rtt06_rtc04":{
@@ -463,18 +478,6 @@
     "xsec": 0.001246,
     "Category": "tH^{#pm}(1000)",
     "Label": ["MC","Signal"]
-  },
-  "HplusToTB_M_MASS":{
-    "xsec": 1.0,
-    "Category": "H^{#pm}(MASS)",
-    "Label": ["MC", "Signal"],
-    "MASS": [200, 300, 350, 400, 500, 600, 700, 800, 1000, 1250, 1500, 1750, 2000, 2500, 3000]
-  },
-  "WprimeTotb_leptonicDecays_M_MASS":{
-    "xsec": 1.0,
-    "Category": "W^{'}(MASS)",
-    "Label": ["MC", "Signal"],
-    "MASS": [300, 500, 700, 900, 1100]
   }
 }
 
