@@ -6,7 +6,13 @@ import json
 import optparse, argparse
 from collections import OrderedDict
 from math import sqrt
-from common import inputFile_path
+sys.path.insert(1, '../../python')
+from common import *
+from DNN_application import Build_DNN_Command
+import re
+import copy
+
+cwd = os.getcwd()
 
 def Slim_module(filein,
                 era,
@@ -16,7 +22,7 @@ def Slim_module(filein,
                 Black_list=[],
                 POIs=[],
                 sample_labels = [],
-                weight_def="puWeight*genWeight*PrefireWeight/abs(genWeight)",
+                weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf",
                 scale = 1.0,
                 sample_json = "../../data/sample.json",
                 nuisance_json = "../../data/nuisance.json",
@@ -25,10 +31,17 @@ def Slim_module(filein,
                 trigger_json = "../../data/trigger.json",
                 MET_filter_json = "../../data/MET_filter.json",
                 histogram_json = "../../data/histogram.json",
+                MVA_json = "../../data/MVA.json",
+                MVA_weight_dir = "../MVA_study/MVA_Training_Weight/",
                 region="signal_region",
+                Btag_WP="Medium",
                 start = -1,
                 end   = -1,
-                index = -1):
+                index = -1,
+                pNN = False,
+                multi_class_pNN=False,
+                cutflow_store=False,
+                SubProcess = None):
 
   ###################
   ##  Sample type  ##
@@ -42,29 +55,40 @@ def Slim_module(filein,
   ROOT.gSystem.Load("libGenVector.so")
   header_path = os.path.join("script/slim_" + era + ".h")
   ROOT.gInterpreter.Declare('#include "{}"'.format(header_path))
-
+  Mass_bin = [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
   #################
   ##  Load File  ##
   #################
 
+
+  jsonfile = open(sample_json)
+  samples = json.load(jsonfile)
+  jsonfile.close()
+  samples = Extend_sample_dict(samples, key_word = 'MASS')
+
+  if 'Signal' in sample_labels: sample_name = filein.replace('.root', '')
+  else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', filein).replace('.root','')
+
   path    = str(inputFile_path[era])
   fin     = os.path.join(path, filein)
+  if 'eos' in fin and 'root://eosuser.cern.ch//' not in fin:
+      fin = 'root://eosuser.cern.ch//' + fin
+
   if not index == -1:
     fileOut = os.path.join(output_dir, str(index) + "_" + filein)
+    fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
   else:
     fileOut = os.path.join(output_dir, filein) 
-  treeOut = "SlimTree"
+    fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
+
+  if not SubProcess is None and ('SubProcess' in samples[sample_name]):
+    fileOut = fileOut.replace(filein, SubProcess + '.root')
+  treeOut = "Events"
 
   if not os.path.isdir(output_dir):
     os.system("mkdir -p " + output_dir)
 
-  jsonfile = open(sample_json)
-  samples = json.load(jsonfile, object_pairs_hook=OrderedDict)
-  jsonfile.close()
 
-  for sample in samples:
-    if (((sample + ".") in filein) or ((sample + "_") in filein)):
-      sample_name = sample
 
   ###########################
   ## Channel/Region filter ##
@@ -80,12 +104,14 @@ def Slim_module(filein,
   ##################
   ##  RDataFrame  ##
   ##################
-
-  df_a   = ROOT.RDataFrame("Events", fin)
+  fin = ROOT.TFile.Open(fin, "READ")
+  tree = fin.Get("Events")
   if not start == -1:
-    df = df_a.Range(start, end)
-  else:
-    df = df_a
+    entry_list = ROOT.TEntryList()
+    entry_list.EnterRange(start, end, tree)
+    tree.SetEntryList(entry_list)
+ 
+  df   = ROOT.RDataFrame(tree)
   print(fin, start, end)
   BranchList = df.GetColumnNames()
 
@@ -131,8 +157,16 @@ def Slim_module(filein,
     if not (variables[variable]["Def"] == "Defined"):
       if(variables[variable]["Def"] == "MC_Data_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][sample_type]))
+      elif(variables[variable]["Def"] == "Channel_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
+      elif(variables[variable]["Def"] == "Btag_WP_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
+      if("Children" in variables[variable]):
+          for child_no, child_name in enumerate(variables[variable]["Children"]):
+              df = df.Define(str(child_name), str("{}[{}]".format(variable, child_no)))
+
     if variable in nuisances_valid:
       for nuisance in nuisances_valid[variable]:
         if "Era" in nuisances[nuisance] and era not in nuisances[nuisance]["Era"]: continue
@@ -142,7 +176,8 @@ def Slim_module(filein,
         if "sub_cat" in nuisances[nuisance]: sub_category = nuisances[nuisance]["sub_cat"]
         for sub_cat in sub_category:
           nuisance_def =  nuisances[nuisance]["Def"].replace('SUB', sub_cat).replace('YEAR', era)
-          nuisance_name = nuisance+sub_cat.replace('YEAR', era)
+          nuisance_name = (nuisance+sub_cat).replace('YEAR', era).replace('CHANNEL', channel)
+          print(nuisances[nuisance]["Nominal"], nuisance_def, nuisance_name)
           df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, {"Down", "Up"}, nuisance_name)
           nuisance_list.append(nuisance_name)
   ##############
@@ -171,22 +206,41 @@ def Slim_module(filein,
   MET_filters = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
 
+
+  if pNN or multi_class_pNN:
+    MVA_Label = cuts[region]["MVA_Label"]
+
   # channel cut
   for cut_name in cuts[region]["channel_cut"][channel]:
     df = df.Filter(str(cuts[region]["channel_cut"][channel][cut_name]), str(cut_name))
-  cutflow["channel"] = df.Sum("weight").GetValue()
+
+  if cutflow_store:
+    cutflow["channel"] = df.Sum("weight").GetValue()
   # trigger cut
+  trigger_cut = None
   for trigger_name in triggers:
     if not channel in triggers[trigger_name]["Channel"]: continue
     if "Data" in sample_labels and not sample_name in triggers[trigger_name]["Dataset"]: continue
-    df = df.Define(str(trigger_name), str('||'.join(triggers[trigger_name]["Triggers"][era])))
+    if not "Data" in sample_labels: 
+      trigger_cut = str(triggers[trigger_name]["Triggers"][era]["MC"])
+    else:
+      sub_era = filein.replace('.root', '').replace(sample_name + "_", '') 
+      if sub_era in triggers[trigger_name]["Triggers"][era][sample_name]:
+        trigger_cut = triggers[trigger_name]["Triggers"][era][sample_name][sub_era]
+      else:
+        trigger_cut = triggers[trigger_name]["Triggers"][era][sample_name]["Default"]
+
+
+    df = df.Define(str(trigger_name), str(trigger_cut))
     df = df.Filter(str(trigger_name), str(trigger_name))
-    print(trigger_name, str('||'.join(triggers[trigger_name]["Triggers"][era])))
-  cutflow[trigger_name] = df.Sum("weight").GetValue() 
+    print(trigger_name, str(trigger_cut))
+    if cutflow_store:
+      cutflow[trigger_name] = df.Sum("weight").GetValue() 
   # general cut
   for cut_name in cuts[region]["general_cut"]:
     df = df.Filter(str(cuts[region]["general_cut"][cut_name]), str(cut_name))
-    cutflow[cut_name] = df.Sum("weight").GetValue()
+    if cutflow_store:
+      cutflow[cut_name] = df.Sum("weight").GetValue()
 
   # METFilter cut
   MET_filter_cut = []
@@ -196,9 +250,61 @@ def Slim_module(filein,
   MET_filter_cut = ' && '.join(MET_filter_cut)
   print('MET filter',  MET_filter_cut)
   df = df.Filter(str(MET_filter_cut), 'MET_filter')
-  cutflow['MET_filter'] = df.Sum("weight").GetValue()
+  if cutflow_store:
+    cutflow['MET_filter'] = df.Sum("weight").GetValue()
 
-  print(cutflow)
+  if cutflow_store:
+    print(cutflow)
+
+  # signal cut
+  if not (SubProcess is None) and ('SubProcess' in samples[sample_name]):
+    df = df.Filter(str(samples[sample_name]['SubProcess'][SubProcess]))
+    print('Sub Process cut: {}'.format(samples[sample_name]['SubProcess'][SubProcess]))
+
+  # POIs setting
+  if 'ASCUTJSON' in POIs:
+     POIs = cuts[region]['POI']
+
+  ####################
+  ##  MVA Variable  ##
+  ####################
+
+  MVA_json_dict = read_json(MVA_json)
+  BDT = dict()
+  if MVA_weight_dir is not None:
+    MVA_list = os.listdir(MVA_weight_dir)
+    for MVA in MVA_list:
+        ROOT.gInterpreter.ProcessLine('''
+        TMVA::Experimental::RBDT<> %s ("XGB", "%s");
+        computeModel_%s = TMVA::Experimental::Compute<%d, float> (%s);
+        '''%(MVA, os.path.join(MVA_weight_dir, MVA, "XGB.root"), MVA, len(MVA_json_dict["xgboost"]), MVA))
+        df = df.Define(str(MVA), eval("ROOT.computeModel_%s"%MVA), MVA_json_dict["xgboost"])
+        POIs.append(MVA)
+
+  if pNN:
+    var = MVA_json_dict[MVA_Label]
+    var.append('Mass')
+    Build_DNN_Command(var, MVA_Label, 'pNN')
+    for mass_ in Mass_bin:
+      define_ = ('{}(' + ', '.join(var) + ')[0]').format(MVA_Label)
+      define_ = define_.replace('Mass', str(mass_))
+      print(define_)
+      df = df.Define(str('DNN{}'.format(mass_)), str(define_))
+
+  if multi_class_pNN:
+    var = MVA_json_dict[MVA_Label]
+    var.append('Mass')
+    Build_DNN_Command(var, MVA_Label, 'multiClassDNN')
+    for mass_ in Mass_bin:
+      define_ = ('{}(' + ', '.join(var) + ')').format(MVA_Label)
+      define_ = define_.replace('Mass', str(mass_))
+      print(define_)
+      df = df.Define(str('DNN{}_v'.format(mass_)), str('SoftMax({})'.format(define_)))
+      df = df.Define(str('DNN{}_class'.format(mass_)), str('ArgMax(DNN{}_v)'.format(mass_)))
+      df = df.Define(str('DNN{}'.format(mass_)), str('DNN{}_v[DNN{}_class]'.format(mass_, mass_)))
+      df = df.Define(str('DNN{}_bkg'.format(mass_)), str('DNN{}_v[0]'.format(mass_)))
+      df = df.Define(str('DNN{}_2b'.format(mass_)), str('DNN{}_v[1]'.format(mass_)))
+      df = df.Define(str('DNN{}_3b'.format(mass_)), str('DNN{}_v[2]'.format(mass_)))
 
   #################
   ##  Histogram  ##
@@ -208,6 +314,58 @@ def Slim_module(filein,
   jsonfile   = open(histogram_json)
   Histograms = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
+
+  # for BDT MVA case
+  if MVA_weight_dir is not None:
+    for MVA in MVA_list:
+      Histograms[MVA] = {
+        "Title": ";BDT;nEntries",
+        "xlow":0,
+        "xhigh":1,
+        "nbin": 10,
+        "Label": ["Reco","Normal", "BDT"]
+      }
+
+  # DNN score for different mass point
+  if pNN or multi_class_pNN:
+    for mass_ in Mass_bin:
+      Histograms['DNN{}'.format(mass_)] = {
+        "Title": ";DNN;nEntries",
+        "xlow":0,
+        "xhigh":1,
+        "nbin": 10,
+        "Label": ["Normal", "pNN"],
+        "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
+      }
+      Histograms['DNN{}'.format(mass_)]['cut'] = Histograms['DNN{}'.format(mass_)]['cut'].replace('MASS', str(mass_)) if Histograms['DNN{}'.format(mass_)]['cut'] is not None else None
+
+  # Store each DNN output node (mainly for control region)
+  if multi_class_pNN:
+    if 'DNN_category' not in cuts[region]:
+      for mass_ in Mass_bin:
+        Histograms['DNN{}_bkg'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+        Histograms['DNN{}_2b'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+        Histograms['DNN{}_3b'.format(mass_)] = copy.deepcopy(Histograms['DNN{}'.format(mass_)])
+
+  # POIs consider DNN for different mass
+  POIs_after_consider_mass = []
+  for POI_ in POIs:
+    if POI_ == 'DNN' and (pNN or multi_class_pNN): 
+        for mass_ in Mass_bin:
+          POIs_after_consider_mass.append('DNN{}'.format(mass_))
+    elif multi_class_pNN and ( "DNN_category" in cuts[region]):
+      for mass_ in Mass_bin:
+        Histograms['{}{}'.format(POI_, mass_)] = copy.deepcopy(Histograms[POI_])
+        Histograms['{}{}'.format(POI_, mass_)]['cut'] =  cuts[region]["DNN_category"].replace('MASS', str(mass_)) if "DNN_category" in cuts[region] else None
+        Histograms['{}{}'.format(POI_, mass_)]['definition'] = str(POI_)
+        POIs_after_consider_mass.append('{}{}'.format(POI_, mass_))
+    else:
+      POIs_after_consider_mass.append(POI_)
+  POIs = POIs_after_consider_mass
+
+  Histos_from_df = dict()
+  Histos_from_df_var = dict()
+
 
   for Histogram in Histograms:
     print("Generating", Histogram)
@@ -219,6 +377,8 @@ def Slim_module(filein,
       if Label in Histograms[Histogram]["Label"]:
         Label_trigger = Label
         Flag = False
+
+    if Histogram in POIs: Flag = True
     if not Flag:
       print("Label do not satisfied the requirement. Black list label triggered:%s"%Label_trigger)
       continue
@@ -227,45 +387,81 @@ def Slim_module(filein,
     xlow   = Histograms[Histogram]["xlow"]
     xhigh  = Histograms[Histogram]["xhigh"]
     nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
-    df_histo = df.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), str(Histogram), "weight")
-    Histos.append(df_histo.GetValue().Clone())
+
+    if (not "cut" in Histograms[Histogram]): df_plot = df
+    elif (Histograms[Histogram]["cut"] is None): df_plot = df
+    else: df_plot = df.Filter(str(Histograms[Histogram]["cut"]))
+
+ 
+    Histogram_definition = Histograms[Histogram]['definition'] if 'definition' in Histograms[Histogram] else str(Histogram)
+    df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
+    Histos_from_df[Histogram] = df_histo
 
     ## Nuisance variation for POIs
     if Histogram in POIs:
-      h_variation = ROOT.RDF.Experimental.VariationsFor(df_histo)
-      print(h_variation.GetKeys())
-      for nuisance in nuisance_list:
-        if ("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
-        h_variation_do = h_variation[nuisance + ":Down"].Clone()
-        h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("YEAR",era)))
-        h_variation_up = h_variation[nuisance + ":Up"].Clone()
-        h_variation_up.SetName(str((Histogram + "_" + nuisance + "_up").replace("YEAR", era)))
-        Histos.append(h_variation_do)
-        Histos.append(h_variation_up)
+      Histos_from_df_var[Histogram] = ROOT.RDF.Experimental.VariationsFor(df_histo)
+#      print(h_variation.GetKeys())
+#      for nuisance in nuisance_list:
+#        if ("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
+#        h_variation_do = h_variation[nuisance + ":Down"]
+#        h_variation_up = h_variation[nuisance + ":Up"]
+#        h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("YEAR",era)))
+#        h_variation_up.SetName(str((Histogram + "_" + nuisance + "_up").replace("YEAR", era)))
+#        Histos.append(h_variation_do)
+#        Histos.append(h_variation_up)
 
   # Cutflow Histogram
-  histo_cutflow = ROOT.TH1D('cutflow', ';;nEvents', len(cutflow), 0, len(cutflow))
-  for idx, cut_name in enumerate(cutflow):
-    histo_cutflow.SetBinContent(idx+1, cutflow[cut_name])
-    histo_cutflow.GetXaxis().SetBinLabel(idx + 1, str(cut_name))
-  Histos.append(histo_cutflow.Clone())
+  if cutflow_store:
+    histo_cutflow = ROOT.TH1D('cutflow', ';;nEvents', len(cutflow), 0, len(cutflow))
+    for idx, cut_name in enumerate(cutflow):
+      histo_cutflow.SetBinContent(idx+1, cutflow[cut_name])
+      histo_cutflow.GetXaxis().SetBinLabel(idx + 1, str(cut_name))
+    Histos.append(histo_cutflow.Clone())
+
+  for Histogram in Histos_from_df:
+    Histos.append(Histos_from_df[Histogram].GetValue().Clone())
+
+  for Histogram in Histos_from_df_var:
+    h_variation = Histos_from_df_var[Histogram]
+    for nuisance in nuisance_list:
+      if("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
+      h_variation_do = h_variation[nuisance + ":Down"]
+      h_variation_up = h_variation[nuisance + ":Up"]
+      h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("YEAR",era)))
+      h_variation_up.SetName(str((Histogram + "_" + nuisance + "_up").replace("YEAR", era)))
+      Histos.append(h_variation_do)
+      Histos.append(h_variation_up)
 
   ######################
   ##  Store Variable  ##
   ######################
 
+  print("start to store")
+
   columns = ROOT.std.vector("string")()
 
   for variable in variables:
-
+    if "Data" in sample_labels and "MC" in variables[variable]["Label"]: continue
+    if variable not in df.GetColumnNames(): continue
     Flag = False
     for Label in Labels:
-      if Label in variables[variable]["Save"]: Flag = True
+      if "Save" in variables[variable] and Label in variables[variable]["Save"]: Flag = True
     if not Flag: continue
     columns.push_back(str(variable))
+    if "Children" in variables[variable]:
+        for child_ in variables[variable]["Children"]:
+            columns.push_back(str(child_))
+   
+  if not "Data" in sample_labels:
+    columns.push_back('weight')
+    df = df.Define("weight_n_Norm", "weight * %f"%(scale))
+    columns.push_back('weight_n_Norm')
+  
+  if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
+    fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
 
+  print(columns)
   df.Snapshot(treeOut, fileOut, columns)
-
   #######################
   ##  Store Histogram  ##
   #######################
@@ -277,14 +473,18 @@ def Slim_module(filein,
     if not "Data" in sample_labels:
       h.Scale(scale) # Lumi x xSec / nDAS (input from runCondor)
     h.Write()
+
+  print('Total events loop for RDataFrame: ', df.GetNRuns())
   FileOut.Close()
+  fin.Close()
+
 
 
 if __name__ == "__main__":
 
   usage  = 'usage: %prog [options]'
   parser = argparse.ArgumentParser(description=usage)
-  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2106postapv/2017/2018]', default='2018', type=str)
+  parser.add_argument('-e', '--era',    dest='era', help='[2016apv/2016postapv/2017/2018]', default='2018', type=str)
   parser.add_argument('-i', '--iin',    dest='iin', help='input file name', default=None, type=str)
   parser.add_argument('-o', '--outdir', dest='out', help='ouput directory', default='./', type=str)
   parser.add_argument('--start',        dest='start', default=-1, type=int)
@@ -301,12 +501,24 @@ if __name__ == "__main__":
   parser.add_argument('--region',       dest='region', default = 'signal_region', type = str)
   parser.add_argument("--Labels", dest = 'Labels', default = ['Normal'], nargs='+')
   parser.add_argument("--Black_list", dest = 'Black_list', default = [], nargs='+')
-  parser.add_argument("--sample_labels", dest='sample_labels', default = ["MC", "Background"], nargs='+') 
+  parser.add_argument("--sample_labels", dest='sample_labels', default = ["MC", "Background"], nargs='+')
+  parser.add_argument("--Btag_WP", default='Medium')
   parser.add_argument("--POIs",   dest = 'POIs',   default = [], nargs='+')
-  parser.add_argument("--scale",  dest = 'scale',  default = 1.0, type=float) 
+  parser.add_argument("--scale",  dest = 'scale',  default = 1.0, type=float)
+  parser.add_argument("--MVA_json", default = "../../data/MVA.json", type=str)
+  parser.add_argument("--MVA_weight_dir", default = None, type=str)
+  parser.add_argument("--pNN", action='store_true')
+  parser.add_argument("--multi_class_pNN", action='store_true')
+  parser.add_argument("--cutflow", action='store_true')
+  parser.add_argument("--SubProcess", type=str, default = None)
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
-  #start = time.clock()
+  if args.MVA_weight_dir == "None": args.MVA_weight_dir = None
+  start_time = time.time()
+
+#  ROOT.ROOT.EnableImplicitMT()
+  poolSize = ROOT.GetThreadPoolSize()
+  print ("Pool size =",poolSize)
   Slim_module(args.iin, args.era, args.out, start = args.start, end = args.end, index = args.index, channel = args.channel, \
               sample_json = args.sample_json,\
               cut_json = args.cut_json,\
@@ -315,7 +527,14 @@ if __name__ == "__main__":
               trigger_json = args.trigger_json,\
               MET_filter_json = args.MET_filter_json,\
               nuisance_json = args.nuisance_json,\
-              region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale)
-  #end = time.clock()
-  #print('process time', end - start)
+              Btag_WP = args.Btag_WP,\
+              MVA_json = args.MVA_json,\
+              MVA_weight_dir = args.MVA_weight_dir, \
+              region = args.region, Labels = args.Labels,Black_list = args.Black_list, POIs = args.POIs, sample_labels = args.sample_labels, scale = args.scale,\
+              pNN = args.pNN,\
+              cutflow_store = args.cutflow,\
+              SubProcess = args.SubProcess,\
+              multi_class_pNN = args.multi_class_pNN)
+  end_time = time.time()
+  print('process time', end_time - start_time)
 

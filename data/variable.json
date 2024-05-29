@@ -1,50 +1,42 @@
 {
   "MET_T1Smear_phi":{
     "Def": "Defined",
-    "Label": ["Normal", "MC"],
-    "Save": []
+    "Label": ["Normal", "MC"]
   },
 
   "MET_T1Smear_phi_RVec":{
     "Def": "ROOT::RVec{MET_T1Smear_phi}",
-    "Label": ["Normal", "MC"],
-    "Save": []  
+    "Label": ["Normal", "MC"]
   },
 
   "MET_T1Smear_phi_v":{
     "Def": "MET_T1Smear_phi_RVec[0]",
-    "Label": ["Normal", "MC"],
-    "Save": []
+    "Label": ["Normal", "MC"]
   },
 
   "MET_T1Smear_pt": {
     "Def": "Defined",
-    "Label": ["Normal", "MC"],
-    "Save":[]
+    "Label": ["Normal", "MC"]
   },
 
   "MET_T1Smear_pt_RVec": {
     "Def": "ROOT::RVec{MET_T1Smear_pt}",
-    "Label": ["Normal", "MC"],
-    "Save": []
+    "Label": ["Normal", "MC"]
   },
 
   "MET_T1Smear_pt_v": {
     "Def": "MET_T1Smear_pt_RVec[0]",
-    "Label": ["Normal", "MC"],
-    "Save": []
+    "Label": ["Normal", "MC"]
   },
 
-  "Jet_pt":{
+  "Jet_pt_nom":{
     "Def": "Defined",
-    "Label": ["Normal"],
-    "Save": []
+    "Label": ["Normal"]
   },
 
-  "Jet_mass":{
+  "Jet_mass_nom":{
     "Def": "Defined",
-    "Label": ["Normal"],
-    "Save":[]
+    "Label": ["Normal"]
   },
 
   "nElectron":{
@@ -65,29 +57,172 @@
     "Save":  ["Normal"]
   },
 
+  "tightJets_b_DeepJet_id": {
+    "Def": "Btag_WP_Dep",
+    "Category": { "Loose": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJetloose_id)",
+	          "Medium": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJetmedium_id)",
+		  "Tight": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJettight_id)"
+                },
+    "Label": ["Normal"],
+    "Save":  ["Normal"]
+  },
+
+  "n_bjet_DeepB_v": {
+    "Def": "tightJets_b_DeepJet_id.size()",
+    "Label": ["Normal"],
+    "Save": ["Normal"]
+  },
+
   "puWeight":{
     "Def": "Defined",
-    "Label": ["Normal", "MC"],
-    "Save":  []
+    "Label": ["Normal", "MC"]
   },
 
-  "PrefireWeight":{
+  "L1PreFiringWeight_Nom":{
     "Def": "Defined",
     "Label": ["Normal", "MC"],
-    "Era": ["2016apv", "2016postapv", "2017"],
-    "Save": []
+    "Era": ["2016apv", "2016postapv", "2017"]
   },
 
-  "Jet_btagSF_deepjet_L":{
-    "Def": "Defined",
-    "Label": ["Normal", "MC"],
-    "Save": []
+  "Lepton_id":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_id",
+	         "mu_resolved":  "bh_l1_id"},
+    "Label": ["Normal"]
   },
 
-  "btag_sf_L":{
-    "Def": "btag_SF(tightJets_id_in24, Jet_btagSF_deepjet_L)",
-    "Label": ["Normal", "MC"],
-    "Save": []
+
+  "Lepton_pt":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_pt",
+                 "mu_resolved":  "bh_l1_pt"},
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+
+  "Lepton_eta":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_eta",
+                 "mu_resolved":  "bh_l1_eta"},
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+
+  "Lepton_phi":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_phi",
+	         "mu_resolved":  "bh_l1_phi"},
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+
+  "Lepton_mass":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_l1_mass",
+	         "mu_resolved":  "bh_l1_mass"},
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+
+
+  "Lepton_region":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "bh_region",
+	         "mu_resolved":  "bh_region"},
+    "Label": ["Normal"]
+  
+  },
+
+  "Lepton_ID_SF_err":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "sqrt(pow(Electron_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Electron_topMVA_Tight_SFerr_stat[Lepton_id],2))",
+                 "mu_resolved":  "sqrt(pow(Muon_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Muon_topMVA_Tight_SFerr_stat[Lepton_id],2))"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_ID_SF":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_topMVA_Tight_SF[Lepton_id]",
+	         "mu_resolved":  "Muon_topMVA_Tight_SF[Lepton_id]"
+                },
+    "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_RECO_SF_err":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_RECO_SFerr[Lepton_id]",
+	         "mu_resolved":  "0.0"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Lepton_RECO_SF":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_RECO_SF[Lepton_id]",
+	         "mu_resolved":  "1.0"},
+    "Label":[ "Normal", "MC"]
+  },
+
+  "btag_DeepJet_SF_udsg_up":{
+    "Def": "Btag_WP_Dep",
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_up, 1)",
+	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 1)",
+		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 1)"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "btag_DeepJet_SF_bc_up":{
+    "Def": "Btag_WP_Dep",
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_up, 2)",
+	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 2)",
+		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 2)"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "btag_DeepJet_SF_udsg_down":{
+    "Def": "Btag_WP_Dep",
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 1)",
+	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 1)",
+		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 1)"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "btag_DeepJet_SF_bc_down":{
+    "Def": "Btag_WP_Dep",
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 2)",
+	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 2)",
+		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 2)"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "btag_DeepJet_SF":{
+    "Def": "Btag_WP_Dep",
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L, 0)",
+	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M, 0)",
+		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T, 0)"},
+    "Label": ["Normal", "MC"]
+  },
+
+
+  "Trigger_sf_up":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 1.0)",
+	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 1.0)"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Trigger_sf_down":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, -1.0)",
+	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, -1.0)"},
+    "Label": ["Normal", "MC"]
+  },
+
+
+  "Trigger_sf":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 0.0)",
+	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 0.0)"},
+    "Label": ["Normal", "MC"]
   },
 
   "met_pt":{
@@ -95,7 +230,7 @@
     "Label": ["Normal"],
     "Category": {"MC": "MET_T1Smear_pt_v",
                  "Data": "MET_T1_pt"},
-    "Save": []
+    "Save": ["BDT_training"]
   },
 
   "met_phi":{
@@ -103,78 +238,88 @@
     "Label": ["Normal"],
     "Category": {"MC": "MET_T1Smear_phi_v",
                  "Data": "MET_T1_pt"},
-    "Save": []
+    "Save":  ["BDT_training"]
   },
 
   "MET_reco_pz":{
-    "Def": "MET_pz_reconstruction(bh_l1_pt, bh_l1_eta, bh_l1_phi, met_pt, met_phi)",
+    "Def": "MET_pz_reconstruction(Lepton_pt, Lepton_eta, Lepton_phi, met_pt, met_phi)",
     "Label": ["Reco","Normal"],
-    "Save":[]
+    "Save":  ["BDT_training"]
   },
 
   "MET_reco_E":{
     "Def": "sqrt(met_pt*met_pt + MET_reco_pz*MET_reco_pz)",
-    "Label": ["Reco", "Normal"],
-    "Save": []
+    "Label": ["Reco", "Normal"]
   },
 
-  "bh_l1_E":{
-    "Def": "sqrt(bh_l1_pt*bh_l1_pt*(cosh(bh_l1_eta)*cosh(bh_l1_eta)) + bh_l1_mass*bh_l1_mass)",
-    "Label": ["Reco", "Normal"],
-    "Save": []
+  "MET_reco_eta":{
+    "Def": "asinh((MET_reco_pz/met_pt))",
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+   
+  "Lepton_E":{
+    "Def": "sqrt(Lepton_pt*Lepton_pt*(cosh(Lepton_eta)*cosh(Lepton_eta)) + Lepton_mass*Lepton_mass)",
+    "Label": ["Reco", "Normal"]
   },
 
   "W_reco_E":{
-    "Def": "MET_reco_E + bh_l1_E",
-    "Label": ["Reco", "Normal"],
-    "Save": []
+    "Def": "MET_reco_E + Lepton_E",
+    "Label": ["Reco", "Normal"]
   },
 
   "W_reco_px":{
-    "Def": "bh_l1_pt*cos(bh_l1_phi) + bh_met*cos(met_phi)",
-    "Label": ["Reco", "Normal"],
-    "Save":  []
+    "Def": "Lepton_pt*cos(Lepton_phi) + met_pt*cos(met_phi)",
+    "Label": ["Reco", "Normal"]
   },
 
   "W_reco_py":{
-    "Def": "bh_l1_pt*sin(bh_l1_phi) + met_pt*sin(met_phi)",
-    "Label": ["Reco", "Normal"],
-    "Save":  []
+    "Def": "Lepton_pt*sin(Lepton_phi) + met_pt*sin(met_phi)",
+    "Label": ["Reco", "Normal"]
   },
 
   "W_reco_pz":{
-    "Def": "bh_l1_pt*sinh(bh_l1_eta) + MET_reco_pz",
-    "Label": ["Reco", "Normal"],
-    "Save":  []
+    "Def": "Lepton_pt*sinh(Lepton_eta) + MET_reco_pz",
+    "Label": ["Reco", "Normal"]
   },
 
   "W_reco_mass":{
     "Def": "sqrt(W_reco_E*W_reco_E - W_reco_px*W_reco_px - W_reco_py*W_reco_py - W_reco_pz*W_reco_pz)",
+    "Label": ["Reco", "Normal"]
+  },
+
+  "top_reco_pT":{
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJet_id, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 1)",
     "Label": ["Reco", "Normal"],
-    "Save":  []
+    "Save": ["BDT_training"]
   },
 
   "top_reco_mass_medium":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetmedium_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetmedium_id, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
     "Label": ["Reco", "Normal"],
-    "Save": []
+    "Save":  ["BDT_training"]
   },
 
   "top_reco_mass_tight":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJettight_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
-    "Label": ["Reco", "Normal"],
-    "Save": []
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJettight_id, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
+    "Label": ["Reco", "Normal"]
   },
 
   "top_reco_mass_loose":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetloose_id, Jet_pt, Jet_eta, Jet_phi, Jet_mass)",
-    "Label": ["Reco", "Normal"],
-    "Save": []
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetloose_id, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
+    "Label": ["Reco", "Normal"]
   },
 
   "bh_HT":{
-    "Def": "HT_(tightJets_id_in24, Jet_pt)",
+    "Def": "HT_(tightJets_id_in24, Jet_pt_nom)",
     "Label": ["Normal"],
-    "Save": []
+    "Save": ["BDT_training"]
+  },
+  "DiObject_kine":{
+    "Def": "Diobject_kinematic(Lepton_pt, Lepton_eta, Lepton_phi, Lepton_mass, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, Jet_btagDeepFlavB, tightJets_id_in24, tightJets_b_DeepJetmedium_id, met_phi)",
+    "Children": ["deltaR_lb1", "deltaR_lb2", "deltaR_lb3", "deltaR_b1b2", "deltaR_b2b3", "deltaR_b1b3", "deltaR_non_b_l", "non_b_j1_pt", "non_b_j1_eta", "non_b_j1_phi", "non_b_j1_mass", "b1_pt", "b1_eta", "b1_phi", "b1_mass", "b2_pt", "b2_eta", "b2_phi", "b2_mass", "b3_pt", "b3_eta", "b3_phi", "b3_mass", "b1_FlavB", "b2_FlavB", "b3_FlavB", "non_b_j1_FlavB", "inv_m_b1b2", "inv_m_b2b3", "inv_m_b1b3", "inv_m_lb1b2", "inv_m_lb2b3", "inv_m_lb1b3", "inv_m_non_b_l","delta_phi_l_met"],
+    "Label": ["Normal"],
+    "Save": ["BDT_training"]
+  
   }
 }

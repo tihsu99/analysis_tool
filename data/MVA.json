@@ -1,0 +1,3 @@
+{
+  "xgboost": ["Lepton_pt", "Lepton_eta", "met_pt", "deltaR_lb1", "deltaR_lb2", "deltaR_lb3", "deltaR_b1b2", "deltaR_b2b3", "deltaR_b1b3", "deltaR_non_b_l", "non_b_j1_pt", "non_b_j1_eta", "non_b_j1_mass", "b1_pt", "b1_eta", "b2_pt", "b2_eta", "b3_pt", "b3_eta", "bh_HT", "b1_FlavB", "b2_FlavB", "b3_FlavB", "non_b_j1_FlavB", "inv_m_b1b2", "inv_m_b2b3", "inv_m_b1b3", "inv_m_lb1b2", "inv_m_lb2b3", "inv_m_lb1b3", "inv_m_non_b_l", "delta_phi_l_met"]
+}

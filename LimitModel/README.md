@@ -82,6 +82,7 @@ python study_bkg_composition.py
 
 ## 2.1 Commands for histograms rebinning for original BDT_output files
 
+**Please note that if root file is produced under lxplus9, the ReBin should be run under lxplus9 condition also (which is not consistent with cmssw-el7)**
 Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `Util/General_Tool.py`, please edit it if you want to change binning): 
 ```
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
