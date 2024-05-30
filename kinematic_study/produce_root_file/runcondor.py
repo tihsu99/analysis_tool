@@ -395,7 +395,7 @@ if __name__ == "__main__":
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
-             if not args.half is None: norm_factor = norm_factor*2
+             if args.half in ['first', 'second']:  norm_factor = norm_factor*2
            else: # data doesn't need to be normalized by lumi x cross section
              norm_factor = 1.0
 
