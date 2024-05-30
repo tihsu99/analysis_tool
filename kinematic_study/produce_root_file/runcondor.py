@@ -173,10 +173,10 @@ if __name__ == "__main__":
   clear_text = check_text.replace('--check','') + " --clear"
 
   with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
-    shell.write(check_text)
+    shell.write(check_text + "\n")
 
   with open(os.path.join(farm_dir, 'clear.sh'), 'w') as shell:
-    shell.write(clear_text)
+    shell.write(clear_text + "\n")
   ##################
   ## Sample Label ##
   ##################
