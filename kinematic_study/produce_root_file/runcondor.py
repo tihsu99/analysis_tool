@@ -550,6 +550,7 @@ if __name__ == "__main__":
             for process in process_list:
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
               merge_shell[Era][region][channel][process] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process)), 'a')
+              merge_shell[Era][region][channel][process].write('\n')
               merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
               merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.err\n'.format(farm_dir, Era, region, channel, process))
               merge_shell[Era][region][channel][process].close()
