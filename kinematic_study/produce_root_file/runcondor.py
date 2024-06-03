@@ -10,7 +10,7 @@ import re
 sys.path.insert(1, '../../python')
 from common import *
 from aux import colors
-from termcolor import colored
+from termcolor import cprint
 
 def prepare_range(path, fin, step, half, isdata):
 
@@ -37,7 +37,7 @@ def prepare_range(path, fin, step, half, isdata):
     return index
 
   except:
-    print("%s%s fail to process."%(path,fin))
+    cprint("%s%s fail to process."%(path,fin), "red")
     return None  
 
 def check_file(fname, key_name=None):
@@ -45,10 +45,10 @@ def check_file(fname, key_name=None):
   try:
     f  = ROOT.TFile.Open(fname, "READ")
     if f.IsZombie():
-      print(fname, "is zombie")
+      cprint(fname + " is zombie", "red")
       GreenLight = False
     elif (f.GetNkeys() == 0):
-      print(fname, "has zero key")
+      cprint(fname + " has zero key", "red")
       GreenLight = False
     else:
       if (key_name is not None):
@@ -57,7 +57,7 @@ def check_file(fname, key_name=None):
           key_list.append(e.GetName())
         for key_ in key_name:
           if key_ not in key_list:
-            print(fname, "lost key", key_)
+            cprint(fname + " lost key: " + key_,"red")
             GreenLight = False
 
       for e in f.GetListOfKeys():
@@ -68,12 +68,12 @@ def check_file(fname, key_name=None):
         isTH2  = obj.IsA().InheritsFrom(ROOT.TH2.Class())
         if not (isTree or isTH1 or isTH2):
           GreenLight = False
-          print(fname, "has invalid object:", name)
+          cprint(fname + "has invalid object: " + name, "red")
           break
     f.Close()
   except:
     GreenLight = False
-    print(fname, "not exist")
+    cprint(fname + " not exist", "red")
   return GreenLight
 
 def Get_List_Union(fname_list):
@@ -96,7 +96,7 @@ if __name__ == "__main__":
   parser.add_argument('--universe',   dest = 'universe', help='vanilla/local', type=str, default='vanilla')
   parser.add_argument('--outdir',     dest = 'outdir',     help='output directory',   type=str, default='./')
   parser.add_argument("--test",       action = "store_true")
-  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 1000000)
+  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 2000000)
   parser.add_argument("--check",       action = "store_true")
   parser.add_argument("--sample_json", dest = 'sample_json', type = str, default = "../../data/sample.json")
   parser.add_argument("--cut_json", dest = 'cut_json', type = str, default = "../../data/cut.json")
@@ -170,13 +170,13 @@ if __name__ == "__main__":
     else:
       check_text = check_text + " --" + arg + " " + str(args_dict[arg])
 
-  clear_text = check_text + " --clear"
+  clear_text = check_text.replace('--check','') + " --clear"
 
-  with open('check.sh', 'w') as shell:
-    shell.write(check_text)
+  with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
+    shell.write(check_text + "\n")
 
-  with open('clear.sh', 'w') as shell:
-    shell.write(clear_text)
+  with open(os.path.join(farm_dir, 'clear.sh'), 'w') as shell:
+    shell.write(clear_text + "\n")
   ##################
   ## Sample Label ##
   ##################
@@ -369,13 +369,11 @@ if __name__ == "__main__":
        json_file_name = args.sample_json
        for sample_Label in sample_label_list:
 
-         print("Creating configuration for slim")
+         cprint("Creating configuration for slim (Era: {}, Region: {}, Channel: {})".format(Era, region, channel), "yellow")
          python_file   =  os.path.join(cwd, 'slim.py')
       
          File_List      = Get_Sample(json_file_name, sample_Label, Era) # Use all the MC samples (List of files)
          Sample_List    = Get_Sample(json_file_name, sample_Label, Era, False) # List of process name
-         print(File_List)
-
          sample_label_text = " ".join(sample_Label)
          print(File_List)
          for iin in File_List:
@@ -384,8 +382,8 @@ if __name__ == "__main__":
            ## MC Lumi x xSec / nDAS ##
            ###########################
            if 'Signal' in sample_Label: sample_name = iin.replace('.root', '')
+           elif 'Data' in sample_Label: sample_name = iin.split('_')[0]
            else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
-
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
@@ -397,7 +395,7 @@ if __name__ == "__main__":
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
-             if not args.half is None: norm_factor = norm_factor*2
+             if args.half in ['first', 'second']:  norm_factor = norm_factor*2
            else: # data doesn't need to be normalized by lumi x cross section
              norm_factor = 1.0
 
@@ -466,7 +464,7 @@ if __name__ == "__main__":
   # clear individual root files
   ################# 
   if args.check and Check_GreenLight:
-    print(colored("All files are produced successfully and merged as well.",'green'))
+    cprint("All files are produced successfully and merged as well.", "green")
     for Era in Eras:
       for region in region_channel_dict:
        for channel in region_channel_dict[region]:
@@ -547,17 +545,23 @@ if __name__ == "__main__":
                 process_list.append(process)
             else:
               process_list.append(iin)
-            #condor[Era][region][channel][iin].close()
-            #merge_shell[Era][region][channel][iin].close()
+
+            
             for process in process_list:
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
+              merge_shell[Era][region][channel][process] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process)), 'a')
+              merge_shell[Era][region][channel][process].write('\n')
+              merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
+              merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.err\n'.format(farm_dir, Era, region, channel, process))
+              merge_shell[Era][region][channel][process].close()
+
   if not args.test:
     if args.check:
       if not Check_GreenLight:
         os.system('rm %s/resubmit.dag.*'%farm_dir)
         os.system('condor_submit_dag -f %s/resubmit.dag'%farm_dir)
     else:
-      print("Submitting Jobs on Condor")
+      cprint("Submitting Jobs on Condor", "green")
       os.system('rm %s/workflow.dag.*'%farm_dir)
       os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
 

@@ -6,6 +6,7 @@ import ROOT
 from collections import OrderedDict
 from math import sqrt
 import copy
+from termcolor import cprint 
 
 cwd = os.getcwd()
 dir_list = cwd.split('/')
@@ -28,7 +29,7 @@ python_version = int(sys.version.split('.')[0])
 inputFile_path = {
    '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v4/', 
    '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v4/', 
-   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v4', 
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v4/', 
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v4/'
 }
 
@@ -36,7 +37,7 @@ subera_list = {
   '2016apv':     ['B2', 'C', 'D', 'E', 'F'],
   '2016postapv': ['F',  'G', 'H'],
   '2017':        ['B',  'C', 'D', 'E', 'F'],
-  '2018':        ['A',  'B', 'C', 'D_0','D_1']
+  '2018':        ['A',  'B', 'C', 'D_1', 'D_2']
 }
 
 ###########
@@ -50,6 +51,13 @@ Lumi = {
   '2018': 59830.
 }
 
+
+Lumi_text = {
+  '2016apv': '19.5',
+  '2016postapv': '16.8',
+  '2017': '41.5',
+  '2018': '59.8'
+}
 #############
 ##  Shell  ##
 #############
@@ -141,15 +149,18 @@ def Get_Sample(json_file_name, Labels, era, withTail=True):
     for Label in Labels:
       if Label not in desc["Label"]:
         Flag = False
+
+    if ("Era" in desc) and (era not in desc["Era"]): continue
+    
     if Flag:
       if withTail:
         dirs = os.listdir(inputFile_path[era])
-        if "subfile" in desc: sublist_ = desc["subfile"]
+        if "subfile" in desc: sublist_ = desc["subfile"][era]
         elif "Data" in desc["Label"]: sublist_ = ["_" + subera for subera in subera_list[era]]
         else: sublist_ = [""]
         for sub_ in sublist_:
           file_ = process + sub_ + ".root"
-          if not os.path.exists(os.path.join(inputFile_path[era], file_)): print(os.path.join(inputFile_path[era], file_), 'not exists')
+          if not os.path.exists(os.path.join(inputFile_path[era], file_)): cprint(os.path.join(inputFile_path[era], file_) +  ' not exists', 'yellow')
           else:
             File_List.append(file_)
       else:
