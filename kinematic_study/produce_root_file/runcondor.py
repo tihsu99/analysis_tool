@@ -96,7 +96,7 @@ if __name__ == "__main__":
   parser.add_argument('--universe',   dest = 'universe', help='vanilla/local', type=str, default='vanilla')
   parser.add_argument('--outdir',     dest = 'outdir',     help='output directory',   type=str, default='./')
   parser.add_argument("--test",       action = "store_true")
-  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 2000000)
+  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 5000000)
   parser.add_argument("--check",       action = "store_true")
   parser.add_argument("--sample_json", dest = 'sample_json', type = str, default = "../../data/sample.json")
   parser.add_argument("--cut_json", dest = 'cut_json', type = str, default = "../../data/cut.json")
@@ -383,13 +383,13 @@ if __name__ == "__main__":
            ###########################
            if 'Signal' in sample_Label: sample_name = iin.replace('.root', '')
            elif 'Data' in sample_Label: sample_name = iin.split('_')[0]
-           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
+           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', iin).replace('.root','')
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
              for file_ in File_List:
                if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
-               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', file_).replace('.root','')
+               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
                if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
@@ -550,8 +550,8 @@ if __name__ == "__main__":
             for process in process_list:
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
               merge_shell[Era][region][channel][process] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process)), 'a')
-              merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
-              merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.err\n'.format(farm_dir, Era, region, channel, process))
+              merge_shell[Era][region][channel][process].write('\nrm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
+              merge_shell[Era][region][channel][process].write('\nrm {}/*slim_*_{}_{}_{}_*_{}*.err\n'.format(farm_dir, Era, region, channel, process))
               merge_shell[Era][region][channel][process].close()
 
   if not args.test:
