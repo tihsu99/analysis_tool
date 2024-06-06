@@ -93,6 +93,10 @@ def read_json(fname):
   jsonfile.close()
   return return_
 
+def store_json(dict_, fname):
+  with open(fname, 'w') as json_file:
+    json.dump(dict_, json_file, indent = 4)
+
 ##############
 ##  Sample  ##
 ##############
@@ -209,6 +213,8 @@ def overunder_flowbin(h1):
 def Add_2Dbin(h,addedX,addedY,addX,addY):
   h.SetBinContent(addedX, addedY, h.GetBinContent(addedX,addedY) + h.GetBinContent(addX,addY))
   h.SetBinError(addedX, addedY, sqrt(h.GetBinError(addedX, addedY)*h.GetBinError(addedX, addedY) + h.GetBinError(addX,addY)*h.GetBinError(addX,addY)))
+  h.SetBinContent(addX, addY, 0)
+  h.SetBinError(addX, addY, 0)
   return h
 
 def overunder_flowbin2D(h1):
