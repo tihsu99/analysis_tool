@@ -158,19 +158,20 @@ if __name__ == "__main__":
     else:
       region_channel_dict[region_] = args.channel
 
-  check_text = "python runcondor.py --check "
+  argument_text = "python runcondor.py "
 
   for arg in args_dict:
     if isinstance(args_dict[arg], list):
      if len(args_dict[arg]) > 0:
-      check_text = check_text + " --" + arg + " " + ' '.join(args_dict[arg])
+      argument_text = argument_text + " --" + arg + " " + ' '.join(args_dict[arg])
     elif isinstance(args_dict[arg], bool):
       if args_dict[arg]:
-        check_text = check_text + " --{} ".format(arg)
+        argument_text = argument_text + " --{} ".format(arg)
     else:
-      check_text = check_text + " --" + arg + " " + str(args_dict[arg])
+      argument_text = argument_text + " --" + arg + " " + str(args_dict[arg])
 
-  clear_text = check_text.replace('--check','') + " --clear"
+  check_text = argument_text + " --check " if "--check" not in argument_text
+  clear_text = check_text.replace("--check", "--check --clear")
 
   with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
     shell.write(check_text + "\n")
