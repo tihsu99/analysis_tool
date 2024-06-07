@@ -159,61 +159,6 @@
     "Label": ["Control_plot"]    
   },
 
-  "MET_reco_pz":{
-    "Title": ";MET Pz^{reco} [GeV]; nEntries",
-    "xlow": -200,
-    "xhigh":  200,
-    "nbin":  40,
-    "Label": ["Reco", "Control_plot"]
-  },
-
-  "W_reco_mass":{
-    "Title": ";mW^{reco} [GeV];nEntries",
-    "xlow":60,
-    "xhigh": 100,
-    "nbin": 40,
-    "Label": ["Reco","Control_plot"]
-  },
-
-  "top_reco_pT":{
-    "Title": ";pT^{rec0} [GeV]; nEntries",
-    "xlow": 0,
-    "xhigh": 400,
-    "nbin": 40,
-    "Label": ["Reco", "Control_plot"]
-  },
-
-  "top_reco_mass_medium":{
-    "Title": ";mt^{reco} [GeV];nEntries",
-    "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
-    "Label": ["Reco", "Control_plot"]
-  },
-
-  "top_reco_mass_tight":{
-    "Title": ";mt^{reco} [GeV];nEntries",
-    "xlow":100,
-    "xhigh": 250,
-    "nbin": 15,
-    "Label": ["Reco","Control_plot"]
-  },
-
-  "top_reco_mass_loose":{
-    "Title": ";mt^{reco} [GeV];nEntries",
-    "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
-    "Label": ["Reco","Control_plot"]
-  },
-
-  "DY_z_mass":{
-    "Title": ";m(Z) [GeV]; nEntries",
-    "xlow": 60,
-    "xhigh": 120,
-    "nbin": 24,
-    "Label": ["Control_plot"]
-  },
     "PV_npvsGood":{
     "Title": ";nPV Good ; nEntries",
     "xlow": 0,
