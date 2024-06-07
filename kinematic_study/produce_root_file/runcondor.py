@@ -96,7 +96,7 @@ if __name__ == "__main__":
   parser.add_argument('--universe',   dest = 'universe', help='vanilla/local', type=str, default='vanilla')
   parser.add_argument('--outdir',     dest = 'outdir',     help='output directory',   type=str, default='./')
   parser.add_argument("--test",       action = "store_true")
-  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 2000000)
+  parser.add_argument("--blocksize",   dest = 'blocksize',   help='segment size', type = int, default = 5000000)
   parser.add_argument("--check",       action = "store_true")
   parser.add_argument("--sample_json", dest = 'sample_json', type = str, default = "../../data/sample.json")
   parser.add_argument("--cut_json", dest = 'cut_json', type = str, default = "../../data/cut.json")
@@ -158,19 +158,20 @@ if __name__ == "__main__":
     else:
       region_channel_dict[region_] = args.channel
 
-  check_text = "python runcondor.py --check "
+  argument_text = "python runcondor.py "
 
   for arg in args_dict:
     if isinstance(args_dict[arg], list):
      if len(args_dict[arg]) > 0:
-      check_text = check_text + " --" + arg + " " + ' '.join(args_dict[arg])
+      argument_text = argument_text + " --" + arg + " " + ' '.join(args_dict[arg])
     elif isinstance(args_dict[arg], bool):
       if args_dict[arg]:
-        check_text = check_text + " --{} ".format(arg)
+        argument_text = argument_text + " --{} ".format(arg)
     else:
-      check_text = check_text + " --" + arg + " " + str(args_dict[arg])
+      argument_text = argument_text + " --" + arg + " " + str(args_dict[arg])
 
-  clear_text = check_text.replace('--check','') + " --clear"
+  check_text = argument_text + " --check " if "--check" not in argument_text
+  clear_text = check_text.replace("--check", "--check --clear")
 
   with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
     shell.write(check_text + "\n")
@@ -383,13 +384,13 @@ if __name__ == "__main__":
            ###########################
            if 'Signal' in sample_Label: sample_name = iin.replace('.root', '')
            elif 'Data' in sample_Label: sample_name = iin.split('_')[0]
-           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', iin).replace('.root','')
+           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', iin).replace('.root','')
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
              # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
              nDAS  = 0
              for file_ in File_List:
                if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
-               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', file_).replace('.root','')
+               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
                if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
