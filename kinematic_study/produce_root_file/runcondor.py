@@ -170,7 +170,7 @@ if __name__ == "__main__":
     else:
       argument_text = argument_text + " --" + arg + " " + str(args_dict[arg])
 
-  check_text = argument_text + " --check " if "--check" not in argument_text
+  check_text = argument_text + (" --check " if "--check" not in argument_text else "")
   clear_text = check_text.replace("--check", "--check --clear")
 
   with open(os.path.join(farm_dir, 'check.sh'), 'w') as shell:
