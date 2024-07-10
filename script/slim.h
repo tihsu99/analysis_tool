@@ -29,12 +29,9 @@ const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->G
 // pileupjetid Scale Factor (Derived by JME)
 // take root file from https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL#Data_MC_Efficiency_Scale_Factors
 TFile*f_pujetid=TFile::Open("../../data/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root");
-
-// 2016apv/2016postapv/2017/2018
-TH2D*pujetid_sf               = (TH2D*)f_pujetid->Get("h2_eff_sfUL2016APV_T"); // gkole change it year depedent
-TH2D*pujetid_sf_Systuncty     = (TH2D*)f_pujetid->Get("h2_eff_sfUL2016APV_T_Systuncty");
-
-
+TString puhist = "SpecialEra";
+TH2D*pujetid_sf               = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T");
+TH2D*pujetid_sf_Systuncty     = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T_Systuncty");
 
 // Btag Efficiency (Derived by ourgroup)
 TFile*f_btag_efficiency=TFile::Open("../../data/BTagEfficiency_"+era+".root");
@@ -661,7 +658,6 @@ float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<floa
       // cout << "pujetid_weight: " << pujetid_weight << endl;
     }
   }
-  cout << "end jet loop" << endl;
   return pujetid_weight;
 }
 
