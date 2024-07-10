@@ -23,7 +23,7 @@ def Slim_module(filein,
                 Black_list=[],
                 POIs=[],
                 sample_labels = [],
-                weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf",
+                weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf",
                 scale = 1.0,
                 sample_json = "../../data/sample.json",
                 nuisance_json = "../../data/nuisance.json",
@@ -164,7 +164,9 @@ def Slim_module(filein,
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
       elif(variables[variable]["Def"] == "top_ptweight_Dep"):
-        df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))  
+        df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))
+      elif(variables[variable]["Def"] == "Pileupjetid_Dep"):
+        df = df.Define(str(variable), str(variables[variable]["Category"]["pujetid_weight"]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
@@ -478,6 +480,7 @@ def Slim_module(filein,
     df = df.Define("weight_n_Norm", "weight * %f"%(scale))
     columns.push_back('weight_n_Norm')
     columns.push_back('toppt_weight') #gkole
+    columns.push_back('Pileupjetid_sf')
     
   if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
     fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
