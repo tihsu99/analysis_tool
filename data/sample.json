@@ -351,7 +351,7 @@
   },
 
   "TZQBBar":{
-    "xsec": 0.2338,
+    "xsec": 0.426,
     "xsec_err": 3.3,
     "Category": "tZq",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
@@ -359,7 +359,7 @@
   },
 
   "TBarZQB":{
-    "xsec": 0.4545,
+    "xsec": 0.220,
     "xsec_err": 3.3,
     "Category": "tZq",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
