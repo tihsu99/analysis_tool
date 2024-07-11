@@ -16,7 +16,7 @@
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 1",
        "njet":         "n_tight_jet>=4",
-       "HT":           "bh_HT > 100"
+	     "bh_HT":        "bh_HT > 100"
      },
      "MVA_Label": "DNN_2b",
      "POI": ["bh_HT"]

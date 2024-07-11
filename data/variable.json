@@ -1,20 +1,19 @@
 {
   "MET_T1Smear_phi":{
-    "Def": "Defined",
-    "Label": ["Normal", "MC"]
+	  "Def": "Defined",
+	  "Label": ["Normal", "MC"]
   },
     
   "toppt_weight":{
-      "Def": "top_ptweight_Dep",
-      "Category": { "top_ptweight_nom": "top_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)"},
-      "Label": ["Normal", "MC"]
+  	"Def":  "top_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)",
+   	"Label": ["Normal", "MC"]
   },
-
+    
     
   "MET_T1Smear_phi_RVec":{
-    "Def": "ROOT::RVec{MET_T1Smear_phi}",
-    "Label": ["Normal", "MC"]
-  },
+	  "Def": "ROOT::RVec{MET_T1Smear_phi}",
+	  "Label": ["Normal", "MC"]
+  },  
 
   "MET_T1Smear_phi_v":{
     "Def": "MET_T1Smear_phi_RVec[0]",
@@ -229,8 +228,8 @@
   "btag_DeepJet_SF":{
     "Def": "Btag_WP_Dep",
     "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L, 0)",
-	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M, 0)",
-		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T, 0)"},
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M, 0)",
+	             	"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T, 0)"},
     "Label": ["Normal", "MC"]
   },
 
@@ -238,14 +237,14 @@
   "Trigger_sf_up":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 1.0)",
-	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 1.0)"},
+	               "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 1.0)"},
     "Label": ["Normal", "MC"]
   },
 
   "Trigger_sf_down":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, -1.0)",
-	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, -1.0)"},
+	               "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, -1.0)"},
     "Label": ["Normal", "MC"]
   },
 
@@ -253,8 +252,24 @@
   "Trigger_sf":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 0.0)",
-	         "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 0.0)"},
+	               "mu_resolved":  "trigger_SF(Lepton_pt, Lepton_eta, -1, Lepton_region, 0.0)"},
     "Label": ["Normal", "MC"]
+  },
+
+  "Pileupjetid_sf_up":{
+  	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 1.0)",
+ 	  "Label": ["Normal", "MC"]
+  },
+    
+  "Pileupjetid_sf_down":{
+	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, -1.0)",
+	  "Label": ["Normal", "MC"]
+  },
+
+
+  "Pileupjetid_sf":{
+	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 0.0)",
+	  "Label": ["Normal", "MC"]
   },
 
   "met_pt":{

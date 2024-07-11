@@ -364,6 +364,15 @@ if __name__ == "__main__":
        era_header = "script/slim_%s.h"%Era
 
        os.system('cat %s | sed "s/EraToBeReplaced/%s/g" > %s'%(template,Era,era_header))
+       
+       print ("Replacing SpecialEra on", era_header)
+       if (Era == "2016apv"):
+         os.system(r'sed -i "s/SpecialEra/%s/g" %s' %('2016APV',era_header))
+       elif (Era == "2016postapv"):
+         os.system(r'sed -i "s/SpecialEra/%s/g" %s' %('2016',era_header))
+       else:
+         os.system(r'sed -i "s/SpecialEra/%s/g" %s' %(Era,era_header))
+
        os.system('cp %s/../../script/env.sh script/.'%cwd)
 
        json_file_name = args.sample_json
