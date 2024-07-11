@@ -56,6 +56,7 @@ def check_file(fname, key_name=None):
         for e in f.GetListOfKeys():
           key_list.append(e.GetName())
         for key_ in key_name:
+          if '_TT1L_' in key_ or '_Signal_' in key_: continue #TODO: Now hardcoded, need to be corrected to process dependent
           if key_ not in key_list:
             cprint(fname + " lost key: " + key_,"red")
             GreenLight = False
@@ -131,11 +132,9 @@ if __name__ == "__main__":
 
   #cmsswBase = os.environ['CMSSW_BASE']
   farm_dir  = os.path.join('./', args.farm)
-  farm_dir_mirror = os.path.join(args.outdir, args.farm)
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
-  os.system('mkdir -p %s '%farm_dir_mirror)
   os.system('cp %s/../../python/common.py .'%cwd)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 
