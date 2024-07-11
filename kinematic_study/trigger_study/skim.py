@@ -76,7 +76,7 @@ class Accumulator(processor.ProcessorABC):
             hist_ = (
                 hist.Hist.new
                 .StrCat(["num", "den", "pure_Trig", "basic_cut"], name="eff")
-                .Variable([20, 30, 50, 100, 500], name="pt")
+                .Variable([20, 30, 50, 100, 200, 500], name="pt")
                 .Variable([0, 0.9, 1.5, 2.1, 2.4], name='eta')
                 .Weight()
             )

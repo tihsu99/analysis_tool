@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=[]):
 
+    process = list(process)
     Input = dict()    
 
     Input['bin']=dict()
@@ -16,7 +17,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
 
     process = Input['Process']
     Input['bin'][region] = len(Input['Process'])
-    Input['process1'] =range(len(Input['Process']))
+    Input['process1'] = list(range(len(Input['Process'])))
     Input['rate'] = [-1 for i in range(len(Input['Process']))]
     Input['NuisForProc'] = dict()
     Input['UnclnN'] = dict()
@@ -27,9 +28,12 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     else:
       nuisance_dict = json.load(jsonfile, object_pairs_hook=OrderedDict)
     jsonfile.close()
-   
+  
+    nuisance_list = []
+
     for nuisance in nuisances:
         nuisance='_'.join(str(nuisances[nuisance]).split('_')[1:]).strip()
+        nuisance_list.append(nuisance)
         if nuisance not in nuisance_dict: continue # NormUnc will be defined specifically in next part 
         ############
         ## UnclnN ##
@@ -39,26 +43,52 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
         else:
           sub_cat_list = ['']
         for sub_cat in sub_cat_list:
-          nuisance_name = nuisance+sub_cat          
-          if 'Shape' in nuisance_dict[nuisance]["Label"]:
-            Input['UnclnN'][nuisance_name]='shape'
+          nuisance_name_ = nuisance+sub_cat        
+          print(nuisance_name_, "PROCESS" in nuisance_name_)
+          if "PROCESS" in nuisance_name_:
+            if "Process" not in nuisance_dict[nuisance]:
+              nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in process[1:]] # All Background
+              if("Signal" in nuisance_dict[nuisance]["Label"]): nuisance_names.append(nuisance_name_.replace("PROCESS", "Signal"))
+            else:
+              nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in nuisance_dict[nuisance]["Process"]]
+              print(nuisance_names)
           else:
-            if isinstance(nuisance_dict[nuisance]["value"], float):
-              Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"])
-            if isinstance(nuisance_dict[nuisance]["value"], dict):
-              label_list = []
-              if "Era" in nuisance_dict[nuisance]["vary"]: label_list.append(year)
-              if "Region" in nuisance_dict[nuisance]["vary"]: label_list.append(region)
-              if "Channel" in nuisance_dict[nuisance]["vary"]: label_list.append(channel)
-              label_search = '_'.join(label_list)
-              Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"][label_search])
-        
-          Input['NuisForProc'][nuisance_name] = []
-          if "Background" in nuisance_dict[nuisance]["Label"]: 
-            Input['NuisForProc'][nuisance_name] = process[1:]
-          if "Signal" in nuisance_dict[nuisance]["Label"]:
-            Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
+            nuisance_names = [nuisance_name_]
+
+          for nuisance_name in nuisance_names:
+            if 'Shape' in nuisance_dict[nuisance]["Label"]:
+              Input['UnclnN'][nuisance_name]='shape'
+            else:
+              if isinstance(nuisance_dict[nuisance]["value"], float):
+                Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"])
+              if isinstance(nuisance_dict[nuisance]["value"], dict):
+                label_list = []
+                if "Era" in nuisance_dict[nuisance]["vary"]: label_list.append(year)
+                if "Region" in nuisance_dict[nuisance]["vary"]: label_list.append(region)
+                if "Channel" in nuisance_dict[nuisance]["vary"]: label_list.append(channel)
+                label_search = '_'.join(label_list)
+                Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"][label_search])
+
+            Input['NuisForProc'][nuisance_name] = []
+
+            if "PROCESS" in nuisance_name_:
+              blind_process_name = nuisance_name_.replace('PROCESS', '')
+              process_name = nuisance_name.replace(blind_process_name, '')
+              Input['NuisForProc'][nuisance_name] = [process_name.replace("Signal", "SIGNAL")]
  
+            elif "Process" in nuisance_dict[nuisance]:
+              Input['NuisForProc'][nuisance_name] = [process_.replace("Signal", "SIGNAL") for process_ in nuisance_dict[nuisance]["Process"]]
+            else:
+              if "Background" in nuisance_dict[nuisance]["Label"]: 
+                Input['NuisForProc'][nuisance_name] = process[1:]
+              if "Signal" in nuisance_dict[nuisance]["Label"]:
+                Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
+
+
+   
+
+
+
     ######################
     ## Norm Uncertainty ##
     ######################
@@ -76,11 +106,13 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
       if samples[sample_]["Category"] not in xsec_err_dict: xsec_err_dict[samples[sample_]["Category"]] = samples[sample_]["xsec_err"]
       else: xsec_err_dict[samples[sample_]["Category"]] = max(xsec_err_dict[samples[sample_]["Category"]], samples[sample_]["xsec_err"])  
     for category_ in xsec_err_dict:
+      if 'norm' + category_ not in nuisance_list: continue
       Input['UnclnN']['norm' + category_] = str(1. + 0.01 * xsec_err_dict[category_])
       Input['NuisForProc']['norm' + category_] = [category_]
 
 
     CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(year, region, channel),True)
+    print(Input)
     with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(year, region, channel),'w') as f:
         json.dump(Input,f,indent=4)
  
