@@ -3,8 +3,9 @@
 #================================================================================================ 
 # Imports
 #================================================================================================ 
-import ShellStyles as ShellStyles
 import sys
+sys.path.insert(1,'Util')
+import ShellStyles as ShellStyles
 import os
 import hashlib
 import imp
@@ -44,8 +45,8 @@ def Print(msg, printHeader=True):
     '''
     fName = __file__.split("/")[-1]
     if printHeader:
-        print "=== ", fName
-    print "\t", msg
+        print("=== ", fName)
+    print("\t", msg)
     return
 
 def PrintFlushed(msg, printHeader=True):
@@ -55,7 +56,7 @@ def PrintFlushed(msg, printHeader=True):
     msg = "\r\t" + msg
     ERASE_LINE = '\x1b[2K'
     if printHeader:
-        print "=== aux.py"
+        print("=== aux.py")
     sys.stdout.write(ERASE_LINE)
     sys.stdout.write(msg)
     sys.stdout.flush()

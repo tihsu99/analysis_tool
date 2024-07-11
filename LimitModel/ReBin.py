@@ -64,6 +64,8 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
   except:
     print(sample_nuis_name)
     raise
+
+  if category == 'QCD': h.Smooth() # QCD smooth
   return h
 
 def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None):
@@ -72,7 +74,8 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   ######################
   ##  Load json file  ##
   ######################
-  binning = [0.2 * i for i in range(6)] if binning is None else binning
+  #binning = [0.2 * i for i in range(6)] if binning is None else binning
+  binning = [100 * i for i in range(11)] if binning is None else binning
   binning = array.array('d', binning)
   print(binning)
   sample_json = 'data_info/Sample_Names/process_name_{}.json'.format(era)

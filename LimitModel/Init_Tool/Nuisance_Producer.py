@@ -9,9 +9,11 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     nuis_idx  = 0
     jsonfile = open("../data/nuisance.json")
     if python_version == 2:
-      nuisances = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict).items()
+      nuisances_dict = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
+      nuisances = nuisance_dict.items()
     else:
-      nuisances = json.load(jsonfile, object_pairs_hook=OrderedDict).items()
+      nuisances_dict = json.load(jsonfile, object_pairs_hook=OrderedDict)
+      nuisances = nuisances_dict.items()
     jsonfile.close()
 
     for nui,desc in nuisances:
@@ -19,12 +21,23 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
       if "Region" in desc and not region in desc["Region"]: continue
       if "Channel" in desc and not channel in desc["Channel"]: continue
       if nui in blacklist: continue
-      nuis_List[nuis_idx] = "_" + nui
-      nuis_idx += 1
+
+      if 'Name' in desc:
+        for name_ in desc['Name']:
+          if name_ == 'Criteria': continue
+          else:
+            nuis_List[nuis_idx] = "_" + desc['Name'][name_]
+            nuis_idx += 1
+      else:
+        nuis_List[nuis_idx] = "_" + nui
+        nuis_idx += 1
 
     #################
     ## Add NormUnc ##
     #################
+
+    Process_not_use_NormUnc = nuisances_dict['PDF']['Process']
+
 
     jsonfile = open("../data/sample.json")
     if python_version == 2:
@@ -38,6 +51,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
       if not "Background" in samples[sample_]["Label"]: continue
       if samples[sample_]["Category"] not in xsec_err_dict: xsec_err_dict[samples[sample_]["Category"]] = samples[sample_]["xsec_err"]
     for category_ in xsec_err_dict:
+      if category_ in Process_not_use_NormUnc: continue
       nuis_List[nuis_idx] = '_norm' + category_
       nuis_idx += 1
 
