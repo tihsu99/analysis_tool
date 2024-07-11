@@ -269,10 +269,16 @@ if __name__ == "__main__":
         region_channel_dict[region_].append(channel_)
     else:
       region_channel_dict[region_] = args.channels
- 
-  for region in region_channel_dict:
-    for channel in region_channel_dict[region]: 
-      Generate_Histogram(args.era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow)
+
+  if args.era == 'all':
+    Era = ['2016apv', '2016postapv', '2017', '2018']
+  else:
+    Era = [args.era]
+
+  for era in Era:
+    for region in region_channel_dict:
+      for channel in region_channel_dict[region]: 
+        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow)
 
 
   
