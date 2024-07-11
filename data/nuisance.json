@@ -1,101 +1,214 @@
 {
-  "puWeight":{
+  "CMS_pileup":{
     "Nominal": ["puWeight"],
     "Def":     "RVecF{puWeightDown, puWeightUp}",
     "Label": ["MC", "Background", "Signal", "Shape"]  
   },
 
-  "prefire":{
+  "CMS_l1_ecal_prefiring":{
     "Nominal": ["L1PreFiringWeight_Nom"],
     "Def":      "RVecF{L1PreFiringWeight_Dn, L1PreFiringWeight_Up}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Era":   ["2016apv", "2016postapv", "2017"]
   },
 
-  "Trigger_CHANNEL":{
+
+  "CMS_eff_e_trigger_ERA":{
     "Nominal": ["Trigger_sf"],
     "Def": "RVecF{Trigger_sf_down, Trigger_sf_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Channel": ["ele_resolved"]
+  },
+
+  "CMS_eff_m_trigger_ERA":{
+    "Nominal": ["Trigger_sf"],
+    "Def": "RVecF{Trigger_sf_down, Trigger_sf_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Channel": ["mu_resolved"]
+  },
+
+
+  "CMS_eff_m_id":{
+    "Nominal": ["Lepton_ID_SF"],
+    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}",
+    "Channel": ["mu_resolved"],
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "LeptonID_CHANNEL":{
+
+  "CMS_eff_e_id":{
     "Nominal": ["Lepton_ID_SF"],
-    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}", 
-    "Label": ["MC", "Background", "Signal", "Shape"] 
+    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "RECO":{
+  "CMS_eff_e_reco":{
     "Nominal": ["Lepton_RECO_SF"],
     "Def": "RVecF{(float)(Lepton_RECO_SF-Lepton_RECO_SF_err), (float)(Lepton_RECO_SF+Lepton_RECO_SF_err)}",
     "Channel": ["ele_resolved"],
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "btagSF_udsg_correlated":{
+  "CMS_res_e":{
+    "Nominal": ["Lepton_pt"],
+    "Def": "RVecF{(float)(Lepton_pt * (1.0 - (Electron_Smear_err_up / Lepton_Energy))), (float) (Lepton_pt * (1.0 - (Electron_Smear_err_do / Lepton_Energy)))}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_btag_lf":{
     "Nominal": ["btag_DeepJet_SF"],
     "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "btagSF_udsg_YEAR":{
+  "CMS_btag_lf_ERA":{
     "Nominal": ["btag_DeepJet_SF"],
     "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
 
-  "btagSF_bc_correlated":{
+  "CMS_btag_hf":{
     "Nominal": ["btag_DeepJet_SF"],
     "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "btagSF_bc_YEAR":{
+
+
+
+  "CMS_eff_m_id":{
+    "Nominal": ["Lepton_ID_SF"],
+    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}",
+    "Channel": ["mu_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+
+  "CMS_eff_e_id":{
+    "Nominal": ["Lepton_ID_SF"],
+    "Def": "RVecF{(float)(Lepton_ID_SF-Lepton_ID_SF_err), (float)(Lepton_ID_SF+Lepton_ID_SF_err)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_eff_e_reco":{
+    "Nominal": ["Lepton_RECO_SF"],
+    "Def": "RVecF{(float)(Lepton_RECO_SF-Lepton_RECO_SF_err), (float)(Lepton_RECO_SF+Lepton_RECO_SF_err)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_res_e":{
+    "Nominal": ["Lepton_pt"],
+    "Def": "RVecF{(float)(Lepton_pt * (1.0 - (Electron_Smear_err_up / Lepton_Energy))), (float) (Lepton_pt * (1.0 - (Electron_Smear_err_do / Lepton_Energy)))}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_btag_lf":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_btag_lf_ERA":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+
+  "CMS_btag_hf":{
     "Nominal": ["btag_DeepJet_SF"],
     "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "jes":{
+  "CMS_btag_hf_ERA":{
+    "Nominal": ["btag_DeepJet_SF"],
+    "Def": "RVec{btag_DeepJet_SF_bc_down, btag_DeepJet_SF_bc_up}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
+  "CMS_scale_j":{
     "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
-    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jesSUBDown,Jet_pt_jesSUBUp},{Jet_mass_jesSUBDown,Jet_mass_jesSUBUp}, {{MET_T1Smear_pt_jesSUBDown}, {MET_T1Smear_pt_jesSUBUp}}, {{MET_T1Smear_phi_jesSUBDown},{MET_T1Smear_phi_jesSUBUp}}}",
+    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jesSUBDown,Jet_pt_jesSUBUp},{Jet_mass_jesSUBDown,Jet_mass_jesSUBUp}, {{MET_T1Smear_phi_jesSUBDown}, {MET_T1Smear_phi_jesSUBUp}}, {{MET_T1Smear_pt_jesSUBDown},{MET_T1Smear_pt_jesSUBUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"],
     "sub_cat": ["EC2_YEAR", "HF_YEAR", "FlavorQCD", "RelativeBal", "BBEC1", "HF", "EC2", "Absolute","BBEC1_YEAR","RelativeSample_YEAR","Absolute_YEAR"]
-  }, 
+  },
 
-  "jerYEAR":{
+
+  "CMS_res_j_YEAR":{
     "Nominal": ["Jet_pt_nom","Jet_mass_nom", "MET_T1Smear_phi_RVec", "MET_T1Smear_pt_RVec"],
-    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jerDown,Jet_pt_jerUp},{Jet_mass_jerDown,Jet_mass_jerUp}, {{MET_T1Smear_pt_jerDown}, {MET_T1Smear_pt_jerUp}}, {{MET_T1Smear_phi_jerDown},{MET_T1Smear_phi_jerUp}}}",
+    "Def": "RVec<RVec<RVecF>>{{Jet_pt_jerDown,Jet_pt_jerUp},{Jet_mass_jerDown,Jet_mass_jerUp}, {{MET_T1Smear_phi_jerDown}, {MET_T1Smear_phi_jerUp}}, {{MET_T1Smear_pt_jerDown},{MET_T1Smear_pt_jerUp}}}",
     "Label":  ["MC", "Background", "Signal", "Shape"]
   },
 
-  "unclusterE_YEAR":{
+  "CMS_scale_met_unclustered_energy_YEAR":{
     "Nominal": ["MET_T1Smear_pt", "MET_T1Smear_phi"],
     "Def": "RVec<RVecF>{{MET_T1Smear_pt_unclustEnDown, MET_T1Smear_pt_unclustEnUp},{MET_T1Smear_phi_unclustEnDown, MET_T1Smear_phi_unclustEnUp}}",
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "lumi2016":{
+  "ps_isr_PROCESS": {
+    "Nominal": ["weight"],
+    "Def": "RVec{(float)(weight*PSWeight[2]), (float)(weight*PSWeight[0])}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Process": ["TT1L", "Signal"]
+  },
+
+  "ps_fsr_PROCESS":{
+    "Nominal": ["weight"],
+    "Def": "RVec{(float)(weight*PSWeight[3]), (float)(weight*PSWeight[1])}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Process": ["TT1L", "Signal"]
+  },
+
+  "QCDscale_mur_PROCESS":{
+    "Nominal": ["weight"],
+    "Def": "RVec{(float)(weight*LHEScaleWeight[1]), (float)(weight*LHEScaleWeight[7])}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Process": ["TT1L", "Signal"]
+  },
+
+  "QCDscale_muf_PROCESS":{
+    "Nominal": ["weight"],
+    "Def": "RVec{(float)(weight*LHEScaleWeight[3]), (float)(weight*LHEScaleWeight[5])}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Process": ["TT1L", "Signal"]
+  },
+
+  "PDF":{
+    "Nominal": ["weight"],
+    "Def": "RVec{(float)(weight*(1.0-pdf_unc)), (float)(weight*(1.0+pdf_unc))}",
+    "Label": ["MC", "Background", "Signal", "Shape"],
+    "Process": ["TT1L", "Signal"]
+  },
+
+  "CMS_lumi_2016":{
     "value": 1.01,
     "Label": ["lnN", "Background", "Signal"],
     "Era": ["2016apv", "2016postapv"]
   },
 
-  "lumiYEAR":{
+  "CMS_lumi_YEAR":{
     "value": {"2017": 1.02, "2018": 1.015},
     "vary" : ["Era"],
     "Label": ["lnN", "Background", "Signal"],
     "Era": ["2017", "2018"]
   },
 
-  "lumiCorr1718": {
+  "CMS_lumi_13TeV_1718": {
     "value": {"2017": 1.006, "2018": 1.002},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"],
     "Era": ["2017", "2018"]
   },
 
-  "lumiCorrFullRun2":{
+  "CMS_lumi_13TeV_correlated":{
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
