@@ -11,11 +11,12 @@
        }
      },
      "general_cut":{
-       "veto_Had_tau": "nHad_tau==0",
-       "one lepton":   "bh_nl==1",
-       "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 1",
-       "njet":         "n_tight_jet>=4"
+	 "veto_Had_tau": "nHad_tau==0",
+	 "one lepton":   "bh_nl==1",
+	 "met":          "bh_met>35",
+	 "b jet cut":    "n_bjet_DeepB_v == 1",
+	 "njet":         "n_tight_jet>=4",
+	 "bh_HT":        "bh_HT > 100"
      },
      "MVA_Label": "DNN_2b"
   },
@@ -32,11 +33,12 @@
        }
      },
      "general_cut":{
-       "veto_Had_tau": "nHad_tau==0",
-       "one lepton":   "bh_nl==1",
-       "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 1",
-       "njet":         "n_tight_jet == 3"
+	 "veto_Had_tau": "nHad_tau==0",
+	 "one lepton":   "bh_nl==1",
+	 "met":          "bh_met>35",
+	 "b jet cut":    "n_bjet_DeepB_v == 1",
+	 "njet":         "n_tight_jet == 3",
+	 "bh_HT":        "bh_HT > 100"
      },
      "MVA_Label": "DNN_2b"
   },
@@ -53,11 +55,12 @@
        }
      },
      "general_cut":{
-       "veto_Had_tau": "nHad_tau==0",
-       "one lepton":   "bh_nl==1",
-       "met":          "bh_met>35",
-       "b jet cut":    "n_bjet_DeepB_v == 1",
-       "njet":         "n_tight_jet == 2"
+	 "veto_Had_tau": "nHad_tau==0",
+	 "one lepton":   "bh_nl==1",
+	 "met":          "bh_met>35",
+	 "b jet cut":    "n_bjet_DeepB_v == 1",
+	 "njet":         "n_tight_jet == 2",
+	 "bh_HT":        "bh_HT > 100"
      },
      "MVA_Label": "DNN_2b"
   }, 

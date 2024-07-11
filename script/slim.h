@@ -26,6 +26,13 @@ TH2D*trigger_sf_muon_HLT_resolved     = (TH2D*)f_trigger->Get("bh_Muon_scale_fac
 TH2D*trigger_sf_muon_HLT_boost        = (TH2D*)f_trigger->Get("boost_Muon_scale_factor_total");
 const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->GetBinUpEdge(trigger_sf_electron_HLT_resolved->GetNbinsX());
 
+// pileupjetid Scale Factor (Derived by JME)
+// take root file from https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL#Data_MC_Efficiency_Scale_Factors
+TFile*f_pujetid=TFile::Open("../../data/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root");
+TString puhist = "SpecialEra";
+TH2D*pujetid_sf               = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T");
+TH2D*pujetid_sf_Systuncty     = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T_Systuncty");
+
 // Btag Efficiency (Derived by ourgroup)
 TFile*f_btag_efficiency=TFile::Open("../../data/BTagEfficiency_"+era+".root");
 TH2D*btag_efficiency_loose_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_b"))->CreateHistogram());
@@ -620,6 +627,40 @@ float trigger_SF(float pt, float eta, int boost_region, int resolved_region, flo
    }
   return trigger_weight;
 }
+
+//////////////////
+//  Pileupjetid SF  //
+//////////////////
+
+float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<int> Jet_genJetIdx, int boost_region, int resolved_region, float variation)
+{
+  float jet_pt, jet_eta;
+  float pujetid_weight = 1.0;
+  float central_weight = 1.0;
+  float weight_error   = 1.0;
+  
+  for(int ijet = 0; ijet < tight_jet_id.size(); ijet++){
+    int jet_idx = tight_jet_id[ijet];
+    if(jet_idx < 0) continue;
+    jet_pt = Jet_pt[jet_idx];
+    jet_eta = Jet_eta[jet_idx];
+    if (Jet_genJetIdx[jet_idx] == -1) continue;
+    // cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
+    // cout << "jet_pt : " << jet_pt <<  endl;
+    // cout << "jet_eta: " << jet_eta <<  endl;
+    if(jet_pt > 50.0 || jet_pt < 20) pujetid_weight *= 1.0;
+
+    else{
+      central_weight = pujetid_sf->GetBinContent(pujetid_sf->FindBin(jet_pt, abs(jet_eta)));
+      // cout << "central_weight: " << central_weight << endl;
+      weight_error   = pujetid_sf_Systuncty->GetBinContent(pujetid_sf_Systuncty->FindBin(jet_pt, abs(jet_eta)));
+      pujetid_weight *= (central_weight + variation*weight_error);
+      // cout << "pujetid_weight: " << pujetid_weight << endl;
+    }
+  }
+  return pujetid_weight;
+}
+
 
 ///////////////
 //  deltaR  //
