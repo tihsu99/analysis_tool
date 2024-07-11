@@ -648,9 +648,9 @@ float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<floa
     // cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
     // cout << "jet_pt : " << jet_pt <<  endl;
     // cout << "jet_eta: " << jet_eta <<  endl;
-    if(jet_pt > 50.0 || jet_pt < 20) return 1.0;
+    if(jet_pt > 50.0 || jet_pt < 20) pujetid_weight *= 1.0;
 
-    if((boost_region == -1) && (resolved_region == -1)){
+    else{
       central_weight = pujetid_sf->GetBinContent(pujetid_sf->FindBin(jet_pt, abs(jet_eta)));
       // cout << "central_weight: " << central_weight << endl;
       weight_error   = pujetid_sf_Systuncty->GetBinContent(pujetid_sf_Systuncty->FindBin(jet_pt, abs(jet_eta)));

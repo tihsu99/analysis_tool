@@ -5,8 +5,7 @@
     },
     
     "toppt_weight":{
-	"Def": "top_ptweight_Dep",
-	"Category": { "top_ptweight_nom": "top_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)"},
+	"Def":  "top_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)",
 	"Label": ["Normal", "MC"]
     },
     
@@ -228,20 +227,17 @@
     },
     
     "Pileupjetid_sf_up":{
-	"Def": "Pileupjetid_Dep",
-	"Category": {"pujetid_weight": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 1.0)"},
+	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 1.0)",
 	"Label": ["Normal", "MC"]
     },
     
     "Pileupjetid_sf_down":{
-	"Def": "Pileupjetid_Dep",
-	"Category": {"pujetid_weight": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, -1.0)"},
+	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, -1.0)",
 	"Label": ["Normal", "MC"]
     },
 
     "Pileupjetid_sf":{
-	"Def": "Pileupjetid_Dep",
-	"Category": {"pujetid_weight": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 0.0)"},
+	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 0.0)",
 	"Label": ["Normal", "MC"]
     },
 

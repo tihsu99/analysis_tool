@@ -163,10 +163,6 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
-      elif(variables[variable]["Def"] == "top_ptweight_Dep"):
-        df = df.Define(str(variable), str(variables[variable]["Category"]["top_ptweight_nom"]))
-      elif(variables[variable]["Def"] == "Pileupjetid_Dep"):
-        df = df.Define(str(variable), str(variables[variable]["Category"]["pujetid_weight"]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
