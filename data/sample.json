@@ -24,7 +24,7 @@
     "xsec_err": 4.3,
     "Category": "TTHad",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Backgrounde"]
+    "Label": ["MC", "Background"]
   },
   "ttWLNu":{
     "xsec": 0.2352,
