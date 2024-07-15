@@ -95,60 +95,71 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           continue
         category = samples[sample]['Category']
         if category in block_sample: continue
-        if "Signal" in data_type and not os.path.exists(os.path.join(Indir, sample+".root")): continue
-        ##################################
-        ## Lumi & cross section scaling ##
-        ##################################
 
-        #if "MC" in data_type:  # MC normalize with lumi x cross section
-        #  nDAS  = 0
-        #  for file_ in File_List:
-        #    if ((sample + "_") in file_) or ((sample + ".") in file_):
-        #      ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[era], file_), "READ")
-        #      nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
-        #      ftemp.Close()
-        #  norm_factor = Lumi[era]*samples[sample]['xsec']/float(nDAS)
-        #else: # data doesn't need to be normalized by lumi x cross section
-        #  norm_factor = 1.0
-
-        ##########################
-        ## Fetch Hist from File ##
-        ##########################
-
-        ftemp = ROOT.TFile.Open(os.path.join(Indir, sample + ".root"), "READ")
-        try:
-          htemp = ftemp.Get(str(histogram)).Clone()
-        except:
-          Histo_exist_in_file = False
-          continue
-        htemp.SetDirectory(0)
-        ftemp.Close()
-   
-        ##############
-        ## Overflow ##
-        ##############
-
-        if overflow:
-          htemp = overunder_flowbin(htemp)
-
-        ###################
-        # Scale and Rebin #
-        ###################
-
-        # htemp.Scale(norm_factor)  # Scale done by previous step already
-        if not(histogram == 'cutflow'): # only cutflow is special
-          htemp.Rebin(int(htemp.GetNbinsX()/Histograms[histogram]["nbin"]))
-
-        ##################################
-        ## Add Hist to correspond group ##
-        ##################################
-
-        if category not in Histogram:
-          Histogram[category] = htemp.Clone()
-          Integral[category]  = htemp.Integral()
+        if 'SubProcess' in samples[sample]:
+          subprocess = []
+          for sub in samples[sample]['SubProcess']:
+            subprocess.append(sub)
         else:
-          Histogram[category].Add(htemp.Clone())
-          Integral[category] += htemp.Integral()
+          subprocess = [sample]
+
+        for subprocess_ in subprocess:
+          if "Signal" in data_type and not os.path.exists(os.path.join(Indir, subprocess_+".root")): continue
+
+
+          ##################################
+          ## Lumi & cross section scaling ##
+          ##################################
+
+          #if "MC" in data_type:  # MC normalize with lumi x cross section
+          #  nDAS  = 0
+          #  for file_ in File_List:
+          #    if ((sample + "_") in file_) or ((sample + ".") in file_):
+          #      ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[era], file_), "READ")
+          #      nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
+          #      ftemp.Close()
+          #  norm_factor = Lumi[era]*samples[sample]['xsec']/float(nDAS)
+          #else: # data doesn't need to be normalized by lumi x cross section
+          #  norm_factor = 1.0
+
+          ##########################
+          ## Fetch Hist from File ##
+          ##########################
+
+          ftemp = ROOT.TFile.Open(os.path.join(Indir, subprocess_ + ".root"), "READ")
+          try:
+            htemp = ftemp.Get(str(histogram)).Clone()
+          except:
+            Histo_exist_in_file = False
+            continue
+          htemp.SetDirectory(0)
+          ftemp.Close()
+   
+          ##############
+          ## Overflow ##
+          ##############
+
+          if overflow:
+            htemp = overunder_flowbin(htemp)
+
+          ###################
+          # Scale and Rebin #
+          ###################
+
+          # htemp.Scale(norm_factor)  # Scale done by previous step already
+          if not(histogram == 'cutflow'): # only cutflow is special
+            htemp.Rebin(int(htemp.GetNbinsX()/Histograms[histogram]["nbin"]))
+
+          ##################################
+          ## Add Hist to correspond group ##
+          ##################################
+
+          if category not in Histogram:
+            Histogram[category] = htemp.Clone()
+            Integral[category]  = htemp.Integral()
+          else:
+            Histogram[category].Add(htemp.Clone())
+            Integral[category] += htemp.Integral()
 
 
       ###################
@@ -179,7 +190,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             canvas.addHistogram(Histogram[sample_], drawOpt = 'HIST E')
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
           else:
-            canvas.addSignal(Histogram[sample_], title = sample_+"*(100)", color = color)
+            canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
             print (100*"=")
         elif "Data" in data_type and unblind:
           canvas.addObs(Histogram[sample_])

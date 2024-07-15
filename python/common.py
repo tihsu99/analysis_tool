@@ -29,7 +29,7 @@ python_version = int(sys.version.split('.')[0])
 inputFile_path = {
    '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v4/', 
    '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v4/', 
-   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v4/', 
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v5/', 
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v4/'
 }
 
@@ -185,7 +185,7 @@ Color_Dict_ref = {
   'VVV':ROOT.kSpring - 9,
   'ttXY':ROOT.kPink-3,
   'TT1L':ROOT.kViolet-4,
-  'tZq':ROOT.kYellow+4,
+  'tZq':ROOT.kYellow+1,
   'TT2L':ROOT.kBlue,
   'ttW':ROOT.kGreen-2,
   'ttZ':ROOT.kCyan-2,
@@ -239,3 +239,7 @@ def overunder_flowbin2D(h1):
   h1 = Add_2Dbin(h1, nbinX, nbinY, nbinX+1, nbinY+1)
   return h1
 
+
+def CheckDir(path):
+  if not os.path.exists(path):
+    os.system('mkdir -p {}'.format(path))
