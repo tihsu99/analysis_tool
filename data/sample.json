@@ -3,7 +3,7 @@
      "xsec": 87.56,
      "xsec_err": 4.3,
      "Category": "TT2L",
-     "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
+     "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
      "Train_ratio": {"2b": 0.075, "3b": 0.5},
      "Label": ["MC", "Background"]
   },
@@ -40,6 +40,15 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":  ["MC", "Background"]
   },
+
+  "DYnlo_M10to50":{
+    "xsec": 20490,
+    "xsec_err": 0.89,
+    "Category": "DY",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":  ["MC", "Background"]
+  },
+
   "DYnlo":{
     "xsec": 6077.22,
     "xsec_err": 0.3,
@@ -257,6 +266,15 @@
   "WWZ":{
     "xsec": 0.1707,
     "xsec_err": 10.0,
+    "Category": "VVV",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":["MC", "Background"]
+  },
+
+  
+  "WW":{
+    "xsec": 118.8,
+    "xsec_err": 3.6,
     "Category": "VVV",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
