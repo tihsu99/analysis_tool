@@ -43,7 +43,7 @@
 
   "DYnlo_M10to50":{
     "xsec": 20490,
-    "xsec_err": 0.89,
+    "xsec_err": 1,
     "Category": "DY",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":  ["MC", "Background"]
