@@ -527,11 +527,10 @@ float HT_(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> jetpt)
 //  BTag SF  //
 ///////////////
 
-ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<Int_t> jetid){
+ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid){
   ROOT::VecOps::RVec<Int_t> return_id;
   for(int i = 0; i < jetid.size(); i++){
     if (jetid[i] < 0) continue;
-    if (abs(Jet_eta[jetid[i]]) > 2.4) continue;
     return_id.push_back(jetid[i]);
   }
   return return_id;

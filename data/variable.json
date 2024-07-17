@@ -62,11 +62,12 @@
 
   "tightJets_b_DeepJet_id": {
     "Def": "Btag_WP_Dep",
-    "Category": { "Loose": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJetloose_id)",
-	          "Medium": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJetmedium_id)",
-		  "Tight": "reselect_btag_jet(Jet_eta, tightJets_b_DeepJettight_id)"
+    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id)",
+                  "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id)",
+                  "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id)"
                 },
-    "Label": ["Normal"]
+    "Label": ["Normal"],
+    "Save": ["BDT_Training"]
   },
 
   "n_bjet_DeepB_v": {
@@ -140,7 +141,7 @@
   "Lepton_phi":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "bh_l1_phi",
-	         "mu_resolved":  "bh_l1_phi"},
+	               "mu_resolved":  "bh_l1_phi"},
     "Label": ["Normal"],
     "Save":  ["BDT_training"]
   },
@@ -148,7 +149,7 @@
   "Lepton_mass":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "bh_l1_mass",
-	         "mu_resolved":  "bh_l1_mass"},
+	               "mu_resolved":  "bh_l1_mass"},
     "Label": ["Normal"],
     "Save":  ["BDT_training"]
   },
@@ -157,7 +158,7 @@
   "Lepton_region":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "bh_region",
-	         "mu_resolved":  "bh_region"},
+      	         "mu_resolved":  "bh_region"},
     "Label": ["Normal"]
   
   },
@@ -196,32 +197,32 @@
   "btag_DeepJet_SF_udsg_up":{
     "Def": "Btag_WP_Dep",
     "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_up, 1)",
-	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 1)",
-		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 1)"},
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 1)",
+	            	"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 1)"},
     "Label": ["Normal", "MC"]
   },
 
   "btag_DeepJet_SF_bc_up":{
     "Def": "Btag_WP_Dep",
     "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_up, 2)",
-	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 2)",
-		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 2)"},
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_up, 2)",
+            		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_up, 2)"},
     "Label": ["Normal", "MC"]
   },
 
   "btag_DeepJet_SF_udsg_down":{
     "Def": "Btag_WP_Dep",
     "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 1)",
-	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 1)",
-		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 1)"},
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 1)",
+            		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 1)"},
     "Label": ["Normal", "MC"]
   },
 
   "btag_DeepJet_SF_bc_down":{
     "Def": "Btag_WP_Dep",
     "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 2)",
-	        "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 2)",
-		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 2)"},
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 2)",
+            		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 2)"},
     "Label": ["Normal", "MC"]
   },
 
