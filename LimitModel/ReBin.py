@@ -19,19 +19,25 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 import json, array
-from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, binning, python_version
+from Util.General_Tool import MakeNuisance_Hist,MakePositive_Hist,CheckDir,CheckFile, python_version
 import argparse
+sys.path.append('../python')
+from common import *
+import numpy as np
 
-def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', year='2017', analysis_name="bH", channel='ele_resolved'):
+def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', scale = 1.0):
 
   ## New definition of MakeNuisance_Hist, but compatible with current data structure
+
 
   Init = True
   Nui_Exist = False
   h = None
 
+  year = '2016' if '2016' in era else era
+
   for sample_ in samples_list:
-    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel)
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era)
     fin = os.path.join(indir, "{}.root".format(sample_))
     fin = TFile.Open(fin, "READ")
     if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
@@ -44,20 +50,34 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     fin.Close()
   if Nui_Exist:
     h = h.Rebin(len(bins)-1, "h", bins)
-    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel)
-    h.SetNameTitle(analysis_name + year + "_" + category + nuis, year + "_" + category + nuis)
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era)
+    h.SetNameTitle(analysis_name + era + "_" + category + nuis, era + "_" + category + nuis)
   else:
     if q: pass
     else: print("\033[0;32m Warning \033[0;m: {} doesn't exist".format(sample_nuis_name))
+
+#  print('produce', analysis_name + era + "_" + category + nuis, era + "_" + category + nuis, indir, sample_)
+  try:
+    if h is None:
+      print(category, sample_nuis_name, samples_list, indir)
+    h.Scale(scale)
+  except:
+    print(sample_nuis_name)
+    raise
+
+  if category == 'QCD': h.Smooth() # QCD smooth
   return h
 
-def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH'):
+def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None):
 
   fout = TFile.Open(fout_name, "RECREATE")
   ######################
   ##  Load json file  ##
   ######################
-
+  #binning = [0.2 * i for i in range(6)] if binning is None else binning
+  binning = [100 * i for i in range(11)] if binning is None else binning
+  binning = array.array('d', binning)
+  print(binning)
   sample_json = 'data_info/Sample_Names/process_name_{}.json'.format(era)
   datacard_json = 'data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel)
 
@@ -67,6 +87,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   else:
     samples = json.load(jsonfile)
   jsonfile.close()
+
 
   jsonfile = open(datacard_json)
   if python_version == 2:
@@ -80,19 +101,30 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   #############################
 
   Histograms = []
-  samples["SIGNAL"] = [signal] # one signal for current stage
+  if (len(subprocess) == 0):
+    samples["SIGNAL"] = [signal] # one signal, no subprocess
+  else:
+    for idx, subprocess_ in enumerate(subprocess):
+      samples["SIGNAL{}".format(idx)] = [subprocess_]
   for category in samples:
     # Nominal
-    if category == "SIGNAL": category_name = signal
+    scale = 1.0
+    if "SIGNAL" in category:
+      category_name = samples[category][0]
+      scale = sig_scale 
     else: category_name = category
-    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name, channel=channel)
-    Histograms.append(MakePositive_Hist(h))
+
+    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
+    Histograms.append(overunder_flowbin(MakePositive_Hist(h)))
     for nuisance in datacard_inputs["NuisForProc"]:
       if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
-      if not category in datacard_inputs["NuisForProc"][nuisance]: continue
+      category_replace_signal = category
+      if "SIGNAL" in category:
+        category_replace_signal = "SIGNAL"
+      if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
       for variation in ["_up", "_down"]:
-        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, year = era, q=quiet, analysis_name=analysis_name, channel=channel)
-        Histograms.append(MakePositive_Hist(h))
+        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
+        Histograms.append(overunder_flowbin(MakePositive_Hist(h)))
 
   ###############
   ##  unblind  ##
@@ -109,9 +141,9 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       if not "Data" in samples_contain_datainfo[sample_]["Label"]: continue
       if "Region" in samples_contain_datainfo[sample_] and region not in samples_contain_datainfo[sample_]["Region"]: continue
       if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
+      if "Era" in samples_contain_datainfo[sample_] and era not in samples_contain_datainfo[sample_]["Era"]: continue
       data_list.append(sample_)
-    print(channel, ' channel uses data:', data_list)
-    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, year=era, q=quiet, analysis_name=analysis_name, channel=channel)
+    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel)
     Histograms.append(h)
 
   fout.cd()
@@ -123,26 +155,29 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-y','--year',help='List of Years of data. Default value=["2016postapv"].',default=['2016postapv'],nargs='*')
+parser.add_argument('-y','--era',help='List of Years of data. Default value=["2016postapv"].',default=['2016postapv'],nargs='*')
 parser.add_argument('--region', help='List of regions', default=['all'], nargs='+')
 parser.add_argument('--channel', help='List of channels', default=['all'], nargs='+')
 parser.add_argument('--signal', help='List of signals', default=['all'], nargs='+')
-parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
+parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
+parser.add_argument('--cut_json', default = '../data/cut.json')
 parser.add_argument('--analysis_name', default='bH')
 parser.add_argument('--unblind',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
 parser.add_argument('--POI', default = 'BDT')
+parser.add_argument('--sig_norm', action = 'store_true')
 args = parser.parse_args()
 
+args.outputdir = os.path.join(args.outputdir, 'FinalInputs')
 
-if "all" in args.year:
+if "all" in args.era:
   eras = ["2016postapv", "2016apv", "2017", "2018"]
 else:
-  eras = args.year
+  eras = args.era
 
 region_channel_dict = dict()
-jsonfile = open("../data/cut.json")
+jsonfile = open(args.cut_json)
 if python_version == 2:
   regions = json.load(jsonfile, encoding='utf-8')
 else:
@@ -163,14 +198,17 @@ else:
   for region_ in region_channel_dict:
     region_channel_dict[region_] = args.channel
 
+jsonfile = open("../data/sample.json")
+if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
+else: samples = json.load(jsonfile)
+samples = Extend_sample_dict(samples, key_word = 'MASS')
+
+
 for era_ in eras:
   for region_ in region_channel_dict:
     for channel_ in region_channel_dict[region_]:
       signal_list = []
       if "all" in args.signal:
-        jsonfile = open("../data/sample.json")
-        if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
-        else: samples = json.load(jsonfile)
         for sample_ in samples:
           if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
       else:
@@ -180,14 +218,39 @@ for era_ in eras:
         fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
         CheckDir(os.path.join(args.outputdir, era_, signal_), MakeDir=True)
         #########  Specific Rule ###########
-        if('BGToTH' in signal_): continue
+#        if('BGToTH' in signal_): continue
 
-        if args.POI == 'BDT':
-            args.POI = signal_.replace('BGToTH', 'CGToBH') # Case by case naming rule
-        if args.POI == 'DNN':
-            mass     = signal_.replace('BGToTH_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','') 
-            args.POI = 'DNN{}'.format(mass)
+
+        POI_binning = None
+        if args.POI == "ASCUTJSON":
+          POI_name = regions[region_]["POI"][0]
+          POI_binning_min, POI_binning_max, POI_binning_nbin = regions[region_]["POI_bin"]
+          POI_binning = np.linspace(POI_binning_min, POI_binning_max, POI_binning_nbin+1)
+        else:
+          POI_name = args.POI
+
+
+        POI_in = POI_name
+        if POI_name == 'BDT':
+            POI_in = signal_.replace('BGToTH', 'CGToBH') # Case by case naming rule
+        if POI_name == 'DNN':
+            mass     = signal_.replace('BGToTHpm_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','').replace('WprimeTotb_leptonicDecays_M_','').replace('HplusToTB_M_','')
+            POI_in = 'DNN{}'.format(mass)
+        if POI_name == 'DNNScore':
+            mass     = signal_.replace('BGToTHpm_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','').replace('WprimeTotb_leptonicDecays_M_','').replace('HplusToTB_M_','')
+            POI_in = 'DNNScore{}'.format(mass)
+
         ####################################
 
-        ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=args.POI, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name)
+        if args.sig_norm:
+          sig_scale = 1./samples[signal_]["xsec"]
+        else:
+          sig_scale = 1.0
+
+        subprocess = []
+        if "SubProcess" in samples[signal_]:
+          for process in samples[signal_]["SubProcess"]:
+            subprocess.append(process)
+        print(subprocess)
+        ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning)
                                         

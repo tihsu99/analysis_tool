@@ -11,59 +11,16 @@
        }
      },
      "general_cut":{
-	 "veto_Had_tau": "nHad_tau==0",
-	 "one lepton":   "bh_nl==1",
-	 "met":          "bh_met>35",
-	 "b jet cut":    "n_bjet_DeepB_v == 1",
-	 "njet":         "n_tight_jet>=4",
-	 "bh_HT":        "bh_HT > 100"
+       "veto_Had_tau": "nHad_tau==0",
+       "one lepton":   "bh_nl==1",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 1",
+       "njet":         "n_tight_jet>=4",
+	     "bh_HT":        "bh_HT > 100"
      },
-     "MVA_Label": "DNN_2b"
+     "MVA_Label": "DNN_2b",
+     "POI": ["bh_HT"]
   },
-    
-  "CR_1b3j":{
-     "channel_cut":{
-       "ele_resolved": {
-         "channel_lepton": "bh_region == 2",
-	       "lepton_pt":      "bh_l1_pt > 35"
-       },
-       "mu_resolved": {
-         "channel_lepton": "bh_region == 1",
-	       "lepton_pt"     : "bh_l1_pt > 30"
-       }
-     },
-     "general_cut":{
-	 "veto_Had_tau": "nHad_tau==0",
-	 "one lepton":   "bh_nl==1",
-	 "met":          "bh_met>35",
-	 "b jet cut":    "n_bjet_DeepB_v == 1",
-	 "njet":         "n_tight_jet == 3",
-	 "bh_HT":        "bh_HT > 100"
-     },
-     "MVA_Label": "DNN_2b"
-  },
-
-  "CR_1b2j":{
-     "channel_cut":{
-       "ele_resolved": {
-         "channel_lepton": "bh_region == 2",
-	       "lepton_pt":      "bh_l1_pt > 35"
-       },
-       "mu_resolved": {
-         "channel_lepton": "bh_region == 1",
-	       "lepton_pt"     : "bh_l1_pt > 30"
-       }
-     },
-     "general_cut":{
-	 "veto_Had_tau": "nHad_tau==0",
-	 "one lepton":   "bh_nl==1",
-	 "met":          "bh_met>35",
-	 "b jet cut":    "n_bjet_DeepB_v == 1",
-	 "njet":         "n_tight_jet == 2",
-	 "bh_HT":        "bh_HT > 100"
-     },
-     "MVA_Label": "DNN_2b"
-  }, 
     
   "SR_2b4j":{
      "channel_cut":{
@@ -82,9 +39,11 @@
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet>=4"
+       "njet":         "n_tight_jet>=4",
+       "HT":           "bh_HT > 100"
      },
-     "MVA_Label": "DNN_2b"
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"]
   },
 
   "SR_3b4j":{
@@ -104,9 +63,11 @@
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v >= 3",
-       "njet":         "n_tight_jet>=4"
+       "njet":         "n_tight_jet>=4",
+       "HT":           "bh_HT > 100"
      },
-     "MVA_Label": "DNN_3b"
+     "MVA_Label": "DNN_3b",
+     "POI": ["DNN"]
   },
 
 
@@ -127,9 +88,11 @@
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet == 3"
+       "njet":         "n_tight_jet == 3",
+       "HT":           "bh_HT > 100"
      },
-     "MVA_Label": "DNN_2b"
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"]
   },
 
 
@@ -150,9 +113,11 @@
        "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v >= 3",
-       "njet":         "n_tight_jet ==3"
+       "njet":         "n_tight_jet ==3",
+       "HT":           "bh_HT > 100"
      },
-     "MVA_Label": "DNN_3b"
+     "MVA_Label": "DNN_3b",
+     "POI": ["DNN"]
   },
   "SR_2b2j":{
      "channel_cut":{
@@ -170,9 +135,11 @@
        "one lepton":   "bh_nl==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 2",
-       "njet":         "n_tight_jet == 2"
+       "njet":         "n_tight_jet == 2",
+       "HT":           "bh_HT > 100"
      },
-     "MVA_Label": "DNN_2b"
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"]
   }
 
 }

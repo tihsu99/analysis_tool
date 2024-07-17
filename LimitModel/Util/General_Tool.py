@@ -8,10 +8,13 @@ from collections import OrderedDict
 import json
 CURRENT_WORKDIR = os.getcwd()
 
-BDT_bin = [ 0.1*i for i in range(11)]
-binning = array.array('d', BDT_bin)
-#HT_bin = [ 50*i for i in range(11)]
-#binning = array.array('d', HT_bin)
+HT_bin  = [ 100*i for i in range(11)]
+MVA_bin = [ 0.1*i for i in range(11)]
+Mtb_bin = [ 100*i for i in range(16)]
+Score_bin = [(0.2*i) for i in range(6)]
+#binning = array.array('d', BDT_bin)
+HT_bin = [ 50*i for i in range(11)]
+binning = array.array('d', HT_bin)
 python_version = int(sys.version.split('.')[0])
 
 def MakeNuisance_Hist(prefix='',samples_list=[],nuis='',f=TFile,process_category='',bins='',year='2017',q=False,correct_nuisance_name=''):
@@ -45,7 +48,7 @@ def MakePositive_Hist(Hist,value=0.0001):
     H = copy.deepcopy(Hist) 
 
     for ibin in range(Hist.GetNbinsX()):
-        if Hist.GetBinContent(ibin+1) < 0:
+        if Hist.GetBinContent(ibin+1) <= 0:
             H.SetBinContent(ibin+1,value) #this is up to user
         else:pass
     return H

@@ -8,7 +8,7 @@ from collections import OrderedDict
 from math import sqrt
 sys.path.insert(1, '../../python')
 from common import *
-from DNN_application import Build_DNN_Command
+from DNN_application import Build_DNN_Command, Build_EnsembleDNN_Command
 import re
 import copy
 from termcolor import colored
@@ -43,7 +43,15 @@ def Slim_module(filein,
                 multi_class_pNN=False,
                 cutflow_store=False,
                 SubProcess = None,
-                toppt = False):
+                toppt = False,
+                not_ensemble = False):
+
+  #############
+  ##  Basic  ##
+  #############
+
+  year = era
+  if '2016' in era: year = '2016'
 
   ###################
   ##  Sample type  ##
@@ -69,7 +77,11 @@ def Slim_module(filein,
   samples = Extend_sample_dict(samples, key_word = 'MASS')
 
   if 'Signal' in sample_labels: sample_name = filein.replace('.root', '')
-  else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d))\.root','', filein).replace('.root','')
+  else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', filein).replace('.root','')
+
+  # sample_category mainly used for nuisance def.
+  sample_category = samples[sample_name]['Category'] 
+  sample_category = 'Signal' if 'Signal' in sample_labels else sample_category
 
   path    = str(inputFile_path[era])
   fin     = os.path.join(path, filein)
@@ -136,6 +148,25 @@ def Slim_module(filein,
     else:
       nuisances_valid[nuisances[nuisance]["Nominal"][-1]].append(nuisance)
 
+
+  ##############
+  ##  Weight  ##
+  ##############
+  if "Data" in sample_labels:
+    weight_def = 1       # Data weight is also to be 1
+    nuisances_valid = [] # Nuisances only affect MC
+  if toppt:
+    if "TTTo1L" in filein or "TTTo2L" in filein:
+      print (colored('--> For ttbar apply toppt_weight','yellow'))
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
+
+
+  #################################
+  ##  Assign Train / Test Label  ##
+  #################################
+  df = df.Define(str("prob_2b"), str(samples[sample_name]["Train_ratio"]["2b"])) 
+  df = df.Define(str("prob_3b"), str(samples[sample_name]["Train_ratio"]["3b"])) 
+
   #######################
   ##  Define Variable  ##
   #######################
@@ -143,7 +174,12 @@ def Slim_module(filein,
   jsonfile  = open(variable_json)
   variables = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
-  
+
+  variables['weight'] = {
+    "Def": str('(float)({})'.format(weight_def)),
+    'Label': ['Normal']
+  }
+
   print('nuisances_valid', nuisances_valid)
   for variable in variables:
 
@@ -155,6 +191,8 @@ def Slim_module(filein,
     Flag = True
     if not Flag: continue
     if "Data" in sample_labels and "MC" in variables[variable]["Label"]: continue
+    if (("Process_Forbid" in variables[variable]) and (sample_name in variables[variable]['Process_Forbid'])):continue
+
 
     if not (variables[variable]["Def"] == "Defined"):
       if(variables[variable]["Def"] == "MC_Data_Dep"):
@@ -174,26 +212,27 @@ def Slim_module(filein,
         if "Era" in nuisances[nuisance] and era not in nuisances[nuisance]["Era"]: continue
         if "Region" in nuisances[nuisance] and region not in nuisances[nuisance]["Region"]: continue
         if "Channel" in nuisances[nuisance] and channel not in nuisances[nuisance]["Channel"]: continue
+        if "Process" in nuisances[nuisance] and (sample_category not in nuisances[nuisance]["Process"]): continue
         sub_category = [""]
         if "sub_cat" in nuisances[nuisance]: sub_category = nuisances[nuisance]["sub_cat"]
         for sub_cat in sub_category:
-          nuisance_def =  nuisances[nuisance]["Def"].replace('SUB', sub_cat).replace('YEAR', era)
-          nuisance_name = (nuisance+sub_cat).replace('YEAR', era).replace('CHANNEL', channel)
-          print(nuisances[nuisance]["Nominal"], nuisance_def, nuisance_name)
-          df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, {"Down", "Up"}, nuisance_name)
+          nuisance_def =  nuisances[nuisance]["Def"].replace('SUB', sub_cat).replace('ERA', era).replace('YEAR', year)
+          if 'Name' in nuisances[nuisance]:
+            if nuisances[nuisance]['Name']['Criteria'] == 'CHANNEL':
+              nuisance_name = nuisances[nuisance]['Name'][channel]
+            elif nuisances[nuisance]['Name']['Criteria'] == 'REGION':
+              nuisance_name = nuisances[nuisance]['Name'][region]
+            elif nuisances[nuisance]['Name']['Criteria'] == 'ERA':
+              nuisance_name = nuisances[nuisance]['Name'][era]
+          else:
+              nuisance_name = nuisance
+
+          nuisance_name = (nuisance_name+sub_cat).replace('ERA', era).replace('CHANNEL', channel).replace('YEAR', year).replace('PROCESS', sample_category)
+          cprint(nuisance_name, 'yellow')
+          print(nuisances[nuisance]["Nominal"], nuisance_def)
+          df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, ["Down", "Up"], nuisance_name)
           nuisance_list.append(nuisance_name)
-  ##############
-  ##  Weight  ##
-  ##############
-  if "Data" in sample_labels:
-    weight_def = 1       # Data weight is also to be 1
-    nuisances_valid = [] # Nuisances only affect MC
-  if toppt:
-    if "TTTo1L" in filein or "TTTo2L" in filein:
-      print (colored('--> For ttbar apply toppt_weight','yellow'))
-      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
-  df = df.Define("weight", str(weight_def))
-  
+
   #########
   ## Cut ##
   #########
@@ -242,6 +281,7 @@ def Slim_module(filein,
     print(trigger_name, str(trigger_cut))
     if cutflow_store:
       cutflow[trigger_name] = df.Sum("weight").GetValue() 
+
   # general cut
   for cut_name in cuts[region]["general_cut"]:
     df = df.Filter(str(cuts[region]["general_cut"][cut_name]), str(cut_name))
@@ -271,12 +311,15 @@ def Slim_module(filein,
   if 'ASCUTJSON' in POIs:
      POIs = cuts[region]['POI']
 
+
   ####################
   ##  MVA Variable  ##
   ####################
 
   MVA_json_dict = read_json(MVA_json)
   BDT = dict()
+
+  ## BDT Usage
   if MVA_weight_dir is not None:
     MVA_list = os.listdir(MVA_weight_dir)
     for MVA in MVA_list:
@@ -287,16 +330,22 @@ def Slim_module(filein,
         df = df.Define(str(MVA), eval("ROOT.computeModel_%s"%MVA), MVA_json_dict["xgboost"])
         POIs.append(MVA)
 
+
+  ## parametric DNN usage
   if pNN:
     var = MVA_json_dict[MVA_Label]
     var.append('Mass')
-    Build_DNN_Command(var, MVA_Label, 'pNN')
+    if not_ensemble:
+      Build_DNN_Command(var, MVA_Label, 'pNN')
+    else:
+      Build_EnsembleDNN_Command(var, MVA_Label, os.path.join('pNN', era))
     for mass_ in Mass_bin:
       define_ = ('{}(' + ', '.join(var) + ')[0]').format(MVA_Label)
       define_ = define_.replace('Mass', str(mass_))
       print(define_)
       df = df.Define(str('DNN{}'.format(mass_)), str(define_))
 
+  ## Multi-class parametric DNN usage
   if multi_class_pNN:
     var = MVA_json_dict[MVA_Label]
     var.append('Mass')
@@ -321,6 +370,7 @@ def Slim_module(filein,
   jsonfile   = open(histogram_json)
   Histograms = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
+
 
   # for BDT MVA case
   if MVA_weight_dir is not None:
@@ -386,6 +436,7 @@ def Slim_module(filein,
 
 
   for Histogram in Histograms:
+
     print("Generating", Histogram)
     Flag = False
     Label_trigger = ""
@@ -395,6 +446,10 @@ def Slim_module(filein,
       if Label in Histograms[Histogram]["Label"]:
         Label_trigger = Label
         Flag = False
+
+    # Add cut for DNN_Category (for pNN or multi_class_pNN)
+    if 'cut' not in Histograms[Histogram]:
+      Histograms[Histogram]["cut"] = cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
 
     if Histogram in POIs: Flag = True
     if not Flag:
@@ -438,6 +493,7 @@ def Slim_module(filein,
     Histos.append(histo_cutflow.Clone())
 
   for Histogram in Histos_from_df:
+    print(Histogram)
     Histos.append(Histos_from_df[Histogram].GetValue().Clone())
 
   for Histogram in Histos_from_df_var:
@@ -446,8 +502,8 @@ def Slim_module(filein,
       if("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
       h_variation_do = h_variation[nuisance + ":Down"]
       h_variation_up = h_variation[nuisance + ":Up"]
-      h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("YEAR",era)))
-      h_variation_up.SetName(str((Histogram + "_" + nuisance + "_up").replace("YEAR", era)))
+      h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("ERA",era).replace('YEAR',year).replace("PROCESS", sample_category)))
+      h_variation_up.SetName(str((Histogram + "_" + nuisance + "_up").replace("ERA", era).replace('YEAR',year).replace("PROCESS", sample_category)))
       Histos.append(h_variation_do)
       Histos.append(h_variation_up)
 
@@ -534,7 +590,8 @@ if __name__ == "__main__":
   parser.add_argument("--cutflow", action='store_true')
   parser.add_argument("--SubProcess", type=str, default = None)
   parser.add_argument("--toppt",   action='store_true')
-  
+  parser.add_argument("--not_ensemble", action = 'store_true')
+
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
   if args.MVA_weight_dir == "None": args.MVA_weight_dir = None
@@ -559,7 +616,8 @@ if __name__ == "__main__":
               cutflow_store = args.cutflow,\
               SubProcess = args.SubProcess,\
               multi_class_pNN = args.multi_class_pNN,\
-              toppt = args.toppt)
+              toppt = args.toppt,\
+              not_ensemble = args.not_ensemble)
   end_time = time.time()
   print('process time', end_time - start_time)
 

@@ -7,6 +7,8 @@ import math
 import matplotlib.pyplot as plt
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
+sys.path.append(os.path.join(CURRENT_WORKDIR, '../python'))
+from common import Color_Dict_ref
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 from Util.General_Tool import CheckDir,CheckFile,CheckFile,binning,read_json
 from collections import OrderedDict
@@ -428,24 +430,7 @@ def PlotShape(settings=dict()):
 
 def Plot_Histogram(template_settings=dict()):
 
-    Color_Dict ={
-            'DY':ROOT.kRed,
-            'VV':ROOT.kCyan-9,
-            'VVV':ROOT.kSpring - 9,
-            'tttX':ROOT.kPink-3,
-            'Nonprompt':ROOT.kViolet-4,
-            'tZq':ROOT.kYellow-4,
-            'TT2L':ROOT.kBlue,
-            'TT1L':ROOT.kGreen+3,
-            'ttW':ROOT.kGreen-2,
-            'ttZ':ROOT.kCyan-2,
-            'VBS':ROOT.kBlue-6,
-            'WJet':ROOT.kBlue+6,
-            'ttH':ROOT.kRed-9,
-            'ttVV':ROOT.kOrange+3,
-            'SingleTop':ROOT.kGray,
-            'Others': ROOT.kYellow-4,
-            }
+    Color_Dict = Color_Dict_ref
     if template_settings["unblind"]:
         Color_Dict['Data'] = ROOT.kBlack
     #if template_settings["unblind"] or template_settings["expectSignal"]:
@@ -531,10 +516,9 @@ def Plot_Histogram(template_settings=dict()):
     hh_total = template_settings['Histogram']['TotalBkg'].Clone()
     h_sig =None
     for idx, Histogram_Name in enumerate(Ordered_Integral):
-
-        if Histogram_Name == template_settings["Signal_Name"] and template_settings["Signal_Name"] != "DEFAULT":
+        if template_settings["Signal_Name"] in Histogram_Name and template_settings["Signal_Name"] != "DEFAULT":
             h_sig = template_settings['Histogram'][Histogram_Name]
-            h_sig.SetLineColor(Color_Dict[Histogram_Name]) 
+            h_sig.SetLineColor(Color_Dict[template_settings["Signal_Name"]]) # Histogram_Name = Signal_Name + ("_2b" or "_3b") 
             h_sig.SetLineWidth(5)
     #        h_sig.SetLineStyle(9)
         else:    
@@ -564,14 +548,15 @@ def Plot_Histogram(template_settings=dict()):
       h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.055)
       h_stack.GetYaxis().SetTitleOffset(0.9)
+      h_stack.GetXaxis().SetLabelOffset(3.0)
+      h_stack.GetXaxis().SetLabelSize(0.055)
     else:
       h_stack.GetYaxis().SetTitleSize(0.03) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.03)
       h_stack.GetYaxis().SetTitleOffset(1.5)
       h_stack.GetXaxis().SetTitleOffset(0.5)
+      h_stack.GetXaxis().SetLabelSize(0.03)
     h_stack.GetXaxis().SetTitleSize(0.05)
-    h_stack.GetXaxis().SetLabelOffset(3.0)
-    h_stack.GetXaxis().SetLabelSize(0)
     h_stack.GetYaxis().SetTickLength(0.02)
 #    pad1.Modified()
 #    pad1.Update()
@@ -726,7 +711,8 @@ def SubmitFromEOS(settings=dict()):
       os.chdir("{dest}".format(dest = settings['WorkDir']))
 
 def DrawNLL(settings=dict()):
-    if settings['group'] == 0:pass 
+    if settings['group'] == 0:
+      Group = dict() 
     else:
         with open('./data_info/NuisanceList/group_set{group}.json'.format(group = int(settings['group']))) as f:
             Group = json.load(f)
@@ -745,11 +731,11 @@ def DrawNLL(settings=dict()):
     commands = []
     rMin = settings['rMin']
     rMax = settings['rMax']
-    points = 20
+    points = 50
     
-    if not settings['unblind']:
-        print('Do not support blind option')
-        return
+    #if not settings['unblind']:
+    #    print('Do not support blind option')
+    #    return
     
     commands.append('echo datacard_workspace File: {workspace_root}'.format(workspace_root = workspace_root ))
     commands.append('echo Start to do likelihood Scan')
@@ -769,12 +755,17 @@ def DrawNLL(settings=dict()):
     commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
     
     commands.append('{plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern)) 
+
     ####################
     ####  SnapShot #####
+    ####################
+
     commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax']))
+
     #####################
     #### Profile Scan ###
-    
+    #####################
+
     commands.append('echo Start to do breakdown')
     commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
     
@@ -819,10 +810,11 @@ def DrawNLL(settings=dict()):
             Queue += '{File}:"Stat. Only":{Idx} '.format(File = File, Idx = Idx + 1) 
 
     BREAKDOWN_LIST = ','.join(Group)        
+    POSTFIX = ''
     commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) #TODO add region 
     
     ### Scan NLL under each nuisance variation
-    #commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root)) 
+    commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root)) 
      
     for i in range(len(commands)):
         print(ts+commands[i]+ns)
@@ -1227,13 +1219,15 @@ def FinalYieldComputation(settings=dict()):
             channel = '_'.join(first_level_name.split('_')[1:-1])
         else:
             Type = first_level_name.split('_')[-1]
-            channel = '_'.join(first_level_name.split('_')[0:-1])
+            for channel_name_ in channel_name_list:
+              if channel_name_ in first_level_name:
+                channel = channel_name_
+#            channel = '_'.join(first_level_name.split('_')[1:-1])
+#            print(first_level_name)
 
-
-        if (len(region_channel_dict_local_) == 1): channel = list(region_channel_dict_local_.keys())[0] + "_" + channel
+#        if (len(region_channel_dict_local_) == 1): channel = list(region_channel_dict_local_.keys())[0] + "_" + channel
         for second_level in FileIn.Get(first_level_name).GetListOfKeys():
             process_name = second_level.GetName()
-            
             unc = ctypes.c_double(0)
             H = FileIn.Get('{}/{}'.format(first_level_name, process_name))
             Integral = H.IntegralAndError(1, H.GetNbinsX(), unc)

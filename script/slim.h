@@ -9,6 +9,8 @@
 #include "TString.h"
 #include "TVector2.h"
 #include <algorithm>
+#include <random>
+
 using namespace ROOT;
 using namespace std;
 using namespace ROOT::VecOps;
@@ -17,6 +19,8 @@ using Vec_f = ROOT::VecOps::RVec<float>;
 using Vec_i = ROOT::VecOps::RVec<int>;
 
 TString era = "EraToBeReplaced";
+std::mt19937 generator(1234); // Seed to guarantee reproducity
+std::uniform_int_distribution<int> distribution(1, 1000);
 
 // Trigger Scale Factor (Derived by ourselves)
 TFile*f_trigger=TFile::Open("../../data/Trigger_scale_factor_"+era+"_summary.root");
@@ -523,11 +527,10 @@ float HT_(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> jetpt)
 //  BTag SF  //
 ///////////////
 
-ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<Int_t> jetid){
+ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid){
   ROOT::VecOps::RVec<Int_t> return_id;
   for(int i = 0; i < jetid.size(); i++){
     if (jetid[i] < 0) continue;
-    if (abs(Jet_eta[jetid[i]]) > 2.4) continue;
     return_id.push_back(jetid[i]);
   }
   return return_id;
@@ -702,6 +705,8 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
   float inv_mass_lb2b3 = -99.;
   float inv_mass_lb1b3 = -99.;
 
+
+
   float delta_phi_l_met = TVector2::Phi_mpi_pi((l1_phi -  MET_phi));
 
   ROOT::Math::PtEtaPhiMVector lepton(l1_pt, l1_eta, l1_phi, l1_mass);
@@ -754,7 +759,7 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
     }
   }
 
-  ROOT::VecOps::RVec<Float_t> final_return = {deltaR_lb[0], deltaR_lb[1], deltaR_lb[2], deltaR_b1b2, deltaR_b2b3, deltaR_b1b3, deltaR_non_b_l, non_b_j1_pt, non_b_j1_eta, non_b_j1_phi, non_b_j1_mass, bjet_pt[0], bjet_eta[0], bjet_phi[0], bjet_mass[0], bjet_pt[1], bjet_eta[1], bjet_phi[1], bjet_mass[1], bjet_pt[2], bjet_eta[2], bjet_phi[2], bjet_mass[2], bjet_FlavB[0], bjet_FlavB[1], bjet_FlavB[2], non_b_j1_FlavB, inv_mass_b1b2, inv_mass_b2b3, inv_mass_b1b3, inv_mass_lb1b2, inv_mass_lb2b3, inv_mass_lb1b3, inv_mass_non_b_l, delta_phi_l_met};
+  ROOT::VecOps::RVec<Float_t> final_return = {deltaR_lb[0], deltaR_lb[1], deltaR_lb[2], deltaR_b1b2, deltaR_b2b3, deltaR_b1b3, deltaR_non_b_l, non_b_j1_pt, non_b_j1_eta, non_b_j1_phi, non_b_j1_mass, bjet_pt[0], bjet_eta[0], bjet_phi[0], bjet_mass[0], bjet_pt[1], bjet_eta[1], bjet_phi[1], bjet_mass[1], bjet_pt[2], bjet_eta[2], bjet_phi[2], bjet_mass[2], bjet_FlavB[0], bjet_FlavB[1], bjet_FlavB[2], non_b_j1_FlavB, inv_mass_b1b2, inv_mass_b2b3, inv_mass_b1b3, inv_mass_lb1b2, inv_mass_lb2b3, inv_mass_lb1b3, inv_mass_non_b_l, delta_phi_l_met, inv_mass_lb[0], inv_mass_lb[1], inv_mass_lb[2]};
 
   return final_return; 
 
@@ -784,4 +789,36 @@ int ArgMax(vector<float> inV){
     }
   }
   return index;
+}
+
+
+
+///////////////////////
+//  PDF Uncertainty  //
+///////////////////////
+
+float PDF_Uncertainty(ROOT::VecOps::RVec<Float_t> LHEPdfWeight){
+
+  float rms_hes = 0;
+  for(int i = 1; i < 101; i++){
+    if (!(abs(LHEPdfWeight[i]) < 2)) rms_hes += 1;
+    else rms_hes += pow((LHEPdfWeight[i] - LHEPdfWeight[0]) , 2);
+  } 
+
+  float alpha_var = (LHEPdfWeight[102] - LHEPdfWeight[101])/2.;
+  if (abs(alpha_var) > 10) alpha_var = 0.05;
+  return sqrt(rms_hes + alpha_var*alpha_var);
+}
+
+int Assign_Train_Label(float prob_2b, float prob_3b, int num_b){
+  int assign_train = 0;
+  int random_number = distribution(generator);
+
+  if(num_b > 2){
+    if((random_number / 1000.) < prob_3b) assign_train = 1;
+  }
+  else if(num_b == 2){
+    if((random_number / 1000.) < prob_2b) assign_train = 1;
+  }
+  return assign_train;
 }
