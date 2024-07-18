@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = False):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -58,7 +58,12 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ####################
     ## Canvas Setting ##
     ####################
-
+    # y coordinates will be adjusted later
+    resultLegend = Legend(0.80, 0.70, 0.90, 0.75)
+    resultLegend.SetTextSize(0.02)
+    resultLegend.SetX2(0.95)
+    resultLegend.add('stat', title = 'stat-unc', opt = 'LF', color = ROOT.kBlack, lstyle = ROOT.kDashed, lwidth = 2, fstyle = 3004, mstyle = 8, msize = 0.8)
+    
     # TODO plot_ratio
     if not only_signal: 
       canvas = DataMCCanvas(" "," ", Lumi[era])
@@ -70,6 +75,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if Yield:
       canvas.legend.SetTextSize(0.02)
       canvas.legend.SetX2(0.95)
+    
     canvas.ytitle = "Events/bin"
     
     ####################
@@ -168,7 +174,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
   
       sig_idx = 0
       for idx, sample_ in enumerate(Histogram):
-      
+        if QCDsmooth:
+          if 'QCD' in sample_:
+            print("smoothing: ", sample_)
+            Histogram[sample_].Smooth()
         #################
         ## Normalized  ##
         ################# 
@@ -189,6 +198,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             Histogram[sample_].SetName(Histogram[sample_].GetName() + "_" + sample_) # Otherwise, the legend will point to the sample histogram
             canvas.addHistogram(Histogram[sample_], drawOpt = 'HIST E')
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
+            resultLegend.apply('stat', Histogram[sample_], opt = 'L') #this is working (but need to understand more ?) 
           else:
             canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
             print (100*"=")
@@ -219,6 +229,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
       canvas.yaxis.SetMaxDigits(4)
  
     print('Generating png')
+    resultLegend.construct()
+    canvas.addObject(resultLegend.legend, clone = False)
     canvas.applyStyles()
     if args.unblind:
       canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
@@ -254,6 +266,8 @@ if __name__ == "__main__":
   parser.add_argument("--ratio_Ndiv", dest='ratio_Ndiv', default=205, type=int)
   parser.add_argument("--Yield", action = 'store_true', default=False)
   parser.add_argument("--cutflow", action = 'store_true', default=False)
+  parser.add_argument("--QCDsmooth", action = 'store_true', default=False)
+
   args = parser.parse_args()
 
   if args.outdir is None:
@@ -289,7 +303,7 @@ if __name__ == "__main__":
   for era in Era:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]: 
-        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow)
+        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)
 
 
   
