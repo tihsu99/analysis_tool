@@ -386,7 +386,7 @@
   "pdf_unc": {
     "Def": "PDF_Uncertainty(LHEPdfWeight)",
     "Label": ["Normal", "MC"],
-    "Process_Forbid": ["WZ"]
+      "Process_Forbid": ["WZ","WW"]
   },
 
   "isTrain":{
