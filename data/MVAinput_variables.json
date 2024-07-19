@@ -15,7 +15,7 @@
     "Label": ["Control_plot"]
   },
 
-  "MET_phicorr":{
+  "met_phi_corr":{
     "Title": ";MET #phi corr;nEntries",
     "xlow":  -3.2,
     "xhigh": 3.2,

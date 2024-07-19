@@ -267,7 +267,7 @@
     "Label": ["Normal"]
   },
   
-  "MET_phicorr":{
+  "met_phi_corr":{
     "Def": "METXYCorr_Met_MetPhi(met_pt, met_phi, run, PV_npvs)",
     "Label": ["Normal"],
     "Save":  ["BDT_training"]
