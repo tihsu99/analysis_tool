@@ -29,7 +29,7 @@ python_version = int(sys.version.split('.')[0])
 inputFile_path = {
    '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v4/', 
    '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v4/', 
-   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v4/', 
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v5/', 
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v4/'
 }
 
@@ -62,7 +62,7 @@ Lumi_text = {
 ##  Shell  ##
 #############
 
-def prepare_shell(shell_file, command, condor, FarmDir):
+def prepare_shell(shell_file, command, condor, FarmDir, cmssw = False):
 
 ###############
 # Func: prepare sh file and add it to the condor schedule.
@@ -73,9 +73,11 @@ def prepare_shell(shell_file, command, condor, FarmDir):
     shell.write('#!/bin/bash\n')
     shell.write('WORKDIR=%s\n'%cwd)
     shell.write('cd %s\n'%cmsswBase)
-    #shell.write('eval `scram r -sh`\n')
+    if cmssw:
+      shell.write('eval `scram r -sh`\n')
     shell.write('cd ${WORKDIR}\n')
-    shell.write('source script/env.sh\n')
+    if not cmssw:
+      shell.write('source script/env.sh\n')
     shell.write(command)
 
   condor.write('%s,'%shell_file)
@@ -183,7 +185,7 @@ Color_Dict_ref = {
   'VVV':ROOT.kSpring - 9,
   'ttXY':ROOT.kPink-3,
   'TT1L':ROOT.kViolet-4,
-  'tZq':ROOT.kYellow-4,
+  'tZq':ROOT.kYellow+1,
   'TT2L':ROOT.kBlue,
   'ttW':ROOT.kGreen-2,
   'ttZ':ROOT.kCyan-2,
@@ -192,7 +194,8 @@ Color_Dict_ref = {
   'WJets':ROOT.kOrange+3,
   'SingleTop':ROOT.kGray,
   'DY': ROOT.kYellow-4,
-  'Nonprompt': ROOT.kOrange-2
+  'QCD': ROOT.kOrange-2,
+  'TTHad': ROOT.kBlue + 1
 }
 
 Color_List_Signal = [ROOT.kRed, ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2]
@@ -235,3 +238,8 @@ def overunder_flowbin2D(h1):
   h1 = Add_2Dbin(h1, nbinX,     1, nbinX+1,       0)
   h1 = Add_2Dbin(h1, nbinX, nbinY, nbinX+1, nbinY+1)
   return h1
+
+
+def CheckDir(path):
+  if not os.path.exists(path):
+    os.system('mkdir -p {}'.format(path))

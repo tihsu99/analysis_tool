@@ -63,12 +63,12 @@ def compare(indir_xgb, indir_DNN, outdir):
   mass_bin = [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
   AUC = dict()
   # xgboost
-  AUC['xgboost'] = []
-  for mass in mass_bin:
-    dir_ = os.path.join(indir_xgb, 'CGToBHpm_a_{}_rtt06_rtc04'.format(mass))
-    json_ = os.path.join(dir_, 'AUC_accross_signal.json')
-    dict_ = read_json(json_)
-    AUC['xgboost'].append(dict_["CGToBHpm_a_{}_rtt06_rtc04".format(mass)])
+#  AUC['xgboost'] = []
+#  for mass in mass_bin:
+#    dir_ = os.path.join(indir_xgb, 'CGToBHpm_a_{}_rtt06_rtc04'.format(mass))
+#    json_ = os.path.join(dir_, 'AUC_accross_signal.json')
+#    dict_ = read_json(json_)
+#    AUC['xgboost'].append(dict_["CGToBHpm_a_{}_rtt06_rtc04".format(mass)])
 
   #DNN
   AUC['DNN'] = []
@@ -102,17 +102,18 @@ def compare(indir_xgb, indir_DNN, outdir):
 
   fig, ax = plt.subplots(figsize=(8,8))
   ax.set_title('Perfomance of algorithm')
-  ax.set_xlabel('Mass')
+  ax.set_xlabel('Charged Higgs Mass [GeV]')
   ax.set_ylabel('AUC')
-  ax.plot(mass_bin, AUC['xgboost'], 'o--', c='blue', alpha=0.7, label='xgboost(individual)')
-  ax.plot(mass_bin, AUC['DNN'], 'o--',  c='orange', alpha=0.7, label='DNN(individual)')
-  ax.plot(mass_bin, AUC['pNN300'], 'o',  c='green',  alpha=0.7, label='DNN(parametric)[300GeV gap]')
-  ax.plot(mass_bin, AUC['pNN200'], 'o',  c='red',  alpha=0.7, label='DNN(parametric)[200GeV gap]')
-  ax.plot(mass_bin, AUC['pNN100'], 'o--',  c='purple',  alpha=0.7, label='DNN(parametric)[100GeV gap]')
+#  ax.plot(mass_bin, AUC['xgboost'], 'o--', c='blue', alpha=0.7, label='xgboost(individual)')
+  ax.plot(mass_bin, AUC['DNN'], 'o-',  c='orange', alpha=0.8, label='DNN(individual)')
+#  ax.plot(mass_bin, AUC['pNN300'], 'o--',  c='green',  alpha=0.7, label='DNN(parametric)[300GeV gap]')
+#  ax.plot(mass_bin, AUC['pNN200'], 'o--',  c='red',  alpha=0.7, label='DNN(parametric)[200GeV gap]')
+  ax.plot(mass_bin, AUC['pNN100'], 'o-',  c='purple',  alpha=0.8, label='DNN(parametric)')
   ax.grid(True)
   ax.set_ylim((0.8, 1.0))
   ax.legend(loc="lower right")
   fig.savefig(os.path.join(outdir, 'AUC_comparison.png'))
+  fig.savefig(os.path.join(outdir, 'AUC_comparison.pdf'))
 
 
 

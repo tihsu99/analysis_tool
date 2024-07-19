@@ -11,7 +11,8 @@ import ROOT
 import argparse
 from Util.General_Tool import CheckDir,CheckFile
 from scipy.optimize import minimize
-
+sys.path.insert(0, '../python')
+from common import read_json
 ROOT.gROOT.SetBatch(True) # no flashing canvases
 
 ####################
@@ -43,7 +44,7 @@ def pred(x, itp, r):
 ## 1D Limit Plot ##
 ###################
 
-def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year=['run2'],channel=['C'],Coupling_value=['rtc0p4'],outputFolder='./',Masses=[200],interference=False, paper=False, AN=False, mode="Coupling"):
+def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,year=['run2'],channel=['C'], region=['C'],Coupling_value=['rtc0p4'],outputFolder='./',Masses=[200],interference=False, paper=False, AN=False, mode="Coupling", legend_dict = None):
     
     
     y_max=y_max # scale of y axis 
@@ -75,10 +76,15 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{A} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
-    
+    mg.SetTitle(";m_{H^+} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
+    mg.SetMinimum(y_min);
+    mg.SetMaximum(y_max);
+
+
     keys = log_files_dict.keys()
     end_point = len(keys)-1
+    coupling_type = Coupling_value[0].replace('p','.').replace('0.1','').replace('0.4','').replace('0.8','').replace('1.0','').replace('r','') #gkole
+    print(coupling_type)
 
     if mode == "Coupling":
       print(mode) 
@@ -91,7 +97,6 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       for idx,coupling_value in enumerate(Coupling_value):
         File_path_per_coupling_value = log_files_dict[coupling_value]
         coupling_value=coupling_value.replace('p','.')
-        coupling_type = coupling_value.replace('0.1','').replace('0.4','').replace('0.8','').replace('1.0','').replace('r','') #gkole
         #### Set the Name in legend ####
         if 'rtc' in coupling_value :
             value = coupling_value.split('rtc')[-1]
@@ -197,7 +202,44 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         else:
           leg.AddEntry(exp, YEAR + "(obs)", "LP");
 
+    elif mode=='Rb':      
 
+      year = year[0]
+      region = region[0]
+      channel = channel[0] 
+      limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{region}_{channel}.pdf'.format(channel=channel,year=year,region=region)
+      channel = channel.replace("C","ele+m").replace('m','#mu')
+
+      colors = [2,3,4,5,1]     
+  
+      if legend_dict is None:
+        for Rb in keys:
+          legend_dict[Rb] = "R_b={}".format(Rb)
+
+      idx = 0
+      for Rb in keys:
+        print(Rb) 
+        if Rb not in legend_dict: continue
+        print(Rb)
+        File_path_per_coupling_value = log_files_dict[Rb]
+        File_per_coupling_value = ROOT.TFile(File_path_per_coupling_value,'READ')
+        if not unblind:
+          exp =  File_per_coupling_value.Get("expmed")
+        else:
+          exp =  File_per_coupling_value.Get("obs")
+
+        exp.SetMarkerStyle(21)
+        exp.SetMarkerColor(colors[idx])
+        exp.SetMarkerSize(1.1)
+        exp.SetLineColor(colors[idx])
+        exp.SetLineWidth(3)
+        mg.Add(exp,"LP")
+        if not unblind:
+          leg.AddEntry(exp,  "{}(exp)".format(legend_dict[Rb]), "LP");
+        else:
+          leg.AddEntry(exp,  "{}(obs)".format(legend_dict[Rb]), "LP");
+
+        idx += 1
 
     else: 
 
@@ -261,14 +303,15 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     if paper:
       CMS_lumi.extraText = ""
       CMS_lumi.relPosY = 0.045
-      CMS_lumi.relPosX = 0.06
+      CMS_lumi.relPosX = 0.15
     else:
+      CMS_lumi.relPosX = 0.09
       CMS_lumi.extraText = "Preliminary"
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.12
     iPeriod=year
-    CMS_lumi.relPosX = 0.15 #gkole
+#    CMS_lumi.relPosX = 0.15 #gkole
     CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.14)
 
     
@@ -286,11 +329,10 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     latex.SetTextAlign(12);
     latex.DrawLatex(0.19, 0.82, "g2HDM")
     if AN:
-      latex.DrawLatex(0.19, 0.74, year + " " + channel)
+      latex.DrawLatex(0.19, 0.74, year + " " + region + " " + channel)
     if interference:
       latex.DrawLatex(0.19, 0.78, "m_{A} - m_{H} = 50 GeV");
 
-    
     c.Update()
     
     if interference:
@@ -302,6 +344,8 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     OUT_DIR = os.path.join(outputFolder,"plots_limit","r" + coupling_type, type_)
     
     CheckDir(OUT_DIR,True)
+    if not unblind:
+      limit_pdf_file = limit_pdf_file.replace('.pdf','_exp.pdf')
     limit_pdf_file  = os.path.join(OUT_DIR,limit_pdf_file)
     CheckFile(limit_pdf_file,True)
     c.SaveAs(limit_pdf_file)
@@ -363,20 +407,21 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
       log_limit_vector.push_back(np.log(obs))
 
     itp = ROOT.Math.Interpolator(value_vector, log_limit_vector, itp_type)
-    limits_interp = Find_Intersection(itp, perturbed_axis_noninterp[0], perturbed_axis_noninterp[-2],EPS=EPS, AddBound= axis=='x')    
+    print('xmax', perturbed_axis_noninterp[-2])
+    limits_interp = Find_Intersection(itp, perturbed_axis_noninterp[0], perturbed_axis_noninterp[-2],EPS=EPS, AddBound=False)    
     # print(value_nonperturbed, limits_interp)  
-
+    print(limits_interp)
     # Only record min and max(if there is second root), ignore the strange fluctuation in the middle(though haven't seen that case ever)
     if len(limits_interp) > 0:
-      limits_interp_ = [min(limits_interp)]
-      for limit_interp in limits_interp_:
-        final_limit_interp.append(limit_interp)
+      limits_interp_ = [max(limits_interp)] 
+      for limit_interp_value in limits_interp_:
+        final_limit_interp.append(limit_interp_value)
         interp.append(value_nonperturbed)
-    if len(limits_interp) > 1: 
-      limits_interp_ = [max(limits_interp)]
-      for limit_interp in limits_interp:
-        final_limit_interp_second.insert(0, limit_interp)
-        interp_second.insert(0, value_nonperturbed)
+ #   if len(limits_interp) > 1: 
+ #     limits_interp_ = [max(limits_interp)]
+ #     for limit_interp_value in limits_interp_:
+ #       final_limit_interp.append(limit_interp_value)
+ #       interp.append(value_nonperturbed)
  
     
     for idx_perturbed, value_perturbed in enumerate(perturbed_axis_interp[:-1]):
@@ -392,6 +437,7 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
     exclusion = ROOT.TGraph(len(interp), final_limit_interp, interp)
   else:
     exclusion = ROOT.TGraph(len(interp), interp, final_limit_interp)
+  exclusion.Sort(ROOT.TGraph.CompareArg)
  #   if len(final_limit_interp_second)>0:
  #     for idx, final_limit_second in enumerate(final_limit_interp_second):
  #       exclusion.SetPoint(exclusion.GetN(), interp_second[idx], final_limit_second)
@@ -405,9 +451,10 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
   return Hist_interp, exclusion
 
 
-def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], interference=False, paper=False):
+def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], paper=False, y_axis_title = "POI", interference = False, ratio_file = None):
 
 
+  coupling_type = "xx"
   # Obtain coupling information
 
   coupling_values = log_files_dict.keys()
@@ -415,10 +462,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   
   for coupling_value in coupling_values:
   
-      value = coupling_value.replace('rtc','').replace('rtu','')
-      coupling_type = coupling_value.replace(value,'').replace('r','')
-      value = float(value.replace('p',''))*0.1
-      coupling_values_list.append(value)
+      coupling_values_list.append(coupling_value)
 
   # Set Canvas Parameter
 
@@ -431,7 +475,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   c.SetGrid(0,0)
   c.SetLogz(1)
   c.SetTopMargin(0.085)
-  c.SetLeftMargin(0.07)
+  c.SetLeftMargin(0.1)
   c.SetRightMargin(0.18)
   c.SetTicks(1,1)
 
@@ -441,35 +485,34 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   CMS_lumi.writeExtraText = 1
   if paper:
     CMS_lumi.extraText = ""
+    CMS_lumi.relPosX = 0.15
     CMS_lumi.relPosY = 0.045
   else:
+    CMS_lumi.relPosX = 0.05
     CMS_lumi.extraText = "Preliminary"
   CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
   iPos = 11
   if( iPos==0 ): CMS_lumi.relPosX = 0.12
   iPeriod=year
-  CMS_lumi.relPosX = 0.15
-  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 2)
+  #CMS_lumi.relPosX = 0.15
+  CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
   c.Update()
 
   # Output directory setting
 
-  if interference:
-    type_ = "interference"
-  else:
-    type_ = "pure"
-
-  OUT_DIR = os.path.join(outputFolder, "plots_limit_2D","r" + coupling_type, type_)
+  OUT_DIR = os.path.join(outputFolder, "plots_limit_2D")
   CheckDir(OUT_DIR,True)
 
 
   # Binning
 
   coupling_values_bin = np.array(coupling_values_list)
-  np.sort(coupling_values_bin)
+  coupling_values_bin = np.sort(coupling_values_bin)
   mass_bin = np.array(Masses).astype('float')
-  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.005)
-  mass_bin            = np.append(mass_bin, mass_bin[-1]+1)
+  coupling_values_bin = np.append(coupling_values_bin, coupling_values_bin[-1]+0.1)
+  mass_bin            = np.append(mass_bin, mass_bin[-1]+100)
+
+  print(coupling_values_bin, mass_bin)
 
   # Interpolation Binning
 
@@ -480,7 +523,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   coupling_interp_bin = array('d',[])
   for i in range(nbin):
     coupling_interp_bin.append(coupling_value_min + (coupling_value_max - coupling_value_min)/float(nbin)*float(i))
-  coupling_interp_bin.append(coupling_interp_bin[-1] + 0.005)
+  coupling_interp_bin.append(coupling_interp_bin[-1] + 0.1)
 
   # -- Mass --
   bin_width_mass = 5
@@ -489,7 +532,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   while mass_start <= mass_bin[-2]:
     mass_interp_bin.append(mass_start)
     mass_start += bin_width_mass
-  mass_interp_bin.append(mass_interp_bin[-1] + 1)
+  mass_interp_bin.append(mass_interp_bin[-1] + 100)
 
   
   # Histogram
@@ -499,7 +542,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   else:
     Target_Object = "expmed"
 
-  Title = ";m_{A} [GeV];#rho_{%s};95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(coupling_type, Target_Object)
+  Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(y_axis_title, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -507,17 +550,24 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
 
   # Draw Limit Plot from discrete point
 
-  for idx_coupling, coupling_value in enumerate(coupling_values):
+  for idx_coupling, coupling_value in enumerate(coupling_values_bin[:-1]):
 
     File_per_coupling_value = rt.TFile(log_files_dict[coupling_value])
     obs = File_per_coupling_value.Get(str(Target_Object))
     exp = File_per_coupling_value.Get("expmed")
-    
-    value = float(coupling_value.replace('rtc','').replace('rtu','').replace('p',''))*0.1
+    print(log_files_dict[coupling_value]) 
 
     for idx_mass, mass in enumerate(Masses):
+        print(obs.GetY(), idx_mass)
         limit_obs = obs.GetY()[idx_mass]
         limit_exp = exp.GetY()[idx_mass]
+        if ratio_file is not None:
+          ratios = read_json(ratio_file)
+          ratio_ = ratios[str(mass)]
+          limit_obs = limit_obs * (1. + coupling_value * ratio_)
+          limit_exp = limit_exp * (1. + coupling_value * ratio_)
+          OUT_DIR = os.path.join(outputFolder, "plots_limit_2D_w_ratio")
+          os.system('mkdir -p {}'.format(OUT_DIR))
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
         Hist_exp.SetBinContent(idx_mass+1, idx_coupling+1, limit_exp)
 
@@ -583,7 +633,7 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   limit_pdf_file = os.path.join(OUT_DIR,'Merged_Limit2D_Plots_For_{year}_{channel}_interp.pdf'.format(year=year,channel=channel))
   c.SaveAs(limit_pdf_file)
   c.SaveAs(limit_pdf_file.replace(".pdf",".png"))
-
+  return
   # Extra interpolation (linear in log mass)
 
   Hist_interp_extra, exclusion_extra = interpolate(Hist_interp_mass,

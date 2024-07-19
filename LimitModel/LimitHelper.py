@@ -42,7 +42,7 @@ class RunLimits:
         self.__unblind = unblind
         self.__verbose = verbose
         #self.runmode = runmode
-        print "class instantiation done"
+        print("class instantiation done")
         
         
     ''' convert a text file with just one columns into a list '''
@@ -51,7 +51,7 @@ class RunLimits:
         
     def PrintSpacing(self, nLine=1):
         for iline in range(nLine):
-            print "***************************************************************************************************************************************"
+            print("***************************************************************************************************************************************")
             
     def TimeFormat(self):
         from datetime import datetime
@@ -94,14 +94,14 @@ class RunLimits:
           logname = dc.replace(".txt",".log")
           logname = logname.replace(dc_dir, log_dir)
         else:
-          logname = os.path.join(log_dir, logname)
+          logname = logname.replace(dc_dir, log_dir)
         CheckDir('/'.join(logname.split('/')[:-1]), True)
         print ("logname: ",logname)
         
         if self.__unblind:
             command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' ' + extraCommand + ' ' 
         else:
-            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + extraCommand + ' ' #TODO check -t -1 is correct
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + ' ' + extraCommand + ' ' #TODO check -t -1 is correct
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
@@ -113,11 +113,10 @@ class RunLimits:
 
         # delete the output combine root file (not to make dirty your home area!)
         os.system("rm "+output_rootfile)
-
         return logname
         
     ## category can be merged/resolved/combined
-    def LogToLimitList(self, logfile, allparameters, mode="a"):
+    def LogToLimitList(self, logfile, allparameters, mode="a", postfix = '', POI = 'r'):
         expected25_="" 
         expected16_="" 
         expected50_="" 
@@ -125,26 +124,27 @@ class RunLimits:
         expected975_=""
         observed_=""
         for ilongline in open(logfile):
-            if "Observed Limit: r < " in ilongline:
-                observed_ = ilongline.replace("Observed Limit: r < ","").rstrip()
-            if "Expected  2.5%: r < " in ilongline:
-                expected25_ = ilongline.replace("Expected  2.5%: r < ","").rstrip()
-            if "Expected 16.0%: r < " in ilongline:
-                expected16_ = ilongline.replace("Expected 16.0%: r < ","").rstrip()
-            if "Expected 50.0%: r < " in ilongline:
-                expected50_ = ilongline.replace("Expected 50.0%: r < ","").rstrip()
-            if "Expected 84.0%: r < " in ilongline:
-                expected84_ = ilongline.replace("Expected 84.0%: r < ","").rstrip()
-            if "Expected 97.5%: r < " in ilongline:
-                expected975_ = ilongline.replace("Expected 97.5%: r < ","").rstrip()
+            if "Observed Limit: {} < ".format(POI) in ilongline:
+                observed_ = ilongline.replace("Observed Limit: {} < ".format(POI),"").rstrip()
+            if "Expected  2.5%: {} < ".format(POI) in ilongline:
+                expected25_ = ilongline.replace("Expected  2.5%: {} < ".format(POI),"").rstrip()
+            if "Expected 16.0%: {} < ".format(POI) in ilongline:
+                expected16_ = ilongline.replace("Expected 16.0%: {} < ".format(POI),"").rstrip()
+            if "Expected 50.0%: {} < ".format(POI) in ilongline:
+                expected50_ = ilongline.replace("Expected 50.0%: {} < ".format(POI),"").rstrip()
+            if "Expected 84.0%: {} < ".format(POI) in ilongline:
+                expected84_ = ilongline.replace("Expected 84.0%: {} < ".format(POI),"").rstrip()
+            if "Expected 97.5%: {} < ".format(POI) in ilongline:
+                expected975_ = ilongline.replace("Expected 97.5%: {} < ".format(POI),"").rstrip()
         
-        print "allparameters:", allparameters
+        print("allparameters:", allparameters)
         towrite =  str(allparameters[2])+" "+str(allparameters[1])+" "+expected25_+" "+expected16_+" "+ expected50_+" "+ expected84_+" "+ expected975_+" "+ observed_+"\n"
         
-        print towrite
+        print(towrite)
         #os.system ("mkdir -p bin/"+self.postfix_)
         #os.system ("mkdir -p plots_limit/"+self.postfix_)
-        outfile=self.limitlog_tmp_node.format(allparameters[0]+allparameters[1]) 
+        limitlog_tmp_node = self.limitlog.replace('.txt','{}.txt'.format(postfix + "_{}"))
+        outfile=limitlog_tmp_node.format(allparameters[0]+allparameters[1]) 
 
 
         
@@ -248,9 +248,11 @@ class RunLimits:
         exp2s.GetXaxis().SetTitle("m_{A} (GeV)");
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
-        #exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
+        if signal_xsec_TGraph is None:
+          exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
         #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
-        exp2s.GetYaxis().SetTitle("\sigma(pp\\rightarrow XH^{\pm})Br(H^{\pm}\\rightarrow tb)[pb]")
+        else:
+          exp2s.GetYaxis().SetTitle("\sigma(pp\\rightarrow XH^{\pm})Br(H^{\pm}\\rightarrow tb)[pb]")
         exp2s.GetYaxis().SetTitleOffset(1.7)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
@@ -464,7 +466,7 @@ class RunLimits:
             
             
         ## run impact  asimov 
-        print "do nothing for now"
+        print("do nothing for now")
         ## run impact  data 
         
         
@@ -476,7 +478,7 @@ class RunLimits:
         fit_Diagnostics = default_fit_root.replace(".root", "_"+category+"_"+year+"_"+run_mode+".root")
         pull_root       = default_pull_root.replace(".root",  "_"+category+"_"+year+"_"+run_mode+".root")
         
-        print "run_mode, fit_Diagnostics, pull_root", run_mode, fit_Diagnostics, pull_root
+        print("run_mode, fit_Diagnostics, pull_root", run_mode, fit_Diagnostics, pull_root)
         ''' move the rootfile to avoid ambiguity '''         
 
         postfix_ = "_"+category+"_"+year+"_"
@@ -488,35 +490,35 @@ class RunLimits:
             os.system("mv "+default_fit_root+" " + fit_Diagnostics)
             os.system('root -l -b -q plotPostNuisance_combine.C\(\\"'+fit_Diagnostics+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
             
-            print ("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
+            print("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             os.system("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
         
         if run_mode != "cronly":
             os.system("mv "+default_fit_root+" " + fit_Diagnostics)
             ''' get the different of nuisances ''' 
             self.PrintSpacing()
-            print ("python diffNuisances.py "+fit_Diagnostics+" --abs --all -g "+pull_root)
+            print("python diffNuisances.py "+fit_Diagnostics+" --abs --all -g "+pull_root)
             os.system("python diffNuisances.py "+fit_Diagnostics+" --abs --all -g "+pull_root)
             os.system("mv "+default_pull_root+" " + pull_root)
             self.PrintSpacing()
             dir_ = outdir["pulls"]
             
-            print ('root -l -b -q PlotPulls.C\(\\"'+pull_root+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
+            print('root -l -b -q PlotPulls.C\(\\"'+pull_root+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
             os.system('root -l -b -q PlotPulls.C\(\\"'+pull_root+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
             dir_ = outdir["yr"]
             self.PrintSpacing()
-            print ("python yieldratio.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
+            print("python yieldratio.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             os.system("python yieldratio.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             dir_ = outdir["pfitOverlay"]
             self.PrintSpacing()
             
-            print ("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
+            print("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             os.system("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             
             dir_ = outdir["stack"]
-            print "call the stack file"
+            print("call the stack file")
             dir_ = outdir["tf"]
-            print "call the TF file"
+            print("call the TF file")
             
 
                         
@@ -530,8 +532,8 @@ class RunLimits:
         ## data fit 
         if run_mode == "data":
             self.PrintSpacing(2)
-            print "performing the fit in run_mode ",run_mode
-            print ("combine -M FitDiagnostics --saveShapes "+datacard+ " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic ")
+            print("performing the fit in run_mode ",run_mode)
+            print("combine -M FitDiagnostics --saveShapes "+datacard+ " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic ")
             os.system("combine -M FitDiagnostics --saveShapes "+datacard+ " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic ")
             self.PrintSpacing(1)
             self.SavePrePostComparison("data",outdir,category, year)
@@ -541,14 +543,14 @@ class RunLimits:
         ## asimov fit 
         if run_mode == "asimov":
             self.PrintSpacing(2)
-            print ("combine -M FitDiagnostics --saveShapes "+datacard + " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic  --rMin -100 -t -1 --expectSignal 0")
+            print("combine -M FitDiagnostics --saveShapes "+datacard + " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic  --rMin -100 -t -1 --expectSignal 0")
             os.system("combine -M FitDiagnostics --saveShapes "+datacard + " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic  --rMin -100 -t -1 --expectSignal 0")
             self.PrintSpacing(1)
             self.SavePrePostComparison("asimov",outdir,category,year)
         
         ## CR only fit 
         if run_mode == "cronly":
-            print ("text2workspace.py "+datacard+" --channel-masks")
+            print("text2workspace.py "+datacard+" --channel-masks")
             os.system("text2workspace.py "+datacard+" --channel-masks")
             wsname = datacard.replace(".txt",".root")
 
@@ -558,4 +560,119 @@ class RunLimits:
             
             self.SavePrePostComparison("cronly",outdir, category,year)
         
-        
+    def SetLimitLog(self, name):
+      self.limitlog = name
+      self.limit_root_file   = self.limitlog.replace(".txt",".root")
+      self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
+
+
+    def Scan2DNLL(self, dc, POI_name = 'r_2b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand=''):
+        asimovstr ="-t -1 "
+        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+        command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
+        if asimov:
+            command_ = command_ + asimovstr
+        if self.__verbose:
+            command_ = command_ + '-v 3'
+
+        os.system(command_ + "--algo grid --points 2000 -n {tag} --fastScan".format(tag = tag + "_2DNLL" ))
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DNLL.MultiDimFit.mH120.root"
+        print(command_  + "--algo grid --points 2000")
+        CheckDir(out_dir,MakeDir=True)
+        # delete the output combine root file (not to make dirty your home area!)
+        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+
+        os.system(command_ + "--algo contour2d --cl 0.68 -n {tag} --fastScan".format(tag = tag + "_2DContour68" ))
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour68.MultiDimFit.mH120.root"
+        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+
+        os.system(command_ + "--algo contour2d --cl 0.95 -n {tag} --fastScan".format(tag = tag + "_2DContour95" ))
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour95.MultiDimFit.mH120.root"
+        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+
+        os.system(command_ + "--algo contour2d --cl 0.99 -n {tag} --fastScan".format(tag = tag + "_2DContour99" ))
+        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour99.MultiDimFit.mH120.root"
+        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+
+    def bestFit(self, fin_name, x, y):
+        fin = rt.TFile.Open(fin_name, "READ")
+        t = fin.Get("limit")
+        t.Draw(y+":"+x, "quantileExpected == 1", "P SAME")
+        gr0 = rt.gROOT.FindObject("Graph").Clone()
+        rt.gROOT.FindObject("Graph").SetName("aa")
+        rt.gROOT.Remove(rt.gROOT.FindObject("Graph"))
+        gr0.SetMarkerStyle(34)
+        gr0.SetMarkerSize(2.0)
+        fin.Close()
+        return gr0
+
+    def draw_2DNLL(self, fin_name, x, y):
+        fin = rt.TFile.Open(fin_name, "READ")
+        t = fin.Get("limit")
+#        h = rt.TH2F('2DNLL', '2*deltaNLL:{x}:{y}'.format(x=x,y=y),44,0,2,44,0,2)
+        t.Draw("2*deltaNLL:{y}:{x}>>2DNLL(44,0,2,44,0,2)".format(x=x, y=y),"","PROF COLZ")
+        h = rt.gROOT.FindObject("2DNLL").Clone()
+#        for entry in range(t.GetEntries()):
+#          t.GetEntry(entry)
+#          h.Fill(eval("t.{x}".format(x=x)), eval("t.{y}".format(y=y)), 2*t.deltaNLL)
+        h.SetDirectory(0)
+        fin.Close()
+        return h
+    def draw_contour(self, fin_name, x, y, pmin, pmax, bestFit):
+      fin = rt.TFile.Open(fin_name, "READ")
+      t = fin.Get("limit")
+      t.Draw(y+":"+x, "%f <= quantileExpected && quantileExpected <= %f && quantileExpected != 1"%(pmin,pmax), "SAME p");
+      gr = rt.gROOT.FindObject("Graph").Clone();
+      rt.gROOT.FindObject("Graph").SetName("aa")
+      x0 = bestFit.GetX()[0]
+      y0 = bestFit.GetY()[0];
+      xi = gr.GetX()
+      yi = gr.GetY();
+      n  = gr.GetN();
+      for i in range(n):
+        xi[i] -= x0
+        yi[i] -= y0
+
+      gr.Sort(rt.TGraph.CompareArg)
+      for i in range(n):
+        xi[i] += x0
+        yi[i] += y0
+      fin.Close()
+      return gr
+    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_2b'):
+        rt.gStyle.Reset()
+        rt.gStyle.SetOptTitle(0)
+        rt.gStyle.SetOptStat(0)
+        rt.gROOT.SetBatch(1)
+        rt.gStyle.SetPalette(rt.kLake)
+        rt.TColor.InvertPalette();
+        c = rt.TCanvas("c","c",700, 600)
+        c.SetRightMargin(0.12)
+        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+        MultiFit_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag))
+        h = self.draw_2DNLL(MultiFit_root_file, POI_name, "Rb")
+        h.SetTitle("2 #Delta NLL;;;")
+        h.GetXaxis().SetTitle(POI_name)
+        h.GetYaxis().SetTitle("Rb")
+        h.GetZaxis().SetTitle("2 #Delta NLL")
+        best_fit = self.bestFit(MultiFit_root_file, POI_name, "Rb")
+        CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
+        CL68 = self.draw_contour(CL68_root_file, POI_name, "Rb", 0.31, 1.0, best_fit)
+        CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
+        CL95_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour95.MultiDimFit.mH120.root'.format(tag=tag))
+        CL95 = self.draw_contour(CL95_root_file, POI_name, "Rb", 0.049, 1.0, best_fit)
+        CL95.SetLineWidth(2); CL95.SetLineStyle(7); CL95.SetLineColor(1); CL95.SetFillStyle(1001); CL95.SetFillColorAlpha(43, 0.5); CL95.SetMarkerSize(3)
+        h.Draw("COLZ")
+        CL95.Draw("LF SAME")
+        CL68.Draw("LF SAME")
+        best_fit.Draw("P SAME")
+        legend = rt.TLegend(0.68, 0.7, 0.88, 0.9)
+        legend.AddEntry(CL68, "1 #sigma band")
+        legend.AddEntry(CL95, "2 #sigma band")
+        legend.AddEntry(best_fit, "Best Fit({})".format(mass_point.replace('A', '')))
+        legend.Draw("SAME")
+        plotdir = os.path.join(outputdir, '2DNLL', 'plot')
+        CheckDir(plotdir)
+        c.SaveAs(os.path.join(plotdir, '{tag}.png'.format(tag=tag)))
+        c.SaveAs(os.path.join(plotdir, '{tag}.pdf'.format(tag=tag)))
+
