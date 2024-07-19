@@ -785,3 +785,98 @@ int ArgMax(vector<float> inV){
   }
   return index;
 }
+
+float METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, int npv, TString year="EraToBeReplaced"){
+  if(npv>100) npv=100; // in nanoAOD, npv must be taken from PV_npvs
+  TString runera = "";
+  bool isMC = true;
+  if(runnb > 10) isMC = false; 
+  if(isMC && year == "2016apv") runera = "yUL2016MCAPV";
+  else if(isMC && year == "2016postapv") runera = "yUL2016MCnonAPV";
+  else if(isMC && year == "2017") runera = "yUL2017MC";
+  else if(isMC && year == "2018") runera = "yUL2018MC";
+  // UL 2018 data
+  else if(!isMC && runnb >=315252 && runnb <=316995) runera = "yUL2018A";
+  else if(!isMC && runnb >=316998 && runnb <=319312) runera = "yUL2018B";
+  else if(!isMC && runnb >=319313 && runnb <=320393) runera = "yUL2018C";
+  else if(!isMC && runnb >=320394 && runnb <=325273) runera = "yUL2018D";
+  // UL 2017 data
+  else if(!isMC && runnb >=297020 && runnb <=299329) runera = "yUL2017B";
+  else if(!isMC && runnb >=299337 && runnb <=302029) runera = "yUL2017C";
+  else if(!isMC && runnb >=302030 && runnb <=303434) runera = "yUL2017D";
+  else if(!isMC && runnb >=303435 && runnb <=304826) runera = "yUL2017E";
+  else if(!isMC && runnb >=304911 && runnb <=306462) runera = "yUL2017F";
+  // UL 2016 data
+  else if(!isMC && runnb >=272007 && runnb <=275376) runera = "yUL2016B";
+  else if(!isMC && runnb >=275657 && runnb <=276283) runera = "yUL2016C";
+  else if(!isMC && runnb >=276315 && runnb <=276811) runera = "yUL2016D";
+  else if(!isMC && runnb >=276831 && runnb <=277420) runera = "yUL2016E";
+  else if(!isMC && ((runnb >=277772 && runnb <=278768) || runnb==278770)) runera = "yUL2016F";
+  else if(!isMC && ((runnb >=278801 && runnb <=278808) || runnb==278769)) runera = "yUL2016Flate";
+  else if(!isMC && runnb >=278820 && runnb <=280385) runera = "yUL2016G";
+  else if(!isMC && runnb >=280919 && runnb <=284044) runera = "yUL2016H";
+  else {
+    //Couldn't find data/MC era => no correction applied
+    return uncormet_phi;
+  }
+  
+  double METxcorr(0.),METycorr(0.);
+  //UL2017
+  if(runera=="yUL2017B") METxcorr = -(-0.211161*npv +0.419333);
+  if(runera=="yUL2017B") METycorr = -(0.251789*npv +-1.28089);
+  if(runera=="yUL2017C") METxcorr = -(-0.185184*npv +-0.164009);
+  if(runera=="yUL2017C") METycorr = -(0.200941*npv +-0.56853);
+  if(runera=="yUL2017D") METxcorr = -(-0.201606*npv +0.426502);
+  if(runera=="yUL2017D") METycorr = -(0.188208*npv +-0.58313);
+  if(runera=="yUL2017E") METxcorr = -(-0.162472*npv +0.176329);
+  if(runera=="yUL2017E") METycorr = -(0.138076*npv +-0.250239);
+  if(runera=="yUL2017F") METxcorr = -(-0.210639*npv +0.72934);
+  if(runera=="yUL2017F") METycorr = -(0.198626*npv +1.028);
+  if(runera=="yUL2017MC") METxcorr = -(-0.300155*npv +1.90608);
+  if(runera=="yUL2017MC") METycorr = -(0.300213*npv +-2.02232);
+  //UL2018
+  if(runera=="yUL2018A") METxcorr = -(0.263733*npv +-1.91115);
+  if(runera=="yUL2018A") METycorr = -(0.0431304*npv +-0.112043);
+  if(runera=="yUL2018B") METxcorr = -(0.400466*npv +-3.05914);
+  if(runera=="yUL2018B") METycorr = -(0.146125*npv +-0.533233);
+  if(runera=="yUL2018C") METxcorr = -(0.430911*npv +-1.42865);
+  if(runera=="yUL2018C") METycorr = -(0.0620083*npv +-1.46021);
+  if(runera=="yUL2018D") METxcorr = -(0.457327*npv +-1.56856);
+  if(runera=="yUL2018D") METycorr = -(0.0684071*npv +-0.928372);
+  if(runera=="yUL2018MC") METxcorr = -(0.183518*npv +0.546754);
+  if(runera=="yUL2018MC") METycorr = -(0.192263*npv +-0.42121);
+  //UL2016
+  if(runera=="yUL2016B") METxcorr = -(-0.0214894*npv +-0.188255);
+  if(runera=="yUL2016B") METycorr = -(0.0876624*npv +0.812885);
+  if(runera=="yUL2016C") METxcorr = -(-0.032209*npv +0.067288);
+  if(runera=="yUL2016C") METycorr = -(0.113917*npv +0.743906);
+  if(runera=="yUL2016D") METxcorr = -(-0.0293663*npv +0.21106);
+  if(runera=="yUL2016D") METycorr = -(0.11331*npv +0.815787);
+  if(runera=="yUL2016E") METxcorr = -(-0.0132046*npv +0.20073);
+  if(runera=="yUL2016E") METycorr = -(0.134809*npv +0.679068);
+  if(runera=="yUL2016F") METxcorr = -(-0.0543566*npv +0.816597);
+  if(runera=="yUL2016F") METycorr = -(0.114225*npv +1.17266);
+  if(runera=="yUL2016Flate") METxcorr = -(0.134616*npv +-0.89965);
+  if(runera=="yUL2016Flate") METycorr = -(0.0397736*npv +1.0385);
+  if(runera=="yUL2016G") METxcorr = -(0.121809*npv +-0.584893);
+  if(runera=="yUL2016G") METycorr = -(0.0558974*npv +0.891234);
+  if(runera=="yUL2016H") METxcorr = -(0.0868828*npv +-0.703489);
+  if(runera=="yUL2016H") METycorr = -(0.0888774*npv +0.902632);
+  if(runera=="yUL2016MCnonAPV") METxcorr = -(-0.153497*npv +-0.231751);
+  if(runera=="yUL2016MCnonAPV") METycorr = -(0.00731978*npv +0.243323);
+  if(runera=="yUL2016MCAPV") METxcorr = -(-0.188743*npv +0.136539);
+  if(runera=="yUL2016MCAPV") METycorr = -(0.0127927*npv +0.117747);
+
+  double CorrectedMET_x = uncormet *cos(uncormet_phi)+METxcorr;
+  double CorrectedMET_y = uncormet *sin(uncormet_phi)+METycorr;
+  double CorrectedMET = sqrt(CorrectedMET_x*CorrectedMET_x+CorrectedMET_y*CorrectedMET_y);
+  double CorrectedMETPhi;
+  if(CorrectedMET_x==0 && CorrectedMET_y>0) CorrectedMETPhi = TMath::Pi();
+  else if(CorrectedMET_x==0 && CorrectedMET_y<0 )CorrectedMETPhi = -TMath::Pi();
+  else if(CorrectedMET_x >0) CorrectedMETPhi = TMath::ATan(CorrectedMET_y/CorrectedMET_x);
+  else if(CorrectedMET_x <0&& CorrectedMET_y>0) CorrectedMETPhi = TMath::ATan(CorrectedMET_y/CorrectedMET_x) + TMath::Pi();
+  else if(CorrectedMET_x <0&& CorrectedMET_y<0) CorrectedMETPhi = TMath::ATan(CorrectedMET_y/CorrectedMET_x) - TMath::Pi();
+  else CorrectedMETPhi =0;
+
+  return CorrectedMETPhi;
+}
