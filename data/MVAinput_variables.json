@@ -11,7 +11,7 @@
     "Title": ";Leading Lepton Pt [GeV];nEntries",
     "xlow":  20,
     "xhigh": 200,
-    "nbin":  18,
+      "nbin":  [30, 50, 70, 90, 130, 160, 200],
     "Label": ["Control_plot"]
   },
 

@@ -1,7 +1,7 @@
 import ROOT
 import os, sys, shutil
 import math
-import json
+import json, array
 import optparse, argparse
 from collections import OrderedDict
 from math import sqrt
@@ -154,8 +154,17 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
           # htemp.Scale(norm_factor)  # Scale done by previous step already
           if not(histogram == 'cutflow'): # only cutflow is special
-            htemp.Rebin(int(htemp.GetNbinsX()/Histograms[histogram]["nbin"]))
-
+            print ("input binning", Histograms[histogram]["nbin"])
+            if histogram == 'bh_l1_pt':
+              binning = array.array('d', Histograms[histogram]["nbin"])
+              htemp.Rebin(len(binning)-1, "htemp", binning )
+            else:
+              htemp.Rebin(int(htemp.GetNbinsX()/Histograms[histogram]["nbin"]))
+            # h = h.Rebin(len(bins)-1, "h", bins)
+            # htemp.GetXaxis().SetRangeUser(float(Histograms[histogram]["xlow"]), float(Histograms[histogram]["xhigh"])) # this does not work (23Jul2024)
+            print ("xmin: ", htemp.GetXaxis().GetXmin())
+            print ("nbins: ", htemp.GetNbinsX())
+            
           ##################################
           ## Add Hist to correspond group ##
           ##################################
@@ -177,7 +186,13 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         if QCDsmooth:
           if 'QCD' in sample_:
             print("smoothing: ", sample_)
+            original_integral = Histogram[sample_].Integral()
+            print ("original_integral: ", original_integral)
             Histogram[sample_].Smooth()
+            after_integral = Histogram[sample_].Integral()
+            print ("after_integral: ", after_integral)
+            if (after_integral> 0): Histogram[sample_].Scale(original_integral/after_integral)
+            print ("final_integral: ", Histogram[sample_].Integral())
         #################
         ## Normalized  ##
         ################# 
