@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = False):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -281,7 +281,7 @@ if __name__ == "__main__":
   parser.add_argument("--ratio_Ndiv", dest='ratio_Ndiv', default=205, type=int)
   parser.add_argument("--Yield", action = 'store_true', default=False)
   parser.add_argument("--cutflow", action = 'store_true', default=False)
-  parser.add_argument("--QCDsmooth", action = 'store_true', default=False)
+  parser.add_argument("--QCDsmooth", action = 'store_false', default=True)
 
   args = parser.parse_args()
 
