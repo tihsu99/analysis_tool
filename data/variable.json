@@ -163,6 +163,27 @@
   
   },
 
+  "PFMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isPFcand[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
+  "GlobalMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isGlobal[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
+  "TrackerMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isTracker[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
   "Lepton_ID_SF_err":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "sqrt(pow(Electron_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Electron_topMVA_Tight_SFerr_stat[Lepton_id],2))",
@@ -285,7 +306,23 @@
     "Def": "MC_Data_Dep",
     "Label": ["Normal"],
     "Category": {"MC": "MET_T1Smear_phi_v",
-                 "Data": "MET_T1_pt"},
+                 "Data": "MET_T1_phi"},
+    "Save":  ["BDT_training"]
+  },
+
+  "PV_npvs":{
+    "Def": "Defined",
+    "Label": ["Normal"]
+  },
+
+  "run":{
+    "Def": "Defined",
+    "Label": ["Normal"]
+  },
+  
+  "met_phi_corr":{
+    "Def": "METXYCorr_Met_MetPhi(met_pt, met_phi, run, PV_npvs)",
+    "Label": ["Normal"],
     "Save":  ["BDT_training"]
   },
 
