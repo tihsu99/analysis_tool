@@ -29,3 +29,6 @@ PlotPulls_C.d
 SignalExtraction/
 datacards/*
 *.tex
+Farm*
+kinematic_study/produce_root_file/data/*
+kinematic_study/produce_root_file/script/*
