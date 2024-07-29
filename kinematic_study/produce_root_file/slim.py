@@ -158,7 +158,7 @@ def Slim_module(filein,
   if toppt:
     if "TTTo1L" in filein or "TTTo2L" in filein:
       print (colored('--> For ttbar apply toppt_weight','yellow'))
-      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
 
 
   #################################
