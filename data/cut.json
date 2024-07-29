@@ -7,7 +7,9 @@
        },
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
-	       "lepton_pt"     : "bh_l1_pt > 30"
+	       "lepton_pt"     : "bh_l1_pt > 30",
+         "PFmuon"        : "Muon_isPFcand == True",
+         "goodmu"        : "Muon_isGlobal == True || Muon_isTracker == True"
        }
      },
      "general_cut":{

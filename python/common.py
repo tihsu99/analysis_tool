@@ -1,6 +1,5 @@
 import os
 import sys
-import ROOT
 import json
 import ROOT
 from collections import OrderedDict
@@ -151,7 +150,6 @@ def Get_Sample(json_file_name, Labels, era, withTail=True):
   File_List = []
   for process, desc in samples:
     Flag = True
-
     for Label in Labels:
       if Label not in desc["Label"]:
         Flag = False

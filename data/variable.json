@@ -163,6 +163,27 @@
   
   },
 
+  "PFMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isPFcand[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
+  "GlobalMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isGlobal[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
+  "TrackerMuon":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "0.0",
+                 "mu_resolved":  "Muon_isTracker[Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
   "Lepton_ID_SF_err":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "sqrt(pow(Electron_topMVA_Tight_SFerr_syst[Lepton_id],2) + pow(Electron_topMVA_Tight_SFerr_stat[Lepton_id],2))",
