@@ -1,188 +1,4 @@
 {
-  "TTTo2L":{
-     "xsec": 87.56,
-     "xsec_err": 4.3,
-     "Category": "TT2L",
-     "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
-     "Train_ratio": {"2b": 0.075, "3b": 0.5},
-     "Label": ["MC", "Background"]
-  },
-  "TTTo1L":{
-     "xsec": 365.25,
-     "xsec_err": 4.3,
-     "Category": "TT1L",
-     "subfile": {"2016apv": ["_1", "_2", "_3", "_4"],
-                 "2016postapv": ["_1", "_2", "_3", "_4", "_5"],
-                 "2017": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
-                 "2018": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13"]
-                 },
-     "Train_ratio": {"2b": 0.025, "3b": 0.10},
-     "Label": ["MC", "Background"]
-  },
-  "TTtoHadronic":{
-    "xsec": 381.09,
-    "xsec_err": 4.3,
-    "Category": "TTHad",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-  "ttWLNu":{
-    "xsec": 0.2352,
-    "xsec_err": 10.7,
-    "Category": "ttW",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"]
-  },
-  "ttWToQQ":{
-    "xsec": 0.4867,
-    "xsec_err": 10.7,
-    "Category": "ttW",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"]
-  },
-
-  "DYnlo_M10to50":{
-    "xsec": 20490,
-    "xsec_err": 1,
-    "Category": "DY",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"]
-  },
-
-  "DYnlo":{
-    "xsec": 6077.22,
-    "xsec_err": 0.3,
-    "Category": "DY",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"]
-  },
-  "tW":{
-    "xsec": 21.53,
-    "xsec_err": 7.8,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"] 
-  },
-
-  "tbarW":{
-    "xsec": 21.53,
-    "xsec_err": 7.8,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-  "ttZLNu":{
-    "xsec": 0.2589,
-    "xsec_err":11.9,
-    "Category": "ttZ",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  }, 
-  "ttZToQQ":{
-    "xsec": 0.6012,
-    "xsec_err":11.9,
-    "Category": "ttZ",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT70to100":{
-    "xsec": 1443.7,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT100to200":{
-    "xsec": 1434.5,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT200to400":{
-    "xsec": 383.19,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT400to600":{
-    "xsec": 51.68,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT600to800":{
-    "xsec": 12.53,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT800to1200":{
-    "xsec": 5.62,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT1200to2500":{
-    "xsec": 1.32,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "WJets_HT2500toInf":{
-    "xsec": 0.009,
-    "xsec_err": 3.8,
-    "Category": "WJets",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-
-  "tbar_tch":{
-    "xsec": 80.0,
-    "xsec_err": 2.3,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "t_tch":{
-    "xsec": 134.2,
-    "xsec_err": 1.9,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "t_sch":{
-    "xsec": 3.36,
-    "xsec_err": 3.9,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "ttH":{
-    "xsec": 0.305,
-    "xsec_err": 7.8,
-    "Category": "ttH",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
   "ttHH":{
     "xsec": 0.000792,
     "xsec_err": 10.4,
@@ -254,6 +70,46 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
+  
+  "ttWLNu":{
+    "xsec": 0.2352,
+    "xsec_err": 10.7,
+    "Category": "ttW",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":  ["MC", "Background"]
+  },
+  
+  "ttWToQQ":{
+    "xsec": 0.4867,
+    "xsec_err": 10.7,
+    "Category": "ttW",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":  ["MC", "Background"]
+  },
+
+  "ttZLNu":{
+    "xsec": 0.2589,
+    "xsec_err":11.9,
+    "Category": "ttX",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  }, 
+
+  "ttZToQQ":{
+    "xsec": 0.6012,
+    "xsec_err":11.9,
+    "Category": "ttX",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+
+  "ttH":{
+    "xsec": 0.305,
+    "xsec_err": 7.8,
+    "Category": "ttX",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
 
   "WWW":{
     "xsec": 0.2086,
@@ -270,7 +126,6 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-
   
   "WW":{
     "xsec": 118.8,
@@ -279,7 +134,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-
+  
   "WZ": {
     "xsec": 50.7,
     "xsec_err": 1.1,
@@ -287,7 +142,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-
+  
   "WZZ":{
     "xsec": 0.0571,
     "xsec_err": 10.0,
@@ -295,83 +150,99 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-
+  
   "ZZZ":{
     "xsec": 0.0148,
     "xsec_err": 10.0,
     "Category": "VVV",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
-  },
+  },  
+  
+"DYnlo_M10to50":{
+  "xsec": 20490,
+  "xsec_err": 1,
+  "Category": "DY",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label":  ["MC", "Background"]
+},
 
-  "QCD_HT50to100":{
-    "xsec": 188800000,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT100to200":{
-    "xsec": 23600000,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT200to300":{
-    "xsec": 1550000,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT300to500":{
-    "xsec": 321600,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  }, 
-  "QCD_HT500to700":{
-    "xsec": 30980,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT700to1000":{
-    "xsec": 6364,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT1000to1500":{
-    "xsec": 1117,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT1500to2000":{
-    "xsec": 108.4,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
-  "QCD_HT2000toInf":{
-    "xsec": 22.36,
-    "xsec_err": 50.0,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["MC", "Background", "Nonprompt"]
-  },
+"DYnlo":{
+  "xsec": 6077.22,
+  "xsec_err": 0.3,
+  "Category": "DY",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label":  ["MC", "Background"]
+},
+
+"QCD_HT50to100":{
+  "xsec": 188800000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT100to200":{
+  "xsec": 23600000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT200to300":{
+  "xsec": 1550000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT300to500":{
+  "xsec": 321600,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+}, 
+"QCD_HT500to700":{
+  "xsec": 30980,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT700to1000":{
+  "xsec": 6364,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT1000to1500":{
+  "xsec": 1117,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT1500to2000":{
+  "xsec": 108.4,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT2000toInf":{
+  "xsec": 22.36,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
 
   "TZQBBar":{
     "xsec": 0.426,
     "xsec_err": 3.3,
-    "Category": "tZq",
+    "Category": "SingleTop",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
@@ -379,10 +250,141 @@
   "TBarZQB":{
     "xsec": 0.220,
     "xsec_err": 3.3,
-    "Category": "tZq",
+    "Category": "SingleTop",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
+
+  "tW":{
+    "xsec": 21.53,
+    "xsec_err": 7.8,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":  ["MC", "Background"] 
+  },
+  
+  "tbarW":{
+    "xsec": 21.53,
+    "xsec_err": 7.8,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+  "tbar_tch":{
+    "xsec": 80.0,
+    "xsec_err": 2.3,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+  
+  "t_tch":{
+    "xsec": 134.2,
+    "xsec_err": 1.9,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+  
+  "t_sch":{
+    "xsec": 3.36,
+    "xsec_err": 3.9,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+  
+ "WJets_HT70to100":{
+  "xsec": 1443.7,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT100to200":{
+  "xsec": 1434.5,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT200to400":{
+  "xsec": 383.19,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT400to600":{
+  "xsec": 51.68,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT600to800":{
+  "xsec": 12.53,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT800to1200":{
+  "xsec": 5.62,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT1200to2500":{
+  "xsec": 1.32,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+"WJets_HT2500toInf":{
+  "xsec": 0.009,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+},
+
+  "TTTo2L":{
+    "xsec": 87.56,
+    "xsec_err": 4.3,
+    "Category": "TT",
+    "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
+    "Train_ratio": {"2b": 0.075, "3b": 0.5},
+    "Label": ["MC", "Background"]
+ },
+ "TTTo1L":{
+    "xsec": 365.25,
+    "xsec_err": 4.3,
+    "Category": "TT",
+    "subfile": {"2016apv": ["_1", "_2", "_3", "_4"],
+                "2016postapv": ["_1", "_2", "_3", "_4", "_5"],
+                "2017": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
+                "2018": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13"]
+                },
+    "Train_ratio": {"2b": 0.025, "3b": 0.10},
+    "Label": ["MC", "Background"]
+ },
+ "TTtoHadronic":{
+   "xsec": 381.09,
+   "xsec_err": 4.3,
+   "Category": "TT",
+   "Train_ratio": {"2b": 0.15, "3b": 0.5},
+   "Label": ["MC", "Background"]
+ },
 
   "SingleEG":{
     "xsec": 1,
