@@ -1,0 +1,327 @@
+{
+  "met_pt":{
+    "Title": ";MET [GeV];nEntries",
+    "xlow":  20,
+    "xhigh": 200,
+    "nbin":  18,
+    "plottingbins": [35, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+  },
+    "met_phi":{
+    "Title": ";MET #phi;nEntries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+      "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "met_phi_corr":{
+    "Title": ";MET #phi corr;nEntries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+      "nbin":  32,
+      "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+   "delta_phi_l_met":{
+    "Title": ";#Delta#Phi(l,MET); nEntries",
+    "xlow":  0.0,
+    "xhigh": 3.2,
+      "nbin":  16,
+      "plottingbins": [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+   },
+
+  "bh_l1_pt":{
+    "Title": ";Leading Lepton Pt [GeV];nEntries",
+    "xlow":  20,
+    "xhigh": 200,
+    "nbin":  18,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+  },
+
+  "bh_l1_eta":{
+    "Title": ";Leading Lepton #eta [GeV];nEntries",
+    "xlow":  -2.4,
+    "xhigh": 2.4,
+    "nbin":  12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "j1_pt":{
+    "Title": ";Leading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "j2_pt":{
+    "Title": ";SubLeading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "j3_pt":{
+    "Title": ";Third leading Jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j1_pt":{
+    "Title": ";Leading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j2_pt":{
+    "Title": ";Subleading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j3_pt":{
+    "Title": ";Third leading b jet Pt [GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 50,
+    "plottingbins": [30, 50, 70, 90, 120, 150, 180, 210, 250, 300, 350, 400, 450, 500],
+    "Label": ["Control_plot"]
+  },
+
+  "j1_eta":{
+    "Title": ";Leading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "j2_eta":{
+    "Title": ";Subleading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "j3_eta":{
+    "Title": ";Third leading Jet #eta; nEntries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j1_eta":{
+    "Title": ";Leading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j2_eta":{
+    "Title": ";Subleading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j3_eta":{
+    "Title": ";Third leading b Jet #eta; nENtries",
+    "xlow": -2.4,
+    "xhigh": 2.4,
+    "nbin": 12,
+    "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+  "n_tight_jet":{
+    "Title": ";nJet;nEntries",
+    "xlow": 2,
+    "xhigh": 7,
+    "nbin": 5,
+    "plottingbins": [4, 5, 6, 7],
+    "Label": ["Control_plot"]
+  },
+
+  "n_tight_muon":{
+    "Title": ";nMuon;nEntries",
+    "xlow": 0,
+    "xhigh": 3,
+    "nbin": 3,
+    "plottingbins": [0, 1, 2],
+    "Label": ["Control_plot"]
+  },
+
+  "n_tight_ele":{
+    "Title": ";nElectron;nEntries",
+    "xlow": 0,
+    "xhigh": 3,
+    "nbin": 3,
+    "plottingbins": [0, 1, 2],
+    "Label": ["Control_plot"]
+  },
+
+  "n_bjet_DeepB_v": {
+    "Title": ";nbJet;nEntries",
+    "xlow": 0,
+    "xhigh": 6,
+    "nbin": 6,
+    "plottingbins": [0, 1, 2],
+    "Label": ["Control_plot"]
+  },
+
+  "bh_HT": {
+    "Title": ";HT[GeV];nEntries",
+    "xlow": 0,
+    "xhigh": 1000,
+    "nbin": 10,
+    "plottingbins": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+    "Label": ["Control_plot"]
+  },
+
+    "PV_npvsGood":{
+    "Title": ";nPV Good ; nEntries",
+    "xlow": 0,
+    "xhigh": 70,
+    "nbin": 70,
+    "plottingbins": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70],
+    "Label": ["Control_plot"]
+    },
+    "PV_npvs":{
+    "Title": ";nPV; nEntries",
+    "xlow": 0,
+    "xhigh": 70,
+    "nbin": 70,
+    "plottingbins": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70],
+    "Label": ["Control_plot"]
+    },
+    "fixedGridRhoFastjetAll":{
+    "Title": ";#rho ; nEntries",
+    "xlow": 0,
+    "xhigh": 70,
+    "nbin": 70,
+    "plottingbins": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_lb1":{
+    "Title": ";#DeltaR(l,b_{1}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_lb2":{
+    "Title": ";#DeltaR(l,b_{2}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_lb3":{
+    "Title": ";#DeltaR(l,b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_b1b2":{
+    "Title": ";#DeltaR(b_{1},b_{2}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_b2b3":{
+    "Title": ";#DeltaR(b_{2},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "deltaR_b1b3":{
+    "Title": ";#DeltaR(b_{1},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 10,
+    "nbin": 100,
+    "plottingbins": [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8, 5.2, 5.6, 6.0, 6.4, 6.8, 7.2, 7.6, 8.0, 8.4, 8.8, 9.2, 9.6, 10.0],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_b1b2":{
+    "Title": ";M(b_{1},b_{2}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_b2b3":{
+    "Title": ";M(b_{2},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_b1b3":{
+    "Title": ";M(b_{1},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_lb1b2":{
+    "Title": ";M(l, b_{1},b_{2}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_lb2b3":{
+    "Title": ";M(l, b_{2},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    },
+    "inv_m_lb1b3":{
+    "Title": ";M(l, b_{1},b_{3}); nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "plottingbins": [30, 50, 70, 90, 130, 160, 200],
+    "Label": ["Control_plot"]
+    }
+}
