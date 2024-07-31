@@ -8,7 +8,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
 	       "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
@@ -33,7 +33,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
       	 "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
@@ -58,7 +58,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
       	 "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
@@ -84,7 +84,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
       	 "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
@@ -110,7 +110,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
       	 "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
@@ -134,7 +134,7 @@
        "mu_resolved": {
          "channel_lepton": "bh_region == 1",
       	 "lepton_pt"     : "bh_l1_pt > 30",
-         "PFmuon"        : "Muon_isPFcand == true",
+         "PFmuon"        : "PFMuon == true",
          "goodmu"        : "GlobalMuon || TrackerMuon"
        }
      },
