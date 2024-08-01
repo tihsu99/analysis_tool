@@ -155,10 +155,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           # htemp.Scale(norm_factor)  # Scale done by previous step already
           if not(histogram == 'cutflow'): # only cutflow is special
             # print ("input binning", Histograms[histogram]["nbin"])
-            if (Histograms[histogram]["plottingbins"]):
+            try: # (Histograms[histogram]["plottingbins"])
               binning = array.array('d', Histograms[histogram]["plottingbins"])
               htemp = htemp.Rebin(len(binning)-1, "htemp", binning )
-            else:
+            except:
               htemp.Rebin(int(htemp.GetNbinsX()/Histograms[histogram]["nbin"]))
             # h = h.Rebin(len(bins)-1, "h", bins)
             # htemp.GetXaxis().SetRangeUser(float(Histograms[histogram]["xlow"]), float(Histograms[histogram]["xhigh"])) # this does not work (23Jul2024)
@@ -202,7 +202,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
         if "Background" in data_type:
           if Yield:
-            canvas.addStacked(Histogram[sample_], title = "%s[%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
           else:
             canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
         elif "Signal" in data_type:

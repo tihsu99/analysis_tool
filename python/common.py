@@ -196,7 +196,20 @@ Color_Dict_ref = {
   'TTHad': ROOT.kBlue + 1
 }
 
-Color_List_Signal = [ROOT.kRed, ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2]
+Color_Dict_ref = {
+  'TT': ROOT.TColor.GetColor("#3f90da"),
+  'WJets': ROOT.TColor.GetColor("#ffa90e"),
+  'SingleTop': ROOT.TColor.GetColor("#bd1f01"),
+  'QCD': ROOT.TColor.GetColor("#94a4a2"),
+  'DY': ROOT.TColor.GetColor("#832db6"),
+  'VVV': ROOT.TColor.GetColor("#a96b59"),
+  'ttX': ROOT.TColor.GetColor("#e76300"),
+  'ttW': ROOT.TColor.GetColor("#b9ac70"),
+  'ttXY': ROOT.TColor.GetColor("#717581"),
+  'cgTotH': ROOT.TColor.GetColor("#92dadd")
+}
+
+Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2]
 
 
 ########################
