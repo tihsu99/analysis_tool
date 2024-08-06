@@ -50,6 +50,12 @@ TH2D*btag_efficiency_tight_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("
 TH2D*btag_efficiency_tight_udsg = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_udsg"))->CreateHistogram());
 const float btag_efficiency_highest_pt  = btag_efficiency_loose_b->GetXaxis()->GetBinUpEdge(btag_efficiency_loose_b->GetNbinsX());
 
+double delta_phi(double phi2, double phi1){
+  float dphi = phi2 - phi1;
+  if (fabs(dphi) > TMath::Pi()) dphi = 2*TMath::Pi() - fabs(dphi);
+  return dphi;
+}
+
 int iArray(ROOT::VecOps::RVec<int> Array, int idx, int Is_pdgId = 0){
   if(idx < 0) return -99;
   int output = Array[idx];
@@ -707,7 +713,7 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
 
 
 
-  float delta_phi_l_met = TVector2::Phi_mpi_pi((l1_phi -  MET_phi));
+  float delta_phi_l_met = fabs(delta_phi(l1_phi, MET_phi));
 
   ROOT::Math::PtEtaPhiMVector lepton(l1_pt, l1_eta, l1_phi, l1_mass);
   ROOT::Math::PtEtaPhiMVector bjet[3];
