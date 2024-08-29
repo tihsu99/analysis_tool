@@ -16,12 +16,12 @@ fileset['2016apv'] = {
   'Electron': {
     'Data': ['SingleMuon_{}.root'.format(subera) for subera in subera_list['2016apv']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,5)],
-    'TT2L': ['TTTo2L.root']
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,3)]
   },
   'Muon': {
     'Data': ['SingleEG_{}.root'.format(subera) for subera in subera_list['2016apv']] +  ['SinglePhoton_{}.root'.format(subera) for subera in subera_list['2016apv']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,5)],
-    'TT2L': ['TTTo2L.root']
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,3)]
   }
 }
 
@@ -29,12 +29,12 @@ fileset['2016postapv'] = {
   'Electron': {
     'Data': ['SingleMuon_{}.root'.format(subera) for subera in subera_list['2016postapv']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,6)],
-    'TT2L': ['TTTo2L.root']
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,3)]
   },
   'Muon': {
     'Data': ['SingleEG_{}.root'.format(subera) for subera in subera_list['2016postapv']] + ['SinglePhoton_{}.root'.format(subera) for subera in subera_list['2016postapv']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,6)],
-    'TT2L': ['TTTo2L.root']
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,3)]
   }
 }
 
@@ -42,25 +42,25 @@ fileset['2017'] = {
   'Electron': {
     'Data': ['SingleMuon_{}.root'.format(subera) for subera in subera_list['2017']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,11)],
-    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,4)],
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,5)],
   },
   'Muon': {
     'Data': ['SingleEG_{}.root'.format(subera) for subera in subera_list['2017']] + ['SinglePhoton_{}.root'.format(subera) for subera in subera_list['2017']],
     'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,11)],
-    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,4)],
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,5)],
   }
 }
 
 fileset['2018'] = { 
   'Electron':{
     'Data': ['SingleMuon_{}.root'.format(subera) for subera in subera_list['2018']],
-    'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,14)],
-    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,6)]
+    'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,15)],
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,7)]
   },
   'Muon':{
     'Data': ['EGamma_{}.root'.format(subera) for subera in subera_list['2018']],
-    'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,14)],
-    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,6)]
+    'TT1L': ['TTTo1L_{}.root'.format(subfile_idx) for subfile_idx in range(1,15)],
+    'TT2L': ['TTTo2L_{}.root'.format(subfile_idx) for subfile_idx in range(1,7)]
   }
 }
 

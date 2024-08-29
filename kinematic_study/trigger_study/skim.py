@@ -18,11 +18,13 @@ from array import array
 from plotstyle import *
 import re
 from coffea.nanoevents.methods import vector
-
+from termcolor import cprint
 def get_trigger(events, Trig_List):
     Trig_cut = None
     for trig_ in Trig_List:
-      if trig_ not in events.fields: continue
+      if trig_ not in events.fields:
+        cprint('Do not have {}'.format(trig_), 'red')
+        continue
       else:
         if 'HLT_passEle32WPTight' == trig_:
           trig_cut_ = (events[trig_] == 1)
@@ -63,8 +65,8 @@ class Accumulator(processor.ProcessorABC):
     def process(self, events):
         dataset = events.metadata['dataset']
         if self.lepton == 'Electron':
-            if (self.era == '2017') or (self.era == '2018'): pt_bin = [30, 35, 60, 115, 200, 500]
-            else: pt_bin = [30, 35, 60, 115, 175, 500]
+            if (self.era == '2017') or (self.era == '2018'): pt_bin = [35, 60, 115, 200, 500]
+            else: pt_bin = [35, 60, 115, 175, 500]
             hist_ = (
                 hist.Hist.new
                 .StrCat(["num", "den", "pure_Trig", "basic_cut"], name="eff")
@@ -72,24 +74,42 @@ class Accumulator(processor.ProcessorABC):
                 .Variable([0, 0.8, 1.442, 1.556, 2.5], name='eta')
                 .Weight()
              )
+            hist_dz = (
+                hist.Hist.new
+                .StrCat(["num", "den", "pure_Trig", "basic_cut"], name="eff")
+                .Variable(pt_bin, name="pt")
+                .Variable([0, 0.025, 0.05, 0.075, 0.1], name='dz')
+                .Weight()
+             )
         else:
             hist_ = (
                 hist.Hist.new
                 .StrCat(["num", "den", "pure_Trig", "basic_cut"], name="eff")
-                .Variable([20, 30, 50, 100, 200, 500], name="pt")
+                .Variable([30, 50, 100, 200, 500], name="pt")
                 .Variable([0, 0.9, 1.5, 2.1, 2.4], name='eta')
                 .Weight()
             )
+            hist_dz = (
+                hist.Hist.new
+                .StrCat(["num", "den", "pure_Trig", "basic_cut"], name="eff")
+                .Variable([20, 30, 50, 100, 200, 400, 1000], name="pt")
+                .Variable([0, 0.025, 0.05, 0.075, 0.1], name='dz')
+                .Weight()
+             )
         # Preliminary cut
-        events = events[events["Trigger_derived_region"]==1] # Choose em channel (Veto has been applied when producing ntuples)
+        events = events[events["Trigger_derived_region"] == 1] # Choose em channel (Veto has been applied when producing ntuples)
         if self.lepton == "Electron": 
             events = events[events["n_tight_muon"] == 1] # Use Muon as "Tag"
             events['tag_lepton_id'] = ak.unflatten(events["tightMuons_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"]))
+            events = events[~(ak.num(events.Muon_pt) > ak.flatten(events.tag_lepton_id))] # TODO: debug
             events['tag_pt']   = ak.flatten(events['Muon_pt'][events.tag_lepton_id])
             events['tag_eta']  = ak.flatten(events['Muon_eta'][events.tag_lepton_id])
             events['tag_phi']  = ak.flatten(events['Muon_phi'][events.tag_lepton_id])
             events['tag_mass'] = ak.flatten(events['Muon_mass'][events.tag_lepton_id])
-            events = events[events.tag_pt > 40] # Tag Muon pT cut
+            events['tag_isPFcand'] = ak.flatten(events['Muon_isPFcand'][events.tag_lepton_id])
+            events['tag_isGlobal'] = ak.flatten(events['Muon_isGlobal'][events.tag_lepton_id])
+            events['tag_isTracker'] = ak.flatten(events['Muon_isTracker'][events.tag_lepton_id])
+            events = events[(events.tag_pt > 40) & (events.tag_isPFcand) & (events.tag_isGlobal | events.tag_isTracker)] # Tag Muon pT cut, other selection cut
 
             if not dataset == 'Data':
                 events['tag_lepton_id_sf'] = ak.flatten(events["Muon_topMVA_Tight_SF"][events.tag_lepton_id])
@@ -100,14 +120,18 @@ class Accumulator(processor.ProcessorABC):
                 events = events[events["n_tight_ele_noIso"] == 1] # Use noIso Electron as "Probe"
                 events['lepton_id']  = ak.unflatten(events["tightElectrons_noIso_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"]))
 
+            events = events[ak.num(events.Electron_pt) > ak.flatten(events.lepton_id)] # TODO: debug
             events['lepton_pt']  = ak.flatten(events['Electron_pt'][events.lepton_id])
             events['lepton_eta'] = ak.flatten(events['Electron_eta'][events.lepton_id])
             events['lepton_phi'] = ak.flatten(events['Electron_phi'][events.lepton_id])
             events['lepton_mass']= ak.flatten(events['Electron_mass'][events.lepton_id])
+            events['lepton_dz']= ak.flatten(events['Electron_dz'][events.lepton_id])
 
         else: 
             events = events[events["n_tight_ele"] == 1] # Use Electron as "Tag"
             events['tag_lepton_id'] = ak.unflatten(events['tightElectrons_id'][:,0], counts=ak.ones_like(events[self.region+"_l1_id"]))
+
+            events = events[ak.num(events.Electron_pt) > ak.flatten(events.tag_lepton_id)] # TODO: debug
             events['tag_pt']  = ak.flatten(events['Electron_pt'][events.tag_lepton_id])
             events['tag_eta'] = ak.flatten(events['Electron_eta'][events.tag_lepton_id])
             events['tag_phi'] = ak.flatten(events['Electron_phi'][events.tag_lepton_id])
@@ -123,10 +147,17 @@ class Accumulator(processor.ProcessorABC):
                 events = events[events["n_tight_muon_noIso"] == 1] # Use Muon as "Probe"
                 events['lepton_id']  = ak.unflatten(events["tightMuons_noIso_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"])) 
 
+            events = events[ak.num(events.Muon_pt) > ak.flatten(events.lepton_id)] # TODO: debug 
             events['lepton_pt']  = ak.flatten(events['Muon_pt'][events.lepton_id])
             events['lepton_eta'] = ak.flatten(events['Muon_eta'][events.lepton_id])
             events['lepton_phi'] = ak.flatten(events['Muon_phi'][events.lepton_id])
             events['lepton_mass']= ak.flatten(events['Muon_mass'][events.lepton_id])
+            events['lepton_dz']= ak.flatten(events['Muon_dz'][events.lepton_id])
+            events['lepton_isPFcand']= ak.flatten(events['Muon_isPFcand'][events.lepton_id])
+            events['lepton_isGlobal']= ak.flatten(events['Muon_isGlobal'][events.lepton_id])
+            events['lepton_isTracker']= ak.flatten(events['Muon_isTracker'][events.lepton_id])
+
+            events = events[(events.lepton_isPFcand) & (events.lepton_isGlobal | events.lepton_isTracker)]
 
         lepton_v4 = ak.zip(
             {
@@ -149,7 +180,6 @@ class Accumulator(processor.ProcessorABC):
             behavior=vector.behavior,
         )
         events['inv_mass'] = (lepton_v4 + tag_v4).mass
-
 
         events = events[events['inv_mass'] > 20] # Veto QCD for data 
 
@@ -235,6 +265,31 @@ class Accumulator(processor.ProcessorABC):
            weight=events[basic_cut].weight
         )
 
+        hist_dz.fill(
+            eff='num',
+            pt=events[cut_num]['lepton_pt'],
+            dz=abs(events[cut_num]['lepton_dz']),
+            weight = events[cut_num].weight
+        )\
+        .fill(
+            eff='den',
+            pt=events[cut_den]['lepton_pt'],
+            dz=abs(events[cut_den]["lepton_dz"]),
+            weight = events[cut_den].weight
+        )\
+        .fill(
+            eff='pure_Trig',
+            pt=events[cut_pure_Trig]['lepton_pt'],
+            dz=abs(events[cut_pure_Trig]['lepton_dz']),
+            weight=events[cut_pure_Trig].weight
+        )\
+        .fill(
+           eff='basic_cut',
+           pt=events[basic_cut]['lepton_pt'],
+           dz=abs(events[basic_cut]['lepton_dz']),
+           weight=events[basic_cut].weight
+        )
+
         events_total = events[basic_cut]
         events_pass  = events[(basic_cut) & (Trig_cut)]
         events_fail  = events[(basic_cut) & ~(Trig_cut)]
@@ -275,6 +330,7 @@ class Accumulator(processor.ProcessorABC):
             dataset: {
                 "entries": len(events),
                 "hist_": hist_,
+                "hist_dz": hist_dz,
                 "distribution_": distribution_Dict
             }
         }
@@ -330,7 +386,7 @@ def Calculate_Trigger_Scale_Factor(era, dataset, iin, maxchunks, region, lepton,
 
     if lepton == 'Electron':
         Var_Dict = {
-            'Electron_pt': np.linspace(0,300,30),
+            'Electron_pt': np.linspace(0,1000,21),
             'Electron_eta': np.linspace(-2.5,2.5,10),
             'PV_npvsGood': np.linspace(0,60,6)
         }
@@ -343,9 +399,14 @@ def Calculate_Trigger_Scale_Factor(era, dataset, iin, maxchunks, region, lepton,
 
     else:
         Var_Dict = {
-            'Muon_pt': np.linspace(0, 300, 30),
-            'Muon_eta': np.linspace(-2.4, 2.4, 10),
-            'PV_npvsGood': np.linspace(0,60,6)
+            'Muon_pt': np.linspace(0, 1000, 21),
+            'Muon_eta': np.linspace(-2.4, 2.4, 11),
+            'PV_npvsGood': np.linspace(0,60,13),
+            'Muon_mvaTOP': np.linspace(0,1,21),
+            'Muon_miniPFRelIso_all': np.linspace(0,1,21),
+            'Muon_sip3d': np.linspace(0,10,11),
+            'Muon_dxy': np.linspace(0,0.1, 11),
+            'Muon_dz':  np.linspace(0,0.2, 11),
         }
         # Reference https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT#Details_for_each_year
         Trig_List = Muon_Trig_List
@@ -368,19 +429,24 @@ def Calculate_Trigger_Scale_Factor(era, dataset, iin, maxchunks, region, lepton,
             ID_sf_name = "Electron_MVAFall17V2noIso_WP90_SF"
         else:
             ID_sf_name = 'Muon_CutBased_MediumID_SF'
-
+    print(fileset)
     output = run(
             fileset,
             "Events",
             processor_instance=Accumulator(var_Dict=Var_Dict, normfactor=normfactor, era=era, ID_sf=ID_sf_name, region=region, lepton=lepton, Trig_List=Trig_List, variation=variation, Base_Trig_List=Base_Trig_List, Trig_Veto_List = Trig_Veto_List, Base_Trig_Veto_List = Base_Trig_Veto_List)
             )
-    
+   
+
     f = uproot.recreate(os.path.join(outdir, "{}_{}_".format(region, lepton) + iin))
     for dataset_ in fileset:
         f['num'] = output[dataset_]["hist_"][0,:,:]
         f['den'] = output[dataset_]["hist_"][1,:,:]
         f['pure_Trig'] = output[dataset_]["hist_"][2,:,:]
         f['basic_cut'] = output[dataset_]["hist_"][3,:,:]
+        f['dz_num'] = output[dataset_]["hist_dz"][0,:,:]
+        f['dz_den'] = output[dataset_]["hist_dz"][1,:,:]
+        f['dz_pure_Trig'] = output[dataset_]["hist_dz"][2,:,:]
+        f['dz_basic_cut'] = output[dataset_]["hist_dz"][3,:,:]
         for var_ in Var_Dict:
             f["{}_total".format(var_)] = output[dataset_]["distribution_"][var_][0,:]
             f["{}_pass".format(var_)] = output[dataset_]["distribution_"][var_]["pass",:]

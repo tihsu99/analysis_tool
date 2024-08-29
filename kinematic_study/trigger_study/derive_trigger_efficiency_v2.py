@@ -49,6 +49,7 @@ def Draw_TH2(hist, fname, outdir, format_ = ".2f"):
   c = CMS.cmsCanvas('', min(x_binnings), max(x_binnings), min(y_binnings), max(y_binnings), '', '', square = CMS.kRectangular, extraSpace=0.01, iPos=0, with_z_axis=True)
   ROOT.gStyle.SetPaintTextFormat(format_)
   c.SetLogx()
+  hist.GetZaxis().SetRangeUser(0.5, 1.2)
   hist.SetTitle(";pT[GeV];|#eta|")
   CMS.cmsDraw(hist, 'COLZ TEXT E')
   CMS.SetAlternative2DColor(hist, CMS.cmsStyle)
@@ -434,7 +435,6 @@ def Calculate_Trigger_Scale_Factor(era, inputDir, region, lepton, plotdir):
     for var_ in var_list:
       if not (variation == 'nominal'): continue
       for cate_ in ["total", "pass", "fail"]:
-        
         canvas = DataMCCanvas(" "," ", Lumi[era])
         canvas.legend.setPosition(0.35,0.77,0.8,0.9)
         canvas.raxis.SetNdivisions(210)
@@ -451,7 +451,7 @@ def Calculate_Trigger_Scale_Factor(era, inputDir, region, lepton, plotdir):
                     h_ = fin.Get(str(var_ + "_{}".format(cate_))).Clone()
                     h_.SetDirectory(0)
                 else:
-                    print( "{}_{}_".format(region, lepton) + file_, str(var_ + "_{}".format(cate_)))
+                    print( "{}_{}_".format(region, lepton) + file_, str(var_ + "_{}".format(cate_)), variation)
                     h_.Add(fin.Get(str(var_ + "_{}".format(cate_))).Clone())
                 fin.Close()
             if dataset_ == 'Data':
@@ -579,7 +579,7 @@ if __name__ == '__main__':
         os.system('mkdir -p {}'.format(sf_dir))
         fout = ROOT.TFile.Open(os.path.join(sf_dir, 'Trigger_scale_factor_{}.root'.format(era_)), 'RECREATE')
         for region_ in ['bh', 'boost']:
-          for lepton_ in ['Electron', 'Muon']:
+          for lepton_ in ['Muon', 'Electron']:
               plotdir = os.path.join('plot_v2',era_,region_,lepton_, variation_)
               sf, correlation = Calculate_Trigger_Scale_Factor(era_, inputDir = os.path.join(args.inputdir, era_, variation_), region=region_, lepton=lepton_, plotdir=plotdir)
               fout.cd()
