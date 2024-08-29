@@ -70,7 +70,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-  
+
   "ttWLNu":{
     "xsec": 0.2352,
     "xsec_err": 10.7,
@@ -78,7 +78,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":  ["MC", "Background"]
   },
-  
+
   "ttWToQQ":{
     "xsec": 0.4867,
     "xsec_err": 10.7,
@@ -93,7 +93,7 @@
     "Category": "ttX",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
-  }, 
+  },
 
   "ttZToQQ":{
     "xsec": 0.6012,
@@ -126,7 +126,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-  
+
   "WW":{
     "xsec": 118.8,
     "xsec_err": 3.6,
@@ -134,7 +134,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-  
+
   "WZ": {
     "xsec": 50.7,
     "xsec_err": 1.1,
@@ -142,7 +142,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label":["MC", "Background"]
   },
-  
+
   "WZZ":{
     "xsec": 0.0571,
     "xsec_err": 10.0,
@@ -150,15 +150,15 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-  
+
   "ZZZ":{
     "xsec": 0.0148,
     "xsec_err": 10.0,
     "Category": "VVV",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
-  },  
-  
+  },
+
 "DYnlo_M10to50":{
   "xsec": 20490,
   "xsec_err": 1,
@@ -202,7 +202,7 @@
   "Category": "QCD",
   "Train_ratio": {"2b": 0.0, "3b": 0.0},
   "Label": ["MC", "Background", "Nonprompt"]
-}, 
+},
 "QCD_HT500to700":{
   "xsec": 30980,
   "xsec_err": 50.0,
@@ -238,31 +238,30 @@
   "Train_ratio": {"2b": 0.0, "3b": 0.0},
   "Label": ["MC", "Background", "Nonprompt"]
 },
+"TZQBBar":{
+  "xsec": 0.426,
+  "xsec_err": 3.3,
+  "Category": "SingleTop",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+ },
 
-  "TZQBBar":{
-    "xsec": 0.426,
-    "xsec_err": 3.3,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
-
-  "TBarZQB":{
-    "xsec": 0.220,
-    "xsec_err": 3.3,
-    "Category": "SingleTop",
-    "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label": ["MC", "Background"]
-  },
+"TBarZQB":{
+  "xsec": 0.220,
+  "xsec_err": 3.3,
+  "Category": "SingleTop",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"]
+ },
 
   "tW":{
     "xsec": 21.53,
     "xsec_err": 7.8,
     "Category": "SingleTop",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
-    "Label":  ["MC", "Background"] 
+    "Label":  ["MC", "Background"]
   },
-  
+
   "tbarW":{
     "xsec": 21.53,
     "xsec_err": 7.8,
@@ -277,7 +276,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-  
+
   "t_tch":{
     "xsec": 134.2,
     "xsec_err": 1.9,
@@ -285,7 +284,7 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-  
+
   "t_sch":{
     "xsec": 3.36,
     "xsec_err": 3.9,
@@ -293,15 +292,14 @@
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
-  
- "WJets_HT70to100":{
-  "xsec": 1443.7,
-  "xsec_err": 3.8,
-  "Category": "WJets",
-  "Train_ratio": {"2b": 0.15, "3b": 0.5},
-  "Label": ["MC", "Background"]
-},
 
+  "WJets_HT70to100":{
+   "xsec": 1443.7,
+   "xsec_err": 3.8,
+   "Category": "WJets",
+   "Train_ratio": {"2b": 0.15, "3b": 0.5},
+   "Label": ["MC", "Background"]
+-},
 "WJets_HT100to200":{
   "xsec": 1434.5,
   "xsec_err": 3.8,
@@ -362,7 +360,7 @@
     "xsec": 87.56,
     "xsec_err": 4.3,
     "Category": "TT",
-    "subfile": {"2016apv": [""], "2016postapv": [""], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
+      "subfile": {"2016apv": ["_1","_2"], "2016postapv": [""], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5"]},
     "Train_ratio": {"2b": 0.075, "3b": 0.5},
     "Label": ["MC", "Background"]
  },
@@ -530,11 +528,3 @@
 
   }
 }
-
-
-
-
-
-
-
-
