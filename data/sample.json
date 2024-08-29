@@ -299,7 +299,7 @@
    "Category": "WJets",
    "Train_ratio": {"2b": 0.15, "3b": 0.5},
    "Label": ["MC", "Background"]
--},
+},
 "WJets_HT100to200":{
   "xsec": 1434.5,
   "xsec_err": 3.8,
