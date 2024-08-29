@@ -121,7 +121,7 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
-  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument("--toppt",   dest = 'toppt',  action='store_false', default = 'True')
   parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   args = parser.parse_args()
   args_dict = vars(args)
