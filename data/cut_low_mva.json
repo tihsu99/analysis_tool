@@ -21,7 +21,7 @@
      "MVA_Label": "DNN_2b",
      "POI": ["bh_HT"]
   },
-    
+
   "CR_2b4j_lowMVA":{
      "channel_cut":{
        "ele_resolved": {
@@ -36,7 +36,6 @@
      "general_cut":{
        "veto_Had_tau": "nHad_tau==0",
        "one lepton":   "bh_nl==1",
-       "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 2",
        "njet":         "n_tight_jet>=4",
@@ -61,7 +60,6 @@
      "general_cut":{
        "veto_Had_tau": "nHad_tau==0",
        "one lepton":   "bh_nl==1",
-       "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v >= 3",
        "njet":         "n_tight_jet>=4",
@@ -87,7 +85,6 @@
      "general_cut":{
        "veto_Had_tau": "nHad_tau==0",
        "one lepton":   "bh_nl==1",
-       "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v == 2",
        "njet":         "n_tight_jet == 3",
@@ -113,7 +110,6 @@
      "general_cut":{
        "veto_Had_tau": "nHad_tau==0",
        "one lepton":   "bh_nl==1",
-       "jet cond.":    "bh_jets==1",
        "met":          "bh_met>35",
        "b jet cut":    "n_bjet_DeepB_v >= 3",
        "njet":         "n_tight_jet ==3",
@@ -145,8 +141,54 @@
      "MVA_Label": "DNN_2b",
      "POI": ["DNN"],
      "DNN_category": "DNN500 < 0.2"
+  },
+
+    "CR_2b_lowMVA":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "bh_region == 2",
+      	 "lepton_pt":      "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+      	 "lepton_pt"     : "bh_l1_pt > 30",
+         "PFmuon"        : "PFMuon == true",
+         "goodmu"        : "GlobalMuon || TrackerMuon"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 2",
+       "HT":           "bh_HT > 100"
+     },
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"],
+     "DNN_category": "(DNN200 < 0.5) & (DNN300 < 0.5) & (DNN350 < 0.5) & (DNN400 < 0.5) & (DNN500 < 0.5) & (DNN600 < 0.5) & (DNN700 < 0.5) & (DNN800 < 0.5) & (DNN900 < 0.5) & (DNN1000 < 0.5)"
+   },
+
+    "CR_3b_lowMVA":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "bh_region == 2",
+      	 "lepton_pt":      "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+      	 "lepton_pt"     : "bh_l1_pt > 30",
+         "PFmuon"        : "PFMuon == true",
+         "goodmu"        : "GlobalMuon || TrackerMuon"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 3",
+       "HT":           "bh_HT > 100"
+     },
+     "MVA_Label": "DNN_3b",
+     "POI": ["DNN"],
+     "DNN_category": "(DNN200 < 0.5) & (DNN300 < 0.5) & (DNN350 < 0.5) & (DNN400 < 0.5) & (DNN500 < 0.5) & (DNN600 < 0.5) & (DNN700 < 0.5) & (DNN800 < 0.5) & (DNN900 < 0.5) & (DNN1000 < 0.5)"
   }
 
 }
-
-

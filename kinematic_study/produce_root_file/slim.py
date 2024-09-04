@@ -158,7 +158,7 @@ def Slim_module(filein,
   if toppt:
     if "TTTo1L" in filein or "TTTo2L" in filein:
       print (colored('--> For ttbar apply toppt_weight','yellow'))
-      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*toppt_weight"
+      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
 
 
   #################################
@@ -255,12 +255,20 @@ def Slim_module(filein,
   if pNN or multi_class_pNN:
     MVA_Label = cuts[region]["MVA_Label"]
 
-  # channel cut
-  for cut_name in cuts[region]["channel_cut"][channel]:
-    df = df.Filter(str(cuts[region]["channel_cut"][channel][cut_name]), str(cut_name))
-
   if cutflow_store:
-    cutflow["channel"] = df.Sum("weight").GetValue()
+    cutflow["total"] = df.Sum("weight").GetValue()
+
+  # METFilter cut
+  MET_filter_cut = []
+  for MET_filter in MET_filters["MET_Filter"]:
+    if MET_filter in BranchList:
+      MET_filter_cut.append(MET_filter)
+  MET_filter_cut = ' && '.join(MET_filter_cut)
+  print('MET filter',  MET_filter_cut)
+  df = df.Filter(str(MET_filter_cut), 'MET_filter')
+  if cutflow_store:
+    cutflow['MET_filter'] = df.Sum("weight").GetValue()
+
   # trigger cut
   trigger_cut = None
   for trigger_name in triggers:
@@ -275,29 +283,24 @@ def Slim_module(filein,
       else:
         trigger_cut = triggers[trigger_name]["Triggers"][era][sample_name]["Default"]
 
-
     df = df.Define(str(trigger_name), str(trigger_cut))
     df = df.Filter(str(trigger_name), str(trigger_name))
     print(trigger_name, str(trigger_cut))
     if cutflow_store:
       cutflow[trigger_name] = df.Sum("weight").GetValue() 
 
+  # channel cut
+  for cut_name in cuts[region]["channel_cut"][channel]:
+    df = df.Filter(str(cuts[region]["channel_cut"][channel][cut_name]), str(cut_name))
+
+  if cutflow_store:
+    cutflow["channel"] = df.Sum("weight").GetValue()
+
   # general cut
   for cut_name in cuts[region]["general_cut"]:
     df = df.Filter(str(cuts[region]["general_cut"][cut_name]), str(cut_name))
     if cutflow_store:
       cutflow[cut_name] = df.Sum("weight").GetValue()
-
-  # METFilter cut
-  MET_filter_cut = []
-  for MET_filter in MET_filters["MET_Filter"]:
-    if MET_filter in BranchList:
-      MET_filter_cut.append(MET_filter)
-  MET_filter_cut = ' && '.join(MET_filter_cut)
-  print('MET filter',  MET_filter_cut)
-  df = df.Filter(str(MET_filter_cut), 'MET_filter')
-  if cutflow_store:
-    cutflow['MET_filter'] = df.Sum("weight").GetValue()
 
   if cutflow_store:
     print(cutflow)
