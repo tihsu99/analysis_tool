@@ -251,6 +251,6 @@ def overunder_flowbin2D(h1):
   return h1
 
 
-def CheckDir(path):
+def CheckDir(path, MakeDir=True):
   if not os.path.exists(path):
     os.system('mkdir -p {}'.format(path))

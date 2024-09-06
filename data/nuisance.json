@@ -76,7 +76,11 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-
+  "CMS_eff_j_puid":{
+    "Nominal": ["Pileupjetid_sf"],
+    "Def": "RVecF{(float)(Pileupjetid_sf_down), (float)(Pileupjetid_sf_up)}",
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
 
 
   "CMS_eff_m_id":{
@@ -157,35 +161,35 @@
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*PSWeight[2]), (float)(weight*PSWeight[0])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT1L", "Signal"]
+    "Process": ["TT", "Signal", "WJets"]
   },
 
   "ps_fsr_PROCESS":{
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*PSWeight[3]), (float)(weight*PSWeight[1])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT1L", "Signal"]
+    "Process": ["TT", "Signal", "WJets"]
   },
 
   "QCDscale_mur_PROCESS":{
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*LHEScaleWeight[1]), (float)(weight*LHEScaleWeight[7])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT1L", "Signal"]
+    "Process": ["TT", "Signal", "WJets"]
   },
 
   "QCDscale_muf_PROCESS":{
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*LHEScaleWeight[3]), (float)(weight*LHEScaleWeight[5])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT1L", "Signal"]
+    "Process": ["TT", "Signal", "WJets"]
   },
 
   "PDF":{
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*(1.0-pdf_unc)), (float)(weight*(1.0+pdf_unc))}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT1L", "Signal"]
+    "Process": ["TT", "Signal", "WJets"]
   },
 
   "CMS_lumi_2016":{
