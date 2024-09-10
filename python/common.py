@@ -26,10 +26,10 @@ python_version = int(sys.version.split('.')[0])
 ############
 
 inputFile_path = {
-   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v4/', 
-   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v4/', 
-   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v5/', 
-   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v4/'
+   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v6/', 
+   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v6/', 
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v7/', 
+   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v6/'
 }
 
 subera_list = {
@@ -251,6 +251,6 @@ def overunder_flowbin2D(h1):
   return h1
 
 
-def CheckDir(path):
+def CheckDir(path, MakeDir=True):
   if not os.path.exists(path):
     os.system('mkdir -p {}'.format(path))
