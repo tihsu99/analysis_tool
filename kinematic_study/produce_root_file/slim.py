@@ -555,6 +555,7 @@ def Slim_module(filein,
   FileOut.cd()
   for ij in range(0, len(Histos)):
     h = Histos[ij].Clone()
+    print(h.GetName())
     if not "Data" in sample_labels:
       h.Scale(scale) # Lumi x xSec / nDAS (input from runCondor)
     h.Write()

@@ -135,7 +135,6 @@ if __name__ == "__main__":
   cwd       = os.getcwd()
 
   os.system('mkdir -p %s '%farm_dir)
-  os.system('cp %s/../../python/common.py .'%cwd)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 
 

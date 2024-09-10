@@ -88,16 +88,16 @@
   },
 
   "ttZLNu":{
-    "xsec": 0.2589,
-    "xsec_err":11.9,
+    "xsec": 0.270,
+    "xsec_err": 7.0,
     "Category": "ttX",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
   },
 
   "ttZToQQ":{
-    "xsec": 0.6012,
-    "xsec_err":11.9,
+    "xsec": 0.618,
+    "xsec_err": 7.7,
     "Category": "ttX",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
