@@ -96,7 +96,7 @@
   }, 
 
   "ttZToQQ":{
-    "xsec": 0.618,
+    "xsec": 0.068,
     "xsec_err": 7.7,
     "Category": "ttX",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
