@@ -44,7 +44,8 @@ def Slim_module(filein,
                 cutflow_store=False,
                 SubProcess = None,
                 toppt = False,
-                not_ensemble = False):
+                not_ensemble = False,
+                train = False):
 
   #############
   ##  Basic  ##
@@ -232,6 +233,14 @@ def Slim_module(filein,
           print(nuisances[nuisance]["Nominal"], nuisance_def)
           df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, ["Down", "Up"], nuisance_name)
           nuisance_list.append(nuisance_name)
+
+
+  ####################
+  ##  Training Cut  ##
+  ####################
+
+  if "MC" in sample_labels:
+    df = df.Filter(str("isTrain == {}".format(1 if train else 0)))
 
   #########
   ## Cut ##
@@ -595,6 +604,7 @@ if __name__ == "__main__":
   parser.add_argument("--SubProcess", type=str, default = None)
   parser.add_argument("--toppt",   action='store_true')
   parser.add_argument("--not_ensemble", action = 'store_true')
+  parser.add_argument("--train",   action='store_true')
 
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
@@ -621,7 +631,8 @@ if __name__ == "__main__":
               SubProcess = args.SubProcess,\
               multi_class_pNN = args.multi_class_pNN,\
               toppt = args.toppt,\
-              not_ensemble = args.not_ensemble)
+              not_ensemble = args.not_ensemble,
+              train = args.train)
   end_time = time.time()
   print('process time', end_time - start_time)
 
