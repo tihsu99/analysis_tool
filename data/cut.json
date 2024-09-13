@@ -21,7 +21,7 @@
     },
     "MVA_Label": "DNN_2b",
     "POI": ["bh_HT"],
-    "POI_bin": [0,1000,10]
+    "POI_bin": [100,1000,9]
   },
     
   "SR_2b4j":{
