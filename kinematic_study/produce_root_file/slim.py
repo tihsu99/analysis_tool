@@ -160,7 +160,7 @@ def Slim_module(filein,
     print (colored('--> For ttbar apply toppt_weight','yellow'))
     weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
 
-  if notoppt:
+  if notoppt and not "Data" in sample_labels:
     weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf"
 
 
