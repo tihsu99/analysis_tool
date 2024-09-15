@@ -19,15 +19,6 @@ def prepare_range(path, fin, step, half, isdata):
     entries = (f_read.Get('Events')).GetEntriesFast()
     init = 0
     index = []
-    if not isdata:
-      if half == 'first':
-        init = 0
-        entries = int(entries/2)
-      elif(half == 'second'):
-        init = int(entries/2)
-        entries = entries
-      else:
-        pass
 
     while(init < entries):
       index.append(init)
@@ -403,7 +394,11 @@ if __name__ == "__main__":
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
-             if args.half in ['first', 'second']:  norm_factor = norm_factor*2
+             if args.half in ['train', 'test']:
+               num_bjet = '2b' if '2b' in region else '3b'
+               ratio = samples[sample_name]['Train_ratio'][num_bjet]
+               if (args.half == 'train'): norm_factor = norm_factor * (1. / (ratio + 1e-10))
+               else: norm_factor = norm_factor * (1. / (1. - ratio + 1e-10))
            else: # data doesn't need to be normalized by lumi x cross section
              norm_factor = 1.0
 
@@ -424,6 +419,7 @@ if __name__ == "__main__":
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
            json_command += ' --notoppt ' if args.notoppt else ''
+           json_command += ' --train ' if args.half == 'train' else ''
 
            for process_ in process_list:
              if args.clear:

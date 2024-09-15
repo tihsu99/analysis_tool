@@ -65,7 +65,12 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     print(sample_nuis_name)
     raise
 
-  if category == 'QCD': h.Smooth() # QCD smooth
+  if category == 'QCD': 
+    Original_Yield = h.Integral()
+    h.Smooth() # QCD smooth
+    Smoothed_Yield = h.Integral()
+    norm = Original_Yield/Smoothed_Yield if Smoothed_Yield > 0 else 1.0
+    h.Scale(norm)
   return h
 
 def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None):
@@ -216,7 +221,7 @@ for era_ in eras:
       for signal_ in signal_list:
         inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
         fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
-        CheckDir(os.path.join(args.outputdir, era_, signal_), MakeDir=True)
+        CheckDir(os.path.join(args.outputdir, era_, signal_))
         #########  Specific Rule ###########
 #        if('BGToTH' in signal_): continue
 
