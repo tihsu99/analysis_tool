@@ -26,17 +26,17 @@ python_version = int(sys.version.split('.')[0])
 ############
 
 inputFile_path = {
-   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v6/', 
-   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v6/', 
+   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v7/', 
+   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v7/', 
    '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v7/', 
-   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v6/'
+   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v7/'
 }
 
 subera_list = {
   '2016apv':     ['B2', 'C', 'D', 'E', 'F'],
   '2016postapv': ['F',  'G', 'H'],
   '2017':        ['B',  'C', 'D', 'E', 'F'],
-  '2018':        ['A',  'B', 'C', 'D_1', 'D_2']
+  '2018':        ['A',  'B', 'C', 'D'] #'D_1', 'D_2']
 }
 
 ###########
@@ -209,7 +209,7 @@ Color_Dict_ref = {
   'cgTotH': ROOT.TColor.GetColor("#92dadd")
 }
 
-Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2]
+Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2, ROOT.kViolet+2, ROOT.kCyan+3, ROOT.kBlue-2, ROOT.kOrange-1, ROOT.kRed-2, ROOT.kBlack]
 
 
 ########################
