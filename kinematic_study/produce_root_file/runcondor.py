@@ -29,7 +29,7 @@ def prepare_range(path, fin, step, half, isdata):
 
   except:
     cprint("%s%s fail to process."%(path,fin), "red")
-    return None  
+    return None
 
 def check_file(fname, key_name=None):
   GreenLight = True
@@ -79,7 +79,7 @@ def Get_List_Union(fname_list):
   return key_name
 
 if __name__ == "__main__":
-  
+
   usage  = 'usage: %prog [options]'
   parser = argparse.ArgumentParser(description=usage)
   parser.add_argument('-m', '--method', dest='method', help='[data/slim_mc/slim_data/...]', default='all', type=str)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", dest = 'multi_class_pNN', action='store_true')
   parser.add_argument("--cutflow", dest = 'cutflow', action='store_true')
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
-  parser.add_argument("--toppt",   dest = 'toppt',  action='store_true')
+  parser.add_argument("--notoppt",   dest = 'notoppt',  action='store_true')
   parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   args = parser.parse_args()
   args_dict = vars(args)
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
   Labels_text = ' '.join(args.Labels)
   if len(args.Black_list) == 0: Black_list_text = ''
-  else: 
+  else:
     Black_list_text = '--Black_list ' + ' '.join(args.Black_list)
   POIs_text   = ' '.join(args.POIs)
   #########
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     if args.era == 'all' or args.era == Era:
       Eras.append(Era)
 
-  
+
   ##############
   ##  Condor  ##
   ##############
@@ -329,7 +329,7 @@ if __name__ == "__main__":
 
   print(Failed_Sample)
   DAG_resubmit_file.close()
-  
+
 
   ############
   ##  Data  ##
@@ -354,7 +354,7 @@ if __name__ == "__main__":
        era_header = "script/slim_%s.h"%Era
 
        os.system('cat %s | sed "s/EraToBeReplaced/%s/g" > %s'%(template,Era,era_header))
-       
+
        print ("Replacing SpecialEra on", era_header)
        if (Era == "2016apv"):
          os.system(r'sed -i "s/SpecialEra/%s/g" %s' %('2016APV',era_header))
@@ -370,7 +370,7 @@ if __name__ == "__main__":
 
          cprint("Creating configuration for slim (Era: {}, Region: {}, Channel: {})".format(Era, region, channel), "yellow")
          python_file   =  os.path.join(cwd, 'slim.py')
-      
+
          File_List      = Get_Sample(json_file_name, sample_Label, Era) # Use all the MC samples (List of files)
          Sample_List    = Get_Sample(json_file_name, sample_Label, Era, False) # List of process name
          sample_label_text = " ".join(sample_Label)
@@ -418,7 +418,7 @@ if __name__ == "__main__":
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
-           json_command += ' --toppt ' if args.toppt else ''
+           json_command += ' --notoppt ' if args.notoppt else ''
            json_command += ' --train ' if args.half == 'train' else ''
 
            for process_ in process_list:
@@ -458,15 +458,15 @@ if __name__ == "__main__":
                    Outdir_revised = 'root://eosuser.cern.ch//' + Outdir
                  else:
                    Outdir_revised = Outdir
-                   
-                 merge_shell[Era][region][channel][process_].write(" %s"%(os.path.join(Outdir_revised, outputfile_name))) 
+
+                 merge_shell[Era][region][channel][process_].write(" %s"%(os.path.join(Outdir_revised, outputfile_name)))
              condor[Era][region][channel][process_].close()
              merge_shell[Era][region][channel][process_].close()
 
 
-  ################# 
+  #################
   # clear individual root files
-  ################# 
+  #################
   if args.check and Check_GreenLight:
     cprint("All files are produced successfully and merged as well.", "green")
     for Era in Eras:
@@ -494,7 +494,7 @@ if __name__ == "__main__":
   ##  Merge ROOT ##
   #################
 
-  
+
 #  if args.check and Check_GreenLight:
 #    print("All files are produced successfully. Start to merge the files.")
 #
@@ -538,7 +538,7 @@ if __name__ == "__main__":
         for sample_Label in sample_label_list:
           json_file_name = args.sample_json
           File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
-          for iin in File_List: 
+          for iin in File_List:
             if "Region" in samples[iin] and region not in samples[iin]["Region"]:
               continue
             if "Channel" in samples[iin] and channel not in samples[iin]["Channel"]:
@@ -550,7 +550,7 @@ if __name__ == "__main__":
             else:
               process_list.append(iin)
 
-            
+
             for process in process_list:
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
               merge_shell[Era][region][channel][process] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process)), 'a')
@@ -568,4 +568,3 @@ if __name__ == "__main__":
       cprint("Submitting Jobs on Condor", "green")
       os.system('rm %s/workflow.dag.*'%farm_dir)
       os.system('condor_submit_dag -f %s/workflow.dag'%farm_dir)
-
