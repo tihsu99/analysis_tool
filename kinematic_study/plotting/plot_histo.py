@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, overflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, nooverflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -145,10 +145,12 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           ftemp.Close()
 
           ##############
-          ## Overflow ##
+          ## NO Overflow ##
           ##############
 
-          if overflow:
+          if nooverflow:
+            print ('Over and upderflow is NOT included')
+          else:
             htemp = overunder_flowbin(htemp)
 
           ###################
@@ -276,7 +278,7 @@ if __name__ == "__main__":
   parser.add_argument('--sample_json', dest='sample_json', default='../../data/sample.json', type=str)
   parser.add_argument('--histogram_json', dest='histogram_json', default='../../data/histogram.json', type=str)
   parser.add_argument("--only_signal", dest = 'only_signal', action = 'store_true')
-  parser.add_argument("--overflow", dest = 'overflow', action = 'store_true')
+  parser.add_argument("--nooverflow", dest = 'nooverflow', action = 'store_true')
   parser.add_argument("--normalize", dest = 'normalize', action = 'store_true')
   parser.add_argument("--block_sample", dest='block_sample', nargs='+', default=[])
   parser.add_argument("--ymax", dest='ymax', type=float)
@@ -323,4 +325,4 @@ if __name__ == "__main__":
   for era in Era:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
-        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.overflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)
+        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.nooverflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)
