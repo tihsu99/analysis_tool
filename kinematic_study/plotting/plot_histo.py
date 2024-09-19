@@ -255,9 +255,15 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     canvas.addObject(resultLegend.legend, clone = False)
     canvas.applyStyles()
     if args.unblind:
-      canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+      if logy:
+        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel,'log'), histogram, logy=logy)
+      else:
+        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
     else:
-      canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
+      if logy:
+        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
+      else:
+        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
 
 if __name__ == "__main__":
 
