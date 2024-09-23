@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
   for sig_ in signal_list:
     command = 'python3 ReBin.py --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json)
-    prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir)
+    prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir, True)
 
   condor.close()
   if not args.test:
