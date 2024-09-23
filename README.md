@@ -1,24 +1,23 @@
 # Analysis Tool
 This tool is made for plotting distribution, skim the root files (`kinematic_study`), and further proceed to limit extraction. The main input is controled by the `json` files in `data` and main functions are defined in the `h` files in `script`. Since it utilize the novel function in RDataFrame, it **requires ROOT v6.26** and thus **do not run cmsenv**(except for **limit study**) , otherwise it will conflict with each other.
 
-To run on lxplus9:
-```
-cmssw-el7
-```
+Run on lxplus9:
+
 # Installation
 To install combine tools, we follow combine v9 recommodation
 ```
-cmsrel CMSSW_11_3_4
-cd CMSSW_11_3_4/src
+cmsrel CMSSW_14_1_0_pre4
+cd CMSSW_14_1_0_pre4/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 ```
-Update to a recommended tag - currently the recommended tag is v9.1.0.
+Update to a recommended tag - currently the recommended tag is v10.0.2
+https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/#combine-v10-recommended-version
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v9.1.0
+git checkout v10.0.2
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 Install CombineHarvester package
@@ -26,7 +25,6 @@ Install CombineHarvester package
 cd $CMSSW_BASE/src
 git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester
 cd CombineHarvester
-git checkout v2.0.0
 scram b
 ```
 Install this package
@@ -35,7 +33,6 @@ cd $CMSSW_BASE/src
 git clone git@github.com:ExtraYukawa/bHplusAnalysis.git
 cd bHplusAnalysis
 ```
-Please note that `LimitModel` needs to be run under `cmssw-el7` while other parts do not. Please make sure to run `cmssw-el7` when performing limit study.
 
 # Running the code
 To produce root files, follow https://github.com/ExtraYukawa/bHplusAnalysis/tree/main/kinematic_study/produce_root_file 
