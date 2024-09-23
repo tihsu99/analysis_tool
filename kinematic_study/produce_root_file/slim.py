@@ -43,7 +43,7 @@ def Slim_module(filein,
                 multi_class_pNN=False,
                 cutflow_store=False,
                 SubProcess = None,
-                toppt = False,
+                notoppt = False,
                 not_ensemble = False,
                 train = False):
 
@@ -81,7 +81,7 @@ def Slim_module(filein,
   else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', filein).replace('.root','')
 
   # sample_category mainly used for nuisance def.
-  sample_category = samples[sample_name]['Category'] 
+  sample_category = samples[sample_name]['Category']
   sample_category = 'Signal' if 'Signal' in sample_labels else sample_category
 
   path    = str(inputFile_path[era])
@@ -93,7 +93,7 @@ def Slim_module(filein,
     fileOut = os.path.join(output_dir, str(index) + "_" + filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
   else:
-    fileOut = os.path.join(output_dir, filein) 
+    fileOut = os.path.join(output_dir, filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
 
   if not SubProcess is None and ('SubProcess' in samples[sample_name]):
@@ -125,7 +125,7 @@ def Slim_module(filein,
     entry_list = ROOT.TEntryList()
     entry_list.EnterRange(start, end, tree)
     tree.SetEntryList(entry_list)
- 
+
   df   = ROOT.RDataFrame(tree)
   print(colored(fin,'green'), colored(start,'cyan'), colored(end,'cyan'))
   BranchList = df.GetColumnNames()
@@ -156,17 +156,21 @@ def Slim_module(filein,
   if "Data" in sample_labels:
     weight_def = 1       # Data weight is also to be 1
     nuisances_valid = [] # Nuisances only affect MC
-  if toppt:
-    if "TTTo1L" in filein or "TTTo2L" in filein:
-      print (colored('--> For ttbar apply toppt_weight','yellow'))
-      weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
+  # Apply toppt by default
+  if "TTTo1L" in filein or "TTTo2L" in filein:
+    print (colored('--> For ttbar apply toppt_weight','yellow'))
+    weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
+
+  if notoppt and not "Data" in sample_labels:
+    weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf"
+
 
 
   #################################
   ##  Assign Train / Test Label  ##
   #################################
-  df = df.Define(str("prob_2b"), str(samples[sample_name]["Train_ratio"]["2b"])) 
-  df = df.Define(str("prob_3b"), str(samples[sample_name]["Train_ratio"]["3b"])) 
+  df = df.Define(str("prob_2b"), str(samples[sample_name]["Train_ratio"]["2b"]))
+  df = df.Define(str("prob_3b"), str(samples[sample_name]["Train_ratio"]["3b"]))
 
   #######################
   ##  Define Variable  ##
@@ -283,10 +287,10 @@ def Slim_module(filein,
   for trigger_name in triggers:
     if not channel in triggers[trigger_name]["Channel"]: continue
     if "Data" in sample_labels and not sample_name in triggers[trigger_name]["Dataset"]: continue
-    if not "Data" in sample_labels: 
+    if not "Data" in sample_labels:
       trigger_cut = str(triggers[trigger_name]["Triggers"][era]["MC"])
     else:
-      sub_era = filein.replace('.root', '').replace(sample_name + "_", '') 
+      sub_era = filein.replace('.root', '').replace(sample_name + "_", '')
       if sub_era in triggers[trigger_name]["Triggers"][era][sample_name]:
         trigger_cut = triggers[trigger_name]["Triggers"][era][sample_name][sub_era]
       else:
@@ -296,7 +300,7 @@ def Slim_module(filein,
     df = df.Filter(str(trigger_name), str(trigger_name))
     print(trigger_name, str(trigger_cut))
     if cutflow_store:
-      cutflow[trigger_name] = df.Sum("weight").GetValue() 
+      cutflow[trigger_name] = df.Sum("weight").GetValue()
 
   # channel cut
   for cut_name in cuts[region]["channel_cut"][channel]:
@@ -430,7 +434,7 @@ def Slim_module(filein,
   # POIs consider DNN for different mass
   POIs_after_consider_mass = []
   for POI_ in POIs:
-    if (POI_ == 'DNN' or POI_ == 'DNNScore') and (pNN or multi_class_pNN): 
+    if (POI_ == 'DNN' or POI_ == 'DNNScore') and (pNN or multi_class_pNN):
         for mass_ in Mass_bin:
           POIs_after_consider_mass.append('{}{}'.format(POI_, mass_))
     elif multi_class_pNN and ( "DNN_category" in cuts[region]):
@@ -478,7 +482,7 @@ def Slim_module(filein,
     elif (Histograms[Histogram]["cut"] is None): df_plot = df
     else: df_plot = df.Filter(str(Histograms[Histogram]["cut"]))
 
- 
+
     Histogram_definition = Histograms[Histogram]['definition'] if 'definition' in Histograms[Histogram] else str(Histogram)
     df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
     Histos_from_df[Histogram] = df_histo
@@ -538,14 +542,14 @@ def Slim_module(filein,
     if "Children" in variables[variable]:
         for child_ in variables[variable]["Children"]:
             columns.push_back(str(child_))
-   
+
   if not "Data" in sample_labels:
     columns.push_back('weight')
     df = df.Define("weight_n_Norm", "weight * %f"%(scale))
     columns.push_back('weight_n_Norm')
     columns.push_back('toppt_weight') #gkole
     columns.push_back('Pileupjetid_sf')
-    
+
   if 'eos' in fileOut and 'root://eosuser.cern.ch//' not in fileOut:
     fileOut = 'root://eosuser.cern.ch//{}'.format(fileOut)
 
@@ -555,7 +559,7 @@ def Slim_module(filein,
   #######################
   ##  Store Histogram  ##
   #######################
-  
+
   FileOut = ROOT.TFile.Open(fileOut, "Update")
   FileOut.cd()
   for ij in range(0, len(Histos)):
@@ -602,7 +606,7 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", action='store_true')
   parser.add_argument("--cutflow", action='store_true')
   parser.add_argument("--SubProcess", type=str, default = None)
-  parser.add_argument("--toppt",   action='store_true')
+  parser.add_argument("--notoppt",   action='store_true', default = 'False')
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   action='store_true')
 
@@ -630,9 +634,8 @@ if __name__ == "__main__":
               cutflow_store = args.cutflow,\
               SubProcess = args.SubProcess,\
               multi_class_pNN = args.multi_class_pNN,\
-              toppt = args.toppt,\
+              notoppt = args.notoppt,\
               not_ensemble = args.not_ensemble,
               train = args.train)
   end_time = time.time()
   print('process time', end_time - start_time)
-

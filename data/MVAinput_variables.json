@@ -213,6 +213,33 @@
     "Label": ["Control_plot"]
   },
 
+  "j1_phi":{
+    "Title": ";Leading Jet #phi; nEntries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "j2_phi":{
+    "Title": ";Subleading Jet #phi; nEntries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "j3_phi":{
+    "Title": ";Third leading Jet #phi; nEntries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
   "DeepB_medium_j1_eta":{
     "Title": ";Leading b Jet #eta; nENtries",
     "xlow": -2.4,
@@ -237,6 +264,33 @@
     "xhigh": 2.4,
     "nbin": 12,
     "plottingbins": [-2.4, -2.0, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4],
+    "Label": ["Control_plot"]
+  },
+
+    "DeepB_medium_j1_phi":{
+    "Title": ";Leading b Jet #phi; nENtries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j2_phi":{
+    "Title": ";Subleading b Jet #phi; nENtries",
+   "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "DeepB_medium_j3_phi":{
+    "Title": ";Third leading b Jet #phi; nENtries",
+    "xlow":  -3.2,
+    "xhigh": 3.2,
+    "nbin":  32,
+    "plottingbins": [-3.14, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
     "Label": ["Control_plot"]
   },
 
@@ -404,5 +458,13 @@
     "nbin": 100,
     "plottingbins": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500],
     "Label": ["Control_plot"]
-    }
+    },
+  "Lepton_topMVA":{
+    "Title": ";Lepton MVA; nEntries",
+    "xlow":  -1,
+    "xhigh": 1,
+    "nbin":  20,
+	  "plottingbins": [0.8, 0.9, 0.925, 0.950, 0.975, 1.0],
+    "Label": ["Control_plot"]
+  }
 }

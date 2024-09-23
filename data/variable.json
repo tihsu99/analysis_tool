@@ -3,17 +3,17 @@
 	  "Def": "Defined",
 	  "Label": ["Normal", "MC"]
   },
-    
+
   "toppt_weight":{
   	"Def":  "top_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)",
    	"Label": ["Normal", "MC"]
   },
-    
-    
+
+
   "MET_T1Smear_phi_RVec":{
 	  "Def": "ROOT::RVec{MET_T1Smear_phi}",
 	  "Label": ["Normal", "MC"]
-  },  
+  },
 
   "MET_T1Smear_phi_v":{
     "Def": "MET_T1Smear_phi_RVec[0]",
@@ -160,7 +160,7 @@
     "Category": {"ele_resolved": "bh_region",
       	         "mu_resolved":  "bh_region"},
     "Label": ["Normal"]
-  
+
   },
 
   "PFMuon":{
@@ -282,7 +282,7 @@
   	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 1.0)",
  	  "Label": ["Normal", "MC"]
   },
-    
+
   "Pileupjetid_sf_down":{
 	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, -1.0)",
 	  "Label": ["Normal", "MC"]
@@ -319,7 +319,7 @@
     "Def": "Defined",
     "Label": ["Normal"]
   },
-  
+
   "met_phi_corr":{
     "Def": "METXYCorr_Met_MetPhi(met_pt, met_phi, run, PV_npvs)",
     "Label": ["Normal"],
@@ -342,7 +342,7 @@
     "Label": ["Normal"],
     "Save":  ["BDT_training"]
   },
-   
+
   "Lepton_E":{
     "Def": "sqrt(Lepton_pt*Lepton_pt*(cosh(Lepton_eta)*cosh(Lepton_eta)) + Lepton_mass*Lepton_mass)",
     "Label": ["Reco", "Normal"]
@@ -411,7 +411,7 @@
     "Def": "Diobject_kinematic(Lepton_pt, Lepton_eta, Lepton_phi, Lepton_mass, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, Jet_btagDeepFlavB, tightJets_id_in24, tightJets_b_DeepJetmedium_id, met_phi)",
     "Children": ["deltaR_lb1", "deltaR_lb2", "deltaR_lb3", "deltaR_b1b2", "deltaR_b2b3", "deltaR_b1b3", "deltaR_non_b_l", "non_b_j1_pt", "non_b_j1_eta", "non_b_j1_phi", "non_b_j1_mass", "b1_pt", "b1_eta", "b1_phi", "b1_mass", "b2_pt", "b2_eta", "b2_phi", "b2_mass", "b3_pt", "b3_eta", "b3_phi", "b3_mass", "b1_FlavB", "b2_FlavB", "b3_FlavB", "non_b_j1_FlavB", "inv_m_b1b2", "inv_m_b2b3", "inv_m_b1b3", "inv_m_lb1b2", "inv_m_lb2b3", "inv_m_lb1b3", "inv_m_non_b_l","delta_phi_l_met", "inv_m_lb1", "inv_m_lb2", "inv_m_lb3"],
     "Label": ["Normal"],
-    "Save": ["BDT_training"] 
+    "Save": ["BDT_training"]
   },
 
   "LHE_Nb":{
@@ -430,5 +430,13 @@
     "Def": "Assign_Train_Label(prob_2b, prob_3b, n_bjet_DeepB_v)",
     "Label": ["Normal", "MC"],
     "Save": ["BDT_training"]
+  },
+
+  "Lepton_topMVA":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_mvaTOP[bh_l1_id]",
+                 "mu_resolved":  "Muon_mvaTOP[bh_l1_id]"},
+    "Label": ["Normal"],
+    "Save":  [""]
   }
 }
