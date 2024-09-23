@@ -2,6 +2,7 @@
 ## 0.1 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
 To initialization and rebin:
 ```
+cp physics_model/g2HDM.py ../../HiggsAnalysis/CombinedLimit/python/g2HDM.py
 python Init.py --year 2017 --channel all -b muPt btag
 python ReBin.py -y 2017  --inputdir [--YOUR DIRECTORY]  --unblind --POI bh_HT
 ```
