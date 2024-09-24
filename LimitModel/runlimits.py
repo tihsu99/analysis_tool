@@ -1,5 +1,5 @@
-import os 
-import numpy as np 
+import os
+import numpy as np
 import sys, optparse,argparse
 from LimitHelper import *
 from Util.General_Tool import CheckFile
@@ -22,7 +22,7 @@ parser.add_argument("--Masses",help='List of masses point. Default list=[200,300
 parser.add_argument("--plot_only",help='Plot Only',action="store_true")
 parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
 parser.add_argument("--plot_y_min",help='Plot Only',default=0.1,type=float)
-parser.add_argument("--datacarddir", help='datacard directory', default='datacards_test', type=str)
+parser.add_argument("--datacard_dir", help='datacard directory', default='datacards_test', type=str)
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
@@ -75,7 +75,7 @@ else:pass
 
 if args.plot_only:
 
-  if args.Scan2DNLL: 
+  if args.Scan2DNLL:
       for imass in mass_points:
           mH = str(imass)
           RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name)
@@ -96,7 +96,7 @@ if args.plot_only:
     print(TGraph_File_dict)
     Plot_2D_Limit_For(TGraph_File_dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, y_axis_title = 'R_{b}', ratio_file = args.ratio_file)
     Plot_1D_Limit_For(TGraph_File_dict, args.unblind, y_max=args.plot_y_max, y_min=args.plot_y_min, year=[args.year], region=[args.region], channel=[args.channel], outputFolder=args.outputdir, Masses=args.Masses, mode = "Rb", legend_dict={(0.1*0):'pp\\rightarrow bH^{+}', (0.1*10):'pp\\rightarrow bH^{+} + H^{+}'}, AN=True)
-  else:                
+  else:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
     RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
@@ -121,24 +121,24 @@ if args.plot_only:
       print(mass_bin)
       print(signal_xsec)
       signal_xsec_TGraph = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
-      
+
       RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph)
 else:
     counter=0
-    template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacarddir, year=year, signal=signal_name_template, region=region, channel=channel)
+    template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=year, signal=signal_name_template, region=region, channel=channel)
     #datacards_2016apv_ttu/ttu_rtu04_datacard_2016apv_SR_em_em_MA1000.txt
     for imass in mass_points:
         mH = str(imass)
         card_name = template_card.replace("MASS", mH)
         if args.Scan2DNLL:
-          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacarddir, out_dir=os.path.join(args.outputdir, '2DNLL'))
+          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'))
 
         elif not args.Scan2D:
-          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacarddir, log_dir='datacard_log')  
+          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log')
           mode_ = "w"
-        
+
           if counter==0: mode_="w"
-        
+
           param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
           limitlogfile = RL.LogToLimitList(logname,param_list,mode_)
           counter=counter+1
@@ -147,22 +147,20 @@ else:
           mode_ = 'w'
           for Rb in [0.1 * i for i in range(11)]:
             extraCommand = '--redefineSignalPOIs {POI}  --setParameters Rb={Rb},{POI}=0.0 --freezeParameters Rb --defineBackgroundOnlyModelParameters {POI}=0,Rb={Rb}'.format(Rb=Rb, POI=args.POI_name)
-            logname = RL.getLimits(card_name.replace('txt','root'),asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacarddir, log_dir='datacard_log', logname=card_name.replace('.txt','_%s_Rb%.1f.log'%(args.POI_name, Rb)), extraCommand = extraCommand)
+            logname = RL.getLimits(card_name.replace('txt','root'),asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log', logname=card_name.replace('.txt','_%s_Rb%.1f.log'%(args.POI_name, Rb)), extraCommand = extraCommand)
             param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
             print('post logname:', logname)
             limitlogfile = RL.LogToLimitList(logname, param_list, mode_, postfix='_%s_Rb%.1f'%(args.POI_name, Rb), POI=args.POI_name)
-## this is out of the for loop 
+## this is out of the for loop
 
-### scale the limits with cross-section 
+### scale the limits with cross-section
 
 # set to 1 not to have any additional scales (before it was 0.01 - see below)
-#RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination 
+#RL.getlimitScaled_1D(_value,1) ## 0.01 is the division factor as this is used in the datacards to make fit stable to avoid very small limit values specially the combination
 
-### convert text file to root file 
+### convert text file to root file
 
 
-### save the .root file into a pdf file for presentations  
+### save the .root file into a pdf file for presentations
 
 print("Run time for the current program is : {}".format(time.time()-start_time))
-    
- 
