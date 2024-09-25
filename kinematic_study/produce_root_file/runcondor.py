@@ -125,6 +125,12 @@ if __name__ == "__main__":
   farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
 
+  # Check if the farm_dir exits or not
+  if os.path.exists(farm_dir):
+    print (colors.colordict['RED']+f"Directory '{farm_dir}' already exists. Delete it for fresh sbmission"+colors.colordict['CEND'])
+    print (colors.colordict['ORANGE']+f"Or browse '{farm_dir}' for more options"+colors.colordict['CEND'])
+    sys.exit(1)
+
   os.system('mkdir -p %s '%farm_dir)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
 

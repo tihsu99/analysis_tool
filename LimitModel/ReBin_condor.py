@@ -17,7 +17,7 @@ if __name__ == '__main__':
   parser.add_argument('--region', help='List of regions', default=['all'], nargs='+')
   parser.add_argument('--channel', help='List of channels', default=['all'], nargs='+')
   parser.add_argument('--signal', help='List of signals', default=['all'], nargs='+')
-  parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./FinalInputs')
+  parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./')
   parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
   parser.add_argument('--cut_json', default = '../data/cut.json')
   parser.add_argument('--analysis_name', default='bH')
