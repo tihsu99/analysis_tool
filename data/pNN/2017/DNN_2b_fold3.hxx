@@ -1,4 +1,4 @@
-//Code generated automatically by TMVA for Inference of Model file [DNN_2b_fold3.onnx] at [Mon Jul  1 07:57:48 2024] 
+//Code generated automatically by TMVA for Inference of Model file [DNN_2b_fold3.onnx] at [Wed Sep 25 03:12:41 2024] 
 
 #ifndef TMVA_SOFIE_DNN_2B_FOLD3
 #define TMVA_SOFIE_DNN_2B_FOLD3
@@ -17,9 +17,9 @@ namespace BLAS{
 	                       const float * beta, float * C, const int * ldc);
 }//BLAS
 struct Session {
-std::vector<float> fTensor_linearrelustack9weight = std::vector<float>(128);
+std::vector<float> fTensor_linearrelustack9weight = std::vector<float>(8);
 float * tensor_linearrelustack9weight = fTensor_linearrelustack9weight.data();
-std::vector<float> fTensor_linearrelustack6weight = std::vector<float>(4096);
+std::vector<float> fTensor_linearrelustack6weight = std::vector<float>(256);
 float * tensor_linearrelustack6weight = fTensor_linearrelustack6weight.data();
 std::vector<float> fTensor_linearrelustack3bias = std::vector<float>(32);
 float * tensor_linearrelustack3bias = fTensor_linearrelustack3bias.data();
@@ -29,15 +29,15 @@ std::vector<float> fTensor_linearrelustack9bias = std::vector<float>(1);
 float * tensor_linearrelustack9bias = fTensor_linearrelustack9bias.data();
 std::vector<float> fTensor_linearrelustack0bias = std::vector<float>(128);
 float * tensor_linearrelustack0bias = fTensor_linearrelustack0bias.data();
-std::vector<float> fTensor_linearrelustack6bias = std::vector<float>(128);
+std::vector<float> fTensor_linearrelustack6bias = std::vector<float>(8);
 float * tensor_linearrelustack6bias = fTensor_linearrelustack6bias.data();
 std::vector<float> fTensor_linearrelustack0weight = std::vector<float>(1664);
 float * tensor_linearrelustack0weight = fTensor_linearrelustack0weight.data();
 std::vector<float> fTensor_15 = std::vector<float>(1);
 float * tensor_15 = fTensor_15.data();
-std::vector<float> fTensor_input15 = std::vector<float>(128);
+std::vector<float> fTensor_input15 = std::vector<float>(8);
 float * tensor_input15 = fTensor_input15.data();
-std::vector<float> fTensor_input19 = std::vector<float>(128);
+std::vector<float> fTensor_input19 = std::vector<float>(8);
 float * tensor_input19 = fTensor_input19.data();
 std::vector<float> fTensor_input7 = std::vector<float>(32);
 float * tensor_input7 = fTensor_input7.data();
@@ -63,8 +63,8 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor name; expected name is tensor_linearrelustack9weight , read " + tensor_name;
       throw std::runtime_error(err_msg);
     }
-   if (length != 128) {
-      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 128 , read " + std::to_string(length) ;
+   if (length != 8) {
+      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 8 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
     for (int i =0; i < length; ++i) 
@@ -74,8 +74,8 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor name; expected name is tensor_linearrelustack6weight , read " + tensor_name;
       throw std::runtime_error(err_msg);
     }
-   if (length != 4096) {
-      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 4096 , read " + std::to_string(length) ;
+   if (length != 256) {
+      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 256 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
     for (int i =0; i < length; ++i) 
@@ -129,8 +129,8 @@ Session(std::string filename ="") {
       std::string err_msg = "TMVA-SOFIE failed to read the correct tensor name; expected name is tensor_linearrelustack6bias , read " + tensor_name;
       throw std::runtime_error(err_msg);
     }
-   if (length != 128) {
-      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 128 , read " + std::to_string(length) ;
+   if (length != 8) {
+      std::string err_msg = "TMVA-SOFIE failed to read the correct tensor size; expected size is 8 , read " + std::to_string(length) ;
       throw std::runtime_error(err_msg);
     }
     for (int i =0; i < length; ++i) 
@@ -191,17 +191,17 @@ std::vector<float> infer(float* tensor_onnxGemm0){
    char op_4_transA = 'n';
    char op_4_transB = 't';
    int op_4_m = 1;
-   int op_4_n = 128;
+   int op_4_n = 8;
    int op_4_k = 32;
    float op_4_alpha = 1;
    float op_4_beta = 1;
    int op_4_lda = 32;
    int op_4_ldb = 32;
-   std::copy(tensor_linearrelustack6bias, tensor_linearrelustack6bias + 128, tensor_input15);
+   std::copy(tensor_linearrelustack6bias, tensor_linearrelustack6bias + 8, tensor_input15);
    BLAS::sgemm_(&op_4_transB, &op_4_transA, &op_4_n, &op_4_m, &op_4_k, &op_4_alpha, tensor_linearrelustack6weight, &op_4_ldb, tensor_input11, &op_4_lda, &op_4_beta, tensor_input15, &op_4_n);
 
 //------ RELU
-   for (int id = 0; id < 128 ; id++){
+   for (int id = 0; id < 8 ; id++){
       tensor_input19[id] = ((tensor_input15[id] > 0 )? tensor_input15[id] : 0);
    }
 
@@ -210,11 +210,11 @@ std::vector<float> infer(float* tensor_onnxGemm0){
    char op_6_transB = 't';
    int op_6_m = 1;
    int op_6_n = 1;
-   int op_6_k = 128;
+   int op_6_k = 8;
    float op_6_alpha = 1;
    float op_6_beta = 1;
-   int op_6_lda = 128;
-   int op_6_ldb = 128;
+   int op_6_lda = 8;
+   int op_6_ldb = 8;
    std::copy(tensor_linearrelustack9bias, tensor_linearrelustack9bias + 1, tensor_15);
    BLAS::sgemm_(&op_6_transB, &op_6_transA, &op_6_n, &op_6_m, &op_6_k, &op_6_alpha, tensor_linearrelustack9weight, &op_6_ldb, tensor_input19, &op_6_lda, &op_6_beta, tensor_15, &op_6_n);
 	std::vector<float> ret (tensor_15, tensor_15 + 1);
