@@ -395,8 +395,9 @@ if __name__ == "__main__":
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
              if args.half in ['train', 'test']:
-               num_bjet = '2b' if '2b' in region else '3b'
+               num_bjet = '2b' if '2b' in region else '3b' # TODO: Hard coded
                ratio = samples[sample_name]['Train_ratio'][num_bjet]
+               ratio = 1.0 if '1b' in region else ratio # TODO: Hard coded
                if (args.half == 'train'): norm_factor = norm_factor * (1. / (ratio + 1e-10))
                else: norm_factor = norm_factor * (1. / (1. - ratio + 1e-10))
            else: # data doesn't need to be normalized by lumi x cross section
