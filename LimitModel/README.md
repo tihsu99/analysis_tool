@@ -1,4 +1,4 @@
-# 0. Cheat sheet 
+# 0. Cheat sheet
 ## 0.1 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
 To initialization and rebin:
 ```
@@ -23,15 +23,15 @@ python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FinalYieldCompu
 python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type preFit --plotRatio
 python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type postFit --plotRatio
 python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode diffNuisances --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotPulls --mass_point 800 
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doInitFit --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotPulls --mass_point 800
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doInitFit --mass_point 800
 python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doFits --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode SubmitGOF --mass_point 800 
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode SubmitGOF --mass_point 800
 ```
 After condor finishes the job.
 ```
 python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Plot_Impacts --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode GoFPlot --mass_point 800  
+python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode GoFPlot --mass_point 800
 ```
 # 1. Initialization
 
@@ -60,7 +60,7 @@ python Init.py --year 2016postapv --channel all --breakdown
 ```
 Currently, the groups of uncertainties are theory and experimental. If one want to customize the group, please go to [Init_Tool/Nuisance_Producer.py](https://github.com/ExtraYukawa/LimitModel/blob/ZhengGang_dev2/Init_Tool/Nuisance_Producer.py)
 
-The additional json file name is like 
+The additional json file name is like
 - data_info/NuisanceList/nuisance_group_{YEAR}_{CHANNEL}.json # contain the group element information, which will feed into datacards.
 
 ## 1.2 Block unwanted nuisances (You can skip this)
@@ -68,40 +68,40 @@ The additional json file name is like
 If you don't want _chargeflipYEAR nuisances for ee channel in year2017 for example, you can remove it through the argument --blacklist
 ```
 cd $CMSSW_BASE/src/HiggsAnalysis/LimitModel/
-python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR  
+python Init.py --year 2017 --channel ee --blacklist _chargefilpYEAR
 ```
 
 
 ## 1.3 Calculate logN uncertainty for category (Option)
 To get information about logN uncertainty for merged category. Please use following command. With BDT cut, different signal will affect BDT shape and thus background composition. The average uncertainty will be affected but it was found to have negligible affect. `You need to enter the number to the corresponding code by hand if you want to change category uncertainty` since we want to keep the category uncertainty fixed and maintained in github in current stage.
 ```
-python study_bkg_composition.py 
+python study_bkg_composition.py
 ```
 
 
-# 2. Rebin and merging of processes 
+# 2. Rebin and merging of processes
 
 ## 2.1 Commands for histograms rebinning for original BDT_output files
 
 **Please note that if root file is produced under lxplus9, the ReBin should be run under lxplus9 condition also (which is not consistent with cmssw-el7)**
-Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `Util/General_Tool.py`, please edit it if you want to change binning): 
+Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `Util/General_Tool.py`, please edit it if you want to change binning):
 ```
-1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added. 
-2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs. 
+1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added.
+2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs.
 ```
 
 Normally, you should use the following commands. (By default, the code will wrong all the channels, regions, and signals contain in the `data/sample.json` and `data/cut.json`)
 ```
-python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] 
+python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal]
 ```
 
-## 2.2 Quiet the thousands of warning message 
+## 2.2 Quiet the thousands of warning message
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
 python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal] [--quiet]
 ```
-Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there is any nuisances you do not set correctly, like typo. 
+Note: But you should be care of using [-q/--quiet], because it will ignore some important information while there is any nuisances you do not set correctly, like typo.
 
 And once this step is done, there are several rebined root files under `FinalInputs`.
 
@@ -109,7 +109,7 @@ And once this step is done, there are several rebined root files under `FinalInp
 
 In this section is aimming to explain how to prepare the datacards by yourself. But for people who want to get datacard quickly can simply skip the things to section `3.3 Quick command-list for datacard productions`
 
-## 3.1 Pre-requists for datacards template production 
+## 3.1 Pre-requists for datacards template production
 
 The next step is to create the datacards. The input needed for making datacards are:
 1. data_info/Datacard_Input/{Year}/Datacard_Input_{channel}.json
@@ -124,15 +124,15 @@ So make sure you already `have/update` them, otherwise the datacard would give t
 
 If you already make sure the above steps are settle, then you can produce the template datacards for certain channel in certain year with:
 
-``` 
+```
 python prepareCards.py --year {list of 2016apv/2016postapv/2017/2018} [--channel] [--region] [--combined] [--signal/--mass] [--outdir]
 ```
 By default, the code will run through all the channels, regions, so no need to specify `--channel`, `--year`, `--region`. `--signal` can specify the wanted list of signals, and if it is not specified `--mass` can be used instead to specify the signal Higgs mass (the signal sample naming rule is hardcoded in the code). `--outdir` means the datacard output directory name. `--combined` triggers the combination of all the era, channel, and region for all the combination (i.e. accumulate the lists of years to `run2`, all the channels to `C`)
 
 ### 3.2.2 Uncertainties breakdown (TODO)
 
-To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2. 
-Once you have it, then you just need to use [--breakdown] for template production: 
+To have the categorized uncertainties, you should already have the corresponding json file. Please go to Section 1.2.
+Once you have it, then you just need to use [--breakdown] for template production:
 ```
 python prepareCards.py -y {year:2016apv/2016postapv/2017/2018} -c {channel:ee/em/mm} --For template --breakdown {1,2,3} -reg 'SR_{channel:ee/em/mm}'
 ```
@@ -146,21 +146,21 @@ N.B: if you want to compute unblinded results, then add ``--unblind`` while run 
 
 Note!!!: The pre-requiest for this is the corresponding datacard.
 
-You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :). 
+You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :).
 ```
-python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] 
+python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory]
 ```
-#### Plot Limits 
+#### Plot Limits
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacarddir [datacard directory] --outputdir [your/favoured/output/folder] --plot_only;
+python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --plot_only;
 ```
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
 # 5. For impacts and pulls and post/pre-fit distribution
 
-Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.  
+Note: if you want to do this for interference samples, please add `--interference`. And mass_point is corresponding to higgs A.
 Note: Since it takes too much space to store all the information, we suggest to make the workspace under eos directory, simply adding `--outdir [path/to/workspace]` after each step, then the code will automatically create and operate in that directory automatically.
 
 N.B: if you want to compute unblinded results, then add ``--unblind`` while run the command.
@@ -171,7 +171,7 @@ Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode datacard2workspace [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )  
+Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )
 ```
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FitDiagnostics [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
@@ -182,7 +182,7 @@ After this, you will have latex table with yields value (and error values) for e
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FinalYieldComputation [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step3 -> preFit distribution. O(time) ~ 1 sec 
+Step3 -> preFit distribution. O(time) ~ 1 sec
 ```
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
 ```
@@ -202,7 +202,7 @@ Step6 -> Plot the pulls.
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotPulls [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
-Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined. 
+Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined.
 ```
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doInitFit [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
@@ -221,10 +221,10 @@ Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
 python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Plot_Impacts [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
-Step9 : Goodness of Test 
+Step9 : Goodness of Test
 Firstly, you need to submit the jobs to condor for 50 toys for GoF
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default] 
+python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
 ```
 Then, after all the jobs are completed, you can plot it with
 ```
@@ -265,7 +265,7 @@ The first step is create a Job_bus file (just a text file) with
 python ./Util/prepareJobs.py --mode write
 ```
 
-And you will see something like 
+And you will see something like
 ```
 You Job_bus file with name -> Job_bus/lqhAti.txt is created.
 Use [--mode append] and [--Job_bus_Name filename] to append the following task.
@@ -274,7 +274,7 @@ In this example, Job_bus file name is `Job_bus/lqhAti.txt`
 
 Then the next step is to add the job into the Job_bus file, so in our case, we want to calculate the limits value in low mass regime for higgs A for run2 channel-conbined, then
 ```
-python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2 
+python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 300 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 350 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 400 --channel C --coupling_value rtc04 --higgs A --year run2
@@ -283,13 +283,13 @@ python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot 
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 200 --channel C --coupling_value rtc04 --higgs A --year run2
 python Util/prepareJobs.py -i Job_bus/lqhAti.txt --mode append --task LimitPlot --mass_point 250 --channel C --coupling_value rtc04 --higgs A --year run2 --interference #if you want to use interference sample
 ```
-And you can use 
+And you can use
 ```
 python Util/prepareJobs.py --mode read -i Job_bus/lqhAti.txt
 ```
 to read the content of Job_bus/lqhAti.txt.
 
-Also, you can use 
+Also, you can use
 ```
 python Util/prepareJobs.py --mode reset -i Job_bus/lqhAti.txt
 ```
@@ -328,7 +328,7 @@ python ./Merged_Plots.py --channel C --year run2 --coupling_values rtu0p1 rtu0p4
 This section is mainly for saving the results in AN structure specifically.
 Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
 ```
-source example/IntegrateResults.sh rtc /your/output/folder/for/ 
+source example/IntegrateResults.sh rtc /your/output/folder/for/
 ```
 Then, please check created folders for:
 - ttc_merged
@@ -346,7 +346,7 @@ python Results_Integrate.py --mode SignalExtraction --year 2018 --channel ee --m
 ```
 ## 8.3 Small example for integrating limit plots (only merged ones)
 Let's say if your original merged-limit folder was: /your/output/folder/for/merged/plots_limit:
-Then: 
+Then:
 ```
 python Results_Integrate.py --mode LimitPlots --limit_original_dir /your/output/folder/for/ --coupling rtu
 ```
@@ -377,7 +377,7 @@ sh example/step4_merge_plot.sh [rtc/rtu] [outputdir] [--unblind]
 ```
 Plot 2D limit (Probably need to reopen lxplus and run without `cmsenv`.
 ```
-sh example/step4_2_merge_plot_2D.sh [outputdir] [--unblind] 
+sh example/step4_2_merge_plot_2D.sh [outputdir] [--unblind]
 ```
 
 ### Step5. Make limit table
@@ -416,7 +416,7 @@ To compared two expected limit, please enter the comparison directories name lik
 python example/compare_different_limit.py --ref_dir [dir_for_comparison] --new_dir [dir_for_comparison] --coupling_values rtc0p1 rtc0p4 rtc1p0 [--interference]
 ```
 
-# 9. Trouble Shooting 
+# 9. Trouble Shooting
 
 ## 9.1 Possible bugs in ReBin.py
 
@@ -477,7 +477,7 @@ python ./SignalExtraction_Estimation.py -y run2 -c C --mode Impact_doInitFit  --
 
 ### 10. Appendix from Raman
 
-## For signal shape comparison 
+## For signal shape comparison
 python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work/k/khurana/public/AnalysisStuff/ttc
 
 
@@ -485,7 +485,7 @@ python OverlappingPlots.py; cp -r plots_SignalShapeComparison/ /afs/cern.ch/work
 sigscale rateParam * TAToTTQ_rtc01_MA350 0.01 [0.009999,0.01111]
 
 
-## Stack plots 
+## Stack plots
 python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root ee asimov 20161718
 python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root em asimov 20161718
 python stackhist.py fitDiagnostics_C_20161718_asimov_t_0_SignalExtractionChecks2017.root mm asimov 20161718
@@ -494,15 +494,15 @@ nuisance edit rename * * jes2016 jes2017
 nuisance edit rename * * jes2018 jes2017
 nuisance edit rename * * jes2016apv jes2017
 
-page 124 of the AN for theory cross-section uncertainty 
+page 124 of the AN for theory cross-section uncertainty
 
 
 
-## limit model for 1 year is done now. 
-## nuisnace shapes used for the fitting 
-## Signal shape comparison 
-## post fit plots 
-## combination for full Run 2 
-## fit diagnostics test, mainly pulls, impacts and goodness of fit for the model. 
-## add the interference samples to see the results. 
-## perform 2d scans.  
+## limit model for 1 year is done now.
+## nuisnace shapes used for the fitting
+## Signal shape comparison
+## post fit plots
+## combination for full Run 2
+## fit diagnostics test, mainly pulls, impacts and goodness of fit for the model.
+## add the interference samples to see the results.
+## perform 2d scans.
