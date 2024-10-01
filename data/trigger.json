@@ -15,7 +15,7 @@
   },
   "SingleEG_trigger": {
     "Channel": ["ele", "ee", "ele_resolved"],
-    "Dataset": ["SingleEG", "SinglePhoton"],
+    "Dataset": ["SingleEG", "SinglePhoton", "EGamma"],
     "Triggers": {"2016apv": {"MC": "HLT_Ele27_WPTight_Gsf || HLT_Ele115_CaloIdVT_GsfTrkIdT || HLT_Photon175",
                              "SingleEG": {"Default": "HLT_Ele27_WPTight_Gsf || HLT_Ele115_CaloIdVT_GsfTrkIdT"},
                              "SinglePhoton": {"Default": "(!(HLT_Ele27_WPTight_Gsf || HLT_Ele115_CaloIdVT_GsfTrkIdT)) && HLT_Photon175"}},
