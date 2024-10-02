@@ -403,7 +403,7 @@ if __name__ == "__main__":
              if args.half in ['train', 'test']:
                num_bjet = '2b' if '2b' in region else '3b' # TODO: Hard coded
                ratio = samples[sample_name]['Train_ratio'][num_bjet]
-               ratio = 1.0 if '1b' in region else ratio # TODO: Hard coded
+               ratio = 0.0 if '1b' in region else ratio # TODO: Hard coded
                if (args.half == 'train'): norm_factor = norm_factor * (1. / (ratio + 1e-10))
                else: norm_factor = norm_factor * (1. / (1. - ratio + 1e-10))
            else: # data doesn't need to be normalized by lumi x cross section
@@ -426,7 +426,7 @@ if __name__ == "__main__":
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
            json_command += ' --cutflow ' if args.cutflow else ''
            json_command += ' --notoppt ' if args.notoppt else ''
-           json_command += ' --train ' if args.half == 'train' else ''
+           json_command += ' --train {}'.format(args.half) if ((args.half == 'train') or (args.half == 'test')) else ''
 
            for process_ in process_list:
              if args.clear:
