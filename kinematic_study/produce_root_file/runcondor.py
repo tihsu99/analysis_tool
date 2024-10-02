@@ -129,7 +129,7 @@ if __name__ == "__main__":
   if os.path.exists(farm_dir):
     print (colors.colordict['RED']+f"Directory '{farm_dir}' already exists. Delete it for fresh sbmission"+colors.colordict['CEND'])
     print (colors.colordict['ORANGE']+f"Or browse '{farm_dir}' for more options"+colors.colordict['CEND'])
-    sys.exit(1)
+    # sys.exit(1)
 
   os.system('mkdir -p %s '%farm_dir)
   os.system('cp %s/../../python/haddnano.py .'%cwd)
@@ -562,7 +562,7 @@ if __name__ == "__main__":
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))
               merge_shell[Era][region][channel][process] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process)), 'a')
               merge_shell[Era][region][channel][process].write('\n')
-              merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
+              # merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.out\n'.format(farm_dir, Era, region, channel, process))
               merge_shell[Era][region][channel][process].write('rm {}/*slim_*_{}_{}_{}_*_{}*.err\n'.format(farm_dir, Era, region, channel, process))
               merge_shell[Era][region][channel][process].close()
 
