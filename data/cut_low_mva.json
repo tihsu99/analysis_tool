@@ -167,6 +167,57 @@
      "DNN_category": "(DNN200 < 0.5) & (DNN300 < 0.5) & (DNN350 < 0.5) & (DNN400 < 0.5) & (DNN500 < 0.5) & (DNN600 < 0.5) & (DNN700 < 0.5) & (DNN800 < 0.5) & (DNN900 < 0.5) & (DNN1000 < 0.5)"
    },
 
+     "CR_2b_lowMVA_caseII":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "bh_region == 2",
+      	 "lepton_pt":      "bh_l1_pt > 35",
+         "lepton eta":     "(Lepton_eta > 1.5 && Lepton_eta < 2.0) || (Lepton_eta < -1.5 && Lepton_eta > -2.0)"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+      	 "lepton_pt"     : "bh_l1_pt > 30",
+         "PFmuon"        : "PFMuon == true",
+         "goodmu"        : "GlobalMuon || TrackerMuon"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 2",
+       "HT":           "bh_HT > 100"
+     },
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"],
+     "DNN_category": "(DNN200 < 0.5) & (DNN300 < 0.5) & (DNN350 < 0.5) & (DNN400 < 0.5) & (DNN500 < 0.5) & (DNN600 < 0.5) & (DNN700 < 0.5) & (DNN800 < 0.5) & (DNN900 < 0.5) & (DNN1000 < 0.5)"
+   },
+
+   "CR_2b_lowMVA_caseIII":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton":   "bh_region == 2",
+      	 "lepton_pt":        "bh_l1_pt > 35",
+         "R9 veto cut":      "!(Lepton_r9 > 0.98)",
+         "lepton eta veto":  "!(fabs(Lepton_eta) > 1.5 && fabs(Lepton_eta) < 2.0)"
+       },
+       "mu_resolved": {
+         "channel_lepton": "bh_region == 1",
+      	 "lepton_pt"     : "bh_l1_pt > 30",
+         "PFmuon"        : "PFMuon == true",
+         "goodmu"        : "GlobalMuon || TrackerMuon"
+       }
+     },
+     "general_cut":{
+       "veto_Had_tau": "nHad_tau==0",
+       "met":          "bh_met>35",
+       "b jet cut":    "n_bjet_DeepB_v == 2",
+       "HT":           "bh_HT > 100"
+     },
+     "MVA_Label": "DNN_2b",
+     "POI": ["DNN"],
+     "DNN_category": "(DNN200 < 0.5) & (DNN300 < 0.5) & (DNN350 < 0.5) & (DNN400 < 0.5) & (DNN500 < 0.5) & (DNN600 < 0.5) & (DNN700 < 0.5) & (DNN800 < 0.5) & (DNN900 < 0.5) & (DNN1000 < 0.5)"
+   },
+
     "CR_3b_lowMVA":{
      "channel_cut":{
        "ele_resolved": {
