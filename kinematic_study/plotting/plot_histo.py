@@ -210,6 +210,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         if "Background" in data_type:
           if Yield:
             canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            print ("Name: ", sample_, "\t Integral:", Histogram[sample_].Integral())
           else:
             canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
         elif "Signal" in data_type:
@@ -223,8 +224,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             resultLegend.apply('stat', Histogram[sample_], opt = 'L') #this is working (but need to understand more ?)
           else:
             canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
-            print (100*"=")
+
         elif "Data" in data_type and unblind:
+          print ("Name: ", sample_, "\t Integral:", Histogram[sample_].Integral())
           canvas.addObs(Histogram[sample_])
 
     #############################
@@ -253,6 +255,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     print('Generating png')
     resultLegend.construct()
     canvas.addObject(resultLegend.legend, clone = False)
+
+    #add text region and channel
+    canvas.addText(region, 0.27, 0.70, 0.29, 0.80)
+    canvas.addText(channel, 0.24, 0.65, 0.26, 0.75)
     canvas.applyStyles()
     if args.unblind:
       if logy:
@@ -264,7 +270,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
       else:
         canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
-
+    print (100*"=")
 if __name__ == "__main__":
 
   usage  = 'usage: %prog [options]'
