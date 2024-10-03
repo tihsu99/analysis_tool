@@ -45,7 +45,7 @@ def Slim_module(filein,
                 SubProcess = None,
                 notoppt = False,
                 not_ensemble = False,
-                train = False):
+                train = None):
 
   #############
   ##  Basic  ##
@@ -243,8 +243,8 @@ def Slim_module(filein,
   ##  Training Cut  ##
   ####################
 
-  if "MC" in sample_labels:
-    df = df.Filter(str("isTrain == {}".format(1 if train else 0)))
+  if "MC" in sample_labels and (train in ['train', 'test']):
+    df = df.Filter(str("isTrain == {}".format(1 if (train == 'train') else 0)))
 
   #########
   ## Cut ##
@@ -297,7 +297,7 @@ def Slim_module(filein,
         trigger_cut = triggers[trigger_name]["Triggers"][era][sample_name]["Default"]
 
     df = df.Define(str(trigger_name), str(trigger_cut))
-    df = df.Filter(str(trigger_name), str(trigger_name))
+    df = df.Filter(str(trigger_name))
     print(trigger_name, str(trigger_cut))
     if cutflow_store:
       cutflow[trigger_name] = df.Sum("weight").GetValue()
@@ -608,7 +608,7 @@ if __name__ == "__main__":
   parser.add_argument("--SubProcess", type=str, default = None)
   parser.add_argument("--notoppt",   action='store_true', default = 'False')
   parser.add_argument("--not_ensemble", action = 'store_true')
-  parser.add_argument("--train",   action='store_true')
+  parser.add_argument("--train",   type=str, default = None)
 
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
