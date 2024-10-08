@@ -161,7 +161,6 @@ def FitDiagnostics(settings=dict()):
     print("\nNext mode: [\033[0;32m FinalYieldComputation\033[0;m]")
 
 def diffNuisances(settings=dict()):
-<<<<<<< HEAD
     
     CheckFile(settings['diffNuisances_File'],True) 
     
