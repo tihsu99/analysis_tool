@@ -93,6 +93,19 @@
     "Label": ["Normal"]
   },
 
+  "Electron_Scale_err_up":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_energy_scaleup[Lepton_id]",
+                 "mu_resolved":  "0.0"},
+    "Label": ["Normal", "MC"]
+  },
+
+  "Electron_Scale_err_do":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_energy_scaledown[Lepton_id]",
+                 "mu_resolved":  "0.0"},
+    "Label": ["Normal", "MC"]
+  },
 
   "Electron_Smear_err_up":{
     "Def": "Channel_Dep",
