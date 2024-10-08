@@ -121,13 +121,19 @@
     "Label": ["Normal", "MC"]
   },
 
-
   "Lepton_pt":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "bh_l1_pt",
                  "mu_resolved":  "bh_l1_pt"},
     "Label": ["Normal"],
     "Save":  ["BDT_training"]
+  },
+
+  "Lepton_r9":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_r9[Lepton_id]",
+	               "mu_resolved":  "0.0"},
+    "Label": ["Normal"]
   },
 
   "Lepton_eta":{
@@ -439,4 +445,5 @@
     "Label": ["Normal"],
     "Save":  [""]
   }
+
 }
