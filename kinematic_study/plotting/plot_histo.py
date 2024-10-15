@@ -195,11 +195,25 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             print("smoothing: ", sample_)
             original_integral = Histogram[sample_].Integral()
             # print ("original_integral: ", original_integral)
-            Histogram[sample_].Smooth()
+            Histogram[sample_].Smooth(10)
             after_integral = Histogram[sample_].Integral()
             # print ("after_integral: ", after_integral)
             if (after_integral> 0): Histogram[sample_].Scale(original_integral/after_integral)
             # print ("final_integral: ", Histogram[sample_].Integral())
+            # Uncertainties add 30%
+            # Loop over each bin in the histogram and increase the error (uncertainty)
+            for bin in range(1, Histogram[sample_].GetNbinsX() + 1):
+              # Get the current bin content and uncertainty (error)
+              # current_error = Histogram[sample_].GetBinError(bin)
+              # Increase the error by 30%
+              #new_error = current_error * 1.30
+
+              ## fix to 30% error
+              #new_error = 0.3*Histogram[sample_].GetBinContent(bin)
+              # fix to 50% error
+              new_error = 0.5*Histogram[sample_].GetBinContent(bin)
+              # Set the new error for the bin
+              Histogram[sample_].SetBinError(bin, new_error)
         #################
         ## Normalized  ##
         #################
