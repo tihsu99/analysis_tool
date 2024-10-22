@@ -86,7 +86,7 @@ template <typename T>T iArray(std::vector<T> Array, int idx, int Is_pdgId = 0){
 
 std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
 
-  // Function used for doing kinematic match of "Ref" particle to "Input" particle" 
+  // Function used for doing kinematic match of "Ref" particle to "Input" particle"
 
   std::vector<int> match_idx;
   float dr, dr_temp, pt1, eta1, phi1, pt2, eta2, phi2;
@@ -109,13 +109,13 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
-      } 
+      }
     }
-    
+
     if (dr < dr_cut and abs(Ref_pt[idx]-pt1)/pt1 < pt_ratio_cut){
       if (!(std::find(match_idx.begin(), match_idx.end(), idx) != match_idx.end())){
         match_idx.push_back(idx); // Matched GenLevel Object index
-      } 
+      }
       else match_idx.push_back(-2); // Matched GenLevel Object but already assigned to higher Pt reco object.
     }
     else match_idx.push_back(-1); // UnMatched GenLevel Object
@@ -126,7 +126,7 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
 
 std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut, ROOT::VecOps::RVec<int> GenPart_statusFlags){
 
-  // Function used for doing kinematic match of "Ref" particle to "Input" particle" 
+  // Function used for doing kinematic match of "Ref" particle to "Input" particle"
 
   std::vector<int> match_idx;
   float dr, dr_temp, pt1, eta1, phi1, pt2, eta2, phi2;
@@ -150,13 +150,13 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
-      } 
+      }
     }
-    
+
     if (dr < dr_cut and abs(Ref_pt[idx]-pt1)/pt1 < pt_ratio_cut){
       if (!(std::find(match_idx.begin(), match_idx.end(), idx) != match_idx.end())){
         match_idx.push_back(idx); // Matched GenLevel Object index
-      } 
+      }
       else match_idx.push_back(-2); // Matched GenLevel Object but already assigned to higher Pt reco object.
     }
     else match_idx.push_back(-1); // UnMatched GenLevel Object
@@ -191,13 +191,13 @@ std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
-      } 
+      }
     }
-    
+
     if (dr < dr_cut and abs(Ref_pt[idx]-pt1)/pt1 < pt_ratio_cut){
       if (!(std::find(match_idx.begin(), match_idx.end(), idx) != match_idx.end())){
         match_idx.push_back(idx); // Matched GenLevel Object index
-      } 
+      }
       else match_idx.push_back(-2); // Matched GenLevel Object but already assigned to higher Pt reco object.
     }
     else match_idx.push_back(-1); // UnMatched GenLevel Object
@@ -228,11 +228,11 @@ std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_
 
     mother_idx = GenPart_genPartIdxMother[index_];
     mother_id  = abs(iArray(GenPart_pdgId, mother_idx));
-    
+
     while(mother_id == daughter_id){
       mother_idx = GenPart_genPartIdxMother[mother_idx];
       mother_id  = abs(iArray(GenPart_pdgId, mother_idx));
-      
+
     }
 
     if(mother_idx < 0){
@@ -247,11 +247,11 @@ std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_
 }
 
 float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status, Vec_i& genPart_statusFlags){
-  
+
   int daughter_id, daughter_status;
   bool isdaughter_lastcopy;
   float gentoppt = 0.0, genantitoppt = 0.0, maxtoppt = 500.0, weight = 1.0, w1 = 1.0, w2 = 1.0;
-  
+
   for(int index_ = 0; index_ < genPart_pdgId.size(); index_++){
     daughter_id     = genPart_pdgId[index_];
     daughter_status = genPart_status[index_];
@@ -281,7 +281,7 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
 }
 
 int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match, std::vector<int> Part_mother_match){
-  
+
   // Function used for mapping reco object to mother parton
 
   int gen_index = Gen_Reco_match[Reco_index];
@@ -322,7 +322,7 @@ std::vector<int> particle_cv(int iPart, std::vector<int> Part_mother_match, ROOT
   }
   cv.push_back(abs(GenPart_pdgId[iPart]));
   int mother_idx = Part_mother_match[iPart];
-  while(mother_idx > -1){ 
+  while(mother_idx > -1){
     cv.push_back(abs(GenPart_pdgId[mother_idx]));
     mother_idx = Part_mother_match[mother_idx];
   }
@@ -365,7 +365,7 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
  //////////////////////////////////////////
  // Ref: CMS-TOP-19-009 & CMS-TOP-20-007 //
  //////////////////////////////////////////
- 
+
   float mW = 80.4;
   float Lambda = mW*mW/2. + (l_pt * MET * cos(l_phi - MET_phi));
   float l_pz = l_pt * sinh(l_eta);
@@ -373,7 +373,7 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
   float D = Lambda*Lambda*l_pz*l_pz + l_pt*l_pt*(Lambda*Lambda - l_E * l_E * MET * MET);
   float A = Lambda*l_pz/(l_pt*l_pt);
   if(D<0) return A;
-  else{ 
+  else{
     if(abs(A + sqrt(D)/(l_pt*l_pt)) > abs(A - sqrt(D)/(l_pt*l_pt))){
       return A - sqrt(D)/(l_pt*l_pt);
     }
@@ -470,11 +470,11 @@ int find_b_inLHE(ROOT::VecOps::RVec<float> LHEPart_pt, ROOT::VecOps::RVec<float>
   for(int iPart = 0; iPart < LHEPart_pdgId.size(); iPart++){
     if (!(abs(LHEPart_pdgId[iPart]) == 5)) continue;
     if (LHEPart_status[iPart] == -1) continue;
-    ROOT::Math::PtEtaPhiMVector b_from_top(LHEPart_pt[iPart], LHEPart_eta[iPart], LHEPart_phi[iPart], LHEPart_mass[iPart]);    
+    ROOT::Math::PtEtaPhiMVector b_from_top(LHEPart_pt[iPart], LHEPart_eta[iPart], LHEPart_phi[iPart], LHEPart_mass[iPart]);
     if( abs((b_from_top + W_boson).M() - mT) < abs(inv_mass_tmp - mT) ){
       b_from_top_idx = iPart;
       inv_mass_tmp = (b_from_top + W_boson).M();
-    } 
+    }
   }
 
   if (b_from_top_idx == -1) return -1;
@@ -487,11 +487,11 @@ int find_b_inLHE(ROOT::VecOps::RVec<float> LHEPart_pt, ROOT::VecOps::RVec<float>
   for(int iPart = 0; iPart < LHEPart_pdgId.size(); iPart++){
     if (!(abs(LHEPart_pdgId[iPart]) == 5)) continue;
     if (LHEPart_status[iPart] == -1) continue;
-    ROOT::Math::PtEtaPhiMVector b_from_H(LHEPart_pt[iPart], LHEPart_eta[iPart], LHEPart_phi[iPart], LHEPart_mass[iPart]);    
+    ROOT::Math::PtEtaPhiMVector b_from_H(LHEPart_pt[iPart], LHEPart_eta[iPart], LHEPart_phi[iPart], LHEPart_mass[iPart]);
     if( abs((b_from_H + top).M() - H_mass) < abs(inv_mass_tmp - H_mass) ){
       b_from_H_idx = iPart;
       inv_mass_tmp = (b_from_H + top).M();
-    } 
+    }
   }
 
   if (b_from_H_idx == -1 || (b_from_H_idx == b_from_top_idx)) return -1;
@@ -560,7 +560,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
 	continue;
       }
     }
-    
+
     if(jethadflav[idx] == 5){
       if(wp == 1) efficiency = btag_efficiency_loose_b->GetBinContent(btag_efficiency_loose_b->FindBin(pt, abs(eta)));
       if(wp == 2) efficiency = btag_efficiency_medium_b->GetBinContent(btag_efficiency_medium_b->FindBin(pt, abs(eta)));
@@ -587,7 +587,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
         if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf_var[idx];
 	else {sf *= btag_sf[idx];};
       }
-    }      
+    }
     else{
       if(variation == 0) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
       else if (variation == 1){
@@ -641,22 +641,23 @@ float trigger_SF(float pt, float eta, int boost_region, int resolved_region, flo
 //  Pileupjetid SF  //
 //////////////////
 
-float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<int> Jet_genJetIdx, int boost_region, int resolved_region, float variation)
+float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<int> Jet_genJetIdx, int nGenJet, int boost_region, int resolved_region, float variation)
 {
   float jet_pt, jet_eta;
   float pujetid_weight = 1.0;
   float central_weight = 1.0;
   float weight_error   = 1.0;
-  
+
   for(int ijet = 0; ijet < tight_jet_id.size(); ijet++){
     int jet_idx = tight_jet_id[ijet];
     if(jet_idx < 0) continue;
     jet_pt = Jet_pt[jet_idx];
     jet_eta = Jet_eta[jet_idx];
-    if (Jet_genJetIdx[jet_idx] == -1) continue;
-    // cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
-    // cout << "jet_pt : " << jet_pt <<  endl;
-    // cout << "jet_eta: " << jet_eta <<  endl;
+    if (Jet_genJetIdx[jet_idx] == -1 || Jet_genJetIdx[jet_idx] >= nGenJet) continue;
+    cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
+    cout << "nGenJet: " << nGenJet << endl;
+    cout << "jet_pt : " << jet_pt <<  endl;
+    cout << "jet_eta: " << jet_eta <<  endl;
     if(jet_pt > 50.0 || jet_pt < 20) pujetid_weight *= 1.0;
 
     else{
@@ -734,10 +735,10 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
       bjet_FlavB[b_jet_idx]  = Jet_FlavB[jet_idx];
 
       deltaR_lb[b_jet_idx] = ROOT::Math::VectorUtil::DeltaR(bjet[b_jet_idx], lepton);
-      inv_mass_lb[b_jet_idx] = (lepton + bjet[b_jet_idx]).M(); 
+      inv_mass_lb[b_jet_idx] = (lepton + bjet[b_jet_idx]).M();
       b_jet_idx += 1;
       new_b_id.push_back(jet_idx);
-    }  
+    }
     else if(non_b_jet_idx < 0){
       non_b_jet     = ROOT::Math::PtEtaPhiMVector(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
       non_b_j1_pt   = non_b_jet.Pt();
@@ -748,7 +749,7 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
       deltaR_non_b_l = ROOT::Math::VectorUtil::DeltaR(non_b_jet, lepton);
       inv_mass_non_b_l = (non_b_jet + lepton).M();
       non_b_jet_idx = jet_idx;
-    }  
+    }
   }
 
   if(new_b_id.size() > 1){
@@ -767,7 +768,7 @@ ROOT::VecOps::RVec<Float_t> Diobject_kinematic(float l1_pt, float l1_eta, float 
 
   ROOT::VecOps::RVec<Float_t> final_return = {deltaR_lb[0], deltaR_lb[1], deltaR_lb[2], deltaR_b1b2, deltaR_b2b3, deltaR_b1b3, deltaR_non_b_l, non_b_j1_pt, non_b_j1_eta, non_b_j1_phi, non_b_j1_mass, bjet_pt[0], bjet_eta[0], bjet_phi[0], bjet_mass[0], bjet_pt[1], bjet_eta[1], bjet_phi[1], bjet_mass[1], bjet_pt[2], bjet_eta[2], bjet_phi[2], bjet_mass[2], bjet_FlavB[0], bjet_FlavB[1], bjet_FlavB[2], non_b_j1_FlavB, inv_mass_b1b2, inv_mass_b2b3, inv_mass_b1b3, inv_mass_lb1b2, inv_mass_lb2b3, inv_mass_lb1b3, inv_mass_non_b_l, delta_phi_l_met, inv_mass_lb[0], inv_mass_lb[1], inv_mass_lb[2]};
 
-  return final_return; 
+  return final_return;
 
 
 }
@@ -809,7 +810,7 @@ float PDF_Uncertainty(ROOT::VecOps::RVec<Float_t> LHEPdfWeight){
   for(int i = 1; i < 101; i++){
     if (!(abs(LHEPdfWeight[i]) < 2)) rms_hes += 1;
     else rms_hes += pow((LHEPdfWeight[i] - LHEPdfWeight[0]) , 2);
-  } 
+  }
 
   float alpha_var = (LHEPdfWeight[102] - LHEPdfWeight[101])/2.;
   if (abs(alpha_var) > 10) alpha_var = 0.05;
@@ -833,7 +834,7 @@ float METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, int 
   if(npv>100) npv=100; // in nanoAOD, npv must be taken from PV_npvs
   TString runera = "";
   bool isMC = true;
-  if(runnb > 10) isMC = false; 
+  if(runnb > 10) isMC = false;
   if(isMC && year == "2016apv") runera = "yUL2016MCAPV";
   else if(isMC && year == "2016postapv") runera = "yUL2016MCnonAPV";
   else if(isMC && year == "2017") runera = "yUL2017MC";
