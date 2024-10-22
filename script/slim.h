@@ -654,10 +654,10 @@ float pujetid_SF(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<floa
     jet_pt = Jet_pt[jet_idx];
     jet_eta = Jet_eta[jet_idx];
     if (Jet_genJetIdx[jet_idx] == -1 || Jet_genJetIdx[jet_idx] >= nGenJet) continue;
-    cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
-    cout << "nGenJet: " << nGenJet << endl;
-    cout << "jet_pt : " << jet_pt <<  endl;
-    cout << "jet_eta: " << jet_eta <<  endl;
+    // cout << "Jet_genJetIdx[jet_idx]: " << Jet_genJetIdx[jet_idx] << endl;
+    // cout << "nGenJet: " << nGenJet << endl;
+    // cout << "jet_pt : " << jet_pt <<  endl;
+    // cout << "jet_eta: " << jet_eta <<  endl;
     if(jet_pt > 50.0 || jet_pt < 20) pujetid_weight *= 1.0;
 
     else{
