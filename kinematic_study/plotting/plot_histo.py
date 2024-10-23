@@ -310,7 +310,7 @@ if __name__ == "__main__":
   parser.add_argument("--partial_blind", dest= 'partial_blind', action = 'store_true', default=False)
   parser.add_argument("--signals", dest = 'signals', default = ["CGToBHpm_a_350_rtt06_rtc04","CGToBHpm_a_500_rtt06_rtc04","CGToBHpm_a_800_rtt06_rtc04","CGToBHpm_a_1000_rtt06_rtc04"], type=str, nargs = '+')
   parser.add_argument("--region_json", dest = 'region_json', default = '../../data/cut.json')
-  parser.add_argument("--channels", dest = 'channels', default = ['all'], nargs = '+')
+  parser.add_argument("--channel", dest = 'channel', default = ['all'], nargs = '+')
   parser.add_argument('--region', dest = 'region', default = ['all'], type=str, nargs = '+')
   parser.add_argument('--sample_json', dest='sample_json', default='../../data/sample.json', type=str)
   parser.add_argument('--histogram_json', dest='histogram_json', default='../../data/histogram.json', type=str)
@@ -348,7 +348,7 @@ if __name__ == "__main__":
 
   # List of channels
   for region_ in region_channel_dict:
-    if 'all' in args.channels:
+    if 'all' in args.channel:
       for channel_ in cut_regions[region_]["channel_cut"]:
         region_channel_dict[region_].append(channel_)
     else:
