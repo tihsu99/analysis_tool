@@ -93,6 +93,20 @@
     "Label": ["Normal"]
   },
 
+  "QCD_Lepton_id":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "additional_vetoElectrons_id[0]",
+	               "mu_resolved":  "additional_looseMuons_id[0]"},
+    "Label": ["Normal"]
+  },
+
+  "QCD_anti_iso":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_miniPFRelIso_all[QCD_Lepton_id]",
+                 "mu_resolved":  "Muon_miniPFRelIso_all[QCD_Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
   "Electron_Scale_err_up":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "Electron_energy_scaleup[Lepton_id]",

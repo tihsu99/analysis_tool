@@ -1,4 +1,43 @@
 {
+  "CR_anti_QCD_2b2j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":      "QCD_anti_iso > 0.1 && QCD_anti_iso < 0.2"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":      "QCD_anti_iso > 0.1 && QCD_anti_iso < 0.2"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet>=2",
+      "b jet cut":    "n_bjet_DeepB_v == 2"
+    },
+    "MVA_Label": "DNN_2b",
+    "POI": ["bh_HT"],
+    "POI_bin": [100,1000,9]
+  },
+
+  "CR_anti_QCD_2j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":      "QCD_anti_iso > 0.1 && QCD_anti_iso < 0.2"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":      "QCD_anti_iso > 0.1 && QCD_anti_iso < 0.2"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet>=2"
+    },
+    "MVA_Label": "DNN_2b",
+    "POI": ["bh_HT"],
+    "POI_bin": [100,1000,9]
+  },
+
   "CR_1b4j":{
      "channel_cut":{
        "ele_resolved": {
@@ -23,7 +62,7 @@
     "POI": ["bh_HT"],
     "POI_bin": [100,1000,9]
   },
-    
+
   "SR_2b4j":{
      "channel_cut":{
        "ele_resolved": {
@@ -151,5 +190,3 @@
   }
 
 }
-
-
