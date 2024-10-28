@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, partial_blind, signals, region, channel, only_signal, nooverflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, partial_blind, signals, region, channel, only_signal, nooverflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, noQCDsmooth = True):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -190,7 +190,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
       sig_idx = 0
       for idx, sample_ in enumerate(Histogram):
-        if QCDsmooth:
+        if noQCDsmooth:
           if 'QCD' in sample_:
             print("smoothing: ", sample_)
             original_integral = Histogram[sample_].Integral()
@@ -224,7 +224,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         if "Background" in data_type:
           if Yield:
             canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
-            print ("Name: ", sample_, "\t Integral:", Histogram[sample_].Integral())
+            # Assuming sample_ is a string and Histogram[sample_].Integral() returns a float
+            print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           else:
             canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
         elif "Signal" in data_type:
@@ -240,7 +241,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
 
         elif "Data" in data_type and unblind:
-          print ("Name: ", sample_, "\t Integral:", Histogram[sample_].Integral())
+          print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           if partial_blind: #partial_blind:
             # show_ranges = [(binsx[0], sb1_edge), (sb2_edge, binsx[-1])]
             if histogram == 'j1_pt': #gkole its hard coded but can change if needed (as well the show_ranges)
@@ -325,7 +326,7 @@ if __name__ == "__main__":
   parser.add_argument("--ratio_Ndiv", dest='ratio_Ndiv', default=205, type=int)
   parser.add_argument("--Yield", action = 'store_true', default=False)
   parser.add_argument("--cutflow", action = 'store_true', default=False)
-  parser.add_argument("--QCDsmooth", action = 'store_false', default=True)
+  parser.add_argument("--noQCDsmooth", action = 'store_false', default=True)
 
   args = parser.parse_args()
 
@@ -362,4 +363,4 @@ if __name__ == "__main__":
   for era in Era:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
-        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.partial_blind, args.signals, region, channel, args.only_signal,args.nooverflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)
+        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.partial_blind, args.signals, region, channel, args.only_signal,args.nooverflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, noQCDsmooth = args.noQCDsmooth)
