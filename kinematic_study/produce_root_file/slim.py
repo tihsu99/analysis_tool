@@ -462,6 +462,10 @@ def Slim_module(filein,
       if Label in Histograms[Histogram]["Label"]:
         Label_trigger = Label
         Flag = False
+    if Histogram in variables and "MC" in variables[Histogram]["Label"] and sample_type == "Data":
+        Label_trigger = "Data"
+        Flag = False
+     
 
     # Add cut for DNN_Category (for pNN or multi_class_pNN)
     if 'cut' not in Histograms[Histogram]:

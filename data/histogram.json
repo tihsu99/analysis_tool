@@ -155,7 +155,7 @@
     "Title": ";HT[GeV];nEntries",
     "xlow": 0,
     "xhigh": 1000,
-    "nbin": 50,
+    "nbin": 10,
     "Label": ["Control_plot"]    
   },
 
@@ -175,7 +175,7 @@
     "Label": ["Reco","Control_plot"]
   },
 
-  "top_reco_pT":{
+  "top_reco_pt":{
     "Title": ";pT^{rec0} [GeV]; nEntries",
     "xlow": 0,
     "xhigh": 400,
@@ -183,7 +183,7 @@
     "Label": ["Reco", "Control_plot"]
   },
 
-  "top_reco_mass_medium":{
+  "top_reco_mass":{
     "Title": ";mt^{reco} [GeV];nEntries",
     "xlow":100,
     "xhigh": 400,
@@ -191,132 +191,131 @@
     "Label": ["Reco", "Control_plot"]
   },
 
-  "top_reco_mass_tight":{
-    "Title": ";mt^{reco} [GeV];nEntries",
-    "xlow":100,
-    "xhigh": 250,
-    "nbin": 15,
-    "Label": ["Reco","Control_plot"]
-  },
-
-  "top_reco_mass_loose":{
-    "Title": ";mt^{reco} [GeV];nEntries",
-    "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
-    "Label": ["Reco","Control_plot"]
-  },
-
-  "DY_z_mass":{
-    "Title": ";m(Z) [GeV]; nEntries",
-    "xlow": 60,
-    "xhigh": 120,
-    "nbin": 24,
+  "Higgs_reco_mass":{
+    "Title": ";mH^{reco} [GeV]; nEntries",
+    "xlow": 200,
+    "xhigh": 1500,
+    "nbin": 26,
     "Label": ["Control_plot"]
   },
-    "PV_npvsGood":{
+
+  "PV_npvsGood":{
     "Title": ";nPV Good ; nEntries",
     "xlow": 0,
     "xhigh": 70,
     "nbin": 70,
     "Label": ["Control_plot"]
-    },
-    "PV_npvs":{
+  },
+
+  "PV_npvs":{
     "Title": ";nPV; nEntries",
     "xlow": 0,
     "xhigh": 70,
     "nbin": 70,
     "Label": ["Control_plot"]
-    },
-    "fixedGridRhoFastjetAll":{
+  },
+
+  "fixedGridRhoFastjetAll":{
     "Title": ";#rho ; nEntries",
     "xlow": 0,
     "xhigh": 70,
     "nbin": 70,
     "Label": ["Control_plot"]
-    },
-    "deltaR_lb1":{
+  },
+
+  "deltaR_lb1":{
     "Title": ";#DeltaR(l,b_{1}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "deltaR_lb2":{
+  },
+
+  "deltaR_lb2":{
     "Title": ";#DeltaR(l,b_{2}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "deltaR_lb3":{
+  },
+
+  "deltaR_lb3":{
     "Title": ";#DeltaR(l,b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "deltaR_b1b2":{
+  },
+
+  "deltaR_b1b2":{
     "Title": ";#DeltaR(b_{1},b_{2}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "deltaR_b2b3":{
+  },
+
+  "deltaR_b2b3":{
     "Title": ";#DeltaR(b_{2},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "deltaR_b1b3":{
+  },
+
+  "deltaR_b1b3":{
     "Title": ";#DeltaR(b_{1},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 10,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_b1b2":{
+  },
+
+  "inv_m_b1b2":{
     "Title": ";M(b_{1},b_{2}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_b2b3":{
+  },
+
+  "inv_m_b2b3":{
     "Title": ";M(b_{2},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_b1b3":{
+  },
+
+  "inv_m_b1b3":{
     "Title": ";M(b_{1},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_lb1b2":{
+  },
+
+  "inv_m_lb1b2":{
     "Title": ";M(l, b_{1},b_{2}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_lb2b3":{
+  },
+
+  "inv_m_lb2b3":{
     "Title": ";M(l, b_{2},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    },
-    "inv_m_lb1b3":{
+  },
+
+  "inv_m_lb1b3":{
     "Title": ";M(l, b_{1},b_{3}); nEntries",
     "xlow": 0,
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
-    }
+  }
 }
