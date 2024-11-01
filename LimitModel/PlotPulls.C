@@ -18,9 +18,9 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     //cout << "print " << endl;
     //cout << " testing " << h1->GetXaxis()->GetNbins()  << endl;
     int numberOfNuisance = h1->GetXaxis()->GetNbins();
-    TLegend leg1 = TLegend(0.6, 0.74, 0.89, 0.89);
+    //TLegend leg1 = TLegend(0.6, 0.74, 0.89, 0.89);
     TLegend *leg2 = (TLegend*)(c->GetPrimitive("TPave"));
-    leg1.Copy(*leg2);
+    //leg1.Copy(*leg2);
     
     TPaveText *pt = new TPaveText(0.0877181,0.9,0.9580537,0.96,"brNDC");
     pt->SetBorderSize(0);
@@ -83,7 +83,7 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt3->AddText(0.1,0.4, latexText+" Fit");
     
     h1->Draw("same");
-    leg2->Draw();
+    //leg1.Draw();
     pt->Draw();
     pt1->Draw();
     pt2->Draw();
@@ -113,7 +113,8 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
 	c->SaveAs(plotdir+filename.ReplaceAll(".root","_"+postfix+"_.pdf").ReplaceAll("_"+prefix+"_",""));
 	c->SaveAs(plotdir+filename.ReplaceAll(".pdf",".png"));
 	c->SaveAs(plotdir+filename.ReplaceAll(".png",".root"));
-	
+	//c->SaveAs(plotdir+filename.ReplaceAll(".root",".C"));
+
 	}
 
     //h1->SetAxisRange(0, 15, "X");

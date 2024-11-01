@@ -195,7 +195,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             print("smoothing: ", sample_)
             original_integral = Histogram[sample_].Integral()
             # print ("original_integral: ", original_integral)
-            Histogram[sample_].Smooth()
+            Histogram[sample_].Smooth(10)
             after_integral = Histogram[sample_].Integral()
             # print ("after_integral: ", after_integral)
             if (after_integral> 0): Histogram[sample_].Scale(original_integral/after_integral)
