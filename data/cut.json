@@ -86,7 +86,7 @@
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "bh_HT":        "bh_HT > 200"
     },
-    "MVA_Label": "DNN_2b",
+    "MVA_Label": "DNN_3b",
      "POI": ["DNN"],
      "POI_bin": [0, 1, 5]
   },
@@ -109,7 +109,7 @@
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "bh_HT":        "bh_HT > 200"
     },
-    "MVA_Label": "DNN_2b",
+    "MVA_Label": "DNN_3b",
      "POI": ["DNN"],
      "POI_bin": [0, 1, 5]
   },
