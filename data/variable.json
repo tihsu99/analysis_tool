@@ -107,6 +107,13 @@
     "Label": ["Normal"]
   },
 
+  "QCD_Lepton_pt":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_pt[QCD_Lepton_id]",
+                 "mu_resolved":  "Muon_pt[QCD_Lepton_id]"},
+    "Label": ["Normal"]
+  },
+
   "Electron_Scale_err_up":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "Electron_energy_scaleup[Lepton_id]",
