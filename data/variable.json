@@ -313,6 +313,12 @@
 	  "Label": ["Normal", "MC"]
   },
 
+  "n_tight_jet":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":  ["BDT_training"]
+  },
+
   "met_pt":{
     "Def": "MC_Data_Dep",
     "Label": ["Normal"],
@@ -392,32 +398,11 @@
     "Label": ["Reco", "Normal"]
   },
 
-  "top_reco_pT":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJet_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 1)",
+  "top_reco":{
+    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJet_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom)",
     "Label": ["Reco", "Normal"],
+    "Children": ["top_reco_mass", "top_reco_pt", "top_reco_b_index_float", "Higgs_reco_mass", "Higgs_reco_b_index_float"],
     "Save": ["BDT_training"]
-  },
-
-  "top_reco_mass_medium":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetmedium_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
-    "Label": ["Reco", "Normal"],
-    "Save":  ["BDT_training"]
-  },
-
-  "Higgs_reco_mass_medium":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetmedium_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 2)",
-    "Label": ["Reco", "Normal"],
-    "Save":  ["BDT_training"]
-  },
-
-  "top_reco_mass_tight":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJettight_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
-    "Label": ["Reco", "Normal"]
-  },
-
-  "top_reco_mass_loose":{
-    "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJetloose_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom, 0)",
-    "Label": ["Reco", "Normal"]
   },
 
   "bh_HT":{
@@ -448,7 +433,7 @@
   "isTrain":{
     "Def": "Assign_Train_Label(prob_2b, prob_3b, n_bjet_DeepB_v)",
     "Label": ["Normal", "MC"],
-    "Save": ["BDT_training"]
+    "Save": ["BDT_training", "Normal"]
   },
 
   "Lepton_topMVA":{
