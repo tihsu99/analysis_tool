@@ -5,7 +5,7 @@ import ROOT
 from collections import OrderedDict
 from math import sqrt
 import copy
-from termcolor import cprint 
+from termcolor import cprint
 
 cwd = os.getcwd()
 dir_list = cwd.split('/')
@@ -26,9 +26,9 @@ python_version = int(sys.version.split('.')[0])
 ############
 
 inputFile_path = {
-   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v7/', 
-   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v7/', 
-   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v7/', 
+   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v7/',
+   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v7/',
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v7/',
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v7/'
 }
 
@@ -127,7 +127,7 @@ def Extend_sample_dict(dict_, key_word = 'MASS'):
             dict_clone[new_sample][key] = dict_[sample_][key]
       del dict_clone[sample_]
   return dict_clone
-        
+
 
 def Get_Sample(json_file_name, Labels, era, withTail=True):
 
@@ -155,7 +155,7 @@ def Get_Sample(json_file_name, Labels, era, withTail=True):
         Flag = False
 
     if ("Era" in desc) and (era not in desc["Era"]): continue
-    
+
     if Flag:
       if withTail:
         dirs = os.listdir(inputFile_path[era])
@@ -254,3 +254,23 @@ def overunder_flowbin2D(h1):
 def CheckDir(path, MakeDir=True):
   if not os.path.exists(path):
     os.system('mkdir -p {}'.format(path))
+
+def apply_blinding(h, ranges = None):
+    if(ranges is None or len(ranges) == 0):
+        print("Must supply list of tuples specifying ranges to include")
+
+    h_clone = h.Clone(h.GetName() + "_blinded")
+    axis = h.GetXaxis()
+    for i in range(axis.GetNbins()):
+        low_edge = axis.GetBinLowEdge(i)
+        high_edge = axis.GetBinLowEdge(i)
+
+        inRange = False
+        for interval in ranges:
+            if(low_edge >= interval[0] and high_edge <= interval[1]):
+                inRange = True
+
+        if(not inRange):
+            h_clone.SetBinContent(i, 0.)
+            h_clone.SetBinError(i, 0.)
+    return h_clone

@@ -15,7 +15,7 @@ from common import *
 
 ROOT.gROOT.SetBatch(True)
 
-def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, signals, region, channel, only_signal, nooverflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
+def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio, unblind, partial_blind, signals, region, channel, only_signal, nooverflow=False, normalize=False, histogram_json="../../data/histogram.json", sample_json="../../data/sample.json", block_sample = [], Yield=False, ymax=None, ymin=None, ratio_max=1.25, ratio_min=0.75, ratio_Ndiv=210, cutflow = False, QCDsmooth = True):
 
   Indir = os.path.join(indir, era, region, channel)
 
@@ -200,6 +200,20 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             # print ("after_integral: ", after_integral)
             if (after_integral> 0): Histogram[sample_].Scale(original_integral/after_integral)
             # print ("final_integral: ", Histogram[sample_].Integral())
+            # Uncertainties add 30%
+            # Loop over each bin in the histogram and increase the error (uncertainty)
+            for bin in range(1, Histogram[sample_].GetNbinsX() + 1):
+              # Get the current bin content and uncertainty (error)
+              # current_error = Histogram[sample_].GetBinError(bin)
+              # Increase the error by 30%
+              #new_error = current_error * 1.30
+
+              ## fix to 30% error
+              #new_error = 0.3*Histogram[sample_].GetBinContent(bin)
+              # fix to 50% error
+              new_error = 0.5*Histogram[sample_].GetBinContent(bin)
+              # Set the new error for the bin
+              Histogram[sample_].SetBinError(bin, new_error)
         #################
         ## Normalized  ##
         #################
@@ -227,7 +241,17 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
         elif "Data" in data_type and unblind:
           print ("Name: ", sample_, "\t Integral:", Histogram[sample_].Integral())
-          canvas.addObs(Histogram[sample_])
+          if partial_blind: #partial_blind:
+            # show_ranges = [(binsx[0], sb1_edge), (sb2_edge, binsx[-1])]
+            if histogram == 'j1_pt': #gkole its hard coded but can change if needed (as well the show_ranges)
+              print ("partial_blinding applied to: ", histogram)
+              show_ranges = [(50.0, 150.0)]
+              blind_data_hist = apply_blinding(Histogram[sample_], ranges = show_ranges)
+              canvas.addObs(blind_data_hist)
+            else:
+              canvas.addObs(Histogram[sample_])
+          else:
+            canvas.addObs(Histogram[sample_])
 
     #############################
     ## Plot Setting for Canvas ##
@@ -283,6 +307,7 @@ if __name__ == "__main__":
   parser.add_argument("--logy", dest = 'logy', action = 'store_true', default = False)
   parser.add_argument("--plot_ratio", dest = 'plot_ratio', action = 'store_true', default = False)
   parser.add_argument("--unblind", dest = 'unblind', action = 'store_true', default = False)
+  parser.add_argument("--partial_blind", dest= 'partial_blind', action = 'store_true', default=False)
   parser.add_argument("--signals", dest = 'signals', default = ["CGToBHpm_a_350_rtt06_rtc04","CGToBHpm_a_500_rtt06_rtc04","CGToBHpm_a_800_rtt06_rtc04","CGToBHpm_a_1000_rtt06_rtc04"], type=str, nargs = '+')
   parser.add_argument("--region_json", dest = 'region_json', default = '../../data/cut.json')
   parser.add_argument("--channels", dest = 'channels', default = ['all'], nargs = '+')
@@ -337,4 +362,4 @@ if __name__ == "__main__":
   for era in Era:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
-        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.signals, region, channel, args.only_signal,args.nooverflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)
+        Generate_Histogram(era, args.indir, args.outdir, args.Labels, args.Black_list, args.logy, args.plot_ratio, args.unblind, args.partial_blind, args.signals, region, channel, args.only_signal,args.nooverflow, normalize = args.normalize, sample_json=args.sample_json, histogram_json=args.histogram_json, block_sample=args.block_sample, Yield=args.Yield, ymax=args.ymax, ymin=args.ymin, ratio_max=args.ratio_max, ratio_min=args.ratio_min, ratio_Ndiv=args.ratio_Ndiv, cutflow = args.cutflow, QCDsmooth = args.QCDsmooth)

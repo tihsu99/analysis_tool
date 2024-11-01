@@ -304,7 +304,16 @@ def Slim_module(filein,
 
   # channel cut
   for cut_name in cuts[region]["channel_cut"][channel]:
+    # print (colored('--> debugging','yellow'))
     df = df.Filter(str(cuts[region]["channel_cut"][channel][cut_name]), str(cut_name))
+    # Veto for 2016apv (https://cms-talk.web.cern.ch/t/loss-of-high-r9-electrons-and-photons-in-2016pre-run-2-ul-data-nanoaod-within-1-5-eta-2/50549)
+    veto_dict = OrderedDict()
+    veto_dict["veto_cut"] = "!((Lepton_r9 > 0.98) && (fabs(Lepton_eta) > 1.5 && fabs(Lepton_eta) < 2.0))"
+    if channel == 'ele_resolved' and era == '2016apv':
+      for veto_cut in veto_dict:
+        print (colored('--> Special veto for 2016apv: ','yellow'),colored('{}'.format(veto_dict[veto_cut]), 'cyan'))
+        df = df.Filter(str(veto_dict[veto_cut]))
+
 
   if cutflow_store:
     cutflow["channel"] = df.Sum("weight").GetValue()

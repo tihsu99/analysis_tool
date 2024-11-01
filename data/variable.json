@@ -298,18 +298,18 @@
   },
 
   "Pileupjetid_sf_up":{
-  	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 1.0)",
+  	"Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, nGenJet, -1, -1, 1.0)",
  	  "Label": ["Normal", "MC"]
   },
 
   "Pileupjetid_sf_down":{
-	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, -1.0)",
+	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, nGenJet, -1, -1, -1.0)",
 	  "Label": ["Normal", "MC"]
   },
 
 
   "Pileupjetid_sf":{
-	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, -1, -1, 0.0)",
+	  "Def": "pujetid_SF(tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_genJetIdx, nGenJet, -1, -1, 0.0)",
 	  "Label": ["Normal", "MC"]
   },
 

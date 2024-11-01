@@ -1,7 +1,7 @@
 
-// using  a weird default name so that code crash in cse a correct rootfile is not provided 
-void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=100,TString year="2018"){ 
-  
+// using  a weird default name so that code crash in cse a correct rootfile is not provided
+void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString postfix_="",int numberOfCanvas=100,TString year="2018"){
+
     TString plotdir = outdir;
     TFile file(filename,"READ");
     TCanvas *c = (TCanvas*)file.Get("nuisances");
@@ -11,7 +11,7 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
     //c->GetXaxis->SetRangeUser(0,5)
-    
+
     TH1F *h1 = (TH1F*)c->GetPrimitive("prefit_nuisancs");
     h1->LabelsOption("v");
     //h1->SetAxisRange(0, 5, "X");
@@ -27,13 +27,13 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt->SetTextAlign(12);
     pt->SetFillStyle(0);
     pt->SetTextFont(52);
-    
+
     double cmstextSize = 0.07;
     double preliminarytextfize = cmstextSize * 0.7;
     double lumitextsize = cmstextSize *0.7;
     pt->SetTextSize(cmstextSize);
     pt->AddText(0.01,0.57,"#font[61]{CMS}");
-    
+
     TPaveText *pt1 = new TPaveText(0.0877181,0.905,0.9580537,0.96,"brNDC");
     pt1->SetBorderSize(0);
     pt1->SetTextAlign(12);
@@ -42,14 +42,14 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt1->SetTextSize(preliminarytextfize);
     //pt1->AddText(0.155,0.4,"Preliminary");
     pt1->AddText(0.125,0.4,"Internal");
-    
+
     TPaveText *pt2 = new TPaveText(0.0877181,0.9,0.8280537,0.96,"brNDC");
     pt2->SetBorderSize(0);
     pt2->SetTextAlign(12);
     pt2->SetFillStyle(0);
     pt2->SetTextFont(42);
     pt2->SetTextSize(lumitextsize);
-    
+
     if(year == "run2"){
       pt2->AddText(0.81, 0.5, " 137.6 fb^{-1} (13 TeV)");
     }
@@ -75,13 +75,13 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt3->SetFillStyle(0);
     pt3->SetTextFont(42);
     pt3->SetTextSize(lumitextsize);
-    TString latexText = "Data"; 
-    
+    TString latexText = "Data";
+
     if (filename.Contains("data")) latexText = "Data";
     if (filename.Contains("asimov")) latexText = "Asimov";
-    
+
     pt3->AddText(0.1,0.4, latexText+" Fit");
-    
+
     h1->Draw("same");
     //leg1.Draw();
     pt->Draw();
@@ -89,7 +89,7 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
     pt2->Draw();
     pt3->Draw();
 
-    //int numberOfCanvas = 2 ; 
+    //int numberOfCanvas = 2 ;
     int nuisanceRange = numberOfNuisance/numberOfCanvas;
     for (int i =1 ; i < numberOfCanvas+1 ; i++)
 	{
@@ -113,15 +113,18 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
 	c->SaveAs(plotdir+filename.ReplaceAll(".root","_"+postfix+"_.pdf").ReplaceAll("_"+prefix+"_",""));
 	c->SaveAs(plotdir+filename.ReplaceAll(".pdf",".png"));
 	c->SaveAs(plotdir+filename.ReplaceAll(".png",".root"));
+<<<<<<< HEAD
 	//c->SaveAs(plotdir+filename.ReplaceAll(".root",".C"));
+=======
+>>>>>>> dbcbe17fab4200940626e2ee4fe8d0a1b9ec2925
 
 	}
 
     //h1->SetAxisRange(0, 15, "X");
-   
+
     //c->Update();
     //c->Modified();
-    
+
     //c->SaveAs(plotdir+filename.ReplaceAll(".root",".pdf"));
     //c->SaveAs(plotdir+filename.ReplaceAll(".pdf",".png"));
     //c->SaveAs(plotdir+filename.ReplaceAll(".png",".root"));
