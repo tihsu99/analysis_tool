@@ -113,10 +113,6 @@ void PlotPulls(TString filename="pulls_none.root", TString outdir="", TString po
 	c->SaveAs(plotdir+filename.ReplaceAll(".root","_"+postfix+"_.pdf").ReplaceAll("_"+prefix+"_",""));
 	c->SaveAs(plotdir+filename.ReplaceAll(".pdf",".png"));
 	c->SaveAs(plotdir+filename.ReplaceAll(".png",".root"));
-<<<<<<< HEAD
-	//c->SaveAs(plotdir+filename.ReplaceAll(".root",".C"));
-=======
->>>>>>> dbcbe17fab4200940626e2ee4fe8d0a1b9ec2925
 
 	}
 
