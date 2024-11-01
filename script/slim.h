@@ -84,9 +84,18 @@ template <typename T>T iArray(std::vector<T> Array, int idx, int Is_pdgId = 0){
   return Array[idx];
 }
 
-std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
+float deltaR(float eta1, float phi1, float eta2, float phi2){
+  ROOT::Math::PtEtaPhiMVector p1(1.0, eta1, phi1, 0.0);
+  ROOT::Math::PtEtaPhiMVector p2(1.0, eta2, phi2, 0.0);
+  return ROOT::Math::VectorUtil::DeltaR(p1, p2); 
+}
+
+std::vector<int> match_idx(ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
 
   // Function used for doing kinematic match of "Ref" particle to "Input" particle"
+
+  int nInput = Input_pt.size();
+  int nRef   = Ref_pt.size();
 
   std::vector<int> match_idx;
   float dr, dr_temp, pt1, eta1, phi1, pt2, eta2, phi2;
@@ -105,7 +114,7 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
       pt2 = Ref_pt[i_ref];
       eta2 = Ref_eta[i_ref];
       phi2 = Ref_phi[i_ref];
-      dr_temp = sqrt((eta1-eta2)*(eta1-eta2) + (phi1-phi2)*(phi1-phi2));
+      dr_temp = deltaR(eta1, phi1, eta2, phi2);
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
@@ -124,9 +133,12 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
   return match_idx;
 }
 
-std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut, ROOT::VecOps::RVec<int> GenPart_statusFlags){
+std::vector<int> match_idx(ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut, ROOT::VecOps::RVec<int> GenPart_statusFlags){
 
   // Function used for doing kinematic match of "Ref" particle to "Input" particle"
+
+  int nInput = Input_pt.size();
+  int nRef   = Ref_pt.size();
 
   std::vector<int> match_idx;
   float dr, dr_temp, pt1, eta1, phi1, pt2, eta2, phi2;
@@ -142,11 +154,11 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
     idx  = -1;
 
     for(int i_ref = 0; i_ref < nRef; i_ref++){
-      if(!((GenPart_statusFlags[i_ref]>>13)&1)) continue;
+      if(!((GenPart_statusFlags[i_ref]>>13)&1)) continue; // isLastCopy
       pt2 = Ref_pt[i_ref];
       eta2 = Ref_eta[i_ref];
       phi2 = Ref_phi[i_ref];
-      dr_temp = sqrt((eta1-eta2)*(eta1-eta2) + (phi1-phi2)*(phi1-phi2));
+      dr_temp = deltaR(eta1, phi1, eta2, phi2);
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
@@ -165,9 +177,11 @@ std::vector<int> match_idx(int nInput, ROOT::VecOps::RVec<float> Input_pt, ROOT:
   return match_idx;
 }
 
-std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, int nRef, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
+std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<float> Input_pt, ROOT::VecOps::RVec<float> Input_eta, ROOT::VecOps::RVec<float> Input_phi, ROOT::VecOps::RVec<float> Ref_pt, ROOT::VecOps::RVec<float> Ref_eta, ROOT::VecOps::RVec<float> Ref_phi, float dr_cut, float pt_ratio_cut){
 
   // Function used for doing kinematic match of "Ref" particle to "Input" particle", dedicated for map_id_input (i.e. tightJets_id etc.)
+
+  int nRef = Ref_pt.size();
 
   std::vector<int> match_idx;
   float dr, dr_temp, pt1, eta1, phi1, pt2, eta2, phi2;
@@ -187,7 +201,7 @@ std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<
       pt2 = Ref_pt[i_ref];
       eta2 = Ref_eta[i_ref];
       phi2 = Ref_phi[i_ref];
-      dr_temp = sqrt((eta1-eta2)*(eta1-eta2) + (phi1-phi2)*(phi1-phi2));
+      dr_temp = deltaR(eta1, phi1, eta2, phi2);
       if (dr_temp < dr){
         dr = dr_temp;
         idx = i_ref;
@@ -208,16 +222,16 @@ std::vector<int> match_idx(ROOT::VecOps::RVec<int> Input_id, ROOT::VecOps::RVec<
 
 
 
-std::vector<int> match_idx_parton(int nGenPart, ROOT::VecOps::RVec<int> GenPart_genPartIdxMother, ROOT::VecOps::RVec<int> GenPart_pdgId, ROOT::VecOps::RVec<int> GenPart_statusFlags){
+std::vector<int> match_idx_parton(ROOT::VecOps::RVec<int> GenPart_genPartIdxMother, ROOT::VecOps::RVec<int> GenPart_pdgId, ROOT::VecOps::RVec<int> GenPart_statusFlags){
 
   // Find mother particle id for genPart
-
+  int nGenPart = GenPart_genPartIdxMother.size();
   std::vector<int> match_idx;
   int daughter_id, daughter_statusflags, mother_idx, mother_id, mother_statusflags;
   bool isdaughter_HardProcess;
 
   for(int index_ = 0; index_ < nGenPart; index_++){
-    daughter_id = GenPart_pdgId[index_];
+    daughter_id = abs(iArray(GenPart_pdgId, index_));
     daughter_statusflags = GenPart_statusFlags[index_];
 
     isdaughter_HardProcess = (daughter_statusflags>>7)&1;
@@ -280,17 +294,15 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
   return weight;
 }
 
-int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match, std::vector<int> Part_mother_match){
-
+int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match){
+  
   // Function used for mapping reco object to mother parton
 
   int gen_index = Gen_Reco_match[Reco_index];
   if(gen_index < 0) return -1;
   int part_index = Part_Gen_match[gen_index];
   if(part_index < 0) return -1;
-  int part_mother_index = Part_mother_match[part_index];
-  if(part_mother_index < 0) return -1;
-  return part_mother_index;
+  return part_index;
 }
 
 int match_parton_to_reco(int parton_pdgid,  int reco_pt_order, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match, std::vector<int> Part_mother_match, ROOT::VecOps::RVec<int> GenPart_pdgId){
@@ -298,7 +310,7 @@ int match_parton_to_reco(int parton_pdgid,  int reco_pt_order, std::vector<int> 
   int parton_index, iparton;
   std::vector<int> reco_candidate;
   for(int iReco=0; iReco < Gen_Reco_match.size(); iReco++){
-    iparton = match_reco_parton(iReco, Gen_Reco_match, Part_Gen_match, Part_mother_match);
+    iparton = match_reco_parton(iReco, Gen_Reco_match, Part_Gen_match);
     while(iparton>0){
       if (abs(GenPart_pdgId[iparton]) == parton_pdgid){
         reco_candidate.push_back(iReco);
@@ -313,6 +325,8 @@ int match_parton_to_reco(int parton_pdgid,  int reco_pt_order, std::vector<int> 
   else return reco_candidate[reco_pt_order];
 
 }
+
+
 
 std::vector<int> particle_cv(int iPart, std::vector<int> Part_mother_match, ROOT::VecOps::RVec<int> GenPart_pdgId){
   std::vector<int> cv;
@@ -334,13 +348,13 @@ std::vector<int> search_parton_cv(std::vector<int> Part_mother_match, ROOT::VecO
   // input: target_process should be the vector like [5,6,50003], which indicate we are searching for the b quarks following H+ > t > b decay chain
   std::vector<int> target_parton;
   for(int iPart=0; iPart < GenPart_pdgId.size(); iPart++){
-    std::vector<int> cv = particle_cv(iPart, Part_mother_match, GenPart_pdgId);
     bool Flag = true;
     bool isdaughter_prompt      = (GenPart_statusFlags[iPart]>>0)&1;
     bool isdaughter_HardProcess = (GenPart_statusFlags[iPart]>>7)&1;
     bool isdaughter_lastcopy    = (GenPart_statusFlags[iPart]>>13)&1;
   //  if(!(isdaughter_prompt && isdaughter_lastcopy)) continue;
-    if(!(isdaughter_HardProcess)) continue;
+    if(!(isdaughter_lastcopy)) continue;
+    std::vector<int> cv = particle_cv(iPart, Part_mother_match, GenPart_pdgId);
     for(int itarget = 0; itarget < target_process.size(); itarget++){
       if(target_process[itarget] != cv[itarget]) Flag = false;
     }
@@ -360,6 +374,19 @@ int MET_part_index(std::vector<int> Part_mother_match, ROOT::VecOps::RVec<int> G
   return -1;
 }
 
+int compare_reco_to_parton(int reco_index, std::vector<int> parton_indices, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> GenPart_eta, ROOT::VecOps::RVec<float> GenPart_phi, float dr){
+  if (parton_indices.size() < 1) return -2;
+  if (reco_index < 0) return -1;
+  float jet_eta = Jet_eta[reco_index];
+  float jet_phi = Jet_phi[reco_index];
+  for (int ipart = 0; ipart < parton_indices.size(); ipart++){
+    float part_eta = GenPart_eta[parton_indices[ipart]];
+    float part_phi = GenPart_phi[parton_indices[ipart]];
+    if (deltaR(part_eta, part_phi, jet_eta, jet_phi) < dr) return 1;
+  }
+  return 0;
+}
+
 float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, float MET_phi){
 
  //////////////////////////////////////////
@@ -372,8 +399,8 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
   float l_E  = sqrt(l_pz*l_pz + l_pt*l_pt);
   float D = Lambda*Lambda*l_pz*l_pz + l_pt*l_pt*(Lambda*Lambda - l_E * l_E * MET * MET);
   float A = Lambda*l_pz/(l_pt*l_pt);
-  if(D<0) return A;
-  else{
+  if(D < 0) return A;
+  else{ 
     if(abs(A + sqrt(D)/(l_pt*l_pt)) > abs(A - sqrt(D)/(l_pt*l_pt))){
       return A - sqrt(D)/(l_pt*l_pt);
     }
@@ -381,19 +408,23 @@ float MET_pz_reconstruction(float l_pt, float l_eta, float l_phi, float MET, flo
   }
 }
 
-float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass, int var){
+
+
+
+ROOT::VecOps::RVec<Float_t> top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::VecOps::RVec<float> b_jet_id, ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, ROOT::VecOps::RVec<float> Jet_phi, ROOT::VecOps::RVec<float> Jet_mass){
 
   float top_E = -1.;
   float top_px = -1.;
   float top_py = -1.;
   float top_pz = -1.;
-  float top_mass = -1.;
+  float top_mass = -999999.;
   float mT = 172.69; //PDG 2023
   float jet_pt, jet_eta, jet_phi, jet_mass, jet_e, jet_px, jet_py, jet_pz;
   float top_e_tmp, top_px_tmp, top_py_tmp, top_pz_tmp, top_mass_tmp;
   float H_E, H_px, H_py, H_pz;
   float H_mass = -99.;
   int b_jet_cand_idx = -1;
+  int b_jet_cand_idx_Hplus = -1;
   ROOT::Math::PxPyPzEVector Wjet(W_px, W_py, W_pz, W_E);
   ROOT::Math::PtEtaPhiMVector top;
 
@@ -410,32 +441,37 @@ float top_reconstruction(float W_E, float W_px, float W_py, float W_pz, ROOT::Ve
     }
   }
 
-  if(var == 1) return top.Pt();
-  else if(var == 0) return top_mass;
-  else{
-    if(b_jet_id.size() > 1){
+  if(b_jet_id.size() > 1){
       for(int ijet = 0; ijet < b_jet_id.size(); ijet++){
         int jet_idx = b_jet_id[ijet];
         if(jet_idx < 0) continue;
         if(jet_idx == b_jet_cand_idx) continue;
         ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
         ROOT::Math::PtEtaPhiMVector Hplus = top + jet;
-        if(Hplus.M() > H_mass) H_mass = Hplus.M();
+        if(Hplus.M() > H_mass){
+          H_mass = Hplus.M();
+          b_jet_cand_idx_Hplus = jet_idx;
+
+        }
       }
-    }
-    else{
+  }
+  else{
        for(int ijet = 0; ijet < tight_jet_id.size(); ijet++){
         int jet_idx = tight_jet_id[ijet];
         if(jet_idx < 0) continue;
         if(jet_idx == b_jet_cand_idx) continue;
         ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
         ROOT::Math::PtEtaPhiMVector Hplus = top + jet;
-        if(Hplus.M() > H_mass) H_mass = Hplus.M();
-      }
-    }
-    return H_mass;
+        if(Hplus.M() > H_mass){
+          H_mass = Hplus.M();
+          b_jet_cand_idx_Hplus = jet_idx;
+        }
+     }
   }
+  ROOT::VecOps::RVec<Float_t> return_out = {(float) top.M(), (float) top.Pt(), (float) b_jet_cand_idx, (float) H_mass, (float) b_jet_cand_idx_Hplus};
+  return return_out;
 }
+
 
 
 //////////////////////
@@ -527,6 +563,29 @@ float HT_(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> jetpt)
     ht+=jetpt[jetid[i]];
   }
   return ht;
+}
+
+ROOT::VecOps::RVec<Int_t> select_btag_jet_wo_lepton_dr_cut(ROOT::VecOps::RVec<Int_t> Jet_jetId, ROOT::VecOps::RVec<Int_t> Jet_puId, ROOT::VecOps::RVec<Float_t> Jet_pt, ROOT::VecOps::RVec<Float_t> Jet_eta, ROOT::VecOps::RVec<Float_t> Jet_btagDeepFlavB){
+  ROOT::VecOps::RVec<Int_t> return_id;
+  float eta_cut = 2.4;
+  if ((era == "2017") || (era == "2018")) eta_cut = 2.5;
+  
+  float btag_cut_medium = 0.3040; //2017
+  if(era == "2016apv") btag_cut_medium = 0.2598;
+  else if (era == "2016postapv") btag_cut_medium = 0.2489;
+  else if (era == "2018") btag_cut_medium = 0.2783;
+
+
+
+  for(int i = 0; i < Jet_jetId.size(); i++){
+    if(abs(Jet_eta[i]) > eta_cut) continue;
+    if(Jet_pt[i] < 30) continue;
+    if((Jet_pt[i] < 50) && !(Jet_puId[i] == 7)) continue;
+    if(!(Jet_jetId[i] == 6)) continue;
+    if(Jet_btagDeepFlavB[i] > btag_cut_medium) return_id.push_back(i);
+  }
+
+  return return_id;
 }
 
 ///////////////
@@ -924,3 +983,4 @@ float METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, int 
 
   return CorrectedMETPhi;
 }
+
