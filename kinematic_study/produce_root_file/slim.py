@@ -415,7 +415,7 @@ def Slim_module(filein,
         "Title": ";DNN;nEntries",
         "xlow":0,
         "xhigh":1,
-        "nbin": 10,
+        "nbin": 20,
         "Label": ["Normal", "pNN"],
         "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
       }
@@ -426,7 +426,7 @@ def Slim_module(filein,
           "Title": ";DNNScore;nEntries",
           "xlow":0.5,
           "xhigh":1,
-          "nbin": 10,
+          "nbin": 20,
           "Label": ["Normal", "pNN"],
           "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
         }
