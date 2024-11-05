@@ -23,7 +23,7 @@
     "POI": ["bh_HT"],
     "POI_bin": [100,1000,9]
   },
-    
+
   "SR_2b4j":{
      "channel_cut":{
        "ele_resolved": {
@@ -151,5 +151,3 @@
   }
 
 }
-
-

@@ -1,5 +1,5 @@
 #!/bin/bash
-#./SubmitGOF.sh saturated [year] [region] [channel] [coupling:rtu04] [Higgs] [mass] [unblind/blind] [datacard_dir] [datacard_name] 
+#./SubmitGOF.sh saturated [year] [region] [channel] [coupling:rtu04] [Higgs] [mass] [unblind/blind] [datacard_dir] [datacard_name]
 ALGO=$1
 YEAR=$2
 REGION=$3
@@ -38,7 +38,7 @@ nJobs=20
 toysPerJob=$((nToys/nJobs))
 datacards=${DATACARD}
 jobMode=condor
-subOpts="+JobFlavour=\"workday\"\nRequestCpus=2" 
+subOpts="+JobFlavour=\"workday\"\nRequestCpus=2"
 echo "=======Current GoodnessofFit information======="
 echo "Algo: \"${ALGO}\""
 echo "Data taking-year: \"${YEAR}\""
@@ -55,12 +55,12 @@ if [ -d ${dirname} ];then
     rm ${dirname}/higgsCombine*.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}.GoodnessOfFit.mH${MASS}.*.root
     cp ${CWD}/${DATACARD_DIR}/$datacards $datacards
 
-    sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
+    # sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
 else
-    mkdir -p ${dirname} 
-    cd ${dirname} 
+    mkdir -p ${dirname}
+    cd ${dirname}
     cp ${CWD}/${DATACARD_DIR}/$datacards $datacards
-    sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
+    # sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
 fi
 
 echo "=== Submit job for toys (`pwd`)"
@@ -70,7 +70,7 @@ do
     combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO} > SubmitGoF_${t}.log
 done
 
-if [[ $7 == "unblind" ]];then
+if [[ $8 == "unblind" ]];then
     echo "=== Run job on data:(`pwd`) ==="
     combineTool.py -m ${MASS} -M GoodnessOfFit ${datacards} --algorithm ${ALGO}  -n Data.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}
 fi
