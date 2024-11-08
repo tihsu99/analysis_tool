@@ -1,28 +1,48 @@
 import json
 from Util.General_Tool import CheckFile, python_version
 from collections import OrderedDict
+import os, sys
+sys.path.append('../python')
+from common import *
 
-def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=[]):
+def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=[], config = None):
 
-    process = list(process)
+    samples = read_json(config.sample_json)
+
+    process_raw = list(process)
     Input = dict()    
+  
+    process = []
+    process_data_driven = []
+    process_free_float  = []
+
+    for process_ in process_raw:
+      for sample in samples:
+        if samples[sample]['Category'] == process_:
+          if 'FreeFloat'  in samples[sample]['Label']: process_free_float.append(process_)
+          if 'DataDriven' in samples[sample]['Label']: process_data_driven.append(process_)
+          else: process.append(process_)
+          break
+
+    
+
 
     Input['bin']=dict()
 
-    Input['Process'] = process
+    Input['Process'] = process_raw
     if 'SIGNAL' in process:
       pass
     else:
         Input['Process'].insert(0,'SIGNAL')
 
-    process = Input['Process']
     Input['bin'][region] = len(Input['Process'])
     Input['process1'] = list(range(len(Input['Process'])))
     Input['rate'] = [-1 for i in range(len(Input['Process']))]
     Input['NuisForProc'] = dict()
     Input['UnclnN'] = dict()
+    Input['FreeFloat'] = list(process_free_float)
 
-    jsonfile = open("../data/nuisance.json")
+    jsonfile = open(config.nuisance_json)
     if python_version == 2:
       nuisance_dict = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:
@@ -93,7 +113,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     ## Norm Uncertainty ##
     ######################
 
-    jsonfile = open("../data/sample.json")
+    jsonfile = open(config.sample_json)
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:

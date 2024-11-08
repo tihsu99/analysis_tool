@@ -3,11 +3,11 @@ from collections import OrderedDict
 from Util.General_Tool import CheckFile, python_version
 from Init_Tool.Nuisance_Group import DefineGroup
 
-def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=None, region=None, breakdown = False):
+def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=None, region=None, breakdown = False, config=None):
 
     nuis_List = dict()
     nuis_idx  = 0
-    jsonfile = open("../data/nuisance.json")
+    jsonfile = open(config.nuisance_json)
     if python_version == 2:
       nuisances_dict = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
       nuisances = nuisance_dict.items()
@@ -39,7 +39,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     Process_not_use_NormUnc = nuisances_dict['PDF']['Process']
 
 
-    jsonfile = open("../data/sample.json")
+    jsonfile = open(config.sample_json)
     if python_version == 2:
       samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
     else:
