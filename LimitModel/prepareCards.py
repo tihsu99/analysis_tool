@@ -23,7 +23,7 @@ def compare_two_list(l1, l2):
     if not l1[idx] in l2: return False
   return True
 
-def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json'):
+def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json', create_WorkSpace = False):
 
 
   # List of Years
@@ -65,6 +65,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
   for era in years:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
+        parameter_constraint = dict()
         year = '2016' if '2016' in era else era
         cb = ch.CombineHarvester()
         Datacards_Input = read_json("data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json".format(era, region, channel))
@@ -92,6 +93,11 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
             cb.cp().process(process_list).AddSyst(cb, str(nuisance), "shape", ch.SystMap()(1.0))
           else:
             cb.cp().process(process_list).AddSyst(cb, str(nuisance), "lnN",  ch.SystMap()(float(Datacards_Input["UnclnN"][nuisance])))
+
+        if "FreeFloat" in Datacards_Input:
+            for ff_process in Datacards_Input["FreeFloat"]:
+                cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
+                parameter_constraint[str("scale_" + ff_process + "_" + region + "_" + channel)] = [0.0, 20.0]
         # Set Rate
         cb.ForEachProc(set_Rate)
         cb.ForEachObs(set_Rate)
@@ -102,6 +108,16 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         CheckDir(outdir_, True)
         output_datacard_txt = os.path.join(outdir_, '{}_{}_{}_{}'.format(signal, era, region, channel) + ".txt")
         cb.cp().WriteDatacard(str(output_datacard_txt))
+        with open(output_datacard_txt, "r") as file:
+            lines = file.readlines()
+        with open(output_datacard_txt, "w") as file:
+            for line in lines:
+            # Check if the line defines a rateParam
+              for param_ in parameter_constraint:
+              # Add the bounds to the line
+                if param_ in line:
+                  line = line.strip() + f" [0,20]\n"
+              file.write(line)
         # Specify systematic histogram naming rule
         dataset_dir_v = dataset_dir.replace('/','\/')
         os.system('sed -i "s/FAKE/%s\/FinalInputs\/%s\/%s\/TMVApp\_%s\_%s.root %s%s\_\$PROCESS %s%s\_\$PROCESS\_\$SYSTEMATIC/g"  %s'%(dataset_dir_v, era, signal, region, channel, analysis_name, era, analysis_name, era, output_datacard_txt))
@@ -111,7 +127,8 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         os.system('sed -i "s/CHANNEL/%s/g" %s'%(channel, output_datacard_txt))
         os.system('sed -i "s/observation  -1.0/observation  -1/g" %s'%(output_datacard_txt)) #TODO 
         print("\033[0;32m info \033[0;m: create datacard: %s"%(output_datacard_txt)) 
-        os.system('text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+        if create_WorkSpace:
+          os.system('text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
 
 
   ##############
@@ -133,7 +150,8 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         merge_command += ' > {}'.format(output_datacard_txt)
         print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_, output_datacard_txt)))
         os.system(merge_command)
-        os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+        if create_WorkSpace:
+          os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
         region_tmp = region
       # Combine region
       if shared_channel:
@@ -151,7 +169,8 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         merge_command += ' > {}'.format(output_datacard_txt)
         print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_,output_datacard_txt)))
         os.system(merge_command)
-        os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+        if create_WorkSpace:
+          os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
 
     # Combine era
     for region in region_channel_dict:
@@ -175,7 +194,8 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         print("\033[0;32m info \033[0;m: create datacard: %s"%(os.path.join(outdir_, output_datacard_txt)))
         print(merge_command)
         os.system(merge_command)
-        os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+        if create_WorkSpace:
+          os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -189,6 +209,7 @@ if __name__ == "__main__":
   parser.add_argument('--outdir', help='output directory', default='./')
   parser.add_argument('--analysis_name', help='analysis_name', default='bH')
   parser.add_argument('--PhysicsModel', help='Physics model name', default='g2HDM_3Bbased')
+  parser.add_argument('--create_WorkSpace', action = 'store_true')
   parser.add_argument('--cut_json', default='../data/cut.json')
   args = parser.parse_args()
   CheckDir(args.outdir, True)
@@ -209,7 +230,7 @@ if __name__ == "__main__":
         if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
       args.signal = signal_list
     for signal_ in args.signal:
-      create_datacards(args.year, args.region, args.channel, signal_, args.combined, args.outdir, args.analysis_name, args.dataset_dir, PhysicsModel=args.PhysicsModel, cut_json = args.cut_json)
+      create_datacards(args.year, args.region, args.channel, signal_, args.combined, args.outdir, args.analysis_name, args.dataset_dir, PhysicsModel=args.PhysicsModel, cut_json = args.cut_json, create_WorkSpace = args.create_WorkSpace)
 
   # Method 2(specific to bHplus study): give lists of masses and coupling(TODO)
   else:
@@ -221,4 +242,4 @@ if __name__ == "__main__":
           subprocess.append(subprocess_)
       else:
         subprocess.append(signal_name)
-      create_datacards(args.year, args.region, args.channel, signal_name, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json)
+      create_datacards(args.year, args.region, args.channel, signal_name, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json, create_WorkSpace = args.create_WorkSpace)
