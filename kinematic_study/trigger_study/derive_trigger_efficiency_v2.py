@@ -26,6 +26,25 @@ import cmsstyle as CMS
 CMS.SetExtraText("Preliminary")
 CMS.SetEnergy("13")
 
+color_Dict_ref = {
+  'cgTotH':ROOT.kRed,
+  'bgTotH':ROOT.kCyan-9,
+  'VVV':ROOT.kSpring - 9,
+  'ttXY':ROOT.kPink-3,
+  'TT1L':ROOT.kViolet-4,
+  'tZq':ROOT.kYellow+1,
+  'TT2L':ROOT.kBlue,
+  'ttW':ROOT.kGreen-2,
+  'ttZ':ROOT.kCyan-2,
+  'VBS':ROOT.kBlue-6,
+  'ttH':ROOT.kRed-9,
+  'WJets':ROOT.kOrange+3,
+  'SingleTop':ROOT.kGray,
+  'DY': ROOT.kYellow-4,
+  'QCD': ROOT.kOrange-2,
+  'TTHad': ROOT.kBlue + 1
+}
+
 def Get_From_TH2(nbinX, x_binnings, hist2D, iy, name):
   TH1_ = ROOT.TH1D(name, name, nbinX, array('d', x_binnings))
   for ix in range(nbinX):
@@ -430,7 +449,11 @@ def Calculate_Trigger_Scale_Factor(era, inputDir, region, lepton, plotdir):
     Data_den = overunder_flowbin2D(den_dict["Data"])
 
     sf = Efficiency(Data_num, Data_den, MC_num, MC_den, "ScaleFactor", plotdir)
-    correlation = Correlation(MC_num, MC_den, MC_pure_Trig, MC_basic_cut, plotdir)    
+    if (variation == 'nominal'): 
+      correlation = Correlation(MC_num, MC_den, MC_pure_Trig, MC_basic_cut, plotdir)    
+    else:
+      correlation = None
+    print(correlation)
     # Draw Distribution
     for var_ in var_list:
       if not (variation == 'nominal'): continue
@@ -457,7 +480,7 @@ def Calculate_Trigger_Scale_Factor(era, inputDir, region, lepton, plotdir):
             if dataset_ == 'Data':
                 canvas.addObs(h_)
             else:
-                canvas.addStacked(h_, title=dataset_, color=Color_Dict_ref[dataset_], opt='F')
+                canvas.addStacked(h_, title=dataset_, color=color_Dict_ref[dataset_], opt='F')
         canvas.rtitle = str("Data/MC")
         canvas.yaxis.SetMaxDigits(4)
         canvas.applyStyles()
@@ -584,7 +607,8 @@ if __name__ == '__main__':
               sf, correlation = Calculate_Trigger_Scale_Factor(era_, inputDir = os.path.join(args.inputdir, era_, variation_), region=region_, lepton=lepton_, plotdir=plotdir)
               fout.cd()
               sf.Write('{}_{}_scale_factor'.format(region_, lepton_))
-              correlation.Write('{}_{}_correlation'.format(region_, lepton_))
+              if (variation_ == 'nominal'):
+                correlation.Write('{}_{}_correlation'.format(region_, lepton_))
         fout.Close()
 
       output_directory = 'data_v2/summary/{}'.format(era_)
