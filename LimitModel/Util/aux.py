@@ -61,3 +61,26 @@ def PrintFlushed(msg, printHeader=True):
     sys.stdout.write(msg)
     sys.stdout.flush()
     return
+
+def combine_histograms(hist1, hist2):
+    """
+    Combines two TH1F histograms by concatenating their bins.
+    
+    :param hist1: First TH1F histogram
+    :param hist2: Second TH1F histogram
+    :return: New TH1F histogram with concatenated bins from hist1 and hist2
+    """
+    # Determine the new histogram's binning and range
+    nbins_combined = hist1.GetNbinsX() + hist2.GetNbinsX()
+    
+    # Create a new histogram with combined bins
+    hist_combined = ROOT.TH1F("hist_combined", "Combined Histogram", nbins_combined, 0, nbins_combined)
+    
+    # Fill the new histogram with contents from hist1 and hist2
+    for i in range(1, hist1.GetNbinsX() + 1):
+        hist_combined.SetBinContent(i, hist1.GetBinContent(i))
+        
+    for i in range(1, hist2.GetNbinsX() + 1):
+        hist_combined.SetBinContent(i + hist1.GetNbinsX(), hist2.GetBinContent(i))
+    
+    return hist_combined

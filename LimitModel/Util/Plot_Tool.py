@@ -451,7 +451,7 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
   return Hist_interp, exclusion
 
 
-def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], paper=False, y_axis_title = "POI", interference = False, ratio_file = None):
+def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], paper=False, y_axis_title = "POI", interference = False, ratio_file = None, signal_xsec_TGraph = None):
 
 
   coupling_type = "xx"
@@ -542,7 +542,10 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   else:
     Target_Object = "expmed"
 
-  Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(y_axis_title, Target_Object)
+  if signal_xsec_TGraph is None:
+    Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(y_axis_title, Target_Object)
+  else:
+    Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on cross section #sigma(%s)"%(y_axis_title, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -564,8 +567,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
         if ratio_file is not None:
           ratios = read_json(ratio_file)
           ratio_ = ratios[str(mass)]
-          limit_obs = limit_obs * (1. + coupling_value * ratio_)
-          limit_exp = limit_exp * (1. + coupling_value * ratio_)
+          limit_obs = limit_obs * (1. + coupling_value * ratio_) / (ratio_ + 1)
+          limit_exp = limit_exp * (1. + coupling_value * ratio_) / (ratio_ + 1)
           OUT_DIR = os.path.join(outputFolder, "plots_limit_2D_w_ratio")
           os.system('mkdir -p {}'.format(OUT_DIR))
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)
