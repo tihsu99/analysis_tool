@@ -18,6 +18,7 @@ from ray.train import Checkpoint
 from ray.tune.schedulers import ASHAScheduler
 from sklearn.utils import resample
 from model import DNN, Ensemble_DNN
+import glob
 
 class custom_dataset(Dataset):
   def __init__(self, df, input_columns, target_columns, weight_columns, device):
@@ -336,7 +337,7 @@ def Training(indir, MVA_json, n_epoch, batch_size, signal_mass=[500], learning_r
       }
   #    os.system('ray status')
       scheduler = ASHAScheduler(
-          max_t=10,
+          max_t=10, #TODO: 10
           grace_period=1,
           reduction_factor=4)
 
@@ -360,12 +361,19 @@ def Training(indir, MVA_json, n_epoch, batch_size, signal_mass=[500], learning_r
       best_config = best_result.config
       print("Best trial config: {}".format(best_result.config))
       print("Best trial final validation loss: {}".format(best_result.metrics["loss"]))
-  
+      final_log_path = results.experiment_path
+
 
     # Store hyperparameter setting
 
     with open(os.path.join(outdir, 'param.json'), 'w') as outfile:
       json.dump(best_config, outfile, indent=4)
+
+    file_paths = glob.glob("{}/*/progress.csv".format(final_log_path))
+    os.system('mkdir -p {}/record'.format(outdir))
+    for index, file_ in enumerate(file_paths):
+      os.system('cp {} {}/record/progress_{}.csv'.format(file_, outdir, index))
+      os.system('cp {} {}/record/params_{}.json'.format(file_.replace('progress.csv','params.json'), outdir, index))
 
     return 0
 
