@@ -25,7 +25,9 @@ if __name__ == '__main__':
   parser.add_argument('--rtt',           default = "0.6",         type = str)
   parser.add_argument('--rtc',           default = "0.4",         type = str) 
   parser.add_argument('--process',       default = None)
+  parser.add_argument('--process_blacklist',       default = None)
   parser.add_argument("--logy",          action  = "store_true")
+  parser.add_argument("--unblind", action = "store_true")
   args = parser.parse_args()
 
   rtc = args.rtc.replace('.', '')
@@ -49,9 +51,10 @@ if __name__ == '__main__':
 
   fin = ROOT.TFile.Open(distribution_file, 'READ')
 
-
+  DrawNominal = False
 
   # Nominal Plot
+
   for nuisance in data_info["UnclnN"]:
     if not(data_info["UnclnN"][nuisance] == 'shape'): continue
 
@@ -60,7 +63,7 @@ if __name__ == '__main__':
     canvas.raxis.SetNdivisions(101)
     #canvas.SetLogy()
     canvas.rlimits = (0.9, 1.1)
-    canvas.legend.SetTextSize(0.015)
+    canvas.legend.SetTextSize(0.018)
     canvas.legend.SetX2(0.95)
     canvas.ytitle = "Events/bin"
 
@@ -69,13 +72,18 @@ if __name__ == '__main__':
     # Nominal process
     for process_ in data_info["Process"]:
       if process_ == "SIGNAL": continue
+      if (args.process_blacklist is not None) and (process_ == args.process_blacklist): continue
       histo = fin.Get("bH{era}_{process}".format(era = era, process = process_)).Clone()
+      print("bH{era}_{process}".format(era = era, process = process_), histo.GetBinLowEdge(3), histo.GetBinLowEdge(4),  histo.GetBinLowEdge(1),  histo.GetBinLowEdge(2))
       canvas.addStacked(histo, title = "%s[%.0f]"%(process_, histo.Integral()), color = Color_Dict_ref[process_], opt = 'F')
-
+    if args.unblind:
+      histo = fin.Get("bH{era}_data_obs".format(era=era))
+      canvas.addObs(histo, title = "data")
     # Get variation
     h_up = None
     h_down = None
     for process_ in data_info["Process"]:
+      if (args.process_blacklist is not None) and (process_ == args.process_blacklist): continue
       if process_ == "SIGNAL": continue
       if process_ in data_info["NuisForProc"][nuisance] and not (args.process is not None and not process_ == args.process):
         h_up_tmp = fin.Get("bH{era}_{process}_{nui}Up".format(era=era, process=process_,nui=nuisance_name)).Clone()
@@ -89,12 +97,30 @@ if __name__ == '__main__':
       else:
         h_up.Add(h_up_tmp)
         h_do.Add(h_do_tmp)
-    
-    canvas.addSignal(h_up, title = "%s[%.0f]"%(nuisance_name, h_up.Integral()), color = ROOT.kRed)
-    canvas.addSignal(h_do, title = "%s[%.0f]"%(nuisance_name, h_do.Integral()), color = ROOT.kOrange)
-    canvas.rtitle = str("variation")
+
+    canvas.rtitle = str("Data/Pred.")
     canvas.yaxis.SetMaxDigits(4)
 
+    print("bH{era}_{process}".format(era=era, process=signal_name))
+    signal_histo = fin.Get("bH{era}_{process}_2b".format(era=era, process=signal_name)).Clone()
+    signal_histo_3b = fin.Get("bH{era}_{process}_3b".format(era=era, process=signal_name)).Clone()
+    signal_histo.Add(signal_histo_3b)
+    signal_histo.Scale(10)
+    canvas.addSignal(signal_histo, title = "Signal(x10)", color=ROOT.kBlue) 
+    canvas.addText('Region: {}'.format(region), 0.18, 0.79, 0.3, 0.82, size=0.02, align=12)
+    canvas.addText('Channel: {}'.format(channel), 0.18, 0.76, 0.3, 0.79, size=0.02, align=12)
+
+
+    if not DrawNominal:
+      canvas.applyStyles()
+      if args.logy:
+        canvas.printWeb(os.path.join(outdir), "PreFit_log", logy = True)
+      else:
+        canvas.printWeb(os.path.join(outdir), "PreFit", logy = args.logy)
+
+    canvas.addSignal(h_up, title = "VarUp[%.0f]"%(h_up.Integral()), color = ROOT.kRed)
+    canvas.addSignal(h_do, title = "VarDown[%.0f]"%(h_do.Integral()), color = ROOT.kOrange)
+    canvas.addText('Var: {}'.format(nuisance_name), 0.18, 0.73, 0.3, 0.76, size=0.019, align=12)
     canvas.applyStyles()
     if args.logy:
       canvas.printWeb(os.path.join(outdir), "{nuisance}_log".format(nuisance = nuisance_name), logy = True)

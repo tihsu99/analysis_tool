@@ -11,6 +11,8 @@ import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
 from collections import OrderedDict
 import numpy as np
+sys.path.insert(0, '../python')
+from common import read_json
 
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
@@ -243,17 +245,17 @@ class RunLimits:
         exp2s.SetMarkerStyle(20)
         exp2s.SetMarkerSize(1.1)
         exp2s.SetLineWidth(2)
-        exp2s.SetFillColor(rt.kYellow);
-        exp2s.SetLineColor(rt.kYellow)
-        exp2s.GetXaxis().SetTitle("m_{A} (GeV)");
+        exp2s.SetFillColor(rt.kOrange);
+        exp2s.SetLineColor(rt.kOrange)
+        exp2s.GetXaxis().SetTitle("m_{H^{\pm}} (GeV)");
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         if signal_xsec_TGraph is None:
           exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
         #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
         else:
-          exp2s.GetYaxis().SetTitle("\sigma(pp\\rightarrow XH^{\pm})Br(H^{\pm}\\rightarrow tb)[pb]")
-        exp2s.GetYaxis().SetTitleOffset(1.7)
+          exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #sigma(pp#rightarrow XH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]")
+        exp2s.GetYaxis().SetTitleOffset(1.9)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
         exp2s.GetYaxis().SetMoreLogLabels()
@@ -265,8 +267,8 @@ class RunLimits:
         exp1s.SetMarkerStyle(20)
         exp1s.SetMarkerSize(1.1)
         exp1s.SetLineWidth(2)
-        exp1s.SetFillColor(rt.kGreen);
-        exp1s.SetLineColor(rt.kGreen)
+        exp1s.SetFillColor(rt.kGreen + 2);
+        exp1s.SetLineColor(rt.kGreen + 2)
         exp1s.Draw("3 same")
     
         exp =  f.Get("expmed")
@@ -285,7 +287,7 @@ class RunLimits:
             obs.SetLineWidth(3)
             obs.Draw("LP same")
     
-        leg = rt.TLegend(.6, .65, .88, .890);
+        leg = rt.TLegend(.55, .65, .80, .890);
         leg.SetBorderSize(0);
         leg.SetFillColor(0);
         leg.SetShadowColor(0);
@@ -300,10 +302,11 @@ class RunLimits:
         leg.Draw("same")
         c.Update()
         #print (c.GetUxmin(),c.GetUxmax())
-        line = rt.TLine(c.GetUxmin(),1.0,c.GetUxmax(),1.0);
-        line.SetLineColor(rt.kRed)
-        line.SetLineWidth(2)
-        line.Draw('same ')
+        if signal_xsec_TGraph is None:
+          line = rt.TLine(c.GetUxmin(),1.0,c.GetUxmax(),1.0);
+          line.SetLineColor(rt.kRed)
+          line.SetLineWidth(2)
+          line.Draw('same ')
 
         if signal_xsec_TGraph is None:
           pass
@@ -312,7 +315,13 @@ class RunLimits:
           signal_xsec_TGraph.SetFillColor(rt.kRed)
           signal_xsec_TGraph.SetLineWidth(2)
           signal_xsec_TGraph.Draw('3 L same')
-          leg.AddEntry(signal_xsec_TGraph, "Theoretical prediction", "L")
+          param_string = ''
+          for param_ in self.signal_param_:
+            if type(self.signal_param_[param_]) == str:
+              value = self.signal_param_[param_].replace("p",".")
+            param_string += "{}={} ".format(param_, value)
+
+          leg.AddEntry(signal_xsec_TGraph, "g2HDM ({})".format(param_string), "L")
     
         latex =  rt.TLatex();
         latex.SetNDC();
@@ -336,9 +345,10 @@ class RunLimits:
             value = self.signal_param_[param_].replace("p",".")
           param_string += "{}={} ".format(param_, value)
         CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.09)
-        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format(self.analysis_, self.region_, self.channel_));
+        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format('g2HDM', self.region_, self.channel_));
         latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
-        latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
+        if signal_xsec_TGraph is None:
+          latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         
                 
         OUT_DIR = os.path.join(outputdir,"plots_limit", self.year_)
@@ -566,10 +576,13 @@ class RunLimits:
       self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
 
 
-    def Scan2DNLL(self, dc, POI_name = 'r_2b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand=''):
+    def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased'):
         asimovstr ="-t -1 "
         tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
-        command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
+        if model_name == 'g2HDM_separate':
+          command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges r_2b=0,1:r_3b=0,1 --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
+        else:
+          command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
@@ -595,22 +608,34 @@ class RunLimits:
         os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
 
     def bestFit(self, fin_name, x, y):
+        x_values = array('d', [])
+        y_values = array('d', [])
         fin = rt.TFile.Open(fin_name, "READ")
         t = fin.Get("limit")
-        t.Draw(y+":"+x, "quantileExpected == 1", "P SAME")
-        gr0 = rt.gROOT.FindObject("Graph").Clone()
-        rt.gROOT.FindObject("Graph").SetName("aa")
-        rt.gROOT.Remove(rt.gROOT.FindObject("Graph"))
+        for entry in t:
+          if entry.quantileExpected == -1:
+            x_values.append(getattr(entry, x))
+            y_values.append(getattr(entry, y))
+            # Assuming x_values and y_values are lists or arrays containing your data points
+        graph = rt.TGraph(len(x_values), x_values, y_values)  # Create the TGraph with your data
+        graph.SetName("MyGraph")  # Set the name of the graph to "MyGraph"
+        graph.Draw("P SAME")  # Draw the graph on the same canvas as existing plots
+        gr0 = graph.Clone()  # Clone the graph to gr0
+
+        #t.Draw(y+":"+x+">>Graph", "quantileExpected == 1", "P SAME")
+        #gr0 = rt.gROOT.FindObject("Graph").Clone()
+        #rt.gROOT.FindObject("Graph").SetName("aa")
+        #rt.gROOT.Remove(rt.gROOT.FindObject("Graph"))
         gr0.SetMarkerStyle(34)
         gr0.SetMarkerSize(2.0)
         fin.Close()
         return gr0
 
-    def draw_2DNLL(self, fin_name, x, y):
+    def draw_2DNLL(self, fin_name, x, y, xsec_2b = 1.0, xsec_3b = 1.0):
         fin = rt.TFile.Open(fin_name, "READ")
         t = fin.Get("limit")
 #        h = rt.TH2F('2DNLL', '2*deltaNLL:{x}:{y}'.format(x=x,y=y),44,0,2,44,0,2)
-        t.Draw("2*deltaNLL:{y}:{x}>>2DNLL(44,0,2,44,0,2)".format(x=x, y=y),"","PROF COLZ")
+        t.Draw("2*deltaNLL:{y}*{xsec_3b}:{x}*{xsec_2b}>>2DNLL(44, 0, {xsec_2b}, 44, 0, {xsec_3b})".format(x=x, y=y, xsec_2b = xsec_2b, xsec_3b = xsec_3b),"","PROF COLZ")
         h = rt.gROOT.FindObject("2DNLL").Clone()
 #        for entry in range(t.GetEntries()):
 #          t.GetEntry(entry)
@@ -618,10 +643,10 @@ class RunLimits:
         h.SetDirectory(0)
         fin.Close()
         return h
-    def draw_contour(self, fin_name, x, y, pmin, pmax, bestFit):
+    def draw_contour(self, fin_name, x, y, pmin, pmax, bestFit, xsec_2b = 1.0, xsec_3b = 1.0):
       fin = rt.TFile.Open(fin_name, "READ")
       t = fin.Get("limit")
-      t.Draw(y+":"+x, "%f <= quantileExpected && quantileExpected <= %f && quantileExpected != 1"%(pmin,pmax), "SAME p");
+      t.Draw("{y}*{xsec_3b}:{x}*{xsec_2b}".format(x=x, y=y, xsec_2b = xsec_2b, xsec_3b = xsec_3b), "%f <= quantileExpected && quantileExpected <= %f && quantileExpected != 1"%(pmin,pmax), "SAME p");
       gr = rt.gROOT.FindObject("Graph").Clone();
       rt.gROOT.FindObject("Graph").SetName("aa")
       x0 = bestFit.GetX()[0]
@@ -639,7 +664,7 @@ class RunLimits:
         yi[i] += y0
       fin.Close()
       return gr
-    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_2b'):
+    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_3b', model_name = 'g2HDM_3Bbased', ratio_file = None):
         rt.gStyle.Reset()
         rt.gStyle.SetOptTitle(0)
         rt.gStyle.SetOptStat(0)
@@ -650,26 +675,49 @@ class RunLimits:
         c.SetRightMargin(0.12)
         tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
         MultiFit_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag))
-        h = self.draw_2DNLL(MultiFit_root_file, POI_name, "Rb")
+
+        xsec_2b = 1.0
+        xsec_3b = 1.0
+        if model_name == 'g2HDM_separate':
+          POI_name = 'r_2b'
+          second_POI_name = 'r_3b'
+          if ratio_file is not None:
+            ratios = read_json(ratio_file)
+            ratio_ = ratios[str(mass_point).replace('MH', '')]
+            xsec_2b = ratio_ / (1.0 + ratio_)
+            xsec_3b = 1.0 / (1.0 + ratio_)
+        else:
+          second_POI_name = 'Rb'
+
+        signal_prediction = rt.TGraph(1, array('d', [xsec_2b]), array('d', [xsec_3b]))
+
+        h = self.draw_2DNLL(MultiFit_root_file, POI_name, second_POI_name, xsec_2b, xsec_3b)
         h.SetTitle("2 #Delta NLL;;;")
-        h.GetXaxis().SetTitle(POI_name)
-        h.GetYaxis().SetTitle("Rb")
+        if model_name == 'g2HDM_separate':
+          h.GetXaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})Br(H^{#pm}#rightarrow tb)[pb]' if POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]')
+          h.GetYaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})Br(H^{#pm}#rightarrow tb)[pb]' if second_POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]')
+        else:
+          h.GetXaxis().SetTitle(POI_name)
+          h.GetYaxis().SetTitle(second_POI_name)
         h.GetZaxis().SetTitle("2 #Delta NLL")
-        best_fit = self.bestFit(MultiFit_root_file, POI_name, "Rb")
+        h.GetZaxis().SetMaxDigits(2)
+        best_fit = self.bestFit(MultiFit_root_file, POI_name, second_POI_name)
         CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
-        CL68 = self.draw_contour(CL68_root_file, POI_name, "Rb", 0.31, 1.0, best_fit)
+        CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b, xsec_3b = xsec_3b)
         CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
         CL95_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour95.MultiDimFit.mH120.root'.format(tag=tag))
-        CL95 = self.draw_contour(CL95_root_file, POI_name, "Rb", 0.049, 1.0, best_fit)
+        CL95 = self.draw_contour(CL95_root_file, POI_name, second_POI_name, 0.049, 1.0, best_fit, xsec_2b = xsec_2b, xsec_3b = xsec_3b)
         CL95.SetLineWidth(2); CL95.SetLineStyle(7); CL95.SetLineColor(1); CL95.SetFillStyle(1001); CL95.SetFillColorAlpha(43, 0.5); CL95.SetMarkerSize(3)
         h.Draw("COLZ")
         CL95.Draw("LF SAME")
         CL68.Draw("LF SAME")
         best_fit.Draw("P SAME")
-        legend = rt.TLegend(0.68, 0.7, 0.88, 0.9)
+        signal_prediction.Draw("P SAME")
+        legend = rt.TLegend(0.6, 0.7, 0.80, 0.9)
         legend.AddEntry(CL68, "1 #sigma band")
         legend.AddEntry(CL95, "2 #sigma band")
         legend.AddEntry(best_fit, "Best Fit({})".format(mass_point.replace('A', '')))
+        #legend.AddEntry(signal_prediction, "g2HDM({})".format(mass_point.replace('A', '')))
         legend.Draw("SAME")
         plotdir = os.path.join(outputdir, '2DNLL', 'plot')
         CheckDir(plotdir)
