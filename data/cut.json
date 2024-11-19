@@ -17,7 +17,7 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v == 1",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
     "MVA_Label": "DNN_SR_2b_rest",
     "POI": ["bh_HT"],
@@ -42,7 +42,7 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
      "MVA_Label": "DNN_SR_2b_rest",
      "POI": ["DNN"],
@@ -67,7 +67,7 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
      "MVA_Label": "DNN_SR_3b_rest",
      "POI": ["DNN"],
@@ -93,7 +93,7 @@
       "njet":         "n_tight_jet == 3",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
      "MVA_Label": "DNN_SR_2b_rest",
      "POI": ["DNN"],
@@ -119,7 +119,7 @@
       "njet":         "n_tight_jet == 3",
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
      "MVA_Label": "DNN_SR_3b3j",
      "POI": ["DNN"],
@@ -143,7 +143,7 @@
       "njet":         "n_tight_jet == 2",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
      "MVA_Label": "DNN_SR_2b2j",
      "POI": ["DNN"],
