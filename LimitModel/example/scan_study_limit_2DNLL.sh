@@ -30,8 +30,8 @@ POI=${2}
 
 for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-    echo -e "${BCyan}[tmux: $MASS\_Scan2D]${NC} ${BYellow} python3 runlimits.py --year 2017 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year 2017 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}; ${NC}"
-    tmux new-session -d -s $MASS\_Scan2D "python3 runlimits.py --year 2017 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year 2017 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}"
+    echo -e "${BCyan}[tmux: $MASS\_Scan2D]${NC} ${BYellow} python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}; ${NC}"
+    tmux new-session -d -s $MASS\_Scan2D "python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}"
 done
 
 

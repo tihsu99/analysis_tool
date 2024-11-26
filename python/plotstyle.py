@@ -1567,6 +1567,8 @@ class DataMCCanvas(RatioCanvas):
             uncertHist.SetLineWidth(0)
 
             self.addHistogram(uncertHist, drawOpt = 'E2', clone = True)
+            self.legend.add('stat unc', title = 'stat unc', fstyle = 3003, fcolor = ROOT.kGray + 2, opt = 'F', msize = 0, mstyle = 0, mcolor = ROOT.kGray + 2, lwidth = 0)
+            self.legend.apply('stat unc', uncertHist)
             iUncert = len(self._histograms) - 1
             hList.append(iUncert)
             rList.append(iUncert)
@@ -1586,7 +1588,7 @@ class DataMCCanvas(RatioCanvas):
             if self._obs != -1:
                 legendOrder.append('obs')
             legendOrder += ['bkg%d' % idx for idx in reversed(self._bkgs)] + ['sig%d' % idx for idx in self._sigs]
-
+            legendOrder += ['stat unc']
             self.legend.construct(legendOrder)
 
             RatioCanvas.Update(self, hList = hList, rList = rList, logx = logx, logy = logy, drawLegend = drawLegend)

@@ -96,8 +96,10 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
 
         if "FreeFloat" in Datacards_Input:
             for ff_process in Datacards_Input["FreeFloat"]:
-                cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
-                parameter_constraint[str("scale_" + ff_process + "_" + region + "_" + channel)] = [0.0, 20.0]
+                cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
+                #cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process), "rateParam", ch.SystMap()(1.0))
+                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0.0, 20.0]
+                #parameter_constraint[str("scale_" + ff_process)] = [0.0, 20.0]
         # Set Rate
         cb.ForEachProc(set_Rate)
         cb.ForEachObs(set_Rate)
@@ -125,6 +127,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         os.system('sed -i "s/ERA/%s/g" %s'%(era, output_datacard_txt))
         os.system('sed -i "s/YEAR/%s/g" %s'%(year, output_datacard_txt))
         os.system('sed -i "s/CHANNEL/%s/g" %s'%(channel, output_datacard_txt))
+        os.system('sed -i "s/REGION/%s/g" %s'%(region, output_datacard_txt))
         os.system('sed -i "s/observation  -1.0/observation  -1/g" %s'%(output_datacard_txt)) #TODO 
         print("\033[0;32m info \033[0;m: create datacard: %s"%(output_datacard_txt)) 
         if create_WorkSpace:

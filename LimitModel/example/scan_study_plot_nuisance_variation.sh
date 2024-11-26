@@ -30,7 +30,12 @@ for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
 do
   for channel in ele_resolved mu_resolved
   do
-    command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command}" 
+    if [[ "$region" == "CR_1b4j" ]]; then
+      unblind_name="--unblind"
+    else
+      unblind_name=""
+    fi
+    command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name}" 
     echo -e "${BCyan}[tmux: ${region}_${channel}]${NC} ${BYellow} ${command_} ${NC}"
     tmux new-session -d -s $region\_$channel "${command_} ${MASS};"
   done

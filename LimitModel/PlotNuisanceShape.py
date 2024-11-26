@@ -38,7 +38,8 @@ if __name__ == '__main__':
   region  = args.region
   era     = args.era
   year    = '2016' if '2016' in era else era
-  outdir  = os.path.join(args.input_dir, 'Nuisance_Variation_Plot', signal_name, era, region, channel)
+  unblind_string = "unblind" if args.unblind else "blind"
+  outdir  = os.path.join(args.input_dir, 'Nuisance_Variation_Plot', signal_name, era, region, channel, unblind_string)
   CheckDir(outdir)
 
   data_info_file = os.path.join(args.data_info_dir, "Datacard_Input", args.era, "Datacard_Input_{region}_{channel}.json".format(region=args.region, channel=args.channel))
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     canvas.legend.SetX2(0.95)
     canvas.ytitle = "Events/bin"
 
-    nuisance_name = nuisance.replace('YEAR', year).replace('ERA', era).replace('CHANNEL', channel)
+    nuisance_name = nuisance.replace('YEAR', year).replace('ERA', era).replace('CHANNEL', channel).replace('REGION', region)
 
     # Nominal process
     for process_ in data_info["Process"]:

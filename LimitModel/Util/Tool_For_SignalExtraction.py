@@ -19,7 +19,7 @@ import ctypes
 from ROOT import gStyle
 #from Util.OverlappingPlots import *
 from plotstyle import *
-
+import random
 #####################
 ## Dict of regions ##
 #####################
@@ -47,12 +47,10 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     if settings['unblind']:
         Fit_type += 'Unblind'
     else:
-        if settings['expectSignal']:
+        if (settings['expectSignal'] > 0.0):
             Fit_type+='s_plus_b'
-            settings['expectSignal']= 1
         else:
             Fit_type+='b_only'
-            settings['expectSignal']= 0
 
 
     CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'], region=settings['region'])), True)
@@ -123,15 +121,42 @@ def datacard2workspace(settings=dict()):
 def BiasTest(settings=dict()):
 
     Log_Path = os.path.basename(settings['Log_Path'])
-    os.chdir("{outputdir}".format(outputdir=settings['outputdir']))
+    os.system("mkdir -p {outputdir}/bias_test".format(outputdir=settings['outputdir']))
     command = ""
-    for r in [0, 0.1, 0.8, 1.0]:
+    farm_dir = "Farm_BiasTest"
+    os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
+
+    for r in [0, 0.5, 1.0, 2.0]:
       r_min = r - 10
       r_max = r + 10
-      command = "combine -M GenerateOnly {datacards} -t 200 --saveToys --toysFrequentist --bypassFrequentistFit --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max)
-      command += "combine -M FitDiagnostics {datacards} --skipBOnlyFit -t 200 -n  r_{r}_toys --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.123456.root --rMax {r_max} --rMin {r_min}  --robustFit 1 --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
-      command = command + ' >& r{r}_{Log_Path}'.format(Log_Path=Log_Path, r = r )
-      os.system(command)
+      condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
+      condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+      condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+      condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+      condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
+      condor.write('+JobFlavour = "espresso"\n')
+      condor.write('RequestCpus = 1\n')
+      condor.write('queue 1 cfgFile in ')
+      seed_numbers = random.sample(range(1, 1000000), 200)
+      for seed in seed_numbers:
+        shell_file = "bias_test_r{r}_seed{seed}.sh".format(r=r, seed=seed)
+        command = "cd {outputdir}/bias_test\n".format(outputdir=settings['outputdir'])
+        command += "combine -M GenerateOnly {datacards} -t 1 --saveToys --toysFrequentist --bypassFrequentistFit --seed {seed} --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, seed = seed)
+        command += "combineTool.py -M FitDiagnostics {datacards}  --skipBOnlyFit -t 1 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.{seed}.root --rMax {r_max} --rMin {r_min}  --robustFit 1 --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed)
+        prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
+      condor.close()
+      os.system('condor_submit {farm_dir}/condor_{r}.sub'.format(farm_dir = farm_dir, r = r))
+    return
+
+def BiasTestPlot(settings=dict()):
+
+    Log_Path = os.path.basename(settings['Log_Path'])
+    outputdir = "{outputdir}/bias_test".format(outputdir=settings['outputdir'])
+    os.chdir(outputdir)
+
+    for r in [0, 0.5, 1.0, 2.0]:
+      os.system("fitDiagnosticsr_"+str(r)+"_toys.root")
+      os.system("hadd fitDiagnosticsr_{r}_toys.root fitDiagnosticsr_{r}_toys_*.root".format(r = r))
 
       ROOT.gStyle.SetOptStat(111)
       ROOT.gStyle.SetOptFit(1)
@@ -147,8 +172,8 @@ def BiasTest(settings=dict()):
       h.Draw("E")
       func.Draw("SAME")
       c1.Update()
-      c1.SaveAs("results/BiasTest_pulls_"+str(r).replace('.', 'p')+".png")
-      c1.SaveAs("results/BiasTest_pulls_"+str(r).replace('.', 'p')+".pdf")
+      c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".png")
+      c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".pdf")
       f.Close()
       ROOT.gStyle.SetOptStat(0)
       ROOT.gStyle.SetOptFit(0)
@@ -645,12 +670,14 @@ def Plot_Histogram(template_settings=dict()):
         sep_line[region_].SetLineStyle(2)
         sep_line[region_].SetLineWidth(5)
         sep_line[region_].Draw()
-        label_text[region_] = ROOT.TLatex(x_text, 1.2 * hh_total.GetMaximum(),  region_)
-        label_text[region_].SetTextAlign(22)  # Center align
-        label_text[region_].SetTextSize(0.04)
-        label_text[region_].SetTextColor(ROOT.kGreen + 3)  # Blue color
-        label_text[region_].SetTextFont(62)
-        label_text[region_].Draw("SAME")
+        region_list = region_.split('_')
+        for region_height, region_text in enumerate(region_list):
+          label_text[region_ + region_text] = ROOT.TLatex(x_text, (1.2 - 0.05 * region_height) * hh_total.GetMaximum(),  region_text)
+          label_text[region_ + region_text].SetTextAlign(22)  # Center align
+          label_text[region_ + region_text].SetTextSize(0.02)
+          label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
+          label_text[region_ + region_text].SetTextFont(62)
+          label_text[region_ + region_text].Draw("SAME")
 
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(2.5)
@@ -1042,7 +1069,8 @@ def GoFPlot(settings = dict()):
     ROOT.gROOT.SetBatch(1)
     algo = settings['GoF_Algorithm']
 
-    os.chdir("{outputdir}/results".format(outputdir=settings['outputdir']))
+    
+    os.chdir("results/{year}/{region}/{channel}".format(year = settings['year'], region = settings['region'], channel = settings['channel'])) #.format(outputdir=settings['outputdir']))
     print('Processing {algo} algorithm...'.format(algo = algo))
 
     analysis = "ExtraYukawa"
@@ -1063,7 +1091,7 @@ def GoFPlot(settings = dict()):
         print('The output ROOT file  \"{OutputFile}\" does not exist.'.format(OutputFile = OutputFile))
     if CheckFile(rootDataFiles, False, True):pass
     else:
-        print('Please check whether {rootDataFiles} {outputdir}/results'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir']))
+        print('Please check whether {rootDataFiles} {outputdir}/results/{year}/{region}/{channel}'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir'], year = settings['year'], region = settings['region'], channel = settings['channel']))
 
     fToys = ROOT.TFile(OutputFile)
     if settings['unblind']:
@@ -1225,11 +1253,10 @@ def GoFPlot(settings = dict()):
 
 
     plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-
+    plotname = os.path.join(settings['outputdir']+'/results', plotname)
     c.Update()
     c.SaveAs(plotname)
     c.SaveAs(plotname.replace('.pdf', '.png'))
-    plotname = os.path.join(settings['outputdir']+'/results', plotname)
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
 
