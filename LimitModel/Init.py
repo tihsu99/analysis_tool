@@ -19,7 +19,9 @@ parser.add_argument('-r','--region', help='Region', default='all')
 parser.add_argument('-c','--channel',help='Channels',default='all')
 parser.add_argument('--breakdown', action = "store_true")
 parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=[''],nargs='*')
-
+parser.add_argument('--cut_json', default = '../data/cut.json')
+parser.add_argument('--sample_json', default = '../data/sample.json')
+parser.add_argument('--nuisance_json', default = '../data/nuisance.json')
 
 #####################
 ## mkdir data_info ##
@@ -44,13 +46,13 @@ else:
 
 CheckDir("data_info/Sample_Names/",MakeDir=True)
 for era in era_list:
-  Bkg_MC_SAMPLE_NAME(year=era,outputdir="data_info/Sample_Names/")
+  Bkg_MC_SAMPLE_NAME(year=era,outputdir="data_info/Sample_Names/", config=args)
 
 ##########################
 ## Write Nuisances List ##
 ##########################
 
-jsonfile = open("../data/cut.json")
+jsonfile = open(args.cut_json)
 if python_version == 2:
     regions = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
 else:
@@ -81,7 +83,7 @@ for era in era_list:
     nuisances_for_data_card[era][region] = dict()
     for channel in region_list[region]:
       nuisances_for_data_card[era][region][channel] = nui_producer(year=era, region=region, channel=channel\
-                                                                  ,blacklist=args.blacklist,outputdir='./data_info/NuisanceList', breakdown = args.breakdown)
+                                                                  ,blacklist=args.blacklist,outputdir='./data_info/NuisanceList', breakdown = args.breakdown, config=args)
 ####################
 ## Datacard Input ##
 ####################
@@ -94,5 +96,5 @@ for era in era_list:
   for region in region_list:
     for channel in region_list[region]:
         print(nuisances_for_data_card[era][region][channel])
-        Datacard_Input_Producer(year=era, region=region, channel=channel,nuisances=nuisances_for_data_card[era][region][channel],process=process)
+        Datacard_Input_Producer(year=era, region=region, channel=channel,nuisances=nuisances_for_data_card[era][region][channel],process=process, config=args)
 

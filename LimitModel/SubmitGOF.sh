@@ -47,19 +47,19 @@ echo "Data taking-channel: \"${CHANNEL}\""
 echo "Mass of H: \"${MASS}\"GeV"
 echo "Coupling of sample: \"${COUPLING}\""
 
-dirname=SignalExtraction/${YEAR}/${REGION}/${CHANNEL}/${COUPLING}/${Higgs}/${MASS}/${subFolder_POSTFIX}/results/
+dirname=results/${YEAR}/${REGION}/${CHANNEL}
 echo "Start to check whether \"${dirname}\" exist or not. If not then make it."
 
 if [ -d ${dirname} ];then
     cd ${dirname}
     rm ${dirname}/higgsCombine*.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}.GoodnessOfFit.mH${MASS}.*.root
-    cp ${CWD}/${DATACARD_DIR}/$datacards $datacards
+    cp ${DATACARD_DIR}/$datacards $datacards
 
     # sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
 else
     mkdir -p ${dirname}
     cd ${dirname}
-    cp ${CWD}/${DATACARD_DIR}/$datacards $datacards
+    cp ${DATACARD_DIR}/$datacards $datacards
     # sed -i "s|FinalInputs|${CWD}/FinalInputs|g" $datacards
 fi
 
@@ -67,12 +67,12 @@ echo "=== Submit job for toys (`pwd`)"
 for (( t=1; t<=nJobs; t++ ))
 do
     echo "=== Submit Jobs for toys $t/$nJobs ==="
-    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO} > SubmitGoF_${t}.log
+    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20 --toysFreq > SubmitGoF_${t}.log
 done
 
 if [[ $8 == "unblind" ]];then
     echo "=== Run job on data:(`pwd`) ==="
-    combineTool.py -m ${MASS} -M GoodnessOfFit ${datacards} --algorithm ${ALGO}  -n Data.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}
+    combineTool.py -m ${MASS} -M GoodnessOfFit ${datacards} --algorithm ${ALGO}  -n Data.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20
 fi
 cd ${CWD}
 

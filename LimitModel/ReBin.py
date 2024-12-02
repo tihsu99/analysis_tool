@@ -25,7 +25,7 @@ sys.path.append('../python')
 from common import *
 import numpy as np
 
-def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', scale = 1.0):
+def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', region = 'CR_1b4j', scale = 1.0):
 
   ## New definition of MakeNuisance_Hist, but compatible with current data structure
 
@@ -37,7 +37,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
   year = '2016' if '2016' in era else era
 
   for sample_ in samples_list:
-    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era)
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era).replace('REGION', region)
     fin = os.path.join(indir, "{}.root".format(sample_))
     fin = TFile.Open(fin, "READ")
     if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
@@ -50,7 +50,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     fin.Close()
   if Nui_Exist:
     h = h.Rebin(len(bins)-1, "h", bins)
-    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era)
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era).replace('REGION', region)
     h.SetNameTitle(analysis_name + era + "_" + category + nuis, era + "_" + category + nuis)
   else:
     if q: pass
@@ -65,15 +65,24 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     print(sample_nuis_name)
     raise
 
-  if category == 'QCD': 
-    Original_Yield = h.Integral()
-    h.Smooth() # QCD smooth
-    Smoothed_Yield = h.Integral()
-    norm = Original_Yield/Smoothed_Yield if Smoothed_Yield > 0 else 1.0
-    h.Scale(norm)
+#  if category == 'QCD': 
+#    Original_Yield = h.Integral()
+#    h.Smooth(10) # QCD smooth
+#    Smoothed_Yield = h.Integral()
+#    norm = Original_Yield/Smoothed_Yield if Smoothed_Yield > 0 else 1.0
+#    h.Scale(norm)
+#    for bin_ in range(1, h.GetNbinsX() + 1):
+#
+#        # fix to 30% error
+#        #new_error = 0.3*Histogram[sample_].GetBinContent(bin)
+#        # fix to 50% error
+#        new_error = 0.8*h.GetBinContent(bin_)
+#        # Set the new error for the bin
+#        h.SetBinError(bin_, new_error)
+
   return h
 
-def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None):
+def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None, args=None):
 
   fout = TFile.Open(fout_name, "RECREATE")
   ######################
@@ -119,8 +128,9 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       scale = sig_scale 
     else: category_name = category
 
-    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
-    Histograms.append(overunder_flowbin(MakePositive_Hist(h)))
+    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale)
+#    Histograms.append(over_flowbin(MakePositive_Hist(h)))
+    Histograms.append(MakePositive_Hist(h))
     for nuisance in datacard_inputs["NuisForProc"]:
       if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
       category_replace_signal = category
@@ -128,14 +138,15 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
         category_replace_signal = "SIGNAL"
       if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
       for variation in ["_up", "_down"]:
-        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
-        Histograms.append(overunder_flowbin(MakePositive_Hist(h)))
+        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale)
+#        Histograms.append(over_flowbin(MakePositive_Hist(h)))
+        Histograms.append(MakePositive_Hist(h))
 
   ###############
   ##  unblind  ##
   ###############
   if unblind:
-    jsonfile = open("../data/sample.json")
+    jsonfile = open(args.sample_json)
     if python_version == 2:
       samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
     else:
@@ -148,7 +159,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
       if "Era" in samples_contain_datainfo[sample_] and era not in samples_contain_datainfo[sample_]["Era"]: continue
       data_list.append(sample_)
-    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel)
+    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region = region)
     Histograms.append(h)
 
   fout.cd()
@@ -167,6 +178,7 @@ parser.add_argument('--signal', help='List of signals', default=['all'], nargs='
 parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./')
 parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
 parser.add_argument('--cut_json', default = '../data/cut.json')
+parser.add_argument('--sample_json', default = '../data/sample.json')
 parser.add_argument('--analysis_name', default='bH')
 parser.add_argument('--unblind',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
@@ -203,7 +215,7 @@ else:
   for region_ in region_channel_dict:
     region_channel_dict[region_] = args.channel
 
-jsonfile = open("../data/sample.json")
+jsonfile = open(args.sample_json)
 if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
 else: samples = json.load(jsonfile)
 samples = Extend_sample_dict(samples, key_word = 'MASS')
@@ -221,7 +233,7 @@ for era_ in eras:
       for signal_ in signal_list:
         inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
         fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
-        CheckDir(os.path.join(args.outputdir, era_, signal_))
+        CheckDir(os.path.join(args.outputdir, era_, signal_), True)
         #########  Specific Rule ###########
 #        if('BGToTH' in signal_): continue
 
@@ -229,8 +241,11 @@ for era_ in eras:
         POI_binning = None
         if args.POI == "ASCUTJSON":
           POI_name = regions[region_]["POI"][0]
-          POI_binning_min, POI_binning_max, POI_binning_nbin = regions[region_]["POI_bin"]
-          POI_binning = np.linspace(POI_binning_min, POI_binning_max, POI_binning_nbin+1)
+          if "POI_bin" in regions[region_]:
+              POI_binning_min, POI_binning_max, POI_binning_nbin = regions[region_]["POI_bin"]
+              POI_binning = np.linspace(POI_binning_min, POI_binning_max, POI_binning_nbin+1)
+          else:
+              POI_binning = np.array(regions[region_]["POI_binnings"])
         else:
           POI_name = args.POI
 
@@ -245,7 +260,9 @@ for era_ in eras:
             mass     = signal_.replace('BGToTHpm_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','').replace('WprimeTotb_leptonicDecays_M_','').replace('HplusToTB_M_','')
             POI_in = 'DNNScore{}'.format(mass)
 
-        ####################################
+        #### Special Case ######
+        if POI_in == 'DNN200':
+           POI_binning = np.array( [0., 0.05, 0.1,  0.55, 1.0])
 
         if args.sig_norm:
           sig_scale = 1./samples[signal_]["xsec"]
@@ -257,5 +274,5 @@ for era_ in eras:
           for process in samples[signal_]["SubProcess"]:
             subprocess.append(process)
         print(subprocess)
-        ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning)
+        ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning, args=args)
                                         

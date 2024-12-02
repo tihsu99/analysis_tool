@@ -17,11 +17,11 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v == 1",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-    "MVA_Label": "DNN_2b",
+    "MVA_Label": "DNN_SR_2b_rest",
     "POI": ["bh_HT"],
-    "POI_bin": [100,1000,9]
+    "POI_bin": [200, 1000, 8]
   },
 
   "SR_2b4j":{
@@ -42,11 +42,11 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-     "MVA_Label": "DNN_2b",
+     "MVA_Label": "DNN_SR_2b_rest",
      "POI": ["DNN"],
-     "POI_bin": [0, 1, 5]
+     "POI_binnings": [0,   0.55, 0.75, 0.85, 0.9,  0.95, 1]
   },
 
   "SR_3b4j":{
@@ -67,11 +67,11 @@
       "njet":         "n_tight_jet>=4",
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-     "MVA_Label": "DNN_3b",
+     "MVA_Label": "DNN_SR_3b_rest",
      "POI": ["DNN"],
-     "POI_bin": [0, 1, 5]
+     "POI_binnings": [0,   0.55, 0.75, 0.85, 0.9,  0.95, 1]
   },
 
 
@@ -93,11 +93,11 @@
       "njet":         "n_tight_jet == 3",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-     "MVA_Label": "DNN_2b",
+     "MVA_Label": "DNN_SR_2b_rest",
      "POI": ["DNN"],
-     "POI_bin": [0, 1, 5]
+     "POI_binnings": [0,   0.55, 0.75, 0.85, 0.9,  0.95, 1]
   },
 
 
@@ -119,11 +119,11 @@
       "njet":         "n_tight_jet == 3",
       "b jet cut":    "n_bjet_DeepB_v >= 3",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-     "MVA_Label": "DNN_3b",
+     "MVA_Label": "DNN_SR_3b3j",
      "POI": ["DNN"],
-     "POI_bin": [0, 1, 5]
+     "POI_binnings": [0,   0.55, 0.75, 0.85, 0.9,  0.95, 1]
   },
   "SR_2b2j":{
      "channel_cut":{
@@ -143,11 +143,11 @@
       "njet":         "n_tight_jet == 2",
       "b jet cut":    "n_bjet_DeepB_v == 2",
       "met":          "bh_met>35",
-      "bh_HT":        "bh_HT > 100"
+      "bh_HT":        "bh_HT > 200"
     },
-     "MVA_Label": "DNN_2b",
+     "MVA_Label": "DNN_SR_2b2j",
      "POI": ["DNN"],
-     "POI_bin": [0, 1, 5]
+     "POI_binnings": [0,   0.55, 0.75, 0.85, 0.9,  0.95, 1]
   }
 
 }

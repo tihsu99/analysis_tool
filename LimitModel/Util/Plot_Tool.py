@@ -76,7 +76,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{H^+} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
+    mg.SetTitle(";m_{H^+} [GeV];95% CL upper limit on #sigma [pb]")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
 
@@ -165,7 +165,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       coupling_value = Coupling_value[0]
       channel = channel[0] 
       limit_pdf_file = 'Merged_Limit_Plots_For_{coupling_value}_{channel}.pdf'.format(coupling_value=coupling_value,channel=channel)
-      channel = channel.replace("C","ee+em+mm").replace('m','#mu')
+      channel = channel.replace("C","e+em").replace('m','#mu')
       coupling_value = coupling_value.replace('p','.')
 
       if 'rtc' in coupling_value :
@@ -208,7 +208,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       region = region[0]
       channel = channel[0] 
       limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{region}_{channel}.pdf'.format(channel=channel,year=year,region=region)
-      channel = channel.replace("C","ele+m").replace('m','#mu')
+      channel = channel.replace('mu', '#mu').replace("C","ele+#mu")
 
       colors = [2,3,4,5,1]     
   
@@ -277,7 +277,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp.SetLineColor(colors[idx])
         exp.SetLineWidth(2)
         mg.Add(exp,"LP")
-        channel = channel.replace('C','ee+em+mm').replace('m','#mu')
+        channel = channel.replace('mu', '#mu').replace('C','e+#mu')
         if not unblind:
           leg.AddEntry(exp, channel + "(exp)", "LP");
         else:
@@ -451,7 +451,7 @@ def interpolate(Hist, noninterp_bin, interp_bin, axis='x', itp_type = rt.Math.In
   return Hist_interp, exclusion
 
 
-def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], paper=False, y_axis_title = "POI", interference = False, ratio_file = None):
+def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C', outputFolder='./',Masses=[200], paper=False, y_axis_title = "POI", interference = False, ratio_file = None, signal_xsec_TGraph = None):
 
 
   coupling_type = "xx"
@@ -542,7 +542,10 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
   else:
     Target_Object = "expmed"
 
-  Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(y_axis_title, Target_Object)
+  if signal_xsec_TGraph is None:
+    Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on #mu=#sigma(%s)/#sigma(theory)"%(y_axis_title, Target_Object)
+  else:
+    Title = ";m_{H^{+}} [GeV];%s;95%% CL upper limit on cross section #sigma(%s)"%(y_axis_title, Target_Object)
   Hist   = rt.TH2D("",str(Title),
                    len(mass_bin)-1, array('d',mass_bin.tolist()),
                    len(coupling_values_bin)-1, array('d',coupling_values_bin.tolist()))
@@ -564,8 +567,8 @@ def Plot_2D_Limit_For(log_files_dict={}, unblind=False,year='run2', channel='C',
         if ratio_file is not None:
           ratios = read_json(ratio_file)
           ratio_ = ratios[str(mass)]
-          limit_obs = limit_obs * (1. + coupling_value * ratio_)
-          limit_exp = limit_exp * (1. + coupling_value * ratio_)
+          limit_obs = limit_obs * (1. + coupling_value * ratio_) / (ratio_ + 1)
+          limit_exp = limit_exp * (1. + coupling_value * ratio_) / (ratio_ + 1)
           OUT_DIR = os.path.join(outputFolder, "plots_limit_2D_w_ratio")
           os.system('mkdir -p {}'.format(OUT_DIR))
         Hist.SetBinContent(idx_mass+1, idx_coupling+1, limit_obs)

@@ -157,14 +157,12 @@ def Slim_module(filein,
     weight_def = 1       # Data weight is also to be 1
     nuisances_valid = [] # Nuisances only affect MC
   # Apply toppt by default
-  if "TTTo1L" in filein or "TTTo2L" in filein:
+  if sample_category == 'TT':
     print (colored('--> For ttbar apply toppt_weight','yellow'))
     weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*toppt_weight"
 
-  if notoppt and not "Data" in sample_labels:
+  if (notoppt and (not ("Data" in sample_labels))):
     weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf"
-
-
 
   #################################
   ##  Assign Train / Test Label  ##
@@ -179,6 +177,7 @@ def Slim_module(filein,
   jsonfile  = open(variable_json)
   variables = json.load(jsonfile, object_pairs_hook=OrderedDict)
   jsonfile.close()
+
 
   variables['weight'] = {
     "Def": str('(float)({})'.format(weight_def)),
@@ -234,6 +233,7 @@ def Slim_module(filein,
 
           nuisance_name = (nuisance_name+sub_cat).replace('ERA', era).replace('CHANNEL', channel).replace('YEAR', year).replace('PROCESS', sample_category)
           cprint(nuisance_name, 'yellow')
+          print(variables[variable]["Def"])
           print(nuisances[nuisance]["Nominal"], nuisance_def)
           df = df.Vary(nuisances[nuisance]["Nominal"], nuisance_def, ["Down", "Up"], nuisance_name)
           nuisance_list.append(nuisance_name)
@@ -415,7 +415,7 @@ def Slim_module(filein,
         "Title": ";DNN;nEntries",
         "xlow":0,
         "xhigh":1,
-        "nbin": 10,
+        "nbin": 20,
         "Label": ["Normal", "pNN"],
         "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
       }
@@ -426,7 +426,7 @@ def Slim_module(filein,
           "Title": ";DNNScore;nEntries",
           "xlow":0.5,
           "xhigh":1,
-          "nbin": 10,
+          "nbin": 20,
           "Label": ["Normal", "pNN"],
           "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
         }
@@ -528,7 +528,9 @@ def Slim_module(filein,
   for Histogram in Histos_from_df_var:
     h_variation = Histos_from_df_var[Histogram]
     for nuisance in nuisance_list:
-      if("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
+      if("{}:Down".format(nuisance) not in h_variation.GetKeys()): 
+        cprint("{} not here".format(nuisance), 'yellow')
+        continue
       h_variation_do = h_variation[nuisance + ":Down"]
       h_variation_up = h_variation[nuisance + ":Up"]
       h_variation_do.SetName(str((Histogram + "_" + nuisance + "_down").replace("ERA",era).replace('YEAR',year).replace("PROCESS", sample_category)))
@@ -619,7 +621,7 @@ if __name__ == "__main__":
   parser.add_argument("--multi_class_pNN", action='store_true')
   parser.add_argument("--cutflow", action='store_true')
   parser.add_argument("--SubProcess", type=str, default = None)
-  parser.add_argument("--notoppt",   action='store_true', default = 'False')
+  parser.add_argument("--notoppt",   action='store_true')
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   type=str, default = None)
 

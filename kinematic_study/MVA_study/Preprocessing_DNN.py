@@ -36,6 +36,7 @@ def load_data(file_list, var, label, chunk, total_chunk, total_weight, mass, bkg
     features = features[chunk::total_chunk]
     features = features.reset_index(drop=True)
     features['weight_n_Norm'] = features['weight_n_Norm'] * entry_scale
+    features['weight'] = features['weight'] * entry_scale
     if return_pd is None:
       return_pd = features
     else:

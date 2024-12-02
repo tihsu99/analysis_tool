@@ -20,12 +20,14 @@ if __name__ == '__main__':
   parser.add_argument('--outputdir',help="Output directory, normally, you do not need to modfiy this value.",default='./')
   parser.add_argument('--inputdir',help="Input directory, normally, you don't need to modfiy this value.",default='/eos/cms/store/group/phys_top/ExtraYukawa/BDT/BDT_output')
   parser.add_argument('--cut_json', default = '../data/cut.json')
+  parser.add_argument('--sample_json', default = '../data/sample.json')
   parser.add_argument('--analysis_name', default='bH')
   parser.add_argument('--unblind',action='store_true')
   parser.add_argument('-q','--quiet',action='store_true')
   parser.add_argument('--POI', default = 'BDT')
   parser.add_argument('--sig_norm', action = 'store_true')
   parser.add_argument('--test', action = 'store_true')
+  parser.add_argument('--farm', default = 'Farm', type=str)
   args = parser.parse_args()
 
 
@@ -39,7 +41,7 @@ if __name__ == '__main__':
   POI       = args.POI
   sig_norm  = '--sig_norm' if args.sig_norm else ''
 
-  farm_dir  = os.path.join('./', 'Farm')
+  farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
 
   if not os.path.exists(farm_dir):
@@ -51,11 +53,11 @@ if __name__ == '__main__':
   condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = vanilla\n')
-  condor.write('+JobFlavour = "espresso"\n')
+  condor.write('+JobFlavour = "longlunch"\n')
   condor.write('queue 1 cfgFile in ')
 
 
-  jsonfile = open("../data/sample.json")
+  jsonfile = open(args.sample_json)
   if python_version == 2: samples = json.load(jsonfile, encoding='utf-8')
   else: samples = json.load(jsonfile)
   samples = Extend_sample_dict(samples, key_word = 'MASS')
@@ -66,7 +68,7 @@ if __name__ == '__main__':
       if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
 
   for sig_ in signal_list:
-    command = 'python3 ReBin.py --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json)
+    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json)
     prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir, True)
 
   condor.close()

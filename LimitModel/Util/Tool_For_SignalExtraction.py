@@ -18,7 +18,8 @@ import numpy as np
 import ctypes
 from ROOT import gStyle
 #from Util.OverlappingPlots import *
-
+from plotstyle import *
+import random
 #####################
 ## Dict of regions ##
 #####################
@@ -46,12 +47,10 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     if settings['unblind']:
         Fit_type += 'Unblind'
     else:
-        if settings['expectSignal']:
+        if (settings['expectSignal'] > 0.0):
             Fit_type+='s_plus_b'
-            settings['expectSignal']= 1
         else:
             Fit_type+='b_only'
-            settings['expectSignal']= 0
 
 
     CheckDir(os.path.join(settings['outdir'],"SignalExtraction/{year}/{region}/{channel}/{coupling_values}/{higgs}/{mass}/".format(year=settings['year'],channel=settings['channel'],coupling_values=settings['coupling_value'],mass=settings['mass'],higgs=settings['higgs'], region=settings['region'])), True)
@@ -119,6 +118,65 @@ def datacard2workspace(settings=dict()):
     print("\nNext mode: [\033[0;32m FitDiagnostics \033[0;m]")
     print("\n* A new Workspace root file: \033[0;32m\033[4m{}\033[0;m is created!".format(os.path.join(settings['outputdir'],settings['workspace_root'])))
 
+def BiasTest(settings=dict()):
+
+    Log_Path = os.path.basename(settings['Log_Path'])
+    os.system("mkdir -p {outputdir}/bias_test".format(outputdir=settings['outputdir']))
+    command = ""
+    farm_dir = "Farm_BiasTest"
+    os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
+
+    for r in [0, 0.5, 1.0, 2.0]:
+      r_min = r - 10
+      r_max = r + 10
+      condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
+      condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+      condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+      condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+      condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
+      condor.write('+JobFlavour = "espresso"\n')
+      condor.write('RequestCpus = 1\n')
+      condor.write('queue 1 cfgFile in ')
+      seed_numbers = random.sample(range(1, 1000000), 200)
+      for seed in seed_numbers:
+        shell_file = "bias_test_r{r}_seed{seed}.sh".format(r=r, seed=seed)
+        command = "cd {outputdir}/bias_test\n".format(outputdir=settings['outputdir'])
+        command += "combine -M GenerateOnly {datacards} -t 1 --saveToys --toysFrequentist --bypassFrequentistFit --seed {seed} --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, seed = seed)
+        command += "combineTool.py -M FitDiagnostics {datacards}  --skipBOnlyFit -t 1 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.{seed}.root --rMax {r_max} --rMin {r_min}  --robustFit 1 --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed)
+        prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
+      condor.close()
+      os.system('condor_submit {farm_dir}/condor_{r}.sub'.format(farm_dir = farm_dir, r = r))
+    return
+
+def BiasTestPlot(settings=dict()):
+
+    Log_Path = os.path.basename(settings['Log_Path'])
+    outputdir = "{outputdir}/bias_test".format(outputdir=settings['outputdir'])
+    os.chdir(outputdir)
+
+    for r in [0, 0.5, 1.0, 2.0]:
+      os.system("fitDiagnosticsr_"+str(r)+"_toys.root")
+      os.system("hadd fitDiagnosticsr_{r}_toys.root fitDiagnosticsr_{r}_toys_*.root".format(r = r))
+
+      ROOT.gStyle.SetOptStat(111)
+      ROOT.gStyle.SetOptFit(1)
+
+      f = ROOT.TFile.Open("fitDiagnosticsr_"+str(r)+"_toys.root")
+      tmp=f.Get("tree_fit_sb").Clone()
+      h = ROOT.TH1F("h","h",20,-4,4)
+      tmp.Project("h",("(r-"+str(r)+")/rErr"), "fit_status==0")
+      func = ROOT.TF1("gaus", "gaus(0)")
+      c1=ROOT.TCanvas()
+      h.SetTitle("(r-"+str(r)+")/rErr")
+      h.Fit(func, "", "", -2, 2)
+      h.Draw("E")
+      func.Draw("SAME")
+      c1.Update()
+      c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".png")
+      c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".pdf")
+      f.Close()
+      ROOT.gStyle.SetOptStat(0)
+      ROOT.gStyle.SetOptFit(0)
 def FitDiagnostics(settings=dict()):
 
     CheckFile(settings['FitDiagnostics_file'],True)
@@ -129,9 +187,9 @@ def FitDiagnostics(settings=dict()):
 
 
     if settings['unblind']:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --robustFit 1 --saveOverallShapes  -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])
     else:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],region=settings['region'], channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --robustFit 1 --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],region=settings['region'], channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
 
     if settings['correlation']:
         command += ' --plots '
@@ -165,7 +223,7 @@ def diffNuisances(settings=dict()):
     CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python3 diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
+    command = 'python3 ../../HiggsAnalysis/CombinedLimit/test/diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
     print(ts+command+ns)
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
 
@@ -307,8 +365,8 @@ def PlotShape(settings=dict()):
             Histogram_Names.append(category)
         break
 
-    Histogram = dict()
-    Integral= dict()
+    Histogram = OrderedDict()
+    Integral= OrderedDict()
 
     for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue #In PostFitWorkspace
@@ -319,13 +377,14 @@ def PlotShape(settings=dict()):
             category = 'Data' # In FitDiagnostics
         elif category == 'total_background':
             category = 'TotalBkg'
-        Histogram[category] = ROOT.TH1F(category, '', len(binning) - 1, binning)
+        #Histogram[category] = ROOT.TH1F(category, '', len(binning) - 1, binning)
         Integral[category] = 0
 
     Maximum = -1
     Histogram_Registered = False
     for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
+        print(first_level_name)
         if not(settings['shape_type'].lower() in first_level_name) and settings['shape_type'].lower() == 'postfit':
             continue
         if type(RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
@@ -366,28 +425,52 @@ def PlotShape(settings=dict()):
                 category = 'Data'
             elif category == 'total_background':
                 category = 'TotalBkg'
+
+            region_name = first_level_name.replace('_prefit', '').replace('_postfit', '')
+            if region_name not in Histogram:
+                Histogram[region_name] = dict()
             Integral[category] += h_postfix.Integral()
-            Histogram[category].Add(h_postfix)
+            Histogram[region_name][category] = h_postfix.Clone()
 
             print('Access Histogram {fpath}'.format(fpath = fpath))
-    for category in Histogram_Names:
+    for region_ in Histogram:
+      for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
         if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
         if category == 'total_background':
             category = 'TotalBkg'
         elif category == 'data_obs' or category == 'data': category = 'Data'
-        if Maximum < Histogram[category].GetMaximum():
-            Maximum = Histogram[category].GetMaximum()
+        if Maximum < Histogram[region_][category].GetMaximum():
+            Maximum = Histogram[region_][category].GetMaximum()
+
+    Histogram_concatenated = dict()
+    region_binning         = dict()
+    for category in Histogram_Names:
+      if ('TotalSig' in category) or  ('TotalProcs' in category):continue
+      if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+      if category == 'total_background':
+          category = 'TotalBkg'
+      elif category == 'data_obs' or category == 'data': category = 'Data'
+      for region_ in Histogram:
+        htemp = Histogram[region_][category]
+        if category not in Histogram_concatenated:
+          Histogram_concatenated[category] = htemp.Clone()
+        else:
+          Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
+        if region_ not in region_binning:
+          region_binning[region_] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
 
     if settings['shape_type'].lower() == 'prefit':
         Title = 'Pre-Fit Distribution'
     else:
         Title = 'Post-Fit Distribution'
 
+    print(Histogram)
+
     template_settings= {
             "Maximum":Maximum,
             "Integral":Integral,
-            "Histogram":Histogram,
+            "Histogram":Histogram_concatenated,
             "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],
             "Title":Title,
@@ -401,7 +484,8 @@ def PlotShape(settings=dict()):
             "unblind":settings['unblind'],
             "expectSignal":settings['expectSignal'],
             "plotRatio":settings['plotRatio'],
-            "paper":settings['paper']
+            "paper":settings['paper'],
+            "Region_binning": region_binning
             }
     #if settings["unblind"] or settings["expectSignal"]:
     template_settings["Signal_Name"] = settings['signal_name']
@@ -411,7 +495,7 @@ def PlotShape(settings=dict()):
     #template_settings["Signal_Name"] = template_settings["Signal_Name"].replace("01","04").replace("10","04")
 
     Plot_Histogram(template_settings=template_settings)
-
+  
     FileIn.Close()
     #a = h_stack.GetXaxis();
     #a.ChangeLabel(1,-1,-1,-1,-1,-1,"-1");
@@ -436,6 +520,8 @@ def Plot_Histogram(template_settings=dict()):
     #if template_settings["unblind"] or template_settings["expectSignal"]:
     Color_Dict[template_settings["Signal_Name"]] = ROOT.kRed
     print(template_settings["Signal_Name"])
+
+
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
@@ -463,6 +549,7 @@ def Plot_Histogram(template_settings=dict()):
       pad2.SetBorderMode(1)
       pad1.SetTicks(1,1)
       pad2.SetTicks(1,1)
+      pad2.SetGrid(1,1)
       pad1.Draw()
       pad2.Draw()
       pad1.cd()
@@ -486,16 +573,16 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.105, .62, .24+0.37*(legend_NCol-1), .86);
+    legend = ROOT.TLegend(.105, .62, .90, .86);
     legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
     if not template_settings['plotRatio']:
-      legend.SetTextSize(0.03);
+      legend.SetTextSize(0.02);
     else:
-      legend.SetTextSize(0.047);
+      legend.SetTextSize(0.04);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -504,11 +591,12 @@ def Plot_Histogram(template_settings=dict()):
       nDigits = int(np.log10(template_settings['Integral']["Data"]))+1
       for idx, Histogram_Name in enumerate(Ordered_Integral):
         if Histogram_Name == "Data": continue
-        Yield = template_settings['Integral'][Histogram_Name]
-        if int(np.log10(Yield))+1 >= nDigits:
-          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits])
-        else:
-          template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits+1])
+        template_settings['Integral'][Histogram_Name] += 1e-6
+        #print(Histogram_Name, Yield)
+        #if int(np.log10(Yield))+1 >= nDigits:
+        #  template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits])
+        #else:
+        #  template_settings['Integral'][Histogram_Name] = (str(Yield)[:nDigits+1])
 
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
@@ -534,7 +622,8 @@ def Plot_Histogram(template_settings=dict()):
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [%.1f]'%template_settings['Integral'][Histogram_Name], 'F')
+                print(Histogram_Name, template_settings['Integral'][Histogram_Name])
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [%.1f]'%(float(template_settings['Integral'][Histogram_Name])), 'F')
 
     h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
@@ -571,12 +660,32 @@ def Plot_Histogram(template_settings=dict()):
     legend.AddEntry(hh_total,'Total unc.','F')
     hh_total.Draw("SAME E2")
 
+    sep_line = dict()
+    label_text = dict()
+    for region_ in template_settings['Region_binning']:
+        x_line = template_settings['Region_binning'][region_][1]
+        x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
+        sep_line[region_] = ROOT.TLine(x_line, 0, x_line, hh_total.GetMaximum()* 1.2)
+        sep_line[region_].SetLineColor(ROOT.kRed)
+        sep_line[region_].SetLineStyle(2)
+        sep_line[region_].SetLineWidth(5)
+        sep_line[region_].Draw()
+        region_list = region_.split('_')
+        for region_height, region_text in enumerate(region_list):
+          label_text[region_ + region_text] = ROOT.TLatex(x_text, (1.2 - 0.05 * region_height) * hh_total.GetMaximum(),  region_text)
+          label_text[region_ + region_text].SetTextAlign(22)  # Center align
+          label_text[region_ + region_text].SetTextSize(0.02)
+          label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
+          label_text[region_ + region_text].SetTextFont(62)
+          label_text[region_ + region_text].Draw("SAME")
+
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(2.5)
         h_sig.Draw("HIST;SAME")
         legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
     if template_settings['unblind']:
-        template_settings['Histogram']["Data"].Draw("SAME P*")
+        template_settings['Histogram']["Data"].SetMarkerSize(2)
+        template_settings['Histogram']["Data"].Draw("SAME P E")
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
@@ -591,8 +700,8 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetYaxis().SetTitle("Obs/Exp")
         h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
-        h_ratio.SetMaximum(1.15)
-        h_ratio.SetMinimum(0.85)
+        h_ratio.SetMaximum(1.3)
+        h_ratio.SetMinimum(0.7)
         h_ratio.GetYaxis().SetNdivisions(4)
         h_ratio.GetYaxis().SetTitleOffset(0.33)
         h_ratio.GetYaxis().SetTitleSize(0.15)
@@ -602,7 +711,8 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetXaxis().SetLabelSize(0.17)
         h_ratio.GetXaxis().SetTitleOffset(0.8)
         if template_settings['unblind']:
-          h_ratio.Draw("E 2")
+          h_ratio.SetMarkerSize(1)
+          h_ratio.Draw("P")
         else:
           h_ratio.Draw("AXIS")
 
@@ -659,14 +769,15 @@ def Plot_Histogram(template_settings=dict()):
       CMS_lumi.relPosY = 0.03
     else:
       CMS_lumi.extraText = "Preliminary"
+      CMS_lumi.relPosX = 0.22
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
-    if( iPos==0 ): CMS_lumi.relPosX = 0.12
+    if( iPos==0 ): CMS_lumi.relPosX = 0.15
 
     iPeriod=template_settings['year']
 
     if template_settings['plotRatio']:
-      CMS_lumi.CMS_lumi(pad1, iPeriod, iPos)
+      CMS_lumi.CMS_lumi(pad1, iPeriod, 11, 0.12)
     else:
       CMS_lumi.CMS_lumi(pad1, iPeriod, iPos, 0.09)
     ######
@@ -934,6 +1045,8 @@ def plotCorrelationRanking(settings=dict()):
 
 def SubmitGOF(settings = dict()):
 
+
+    os.system('cd {outputdir}'.format(outputdir=settings['outputdir']))
     command = "./SubmitGOF.sh {algo} {year} {region} {channel} {coupling} {Higgs} {mass}".format(algo = settings['GoF_Algorithm'], year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], mass = settings['mass'], region = settings['region'], Higgs = settings['higgs'])
 
     if settings['unblind']:
@@ -956,7 +1069,8 @@ def GoFPlot(settings = dict()):
     ROOT.gROOT.SetBatch(1)
     algo = settings['GoF_Algorithm']
 
-    os.chdir("{outputdir}/results".format(outputdir=settings['outputdir']))
+    
+    os.chdir("results/{year}/{region}/{channel}".format(year = settings['year'], region = settings['region'], channel = settings['channel'])) #.format(outputdir=settings['outputdir']))
     print('Processing {algo} algorithm...'.format(algo = algo))
 
     analysis = "ExtraYukawa"
@@ -977,7 +1091,7 @@ def GoFPlot(settings = dict()):
         print('The output ROOT file  \"{OutputFile}\" does not exist.'.format(OutputFile = OutputFile))
     if CheckFile(rootDataFiles, False, True):pass
     else:
-        print('Please check whether {rootDataFiles} {outputdir}/results'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir']))
+        print('Please check whether {rootDataFiles} {outputdir}/results/{year}/{region}/{channel}'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir'], year = settings['year'], region = settings['region'], channel = settings['channel']))
 
     fToys = ROOT.TFile(OutputFile)
     if settings['unblind']:
@@ -1139,11 +1253,10 @@ def GoFPlot(settings = dict()):
 
 
     plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-
+    plotname = os.path.join(settings['outputdir']+'/results', plotname)
     c.Update()
     c.SaveAs(plotname)
     c.SaveAs(plotname.replace('.pdf', '.png'))
-    plotname = os.path.join(settings['outputdir']+'/results', plotname)
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
     print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
 

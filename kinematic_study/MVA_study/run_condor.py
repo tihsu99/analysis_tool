@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument('--sample_json', default = '../../data/sample.json', nargs = '+')
     parser.add_argument('--cut_json', default = '../../data/cut.json', nargs = '+')
     parser.add_argument('--MVA_json', default = '../../data/MVA.json')
-    parser.add_argument('--JobFlavour', dest = 'JobFlavour', help='espresso/microcentury/longlunch/workday/tomorrow', type=str, default='testmatch')
+    parser.add_argument('--JobFlavour', dest = 'JobFlavour', help='espresso/microcentury/longlunch/workday/tomorrow', type=str, default='tomorrow')
     parser.add_argument('--universe',   dest = 'universe', help='vanilla/local', type=str, default='vanilla')
     parser.add_argument('--indir', type=str)
     parser.add_argument('--outdir', type=str, default='./')
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     if args.preprocess:
       Era_set = {'2016': ['2016apv', '2016postapv'], '2017n2018': ['2017', '2018']}
-      Region_set = {'2bregion': ['SR_2b2j', 'SR_2b3j', 'SR_2b4j'], '3bregion': ['SR_3b3j', 'SR_3b4j']}
+      Region_set = {'2bregion': ['SR_2b2j', 'SR_2b3j', 'SR_2b4j'], '3bregion': ['SR_3b3j', 'SR_3b4j'], 'SR_3b3j': ['SR_3b3j'], 'SR_3b_rest': ['SR_3b4j'], 'SR_2b2j': ['SR_2b2j'], 'SR_2b_rest': ['SR_2b3j', 'SR_2b4j']}
       channels = args.channel
       chunk_size = args.chunk_size
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
       #  prepare_shell('Training_{}_DNN.sh'.format(Mass), command, condor, farm_dir)
       # pNN Training
       Mass_dict = {#'Set1': [200, 400, 600, 800, 1000],
-                   #'Set2': [200, 500, 800, 1000],
+                   #'Set2': [200, 300, 400, 500, 600, 700, 800, 900, 1000],
                    'Set3': [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]}
 
       dagman_file = open(os.path.join(farm_dir, 'workflow.dag'), 'w')
@@ -158,6 +158,7 @@ if __name__ == "__main__":
           condor_step.write('universe = %s\n'%args.universe)
           if args.GPU:
             condor_step.write('request_GPUs = 1\n')
+            condor_step.write('requirements = !regexp("H100", TARGET.GPUs_DeviceName)\n') # Current env didn't support H100 machine
           condor_step.write('+JobFlavour = "%s"\n'%args.JobFlavour)
           condor_step.write('queue 1 cfgFile in ')
      

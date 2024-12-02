@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation 
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot
 from Util.aux import *
 from collections import OrderedDict
 
@@ -36,7 +36,7 @@ start = time.time()
 year_choices = ['2016apv','2016postapv','2017','2018','run2']
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot']
 
 
 parser = argparse.ArgumentParser()
@@ -50,13 +50,13 @@ parser.add_argument('--mass_point',help='Mass point of dataset.',type=str)
 parser.add_argument('-M','--mode',default='Nothing',choices=mode_choices,help='Mode of the executation')
 parser.add_argument('--unblind',action='store_true',help = 'Unblind or not.')
 parser.add_argument('--dest',default='./')
-parser.add_argument('--expectSignal',action="store_true")
+parser.add_argument('--expectSignal', default=0.0, type = float)
 parser.add_argument('--rMin',help='rMin values',default='-20')
 parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
 parser.add_argument('--logy',help='log y in pre/post-fit plots',action='store_true')
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
-parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=1.0, type=float)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=20.0, type=float)
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")

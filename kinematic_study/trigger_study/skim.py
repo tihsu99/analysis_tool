@@ -101,7 +101,6 @@ class Accumulator(processor.ProcessorABC):
         if self.lepton == "Electron": 
             events = events[events["n_tight_muon"] == 1] # Use Muon as "Tag"
             events['tag_lepton_id'] = ak.unflatten(events["tightMuons_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"]))
-            events = events[~(ak.num(events.Muon_pt) > ak.flatten(events.tag_lepton_id))] # TODO: debug
             events['tag_pt']   = ak.flatten(events['Muon_pt'][events.tag_lepton_id])
             events['tag_eta']  = ak.flatten(events['Muon_eta'][events.tag_lepton_id])
             events['tag_phi']  = ak.flatten(events['Muon_phi'][events.tag_lepton_id])
@@ -120,7 +119,6 @@ class Accumulator(processor.ProcessorABC):
                 events = events[events["n_tight_ele_noIso"] == 1] # Use noIso Electron as "Probe"
                 events['lepton_id']  = ak.unflatten(events["tightElectrons_noIso_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"]))
 
-            events = events[ak.num(events.Electron_pt) > ak.flatten(events.lepton_id)] # TODO: debug
             events['lepton_pt']  = ak.flatten(events['Electron_pt'][events.lepton_id])
             events['lepton_eta'] = ak.flatten(events['Electron_eta'][events.lepton_id])
             events['lepton_phi'] = ak.flatten(events['Electron_phi'][events.lepton_id])
@@ -131,7 +129,6 @@ class Accumulator(processor.ProcessorABC):
             events = events[events["n_tight_ele"] == 1] # Use Electron as "Tag"
             events['tag_lepton_id'] = ak.unflatten(events['tightElectrons_id'][:,0], counts=ak.ones_like(events[self.region+"_l1_id"]))
 
-            events = events[ak.num(events.Electron_pt) > ak.flatten(events.tag_lepton_id)] # TODO: debug
             events['tag_pt']  = ak.flatten(events['Electron_pt'][events.tag_lepton_id])
             events['tag_eta'] = ak.flatten(events['Electron_eta'][events.tag_lepton_id])
             events['tag_phi'] = ak.flatten(events['Electron_phi'][events.tag_lepton_id])
@@ -147,7 +144,6 @@ class Accumulator(processor.ProcessorABC):
                 events = events[events["n_tight_muon_noIso"] == 1] # Use Muon as "Probe"
                 events['lepton_id']  = ak.unflatten(events["tightMuons_noIso_id"][:,0], counts=ak.ones_like(events[self.region + "_l1_id"])) 
 
-            events = events[ak.num(events.Muon_pt) > ak.flatten(events.lepton_id)] # TODO: debug 
             events['lepton_pt']  = ak.flatten(events['Muon_pt'][events.lepton_id])
             events['lepton_eta'] = ak.flatten(events['Muon_eta'][events.lepton_id])
             events['lepton_phi'] = ak.flatten(events['Muon_phi'][events.lepton_id])
@@ -366,7 +362,7 @@ def Calculate_Trigger_Scale_Factor(era, dataset, iin, maxchunks, region, lepton,
     elif era == '2018':
         Electron_Trig_List = ['HLT_Ele32_WPTight_Gsf', 'HLT_Ele115_CaloIdVT_GsfTrkIdT', 'HLT_Photon200']
         Electron_Trig_Veto_List = []
-        Muon_Trig_List     = ['HLT_IsoMu27', 'HLT_Mu50', 'HLT_TkMu100', 'HLT_OldMu100']
+        Muon_Trig_List     = ['HLT_IsoMu24', 'HLT_Mu50', 'HLT_TkMu100', 'HLT_OldMu100']
         Muon_Trig_Veto_List = []
     else:
         Muon_Trig_List = ['HLT_IsoMu24', 'HLT_IsoTkMu24', 'HLT_Mu50', 'HLT_TkMu50']
