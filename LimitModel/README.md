@@ -3,45 +3,73 @@
 To initialization and rebin:
 ```
 cp physics_model/g2HDM.py ../../HiggsAnalysis/CombinedLimit/python/g2HDM.py
-python Init.py --year 2017 --channel all -b muPt btag
-python ReBin.py -y 2017  --inputdir [--YOUR DIRECTORY]  --unblind --POI bh_HT
+python3 Init.py --year all --sample_json ../data/sample_QCD_DataDriven.json # If you want to change back to MC QCD, change sample json to ../data/sample.json
+python3 Init.py --year all -b CMS_scale_met_unclustered_energy_YEAR --region CR_1b4j --sample_json ../data/sample_QCD_DataDriven.json # BlackList certain nuisances that not existing in certain region.
+python3 ReBin_condor.py --year 2016apv --outputdir [OUTPUTDIR] --unblind --POI ASCUTJSON --sig_norm --inputdir [INPUT NTUPLE DIR] --farm 2016apv # Normalize signal xsec to 1 using sig_norm
+python3 ReBin_condor.py --year 2016postapv --outputdir [OUTPUTDIR] --unblind --POI ASCUTJSON --sig_norm --inputdir [INPUT NTUPLE DIR] --farm 2016postapv # Normalize signal xsec to 1 using sig_norm
+python3 ReBin_condor.py --year 2017 --outputdir [OUTPUTDIR] --unblind --POI ASCUTJSON --sig_norm --inputdir [INPUT NTUPLE DIR] --farm 2017 # Normalize signal xsec to 1 using sig_norm
+python3 ReBin_condor.py --year 2018 --outputdir [OUTPUTDIR] --unblind --POI ASCUTJSON --sig_norm --inputdir [INPUT NTUPLE DIR] --farm 2018 # Normalize signal xsec to 1 using sig_norm
 ```
+To check rebin ntuple template variation (OUTPUTDIR from previous sections)
+```
+# Method 1: ToolKit (loop through all regions)
+sh example/scan_study_plot_nuisance_variation.sh "--era [ERA] --input_dir [OUTPUTDIR] --mass_point 500 --logy"
+# Method 2: Command
+python3 PlotNuisanceShape.py --region [REGION] --channel [CHANNEL] --era [ERA] --input_dir [OUTPUTDIR] --mass_point 500 --logy [--unblind]
+
+```
+
+
 To produce datacard:
 ```
-python prepareCards.py --combined --year 2017
+# Method 1: ToolKit
+sh example/scan_prepare_datacard.sh [MODELNAME i.e. g2HDM_3Bbased] [OUTPUTDIR] [CUT JSON]
+# Method 2: Command
+ python3 prepareCards.py --PhysicsModel g2HDM_3Bbased --year 2016apv 2016postapv 2017 2018 --mass [MASS] --dataset_dir [OUTPUTDIR FOR dataset] --outdir [OUTPUTDIR] --cut_json [CUT JSON] --combined
 ```
 To run limits:
 ```
-python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000
-python runlimits.py -c C -r C -y 2017 --Masses 200 350 800 1000 --plot_only #plot
+rm -rf bin # Clean run
+
+# Method 1: ToolKit (scan for run2 full regions)
+sh example/scan_study_limit_2D.sh [OUTPUTDIR] r_3b
+
+# Method 2: Command
+python3 runlimits.py --year run2 --channel C --region C --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased --outputdir [OUTPUTDIR] --POI_name r_3b  --Masses 200 300 350 400 500 600 700 800 900 1000;
+python3 runlimits.py --year run2 --channel C --region C --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased --outputdir [OUTPUTDIR] --POI_name r_3b  --Masses 200 300 350 400 500 600 700 800 900 1000 --plot_only;
 ```
 To run impacts:
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode datacard2workspace --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FitDiagnostics --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode FinalYieldComputation --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type preFit --plotRatio
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotShape --mass_point 800 --shape_type postFit --plotRatio
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode diffNuisances --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode PlotPulls --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doInitFit --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Impact_doFits --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode SubmitGOF --mass_point 800
+
+# Method 1: ToolKit
+sh example/plot_Impact_bHplus.sh "--year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] " 0 # 0: only for impacts, 1: all other steps i.e. pull, diffNuisances ...
+sh example/plot_Impact_bHplus.sh "--year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] " 2 # Once condor jobs finished, plot the impacts
+
+# Method 2: Command
+python ./SignalExtraction_Estimation.py --mode datacard2workspace --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode FitDiagnostics --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode FinalYieldComputation --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type preFit --plotRatio
+python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type postFit --plotRatio
+python ./SignalExtraction_Estimation.py --mode diffNuisances --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode PlotPulls --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode BiasTest --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode Impact_doInitFit --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode Impact_doFits --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode SubmitGOF --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 ```
 After condor finishes the job.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode Plot_Impacts --mass_point 800
-python ./SignalExtraction_Estimation.py -y 2017 -c C -r C --mode GoFPlot --mass_point 800
+python ./SignalExtraction_Estimation.py --mode Plot_Impacts --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode BiasTestPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python ./SignalExtraction_Estimation.py --mode GoFPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 ```
 # 1. Initialization
 
 ## 1.1 Commands for Input files preparing for datacard production
 Note: the initialization is to be done only once. You can block certain nuisances via `-b`.
 ```
-python Init.py --year 2017 --channel all
-python Init.py --year 2018 --channel all
-python Init.py --year 2016apv --channel all
-python Init.py --year 2016postapv --channel all
+python3 Init.py --year all -b [BlackList nuisance] --sample_json [SAMPLE JSON]
 ```
 After this step, a folder, data_info, is created. And under this folder, you can find three main different files under data_info:
 
@@ -49,7 +77,7 @@ After this step, a folder, data_info, is created. And under this folder, you can
 - data_info/NuisanceList/nuisance_list_{year}_{channel}.json # Contain the nuisances list for each channel
 - data_info/Datacard_Input/{year}/Datacard_Input_{channel}.json # Contain the necessary information for datacard production later.
 
-## 1.2 Breakdown uncertainties
+## 1.2 Breakdown uncertainties (To be updated)
 
 If you want to breakdown the nuisance uncertainties:
 ```
@@ -84,7 +112,7 @@ python study_bkg_composition.py
 ## 2.1 Commands for histograms rebinning for original BDT_output files
 
 **Please note that if root file is produced under lxplus9, the ReBin should be run under lxplus9 condition also (which is not consistent with cmssw-el7)**
-Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `Util/General_Tool.py`, please edit it if you want to change binning):
+Cut json could support different POIs and POIs binning for the analysis. Use `--POI ASCUTJSON` for that. `--sig_norm` options will normalize the signal to have unit cross section.
 ```
 1. Merge the histograms for various processes and make a new histogram which is sum of others, this is to make sure we don't have huge stats fluctuations. histograms for same/similar physics Processes are added.
 2. Once merging of histograms are done, each of these histogram is then rebinned, (uniform or non-uniform) depending on the needs.
@@ -92,10 +120,10 @@ Use the ReBin.py macro to perform two main tasks (Binning setting is stored in `
 
 Normally, you should use the following commands. (By default, the code will wrong all the channels, regions, and signals contain in the `data/sample.json` and `data/cut.json`)
 ```
-python ReBin.py --y [year: 2016apv/2016postapv/2017/2018] --inputdir [input/provided/by/Gouranga] [--unblind] [--POI] [--channel] [--region] [--signal]
+python3 ReBin.py --sample_json [sample_json] --era [era] --region [region]  --channel [channel] --signal CGToBHpm_a_[MASS]_rtt06_rtc04 --outputdir [outdir] --inputdir [indir] --unblind --POI [POI] --sig_norm --cut_json [cut json]
 ```
 
-## 2.2 Quiet the thousands of warning message
+## 2.2 Quiet the thousands of warning message 
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
@@ -148,13 +176,13 @@ Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :).
 ```
-python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory]
+python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b]
 ```
 #### Plot Limits
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --plot_only;
+python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b] --plot_only;
 ```
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
