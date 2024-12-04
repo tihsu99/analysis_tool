@@ -67,6 +67,7 @@ parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit'
 parser.add_argument('--group', type = int, default = 0)
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
+parser.add_argument('--command', default = '', type = str)
 args = parser.parse_args()
 
 '''
@@ -116,7 +117,8 @@ settings ={
     'signal_name': signal_name_template,
     'POI': x_variable,
     'datacard_dir': '/'.join(datacards.split('/')[:-1]),
-    'datacard_name': datacards.split('/')[-1]
+    'datacard_name': datacards.split('/')[-1],
+    'command': args.command
 }
 
 if args.mode =='PlotShape':

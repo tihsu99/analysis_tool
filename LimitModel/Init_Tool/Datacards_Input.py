@@ -8,10 +8,11 @@ from common import *
 def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=[], config = None):
 
     samples = read_json(config.sample_json)
-
     process_raw = list(process)
     Input = dict()    
-  
+ 
+
+    print("process_raw", process_raw)
     process = []
     process_data_driven = []
     process_free_float  = []
@@ -24,7 +25,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
           else: process.append(process_)
           break
 
-    
+    print("process", process)
 
 
     Input['bin']=dict()
@@ -67,7 +68,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
           print(nuisance_name_, "PROCESS" in nuisance_name_)
           if "PROCESS" in nuisance_name_:
             if "Process" not in nuisance_dict[nuisance]:
-              nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in process[1:]] # All Background
+              nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in process] # All Background
               if("Signal" in nuisance_dict[nuisance]["Label"]): nuisance_names.append(nuisance_name_.replace("PROCESS", "Signal"))
             else:
               nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in nuisance_dict[nuisance]["Process"]]
@@ -100,9 +101,10 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
               Input['NuisForProc'][nuisance_name] = [process_.replace("Signal", "SIGNAL") for process_ in nuisance_dict[nuisance]["Process"]]
             else:
               if "Background" in nuisance_dict[nuisance]["Label"]: 
-                Input['NuisForProc'][nuisance_name] = process[1:]
+                Input['NuisForProc'][nuisance_name] = process
               if "Signal" in nuisance_dict[nuisance]["Label"]:
-                Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
+                if "SIGNAL" not in Input['NuisForProc'][nuisance_name]:
+                  Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
 
 
    
