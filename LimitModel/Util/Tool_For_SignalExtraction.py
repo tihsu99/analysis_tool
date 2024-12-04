@@ -1237,8 +1237,9 @@ def GoFPlot(settings = dict()):
     pvalText.SetTextFont(43)
     pvalText.SetTextSize(22)
     pvalText.SetTextAlign(31) #11
-    pvalText.DrawLatex(0.92, 0.80, "# toys: %d" % nToys)
-    pvalText.DrawLatex(0.92, 0.74, "p-value: %.2f" % pval)
+    pvalText.DrawLatex(0.85, 0.80, "# toys: %d" % nToys)
+    pvalText.DrawLatex(0.85, 0.74, "p-value: %.2f" % pval)
+    pvalText.DrawLatex(0.85, 0.68, "channel: %s" % settings['channel'])
 
     import CMS_lumi
     CMS_lumi.writeExtraText = 1
