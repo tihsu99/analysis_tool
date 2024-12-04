@@ -22,6 +22,7 @@ The arguments:
 16. `--ratio_min`: ratio y axis lower bound.
 17. `--ratio_max`: ratio y axis higher bound.
 18. `--ratio_Ndiv`: ratio y axis Ndivisions.
+19. `--noQCDsmooth`: to apply MC QCD not smoothing. (Default: smoothing is applied)
 For example, you can plot it with following command
 ```
 python plot_histo.py --indir [YOUR DIRECTORY] --era 2017 [--unblind] [--Yield]
