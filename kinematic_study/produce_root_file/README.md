@@ -19,11 +19,11 @@ The arguments are:
 13. `--sample_json`: Json file that contains sample information.
 14. `--cut_json`: Json file that contains cut / region information.
 15. `--variable_json`: Json file that contains variable definition.
-16. `--histogram_json`: Json file that contains histogram information.
+16. `--histogram_json`: Json file that contains histogram information. (default: ../../data/histogram.json ) but for CR plots (2b, 3b) use `MVAinput_variables.json` and for CR plots (1b4j) use: `MVAinput_variables_CR_1b4j.json`.
 17. `--nuisance_json`: Json file that contains nuisacne information.
 18. `--trigger_json`: Json file that contains trigger information.
 19. `--MET_filter_json`: Json file that contains MET filter information.
-20. `--toppt`: to turn on top reweighting.
+20. `--notoppt`: to turn off top reweighting. (Default toppt is ON)
 
 As an example, you produce the 2017 skimmed ntuple with following command (most of the arguments can just follow default value):
 ```
