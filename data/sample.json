@@ -308,7 +308,8 @@
    "xsec_err": 3.8,
    "Category": "WJets",
    "Train_ratio": {"2b": 0.5, "3b": 0.5},
-   "Label": ["MC", "Background"]
+   "Label": ["MC", "Background"],
+   "LO": "--noNLOwjet"
   },
 
   "WJets_HT100to200":{
@@ -316,7 +317,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT200to400":{
@@ -324,7 +326,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT400to600":{
@@ -332,7 +335,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT600to800":{
@@ -340,7 +344,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT800to1200":{
@@ -348,7 +353,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT1200to2500":{
@@ -356,7 +362,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "WJets_HT2500toInf":{
@@ -364,7 +371,8 @@
     "xsec_err": 3.8,
     "Category": "WJets",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
-    "Label": ["MC", "Background"]
+    "Label": ["MC", "Background"],
+    "LO": "--noNLOwjet"
   },
 
   "TTTo2L":{

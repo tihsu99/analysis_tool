@@ -44,6 +44,7 @@ def Slim_module(filein,
                 cutflow_store=False,
                 SubProcess = None,
                 notoppt = False,
+                noNLOwjet = False,
                 not_ensemble = False,
                 train = None):
 
@@ -96,7 +97,7 @@ def Slim_module(filein,
     fileOut = os.path.join(output_dir, filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
 
-  if not SubProcess is None and ('SubProcess' in samples[sample_name]):
+  if not SubProcess is None and (('SubProcess' in samples[sample_name]) or 'LO' in samples[sample_name]):
     fileOut = fileOut.replace(filein, SubProcess + '.root')
   treeOut = "Events"
 
@@ -163,6 +164,11 @@ def Slim_module(filein,
 
   if (notoppt and (not ("Data" in sample_labels))):
     weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf"
+
+  if not noNLOwjet and sample_category == "WJets":
+    weight_def += "*wjet_NLO_kfactor"
+
+  cprint("weight = {}".format(weight_def), "yellow")
 
   #################################
   ##  Assign Train / Test Label  ##
@@ -622,6 +628,7 @@ if __name__ == "__main__":
   parser.add_argument("--cutflow", action='store_true')
   parser.add_argument("--SubProcess", type=str, default = None)
   parser.add_argument("--notoppt",   action='store_true')
+  parser.add_argument("--noNLOwjet", action='store_true')
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   type=str, default = None)
 
@@ -650,7 +657,8 @@ if __name__ == "__main__":
               SubProcess = args.SubProcess,\
               multi_class_pNN = args.multi_class_pNN,\
               notoppt = args.notoppt,\
-              not_ensemble = args.not_ensemble,
+              noNLOwjet = args.noNLOwjet,\
+              not_ensemble = args.not_ensemble,\
               train = args.train)
   end_time = time.time()
   print('process time', end_time - start_time)

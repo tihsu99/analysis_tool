@@ -9,6 +9,11 @@
    	"Label": ["Normal", "MC"]
   },
 
+  "wjet_NLO_kfactor":{
+    "Def": "wjets_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)",
+    "Label": ["Normal", "MC"],
+    "Save":  ["Control_plot"]
+  },
 
   "MET_T1Smear_phi_RVec":{
 	  "Def": "ROOT::RVec{MET_T1Smear_phi}",
@@ -83,6 +88,18 @@
     "Def": "Defined",
     "Label": ["Normal"],
     "Save": ["Debug"]
+  },
+
+  "tightJets_b_DeepJetmedium_id":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save":  ["Debug"]
+  },
+
+  "n_bjet_DeepB_medium":{
+    "Def": "Defined",
+    "Save": ["Debug"],
+    "Label": ["Normal"]
   },
 
   "tightJets_b_DeepJet_id": {

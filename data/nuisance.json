@@ -171,6 +171,12 @@
     "Process": ["TT"]
   },
 
+  "WJet_NLO_correction":{
+    "Nominal": ["wjet_NLO_kfactor"],
+    "Def": "RVecF{(float)(1.0), (float)(2*wjet_NLO_kfactor-1.0)}",
+    "Label": ["MC", "Background", "Shape"],
+    "Process": ["WJet"]
+  },
 
   "ps_isr_PROCESS": {
     "Nominal": ["weight"],
