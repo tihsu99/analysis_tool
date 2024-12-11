@@ -47,6 +47,38 @@
     "Label": ["Control_plot"]
   },
 
+  "b1_flavour": {
+    "Title": ";Leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "b2_flavour": {
+    "Title": ";Second leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "b3_flavour": {
+    "Title": ";Third leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "btag_probability":{
+    "Title": ";btag probability; nEntries",
+    "xlow": 0.0,
+    "xhigh": 1.0,
+    "nbin": 100,
+    "Label": ["Debug"]
+  },
+
   "DeepB_medium_j1_pt":{
     "Title": ";Leading b jet Pt [GeV];nEntries",
     "xlow": 0,
@@ -178,7 +210,7 @@
   "top_reco_pt":{
     "Title": ";pT^{rec0} [GeV]; nEntries",
     "xlow": 0,
-    "xhigh": 400,
+    "xhigh": 800,
     "nbin": 40,
     "Label": ["Reco", "Control_plot"]
   },
@@ -186,8 +218,8 @@
   "top_reco_mass":{
     "Title": ";mt^{reco} [GeV];nEntries",
     "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
+    "xhigh": 800,
+    "nbin": 35,
     "Label": ["Reco", "Control_plot"]
   },
 

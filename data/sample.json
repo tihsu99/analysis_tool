@@ -161,7 +161,7 @@
 
   "DYnlo_M10to50":{
     "xsec": 20490,
-    "xsec_err": 1,
+    "xsec_err": 10.0,
     "Category": "DY",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label":  ["MC", "Background"]
@@ -169,7 +169,7 @@
 
   "DYnlo":{
     "xsec": 6077.22,
-    "xsec_err": 0.3,
+    "xsec_err": 10.0,
     "Category": "DY",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label":  ["MC", "Background"]
@@ -444,6 +444,7 @@
 
    "CGToBHpm_a_200_rtt06_rtc04":{
      "xsec": 6.609,
+     "xsec_err": 18.6,
      "Category": "bH^{#pm}(200)",
      "Train_ratio": {"2b": 0.5, "3b": 0.5},
      "Label": ["MC","Signal"],
@@ -455,6 +456,7 @@
 
    "CGToBHpm_a_300_rtt06_rtc04":{
      "xsec": 5.370,
+     "xsec_err": 16.17,
      "Category": "bH^{#pm}(300)",
      "Train_ratio": {"2b": 0.5, "3b": 0.5},
      "Label": ["MC","Signal"],
@@ -466,6 +468,7 @@
 
    "CGToBHpm_a_350_rtt06_rtc04":{
      "xsec": 3.391,
+     "xsec_err": 15.38,
      "Category": "bH^{#pm}(350)",
      "Train_ratio": {"2b": 0.5, "3b": 0.5},
      "Label": ["MC","Signal"],
@@ -477,6 +480,7 @@
 
   "CGToBHpm_a_400_rtt06_rtc04":{
     "xsec": 1.887,
+    "xsec_err": 14.94, 
     "Category": "bH^{#pm}(400)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],
@@ -488,6 +492,7 @@
 
   "CGToBHpm_a_500_rtt06_rtc04":{
     "xsec": 0.7911,
+    "xsec_err": 15.95,
     "Category": "bH^{#pm}(500)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],
@@ -499,6 +504,7 @@
 
   "CGToBHpm_a_600_rtt06_rtc04":{
     "xsec": 0.3790,
+    "xsec_err": 16.27,
     "Category": "bH^{#pm}(600)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],
@@ -510,6 +516,7 @@
 
   "CGToBHpm_a_700_rtt06_rtc04":{
     "xsec": 0.19,
+    "xsec_err": 17.49,
     "Category": "bH^{#pm}(700)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],
@@ -521,6 +528,7 @@
 
   "CGToBHpm_a_800_rtt06_rtc04":{
     "xsec": 0.09575,
+    "xsec_err": 18.45,
     "Category": "bH^{#pm}(800)",
     "Label": ["MC","Signal"],
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
@@ -532,6 +540,7 @@
 
   "CGToBHpm_a_900_rtt06_rtc04":{
     "xsec": 0.04865,
+    "xsec_err": 20.12,
     "Category": "bH^{#pm}(900)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],
@@ -543,6 +552,7 @@
 
   "CGToBHpm_a_1000_rtt06_rtc04":{
     "xsec": 0.02755,
+    "xsec_err": 22.22,
     "Category": "bH^{#pm}(1000)",
     "Train_ratio": {"2b": 0.5, "3b": 0.5},
     "Label": ["MC","Signal"],

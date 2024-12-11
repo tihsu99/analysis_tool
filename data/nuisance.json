@@ -57,6 +57,13 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
+  "CMS_scale_e":{
+    "Nominal": ["Lepton_pt"],
+    "Def": "RVecF{(float)(Lepton_pt * Electron_Scale_err_up), (float)(Lepton_pt * Electron_Scale_err_do)}",
+    "Channel": ["ele_resolved"],
+    "Label": ["MC", "Background", "Signal", "Shape"]
+  },
+
   "CMS_btag_lf":{
     "Nominal": ["btag_DeepJet_SF"],
     "Def": "RVec{btag_DeepJet_SF_udsg_down, btag_DeepJet_SF_udsg_up}",
@@ -157,6 +164,14 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
+  "Top_pt_reweighting":{
+    "Nominal": ["toppt_weight"],
+    "Def": "RVecF{(float)(1.0), (float)(2*toppt_weight - 1.0)}",
+    "Label": ["MC", "Background", "Shape"],
+    "Process": ["TT"]
+  },
+
+
   "ps_isr_PROCESS": {
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*PSWeight[2]), (float)(weight*PSWeight[0])}",
@@ -189,13 +204,26 @@
     "Nominal": ["weight"],
     "Def": "RVec{(float)(weight*(1.0-pdf_unc)), (float)(weight*(1.0+pdf_unc))}",
     "Label": ["MC", "Background", "Signal", "Shape"],
-    "Process": ["TT", "Signal", "WJets"]
+    "Process": ["TT","Signal", "WJets"]
   },
+
 
   "CMS_lumi_2016":{
     "value": 1.01,
     "Label": ["lnN", "Background", "Signal"],
     "Era": ["2016apv", "2016postapv"]
+  },
+
+  "normQCD_ERA_REGION_CHANNEL":{
+    "value": 1.50,
+    "Label": ["lnN", "Background"],
+    "Process": ["QCD"]
+  },
+
+  "normTT":{
+    "value": 1.052,
+    "Label": ["lnN", "Background"],
+    "Process": ["TT"]
   },
 
   "CMS_lumi_YEAR":{
@@ -216,6 +244,12 @@
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
+  },
+
+
+  "QCD_shape_ERA_REGION_CHANNEL":{
+    "Label": ["DataDriven", "Shape"],
+    "Process": ["QCD"]
   }
 
 }
