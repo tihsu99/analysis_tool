@@ -88,7 +88,6 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     Histo_exist_in_file = True
     for data_type in [["MC", "Background"], ["Data"], ["MC", "Signal"]]:
       if not unblind and "Data" in data_type: continue
-      File_List      = Get_Sample(sample_json, data_type, era, withTail=True) # Use all the MC backgrounds
       Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
       Histogram = dict()
       Integral  = dict()
