@@ -608,9 +608,9 @@ ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid){
   return return_id;
 }
 
-float fix_SF_postapv(float pt, float abseta, int flavor, TString systematic){
+float fix_SF_postapv(float pt, float abseta, int flavor, string wp, string systematic){
   fs::path fname = "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016preVFP_UL/btagging.json.gz";
-  cout << "Loading JSON file: " << fname << endl;
+  //cout << "Loading JSON file: " << fname << endl;
   assert(fs::exists(fname));
   unique_ptr<correction::CorrectionSet> cset = correction::CorrectionSet::from_file(fname.string());
   float discriminant = 0.5;
@@ -622,14 +622,14 @@ float fix_SF_postapv(float pt, float abseta, int flavor, TString systematic){
           {"discriminant", discriminant}, // jet discriminant
           /* analysis dependent */
           {"systematic", systematic}, // systematic variation
-          {"working_point", "M"}, // discriminant working point
+          {"working_point", wp}, // discriminant working point
       };
 
   correction::Correction::Ref sf = cset->at("deepJet_incl");
 
   vector<correction::Variable::Type> inputs;
   for (const correction::Variable& input: sf->inputs()) {
-      cout << ' ' << input.name() << flush;
+      //cout << ' ' << input.name() << flush;
       inputs.push_back(example.at(input.name()));
   }
   double result = sf->evaluate(inputs);
@@ -641,15 +641,25 @@ ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_
   ROOT::VecOps::RVec<float> return_sf;
   int hadflav, idx;
   float efficiency, pt, eta;
+  if (wp == 1) wp_str = "L";
+  else if (wp == 2) wp_str = "M";
+  else if (wp == 3) wp_str = "T";
   for(int i=0; i < tight_jet_id.size(); i++){
     idx = tight_jet_id[i];
-    cout << jethadflav[idx] << btag_sf[idx] << endl;
+    cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
     if(idx<0) continue;
-    if(jethadflav[idx] != 0) return_sf.push_back(btag_sf[idx]);
-    else return_sf.push_back(fix_SF_postapv(Jet_pt[idx], Jet_eta[idx], jethadflav[idx], "nominal"));
+    if(jethadflav[idx] != 0){
+      if (variation == 0) return_sf.push_back(btag_sf[idx]);
+      else return_sf.push_back(btag_sf_var[idx]);
+    }
+    else{
+      if (variation==0) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "central"));
+      else if(variation==3) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "down"));
+      else if(variation==1) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "up"));
+  }
   }
   for (int i = 0; i < btag_sf.size(); i++){
-    cout << return_sf[i] << endl;
+    cout << i << " new SF " << return_sf[i] << endl;
   } 
   return return_sf;
 } 
@@ -659,9 +669,10 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
   int hadflav, idx;
   bool isbtag;
   float efficiency, pt, eta;
-  if (year == "2016postapv"){
+  if (year == "2016postapv" && variation != 2){
     btag_sf = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
-  } 
+    btag_sf_var = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
+  }
   for(int i=0; i < tight_jet_id.size(); i++){
     idx = tight_jet_id[i];
     if(idx<0) continue;
@@ -693,7 +704,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
 
     if(isbtag){
       if(variation == 0) sf *= btag_sf[idx]; // nominal
-      else if (variation == 1){  // flav udsg vary
+      else if (variation == 1 || variation == 3){  // flav udsg vary
 	      if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf[idx];
         else {sf *= btag_sf_var[idx];}
       }
@@ -704,7 +715,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
     }
     else{
       if(variation == 0) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
-      else if (variation == 1){
+      else if (variation == 1 || variation == 3){
         if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
 	      else {sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);}
       }
