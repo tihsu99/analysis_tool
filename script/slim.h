@@ -646,21 +646,21 @@ ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_
   else if (wp == 3) wp_str = "T";
   for(int i=0; i < tight_jet_id.size(); i++){
     idx = tight_jet_id[i];
-    cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
+    //cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
     if(idx<0) continue;
     if(jethadflav[idx] != 0){
       if (variation == 0) return_sf.push_back(btag_sf[idx]);
       else return_sf.push_back(btag_sf_var[idx]);
     }
     else{
-      if (variation==0) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "central"));
-      else if(variation==3) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "down"));
+      if(variation==3) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "down"));
       else if(variation==1) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "up"));
+      else return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "central"));
+    }
   }
-  }
-  for (int i = 0; i < btag_sf.size(); i++){
-    cout << i << " new SF " << return_sf[i] << endl;
-  } 
+  //for (int i = 0; i < btag_sf.size(); i++){
+  //  cout << i << " new SF " << return_sf[i] << endl;
+  //} 
   return return_sf;
 } 
 
@@ -669,7 +669,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
   int hadflav, idx;
   bool isbtag;
   float efficiency, pt, eta;
-  if (year == "2016postapv" && variation != 2){
+  if (year == "2016postapv"){
     btag_sf = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
     btag_sf_var = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
   }
