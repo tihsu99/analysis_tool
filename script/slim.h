@@ -641,6 +641,7 @@ ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_
   ROOT::VecOps::RVec<float> return_sf;
   int hadflav, idx;
   float efficiency, pt, eta;
+  string wp_str;
   if (wp == 1) wp_str = "L";
   else if (wp == 2) wp_str = "M";
   else if (wp == 3) wp_str = "T";
