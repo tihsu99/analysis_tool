@@ -25,7 +25,7 @@ sys.path.append('../python')
 from common import *
 import numpy as np
 
-def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', scale = 1.0):
+def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', region = 'CR_1b4j', scale = 1.0):
 
   ## New definition of MakeNuisance_Hist, but compatible with current data structure
 
@@ -37,7 +37,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
   year = '2016' if '2016' in era else era
 
   for sample_ in samples_list:
-    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era)
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era).replace('REGION', region)
     fin = os.path.join(indir, "{}.root".format(sample_))
     fin = TFile.Open(fin, "READ")
     if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
@@ -50,7 +50,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
     fin.Close()
   if Nui_Exist:
     h = h.Rebin(len(bins)-1, "h", bins)
-    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era)
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era).replace('REGION', region)
     h.SetNameTitle(analysis_name + era + "_" + category + nuis, era + "_" + category + nuis)
   else:
     if q: pass
@@ -128,7 +128,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       scale = sig_scale 
     else: category_name = category
 
-    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
+    h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale)
 #    Histograms.append(over_flowbin(MakePositive_Hist(h)))
     Histograms.append(MakePositive_Hist(h))
     for nuisance in datacard_inputs["NuisForProc"]:
@@ -138,7 +138,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
         category_replace_signal = "SIGNAL"
       if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
       for variation in ["_up", "_down"]:
-        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, scale=scale)
+        h = Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale)
 #        Histograms.append(over_flowbin(MakePositive_Hist(h)))
         Histograms.append(MakePositive_Hist(h))
 
@@ -159,7 +159,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
       if "Era" in samples_contain_datainfo[sample_] and era not in samples_contain_datainfo[sample_]["Era"]: continue
       data_list.append(sample_)
-    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel)
+    h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region = region)
     Histograms.append(h)
 
   fout.cd()
@@ -260,7 +260,9 @@ for era_ in eras:
             mass     = signal_.replace('BGToTHpm_a_', '').replace('CGToBHpm_a_','').replace('_rtt06_rtc04','').replace('WprimeTotb_leptonicDecays_M_','').replace('HplusToTB_M_','')
             POI_in = 'DNNScore{}'.format(mass)
 
-        ####################################
+        #### Special Case ######
+        if POI_in == 'DNN200':
+           POI_binning = np.array( [0., 0.05, 0.1,  0.55, 1.0])
 
         if args.sig_norm:
           sig_scale = 1./samples[signal_]["xsec"]

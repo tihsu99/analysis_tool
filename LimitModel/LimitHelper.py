@@ -255,7 +255,7 @@ class RunLimits:
         #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
         else:
           exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #sigma(pp#rightarrow XH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]")
-        exp2s.GetYaxis().SetTitleOffset(1.9)
+        exp2s.GetYaxis().SetTitleOffset(1.6)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
         exp2s.GetYaxis().SetMoreLogLabels()

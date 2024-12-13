@@ -20,4 +20,5 @@ python3 SignalExtraction_Estimation.py --mode SubmitFromEOS ${command}
 #python3 SignalExtraction_Estimation.py --mode SubmitGOF ${command}
 else
 python3 SignalExtraction_Estimation.py --mode Plot_Impacts ${command}
+#python3 SignalExtraction_Estimation.py --mode GoFPlot ${command}
 fi

@@ -84,3 +84,31 @@ def combine_histograms(hist1, hist2):
         hist_combined.SetBinContent(i + hist1.GetNbinsX(), hist2.GetBinContent(i))
     
     return hist_combined
+
+cwd = os.getcwd()
+dir_list = cwd.split('/')
+cmssw_list = []
+for dir_ in dir_list:
+  cmssw_list.append(dir_)
+  if 'CMSSW' in dir_: break
+cmsswBase = '/'.join(cmssw_list)
+
+def prepare_shell(shell_file, command, condor, FarmDir, cmssw = False):
+
+###############
+# Func: prepare sh file and add it to the condor schedule.
+###############
+
+  cwd = os.getcwd()
+  with open(os.path.join(FarmDir, shell_file), 'w') as shell:
+    shell.write('#!/bin/bash\n')
+    shell.write('WORKDIR=%s\n'%cwd)
+    shell.write('cd %s\n'%cmsswBase)
+    if cmssw:
+      shell.write('eval `scram r -sh`\n')
+    shell.write('cd ${WORKDIR}\n')
+    if not cmssw:
+      shell.write('source script/env.sh\n')
+    shell.write(command)
+
+  condor.write('%s,'%shell_file)

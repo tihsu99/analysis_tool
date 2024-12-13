@@ -76,7 +76,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
     line_style = [2,6,3]
     
     mg =ROOT.TMultiGraph("mg","mg")
-    mg.SetTitle(";m_{H^+} [GeV];95% CL upper limit on #mu=#sigma/#sigma(theory)")
+    mg.SetTitle(";m_{H^+} [GeV];95% CL upper limit on #sigma [pb]")
     mg.SetMinimum(y_min);
     mg.SetMaximum(y_max);
 
@@ -165,7 +165,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       coupling_value = Coupling_value[0]
       channel = channel[0] 
       limit_pdf_file = 'Merged_Limit_Plots_For_{coupling_value}_{channel}.pdf'.format(coupling_value=coupling_value,channel=channel)
-      channel = channel.replace("C","ee+em+mm").replace('m','#mu')
+      channel = channel.replace("C","e+em").replace('m','#mu')
       coupling_value = coupling_value.replace('p','.')
 
       if 'rtc' in coupling_value :
@@ -208,7 +208,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
       region = region[0]
       channel = channel[0] 
       limit_pdf_file = 'Merged_Limit_Plots_For_{year}_{region}_{channel}.pdf'.format(channel=channel,year=year,region=region)
-      channel = channel.replace("C","ele+m").replace('m','#mu')
+      channel = channel.replace('mu', '#mu').replace("C","ele+#mu")
 
       colors = [2,3,4,5,1]     
   
@@ -277,7 +277,7 @@ def Plot_1D_Limit_For(log_files_dict={},unblind=False,y_max=10000,y_min=0.001,ye
         exp.SetLineColor(colors[idx])
         exp.SetLineWidth(2)
         mg.Add(exp,"LP")
-        channel = channel.replace('C','ee+em+mm').replace('m','#mu')
+        channel = channel.replace('mu', '#mu').replace('C','e+#mu')
         if not unblind:
           leg.AddEntry(exp, channel + "(exp)", "LP");
         else:
