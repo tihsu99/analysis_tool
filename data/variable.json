@@ -335,9 +335,9 @@
 
   "btag_DeepJet_SF_udsg_down":{
     "Def": "Btag_WP_Dep",
-    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 1)",
-	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 1)",
-            		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 1)"},
+    "Category":{"Loose":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_L, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 1, Jet_btagSF_deepJet_L_down, 3)",
+	              "Medium": "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_M, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 2, Jet_btagSF_deepJet_M_down, 3)",
+            		"Tight":  "btag_SF(tightJets_id_in24, tightJets_b_DeepJet_id, Jet_btagSF_deepJet_T, Jet_hadronFlavour, Jet_pt_nom, Jet_eta, 3, Jet_btagSF_deepJet_T_down, 3)"},
     "Label": ["Normal", "MC"]
   },
 
