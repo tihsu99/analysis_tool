@@ -406,10 +406,8 @@ if __name__ == "__main__":
                if (sample_name == sample_name_file):
                  ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
                  nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
-                 print(os.path.join(inputFile_path[Era], file_),  ftemp.Get('nEventsGenWeighted').GetBinContent(1))
                  ftemp.Close()
              norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
-             print(sample_name, norm_factor, nDAS)
              if args.half in ['train', 'test']:
                num_bjet = '2b' if '2b' in region else '3b' # TODO: Hard coded
                ratio = samples[sample_name]['Train_ratio'][num_bjet]
