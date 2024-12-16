@@ -62,6 +62,13 @@ TFile*f_wjets_factor = TFile::Open("../../data/merged_kfactors_wjets.root");
 TH1D*hist_wjets_kfactor = (TH1D*) f_wjets_factor->Get("kfactor_monojet_qcd_ewk");
 const float wjet_kfactor_highest_pt = hist_wjets_kfactor->GetXaxis()->GetBinUpEdge(hist_wjets_kfactor->GetNbinsX());
 
+// btag sf evaluator
+fs::path fname = "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016preVFP_UL/btagging.json.gz";
+unique_ptr<correction::CorrectionSet> cset = correction::CorrectionSet::from_file(fname.string());
+correction::Correction::Ref sf_btag_preVFP = cset->at("deepJet_incl");
+
+
+
 double delta_phi(double phi2, double phi1){
   float dphi = phi2 - phi1;
   if (fabs(dphi) > TMath::Pi()) dphi = 2*TMath::Pi() - fabs(dphi);
@@ -672,15 +679,13 @@ float btag_prob(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t
 }
 
 float fix_SF_postapv(float pt, float abseta, int flavor, string wp, string systematic){
-  fs::path fname = "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016preVFP_UL/btagging.json.gz";
-  //cout << "Loading JSON file: " << fname << endl;
-  assert(fs::exists(fname));
-  unique_ptr<correction::CorrectionSet> cset = correction::CorrectionSet::from_file(fname.string());
   float discriminant = 0.5;
+  const float maxEta = 2.5;
+  float input_eta = std::min(abseta, (float) (maxEta - 0.01));
   map<string, correction::Variable::Type> example = {
           /* jet properties */
           {"pt"  , pt}, // jet transverse momentum
-          {"abseta" , abseta}, // absolute jet pseudorapidity
+          {"abseta" , input_eta}, // absolute jet pseudorapidity
           {"flavor", flavor}, // jet flavour
           {"discriminant", discriminant}, // jet discriminant
           /* analysis dependent */
@@ -688,19 +693,15 @@ float fix_SF_postapv(float pt, float abseta, int flavor, string wp, string syste
           {"working_point", wp}, // discriminant working point
       };
 
-  correction::Correction::Ref sf = cset->at("deepJet_incl");
 
   vector<correction::Variable::Type> inputs;
-  for (const correction::Variable& input: sf->inputs()) {
-      //cout << ' ' << input.name() << flush;
+  for (const correction::Variable& input: sf_btag_preVFP->inputs()) {
       inputs.push_back(example.at(input.name()));
   }
-  double result = sf->evaluate(inputs);
-  return result;
+  return (float) sf_btag_preVFP->evaluate(inputs);
 }
 
 ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp, ROOT::VecOps::RVec<float> btag_sf_var, int variation){
-  cout << "rederive_btag_SFs" << endl;
   ROOT::VecOps::RVec<float> return_sf;
   int hadflav, idx;
   float efficiency, pt, eta;
@@ -708,10 +709,11 @@ ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_
   if (wp == 1) wp_str = "L";
   else if (wp == 2) wp_str = "M";
   else if (wp == 3) wp_str = "T";
-  for(int i=0; i < tight_jet_id.size(); i++){
-    idx = tight_jet_id[i];
-    //cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
-    if(idx<0) continue;
+  for(int i=0; i < Jet_pt.size(); i++){
+    // idx = tight_jet_id[i];
+    // cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
+    // if(idx < 0) continue;
+    idx = i;
     if(jethadflav[idx] != 0){
       if (variation == 0) return_sf.push_back(btag_sf[idx]);
       else return_sf.push_back(btag_sf_var[idx]);
@@ -741,7 +743,7 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
     idx = tight_jet_id[i];
     if(idx<0) continue;
     isbtag = false;
-    pt     = std::min(Jet_pt[idx],btag_efficiency_highest_pt - 1.0);
+    pt     = std::min(Jet_pt[idx], (float) (btag_efficiency_highest_pt - 1.0));
     eta    = Jet_eta[idx];
     for(int j=0; j < b_jet_id.size(); j++){
       if (b_jet_id[j] == idx){

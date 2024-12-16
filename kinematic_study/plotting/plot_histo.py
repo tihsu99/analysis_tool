@@ -175,6 +175,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           # if histogram == 'cutflow':
           #  if 'WJets' in subprocess_:
           #    print ("Name: ", subprocess_, " and Integral:  ", round(htemp.Integral(), 2))
+
           if category not in Histogram:
             Histogram[category] = htemp.Clone()
             Integral[category]  = htemp.Integral()
