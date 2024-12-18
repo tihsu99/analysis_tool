@@ -128,7 +128,7 @@ def BiasTest(settings=dict()):
     farm_dir = "Farm_BiasTest"
     os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
 
-    for r in [0.0, 0.5, 1.0, 1.5, 2.0]:
+    for r in [0.0, 0.03, 0.05, 0.1, 0.15, 0.2]:
       r_min = r - 10
       r_max = r + 10
       condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
