@@ -21,7 +21,7 @@ from ROOT import gStyle
 from plotstyle import *
 import random
 import matplotlib.pyplot as plt
-
+from array import array
 #####################
 ## Dict of regions ##
 #####################
@@ -456,12 +456,25 @@ def PlotShape(settings=dict()):
             if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
             if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
             fpath = first_level_name + '/' + category
-            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
+            if settings['shape_type'].lower()  == 'postfit' and 'CG' in category:
                 fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
             h = RootLevel.Get(fpath).Clone()
             if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
 
-            h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
+
+            if isinstance(h, ROOT.TH1):
+                # Binning from TH1
+                nbin = h.GetNbinsX()
+                bin_edges = [h.GetBinLowEdge(i + 1) for i in range(nbin)]
+                bin_edges.append(h.GetBinLowEdge(nbin) + h.GetBinWidth(nbin))
+            else:
+               # Binning from TGraphAsymmErrors
+               n_points = h.GetN()
+               bin_edges = [h.GetX()[i] - h.GetErrorXlow(i) for i in range(n_points)]
+               bin_edges.append(h.GetX()[n_points - 1] + h.GetErrorXhigh(n_points - 1))
+  
+            print(bin_edges)
+            h_postfix = ROOT.TH1F(fpath, '', len(bin_edges) - 1, array('d', bin_edges))
 
 
 
@@ -507,6 +520,19 @@ def PlotShape(settings=dict()):
         if Maximum < Histogram[region_][category].GetMaximum():
             Maximum = Histogram[region_][category].GetMaximum()
 
+    if settings['combined']:
+        Histogram_merged       = dict()
+        for region_ in Histogram:
+            region_out = region_.replace("2016postapv", "run2").replace("2017", "run2").replace("2018", "run2").replace("2016apv", "run2").replace('era','')
+            region_out = region_out.replace("ele_resolved", "e+m").replace("mu_resolved", "e+m")
+            if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
+            for category in Histogram[region_]:
+                if category not in Histogram_merged[region_out]:
+                    Histogram_merged[region_out][category] = Histogram[region_][category].Clone()
+                else:
+                    Histogram_merged[region_out][category].Add(Histogram[region_][category].Clone())
+        Histogram = Histogram_merged
+
     Histogram_concatenated = dict()
     region_binning         = dict()
     for category in Histogram_Names:
@@ -538,7 +564,7 @@ def PlotShape(settings=dict()):
             "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],
             "Title":Title,
-            "xaxisTitle":settings['POI'],
+            "xaxisTitle":"Observable",
             "yaxisTitle":'Events/bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
@@ -737,7 +763,9 @@ def Plot_Histogram(template_settings=dict()):
         sep_line[region_].Draw()
         region_list = region_.split('_')
         for region_height, region_text in enumerate(region_list):
-          label_text[region_ + region_text] = ROOT.TLatex(x_text, (1.2 - 0.05 * region_height) * hh_total.GetMaximum(),  region_text)
+          if Set_Logy: y_text_log = 10**((1.2 - 0.3 * region_height)) * hh_total.GetMaximum() / 10
+          else: y_text_log = (1.2 - 0.05 * region_height) * hh_total.GetMaximum()
+          label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
           label_text[region_ + region_text].SetTextSize(0.02)
           label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
@@ -1174,175 +1202,23 @@ def GoFPlot(settings = dict()):
     else:
         print('Please check whether {rootDataFiles} {outputdir}/results/{year}/{region}/{channel}'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir'], year = settings['year'], region = settings['region'], channel = settings['channel']))
 
-    fToys = ROOT.TFile(OutputFile)
-    if settings['unblind']:
-        fData = ROOT.TFile(rootDataFiles)
-    else:
-        fData = ROOT.TFile(OutputFile)
-    tToys = fToys.Get("limit")
-    tData = fData.Get("limit")
-    nToys = tToys.GetEntries()
+    plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    plotname = os.path.join(settings['outputdir'], 'results', plotname)
 
-    print('NData = {:.1f}, NToys = {:.1f}'.format(tData.GetEntries(), tToys.GetEntries()))
-    tData.GetEntry(0)
-    GoF_DATA = tData.limit
+    print (ts +"You may Clean up the following files"+ ns)
+    print (os.path.join(settings['outputdir']+'/results',OutputFile))
+    print (os.path.join(settings['outputdir']+'/results',rootToysFiles))
+    print (os.path.join(settings['outputdir']+'/results',rootDataFiles))
 
-    print(GoF_DATA)
 
-    ### Setting(Toys) ###
-    GoF_TOYS_TOT = 0
-    pval_cum = 0
-    toys     = []
-    minToy   = +99999999
-    maxToy   = -99999999
+    command = "combineTool.py -M CollectGoodnessOfFit --input {DataFiles} {OutputFile} -m {mass} -o gof.json \n".format(DataFiles = rootDataFiles if settings['unblind'] else OutputFile, OutputFile = OutputFile, mass = settings['mass'])
+    command += "{cmssw}/src/HiggsAnalysis/CombinedLimit/scripts/plotGof.py gof.json --statistic saturated --mass {mass:.1f} -o gof_plot \n".format(cmssw = cmsswBase, mass = int(settings['mass']), output = plotname)
+    command += "mv gof_plot.png {plotname}.png\n".format(plotname = plotname)
+    command += "mv gof_plot.pdf {plotname}.pdf\n".format(plotname = plotname)
     settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_{region}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-    with open(settings['Log_Path'], 'w') as f:
-        for i in range(0, tToys.GetEntries()):
-            tToys.GetEntry(i)
-            GoF_TOYS_TOT += tToys.limit
-            toys.append(tToys.limit)
-
-            # Accumulate p-Value if GoF_toy > GoF_data
-            if tToys.limit > GoF_DATA:
-                f.write("GoF (toy) = {:.3f}, GoF (data) = {:.3f}, p-Value += {} ({})\n".format(tToys.limit, GoF_DATA, tToys.limit, pval_cum))
-                pval_cum += tToys.limit
-    settings['Log_Path'] = os.path.join('{outputdir}/results'.format(outputdir = settings['outputdir']), settings['Log_Path'])
-
-    pval = pval_cum/GoF_TOYS_TOT
-    msg = "p-Value = {:.3f} (= {:.2f}/{:.2f})".format(pval, pval_cum, GoF_TOYS_TOT)
-
-    nBins = 100
-    xMax = {}
-    xMax["saturated"] = 200.0
-    xMax["KS"] = 200.0
-    xMax["AD"] = 200.0
-    xMin = dict()
-    xMin["saturated"] = 0
-    xMin["KS"] = 0.0
-    xMin["AD"] = 0.0
-    binWidth = dict()
-    binWidth['saturated'] = 5
-    binWidth['KS'] = 0.002
-    binWidth['AD'] = 0.2
-    nBins = (xMax[algo]-xMin[algo])/binWidth[algo]
-
-    hist = ROOT.TH1D("GoF-{}".format(algo), "", int(nBins), xMin[algo], xMax[algo])
-
-    for k in toys:
-        hist.Fill(k)
-    xMin  = hist.GetBinLowEdge(hist.FindFirstBinAbove(0.0))*0.25
-    xMax  = hist.GetBinLowEdge(hist.FindLastBinAbove(0.0))*1.75
-    yMin  = 0.0
-    yMax  = hist.GetMaximum()*1.05
-
-    c = ROOT.TCanvas('c', 'c')
-
-    binW = hist.GetBinWidth(0)
-    if binW >= 5.0:
-        yTitle = "Entries / {:.1f}".format(binW)
-    elif binW >= 0.1:
-        yTitle = "Entries / {:.2f}".format(binW)
-    elif binW >= 0.01:
-        yTitle = "Entries / {:.3f}".format(binW)
-    else:
-        yTitle = "Entries / {:.4f}".format(binW)
-
-    hist.GetYaxis().SetTitle(yTitle) # bin width does not change
-    hist.GetXaxis().SetTitle("test-statistic t")
-    hist.GetXaxis().SetTitle("test-statistic t")
-    hist.SetLineColorAlpha(ROOT.kRed, 0.4)
-    hist.SetLineWidth(3)
-
-
-    hist.GetXaxis().SetRangeUser(xMin, xMax)
-    hist.GetYaxis().SetRangeUser(yMin, yMax)
-
-    hist.GetYaxis().SetTitleOffset(1.30)
-
-
-    hist.Draw()
-    # Duplicate histogram for filling only part which is above GoF_DATA
-    hCum = hist.Clone("Cumulative")
-    for b in range(0, hCum.GetNbinsX()):
-        if b < hCum.FindBin(GoF_DATA):
-            hCum.SetBinContent(b + 1 , 0)
-    hCum.SetLineWidth(0)
-    hCum.SetFillColorAlpha(ROOT.kBlue - 6, 0.35) #kLightRed)
-    hCum.SetFillStyle(1001)
-    hCum.Draw("same")
-    hist.Draw("same") # re-draw to get line
-
-    # Customise arrow indicating data-observed
-    tZeroX = hist.GetBinLowEdge(hist.FindBin(GoF_DATA)) # GoF_DATA
-    if hist.GetBinContent(hist.FindBin(GoF_DATA)) > 0.0:
-        tZeroY = hist.GetBinContent(hist.FindBin(GoF_DATA))*0.25
-    else:
-        tZeroY = hist.GetMaximum()/5
-
-
-
-
-    arr = ROOT.TArrow(GoF_DATA, 0.0001, GoF_DATA, hist.GetMaximum()/8, 0.02, "<|")
-    arr.SetLineColor(ROOT.kBlue + 3)
-    arr.SetFillColor(ROOT.kBlue + 3)
-    arr.SetFillStyle(1001)
-    arr.SetLineWidth(3)
-    arr.SetLineStyle(1)
-    arr.SetAngle(60)
-    arr.Draw("<|same")
-
-    # Add data observed value
-    left = ROOT.TLatex()
-    #left.SetNDC()
-    left.SetTextFont(43)
-    left.SetTextSize(22)
-    left.SetTextAlign(11)
-    if GoF_DATA < 1.0:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.2f}" % (GoF_DATA))
-    elif GoF_DATA < 10.0:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.1f}" % (GoF_DATA))
-    else:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.0f}" % (GoF_DATA))
-
-
-    anaText = ROOT.TLatex()
-    anaText.SetNDC()
-    anaText.SetTextFont(43)
-    anaText.SetTextSize(22)
-    anaText.SetTextAlign(31)
-    anaText.DrawLatex(0.92, 0.86, analysis)
-
-    # p-value
-    pvalText = ROOT.TLatex()
-    pvalText.SetNDC()
-    pvalText.SetTextFont(43)
-    pvalText.SetTextSize(22)
-    pvalText.SetTextAlign(31) #11
-    pvalText.DrawLatex(0.85, 0.80, "# toys: %d" % nToys)
-    pvalText.DrawLatex(0.85, 0.74, "p-value: %.2f" % pval)
-    pvalText.DrawLatex(0.85, 0.68, "channel: %s" % settings['channel'])
-
-    import CMS_lumi
-    CMS_lumi.writeExtraText = 1
-    CMS_lumi.extraText = "Internal"
-    CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-    iPos = 11
-    if( iPos==0 ): CMS_lumi.relPosX = 0.12
-    iPeriod = settings['year']
-
-    CMS_lumi.CMS_lumi(c, iPeriod, iPos)
-
-
-
-    plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-    plotname = os.path.join(settings['outputdir']+'/results', plotname)
-    c.Update()
-    c.SaveAs(plotname)
-    c.SaveAs(plotname.replace('.pdf', '.png'))
-    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
-    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
-
-    # Now clean up the results directory:
+    
+    print(command)
+    os.system(command)
     print (ts +"You may Clean up the following files"+ ns)
     print (os.path.join(settings['outputdir']+'/results',OutputFile))
     print (os.path.join(settings['outputdir']+'/results',rootToysFiles))

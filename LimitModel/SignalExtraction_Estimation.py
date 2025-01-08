@@ -85,8 +85,9 @@ higgs = 'H'
 signal_param = OrderedDict()
 signal_param["rtt"] = str(args.rtt).replace('.','p')
 signal_param["rtc"] = str(args.rtc).replace('.','p')
-signal_name_template = "CGToBHpm_a_MASS_rtt{}_rtc{}".format(signal_param["rtt"].replace('p',''), signal_param["rtc"].replace('p',''))
-signal_name_template = signal_name_template.replace('MASS', args.mass_point)
+signal_name_template = "TT"
+#signal_name_template = "CGToBHpm_a_MASS_rtt{}_rtc{}".format(signal_param["rtt"].replace('p',''), signal_param["rtc"].replace('p',''))
+#signal_name_template = signal_name_template.replace('MASS', args.mass_point)
 datacards = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=args.year, signal=signal_name_template, region=args.region, channel=args.channel).replace('MASS', args.mass_point)
 coupling_name = "rtt{}_rtc{}".format(signal_param["rtt"], signal_param["rtc"])
 x_variable = 'HT'
