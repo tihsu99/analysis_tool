@@ -320,6 +320,11 @@ float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_sta
   float wjet_pt = 0.0;
   float kfactor = 1.0;
 
+  double Constant = 24.23;  // Scaling factor
+  double MPV = -1060;       // Most Probable Value
+  double Sigma = 334.4;     // Width of the Landau function
+    
+
   for(int index_ = 0; index_ < genPart_pdgId.size(); index_++){
       daughter_id         = genPart_pdgId[index_];
       daughter_status     = genPart_status[index_];
@@ -328,7 +333,7 @@ float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_sta
       if (isdaughter_lastcopy && abs(daughter_id) == 24){
         wjet_pt = genPart_pt[index_];
         if (wjet_pt > wjet_kfactor_highest_pt) wjet_pt = wjet_kfactor_highest_pt - 1.0; 
-        kfactor = hist_wjets_kfactor->GetBinContent(hist_wjets_kfactor->FindBin(wjet_pt));
+        kfactor = Constant * TMath::Landau(wjet_pt, MPV, Sigma, false);
       }
   }
 
