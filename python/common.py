@@ -199,6 +199,7 @@ Color_Dict_ref = {
 Color_Dict_ref = {
   'TT': ROOT.TColor.GetColor("#3f90da"),
   'WJets': ROOT.TColor.GetColor("#ffa90e"),
+  'VJetsQQ': ROOT.TColor.GetColor("#eda69a"),
   'SingleTop': ROOT.TColor.GetColor("#bd1f01"),
   'QCD': ROOT.TColor.GetColor("#94a4a2"),
   'DY': ROOT.TColor.GetColor("#832db6"),
