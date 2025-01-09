@@ -30,7 +30,7 @@ POI=${2}
 
 for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-    for channel in ele_resolved mu_resolved
+    for channel in ele_resolved mu_resolved C
     do
         echo -e "${BCyan}[tmux: ${MASS}_${channel}_Scan2D]${NC} ${BYellow} python3 runlimits.py --year run2 --channel ${channel} --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS}; ${NC}"
         tmux new-session -d -s $MASS\_${channel}\_Scan2D "python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS};"

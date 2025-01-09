@@ -10,7 +10,14 @@
 #include "TVector2.h"
 #include <algorithm>
 #include <random>
+#include <cassert>
+#include <cstdlib>
+#include <filesystem>
+#include <iostream>
+#include <string>
+#include "correction.h"
 
+namespace fs = filesystem;
 using namespace ROOT;
 using namespace std;
 using namespace ROOT::VecOps;
@@ -49,6 +56,18 @@ TH2D*btag_efficiency_tight_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("
 TH2D*btag_efficiency_tight_c = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_c"))->CreateHistogram());
 TH2D*btag_efficiency_tight_udsg = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_TEff_udsg"))->CreateHistogram());
 const float btag_efficiency_highest_pt  = btag_efficiency_loose_b->GetXaxis()->GetBinUpEdge(btag_efficiency_loose_b->GetNbinsX());
+
+// WJets k-factor
+TFile*f_wjets_factor = TFile::Open("../../data/merged_kfactors_wjets.root");
+TH1D*hist_wjets_kfactor = (TH1D*) f_wjets_factor->Get("kfactor_monojet_qcd_ewk");
+const float wjet_kfactor_highest_pt = hist_wjets_kfactor->GetXaxis()->GetBinUpEdge(hist_wjets_kfactor->GetNbinsX());
+
+// btag sf evaluator
+fs::path fname = "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016preVFP_UL/btagging.json.gz";
+unique_ptr<correction::CorrectionSet> cset = correction::CorrectionSet::from_file(fname.string());
+correction::Correction::Ref sf_btag_preVFP = cset->at("deepJet_incl");
+
+
 
 double delta_phi(double phi2, double phi1){
   float dphi = phi2 - phi1;
@@ -276,14 +295,14 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
       //cout << "Particle status: " << daughter_status << std::endl;
       //cout << "Particle pt: " << genPart_pt[index_] << std::endl;
       if (daughter_id == 6){
-	gentoppt = genPart_pt[index_];
-	w1 = exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt));
-	//cout << "w1: " << w1 << endl;
+        gentoppt = genPart_pt[index_];
+        w1 = exp(0.0615 - 0.0005 * TMath::Min(gentoppt, maxtoppt));
+      	//cout << "w1: " << w1 << endl;
       }
       if (daughter_id == -6){
-	genantitoppt = genPart_pt[index_];
-	w2 = exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt));
-	//cout << "w2: " << w2 << endl;
+      	genantitoppt = genPart_pt[index_];
+      	w2 = exp(0.0615 - 0.0005 * TMath::Min(genantitoppt, maxtoppt));
+       	//cout << "w2: " << w2 << endl;
       }
       weight = sqrt(w1*w2);
       //cout << "weight (intermediate): " << weight << endl;
@@ -292,6 +311,33 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
   }
   //cout << "weight (final): " << weight << endl;
   return weight;
+}
+
+float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status, Vec_i& genPart_statusFlags){
+
+  int  daughter_id, daughter_status;
+  bool isdaughter_lastcopy;
+  float wjet_pt = 0.0;
+  float kfactor = 1.0;
+
+  double Constant = 24.23;  // Scaling factor
+  double MPV = -1060;       // Most Probable Value
+  double Sigma = 334.4;     // Width of the Landau function
+    
+
+  for(int index_ = 0; index_ < genPart_pdgId.size(); index_++){
+      daughter_id         = genPart_pdgId[index_];
+      daughter_status     = genPart_status[index_];
+      isdaughter_lastcopy = (genPart_statusFlags[index_]>>13) & 0x1;
+
+      if (isdaughter_lastcopy && abs(daughter_id) == 24){
+        wjet_pt = genPart_pt[index_];
+        if (wjet_pt > wjet_kfactor_highest_pt) wjet_pt = wjet_kfactor_highest_pt - 1.0; 
+        kfactor = Constant * TMath::Landau(wjet_pt, MPV, Sigma, false);
+      }
+  }
+
+  return kfactor;
 }
 
 int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match){
@@ -601,11 +647,10 @@ ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid){
   return return_id;
 }
 
-
-float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp, ROOT::VecOps::RVec<float> btag_sf_var, int variation){
-  float sf = 1.0;
-  int hadflav, idx;
-  bool isbtag;
+float btag_prob(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp){
+  float prob = 1.0;
+  bool  isbtag;
+  int   idx;
   float efficiency, pt, eta;
   for(int i=0; i < tight_jet_id.size(); i++){
     idx = tight_jet_id[i];
@@ -613,10 +658,102 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
     isbtag = false;
     pt     = std::min(Jet_pt[idx],btag_efficiency_highest_pt);
     eta    = Jet_eta[idx];
+
+    for(int j=0; j < b_jet_id.size(); j++){
+      if (b_jet_id[j] == idx) isbtag = true;
+    }
+    if(jethadflav[idx] == 5){
+      if(wp == 1) efficiency = btag_efficiency_loose_b->GetBinContent(btag_efficiency_loose_b->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_b->GetBinContent(btag_efficiency_medium_b->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_b->GetBinContent(btag_efficiency_tight_b->FindBin(pt, abs(eta)));
+    }
+    else if(jethadflav[idx] == 4){
+      if(wp == 1) efficiency = btag_efficiency_loose_c->GetBinContent(btag_efficiency_loose_c->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_c->GetBinContent(btag_efficiency_medium_c->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_c->GetBinContent(btag_efficiency_tight_c->FindBin(pt, abs(eta)));
+    }
+    else{
+      if(wp == 1) efficiency = btag_efficiency_loose_udsg->GetBinContent(btag_efficiency_loose_udsg->FindBin(pt, abs(eta)));
+      if(wp == 2) efficiency = btag_efficiency_medium_udsg->GetBinContent(btag_efficiency_medium_udsg->FindBin(pt, abs(eta)));
+      if(wp == 3) efficiency = btag_efficiency_tight_udsg->GetBinContent(btag_efficiency_tight_udsg->FindBin(pt, abs(eta)));
+    }
+    if(isbtag) prob *= efficiency;
+    else prob *= (1.0 - efficiency);
+  }
+  return prob;
+}
+
+float fix_SF_postapv(float pt, float abseta, int flavor, string wp, string systematic){
+  float discriminant = 0.5;
+  const float maxEta = 2.5;
+  float input_eta = std::min(abseta, (float) (maxEta - 0.01));
+  map<string, correction::Variable::Type> example = {
+          /* jet properties */
+          {"pt"  , pt}, // jet transverse momentum
+          {"abseta" , input_eta}, // absolute jet pseudorapidity
+          {"flavor", flavor}, // jet flavour
+          {"discriminant", discriminant}, // jet discriminant
+          /* analysis dependent */
+          {"systematic", systematic}, // systematic variation
+          {"working_point", wp}, // discriminant working point
+      };
+
+
+  vector<correction::Variable::Type> inputs;
+  for (const correction::Variable& input: sf_btag_preVFP->inputs()) {
+      inputs.push_back(example.at(input.name()));
+  }
+  return (float) sf_btag_preVFP->evaluate(inputs);
+}
+
+ROOT::VecOps::RVec<float> rederive_btag_SFs(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp, ROOT::VecOps::RVec<float> btag_sf_var, int variation){
+  ROOT::VecOps::RVec<float> return_sf;
+  int hadflav, idx;
+  float efficiency, pt, eta;
+  string wp_str;
+  if (wp == 1) wp_str = "L";
+  else if (wp == 2) wp_str = "M";
+  else if (wp == 3) wp_str = "T";
+  for(int i=0; i < Jet_pt.size(); i++){
+    // idx = tight_jet_id[i];
+    // cout << "jet had flv " << jethadflav[idx] << " current SF " << btag_sf[idx] << endl;
+    // if(idx < 0) continue;
+    idx = i;
+    if(jethadflav[idx] != 0){
+      if (variation == 0) return_sf.push_back(btag_sf[idx]);
+      else return_sf.push_back(btag_sf_var[idx]);
+    }
+    else{
+      if(variation==3) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "down"));
+      else if(variation==1) return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "up"));
+      else return_sf.push_back(fix_SF_postapv(Jet_pt[idx], abs(Jet_eta[idx]), jethadflav[idx], wp_str, "central"));
+    }
+  }
+  //for (int i = 0; i < btag_sf.size(); i++){
+  //  cout << i << " new SF " << return_sf[i] << endl;
+  //} 
+  return return_sf;
+} 
+
+float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> b_jet_id, ROOT::VecOps::RVec<float> btag_sf, ROOT::VecOps::RVec<Int_t> jethadflav, ROOT::VecOps::RVec<float> Jet_pt, ROOT::VecOps::RVec<float> Jet_eta, int wp, ROOT::VecOps::RVec<float> btag_sf_var, int variation, TString year="EraToBeReplaced"){
+  float sf = 1.0;
+  int hadflav, idx;
+  bool isbtag;
+  float efficiency, pt, eta;
+  if (year == "2016postapv"){
+    btag_sf = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
+    btag_sf_var = rederive_btag_SFs(tight_jet_id, b_jet_id, btag_sf, jethadflav, Jet_pt, Jet_eta, wp, btag_sf_var, variation);
+  }
+  for(int i=0; i < tight_jet_id.size(); i++){
+    idx = tight_jet_id[i];
+    if(idx<0) continue;
+    isbtag = false;
+    pt     = std::min(Jet_pt[idx], (float) (btag_efficiency_highest_pt - 1.0));
+    eta    = Jet_eta[idx];
     for(int j=0; j < b_jet_id.size(); j++){
       if (b_jet_id[j] == idx){
         isbtag = true;
-	continue;
+      	continue;
       }
     }
 
@@ -638,20 +775,20 @@ float btag_SF(ROOT::VecOps::RVec<Int_t> tight_jet_id, ROOT::VecOps::RVec<Int_t> 
 
     if(isbtag){
       if(variation == 0) sf *= btag_sf[idx]; // nominal
-      else if (variation == 1){  // flav udsg vary
-	if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf[idx];
+      else if (variation == 1 || variation == 3){  // flav udsg vary
+	      if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf[idx];
         else {sf *= btag_sf_var[idx];}
       }
       else{ // flav c & b vary
         if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= btag_sf_var[idx];
-	else {sf *= btag_sf[idx];};
+	      else {sf *= btag_sf[idx];};
       }
     }
     else{
       if(variation == 0) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
-      else if (variation == 1){
+      else if (variation == 1 || variation == 3){
         if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= (1.0 - (btag_sf[idx]*efficiency))/(1.0 - efficiency);
-	else {sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);}
+	      else {sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);}
       }
       else{
         if((jethadflav[idx] == 5) || (jethadflav[idx] == 4)) sf *= (1.0 - (btag_sf_var[idx]*efficiency))/(1.0 - efficiency);

@@ -20,6 +20,8 @@ from ROOT import gStyle
 #from Util.OverlappingPlots import *
 from plotstyle import *
 import random
+import matplotlib.pyplot as plt
+from array import array
 #####################
 ## Dict of regions ##
 #####################
@@ -126,7 +128,7 @@ def BiasTest(settings=dict()):
     farm_dir = "Farm_BiasTest"
     os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
 
-    for r in [0, 0.5, 1.0, 2.0]:
+    for r in [0.0, 0.03, 0.05, 0.1, 0.15, 0.2]:
       r_min = r - 10
       r_max = r + 10
       condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
@@ -134,15 +136,18 @@ def BiasTest(settings=dict()):
       condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
       condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
       condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
-      condor.write('+JobFlavour = "espresso"\n')
+      condor.write('+JobFlavour = "microcentury"\n')
       condor.write('RequestCpus = 1\n')
       condor.write('queue 1 cfgFile in ')
-      seed_numbers = random.sample(range(1, 1000000), 200)
+      seed_numbers = random.sample(range(1, 1000000), 100)
       for seed in seed_numbers:
         shell_file = "bias_test_r{r}_seed{seed}.sh".format(r=r, seed=seed)
         command = "cd {outputdir}/bias_test\n".format(outputdir=settings['outputdir'])
-        command += "combine -M GenerateOnly {datacards} -t 1 --saveToys --toysFrequentist --bypassFrequentistFit --seed {seed} --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, seed = seed)
-        command += "combineTool.py -M FitDiagnostics {datacards}  --skipBOnlyFit -t 1 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.{seed}.root --rMax {r_max} --rMin {r_min}  --robustFit 1 --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed)
+        command += "combine -M GenerateOnly {workspace_root} -m 125  -t 20 --seed {seed} --saveToys  --toysFrequentist --bypassFrequentistFit --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min} {command}\n".format(workspace_root = settings['workspace_root'], r = r, r_min = r_min, r_max = r_max, seed = seed, command = settings["command"])
+
+        command += "combine -M MultiDimFit {workspace_root} -m 125  -t 20 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH125.{seed}.root --algo singles --rMax {r_max} --rMin {r_min} {command}   --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(workspace_root = settings['workspace_root'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed, command = settings["command"])
+#        command += "combine -M GenerateOnly {datacards} -t 10 --saveToys --toysFrequentist --bypassFrequentistFit --seed {seed} --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min} {command}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, seed = seed, command = settings["command"])
+#        command += "combineTool.py -M FitDiagnostics {datacards}  --skipBOnlyFit -t 10 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.{seed}.root --rMax {r_max} --rMin {r_min} {command}   --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed, command = settings["command"])
         prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
       condor.close()
       os.system('condor_submit {farm_dir}/condor_{r}.sub'.format(farm_dir = farm_dir, r = r))
@@ -153,30 +158,85 @@ def BiasTestPlot(settings=dict()):
     Log_Path = os.path.basename(settings['Log_Path'])
     outputdir = "{outputdir}/bias_test".format(outputdir=settings['outputdir'])
     os.chdir(outputdir)
+    
+    truth_r = np.array([])
+    fit_r_mean = np.array([])
 
-    for r in [0, 0.5, 1.0, 2.0]:
-      os.system("fitDiagnosticsr_"+str(r)+"_toys.root")
-      os.system("hadd fitDiagnosticsr_{r}_toys.root fitDiagnosticsr_{r}_toys_*.root".format(r = r))
+    for r in [0.0, 0.5, 1.0, 1.5, 2.0]:
+
+      truth_r = np.append(truth_r, r)
+      r_fit_collection = np.array([])
+
+      os.system("rm  higgsCombiner_"+str(r)+"_toys.root")
+      os.system("hadd  higgsCombiner_{r}_toys.root  higgsCombiner_{r}_toys_*.root".format(r = r))
 
       ROOT.gStyle.SetOptStat(111)
       ROOT.gStyle.SetOptFit(1)
 
-      f = ROOT.TFile.Open("fitDiagnosticsr_"+str(r)+"_toys.root")
-      tmp=f.Get("tree_fit_sb").Clone()
-      h = ROOT.TH1F("h","h",20,-4,4)
-      tmp.Project("h",("(r-"+str(r)+")/rErr"), "fit_status==0")
-      func = ROOT.TF1("gaus", "gaus(0)")
-      c1=ROOT.TCanvas()
-      h.SetTitle("(r-"+str(r)+")/rErr")
-      h.Fit(func, "", "", -2, 2)
-      h.Draw("E")
-      func.Draw("SAME")
-      c1.Update()
+      f = ROOT.TFile.Open("higgsCombiner_"+str(r)+"_toys.root")
+
+      t=f.Get("limit")
+      hist_pull = ROOT.TH1F("", "Pull distribution: truth=%.1f" % (r), 80, -4, 4)
+      hist_pull.GetXaxis().SetTitle("Pull = (r_{truth}-r_{fit})/#sigma_{fit}")
+      hist_pull.GetYaxis().SetTitle("Entries")
+
+      sigma_values = np.array([])
+
+      for i_toy in range(int(t.GetEntries()/3)):
+        # Best-fit value
+        t.GetEntry(i_toy * 3)
+        r_fit = getattr(t, "r")
+        # -1 sigma value
+        t.GetEntry(i_toy * 3 + 1)
+        r_lo = getattr(t, "r")
+       
+        # +1 sigma value
+        t.GetEntry(i_toy * 3 + 2)
+        r_hi = getattr(t, "r")
+ 
+        if((r_hi == (r-10.0)) or (r_lo == r-10.0)):
+          continue 
+
+        r_fit_collection = np.append(r_fit_collection, r_fit)
+        diff = r - r_fit
+        # Use uncertainty depending on where mu_truth is relative to mu_fit
+        if diff > 0:
+          sigma = abs(r_hi - r_fit)
+        else:
+          sigma = abs(r_lo - r_fit)
+        if sigma != 0:
+          sigma_values = np.append(sigma_values, sigma)
+        else:
+          sigma = sigma_values.mean()
+
+        if sigma != 0:
+           hist_pull.Fill(diff / sigma)
+
+      c1 = ROOT.TCanvas()
+      hist_pull.Draw()
+      ROOT.gStyle.SetOptFit(111)
+      hist_pull.Fit("gaus")
       c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".png")
       c1.SaveAs("../results/BiasTest_pulls_"+str(r).replace('.', 'p')+".pdf")
       f.Close()
+
       ROOT.gStyle.SetOptStat(0)
       ROOT.gStyle.SetOptFit(0)
+
+      fit_r_mean= np.append(fit_r_mean, np.mean(r_fit_collection))
+
+    x_line = np.linspace(min(truth_r), max(truth_r), 100)  # Generate 100 points between min and max of x
+    y_line = x_line  # For x = y, y values are the same as x
+
+    plt.scatter(truth_r, fit_r_mean, color='blue', marker='o')
+    plt.plot(x_line, y_line, color='red', linestyle='--')
+    plt.xlabel('truth r')
+    plt.ylabel('fit r (mean)')
+
+    plt.title('truth r v.s. fitted r')
+    plt.savefig("../results/BiasTest_fit_r_summary.pdf")
+    plt.savefig("../results/BiasTest_fit_r_summary.png")
+
 def FitDiagnostics(settings=dict()):
 
     CheckFile(settings['FitDiagnostics_file'],True)
@@ -187,9 +247,9 @@ def FitDiagnostics(settings=dict()):
 
 
     if settings['unblind']:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --robustFit 1 --saveOverallShapes  -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes  -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} {command}".format(workspace_root = workspace_root, year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'], command = settings["command"])
     else:
-        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties --robustFit 1 --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax}".format(workspace_root = workspace_root, year=settings['year'],region=settings['region'], channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = "combine -M FitDiagnostics {workspace_root} --saveShapes -m {mass} --saveWithUncertainties  --saveOverallShapes -t -1 --expectSignal {expectSignal} -n _{year}_{region}_{channel}_{higgs}_{mass}_{coupling_value} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} {command}".format(workspace_root = workspace_root, year=settings['year'],region=settings['region'], channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'],  cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
 
     if settings['correlation']:
         command += ' --plots '
@@ -223,7 +283,7 @@ def diffNuisances(settings=dict()):
     CheckFile(settings['diffNuisances_File'],True) 
     
     
-    command = 'python3 ../../HiggsAnalysis/CombinedLimit/test/diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'])
+    command = 'python3 ../../HiggsAnalysis/CombinedLimit/test/diffNuisances.py {FitDiagnostics_file} --all -g {diffNuisances_File} --abs {command}'.format(FitDiagnostics_file=settings['FitDiagnostics_file'],diffNuisances_File=settings['diffNuisances_File'], command = settings["command"])
     print(ts+command+ns)
     command += ' >& {Log_Path}'.format(Log_Path=settings['Log_Path'])
 
@@ -264,9 +324,9 @@ def Impact_doInitFit(settings=dict()):
 
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
     else:
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'])
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
 
     print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
@@ -286,9 +346,9 @@ def Impact_doFits(settings=dict()):
 
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], region=settings['region'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
     else:
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
 
     print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
@@ -354,6 +414,7 @@ def PlotShape(settings=dict()):
     if settings['shape_type'].lower() == 'prefit':
         RootLevel = FileIn.Get('shapes_prefit')
         #RootLevel.cd()
+
     ## This part is only for creating the keys which corresponds to category defintion
     for first_level in RootLevel.GetListOfKeys():
         first_level_name = first_level.GetName()
@@ -395,12 +456,25 @@ def PlotShape(settings=dict()):
             if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
             if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
             fpath = first_level_name + '/' + category
-            if settings['shape_type'].lower()  == 'postfit' and 'TAToTTQ' in category:
+            if settings['shape_type'].lower()  == 'postfit' and 'CG' in category:
                 fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
             h = RootLevel.Get(fpath).Clone()
             if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
 
-            h_postfix = ROOT.TH1F(fpath, '', len(binning) - 1, binning)
+
+            if isinstance(h, ROOT.TH1):
+                # Binning from TH1
+                nbin = h.GetNbinsX()
+                bin_edges = [h.GetBinLowEdge(i + 1) for i in range(nbin)]
+                bin_edges.append(h.GetBinLowEdge(nbin) + h.GetBinWidth(nbin))
+            else:
+               # Binning from TGraphAsymmErrors
+               n_points = h.GetN()
+               bin_edges = [h.GetX()[i] - h.GetErrorXlow(i) for i in range(n_points)]
+               bin_edges.append(h.GetX()[n_points - 1] + h.GetErrorXhigh(n_points - 1))
+  
+            print(bin_edges)
+            h_postfix = ROOT.TH1F(fpath, '', len(bin_edges) - 1, array('d', bin_edges))
 
 
 
@@ -411,14 +485,17 @@ def PlotShape(settings=dict()):
                 if category == 'data_obs' or category == 'data':
                     if settings['shape_type'].lower()  == 'prefit':
                         # h is TGraphAsymmetryError in prefit case. See FitDiagnostics file.
-                        error = h.GetErrorY(ibin + 1)
+                        error = h.GetErrorY(ibin)
                         bincontent = h.Eval(ibin + 0.5) #Graph
                     else:
                         error   = h.GetBinError(ibin+1) # just symmetrical error
                         bincontent = h.GetBinContent(ibin+1)
                     h_postfix.SetBinError(ibin+1, error)
+                    print(bincontent, error, category, ibin)
+
                 else:
                     bincontent = h.GetBinContent(ibin+1)
+                    h_postfix.SetBinError(ibin+1,  h.GetBinError(ibin+1))
                 h_postfix.SetBinContent(ibin+1, bincontent) # Modify the x-axis value
 
             if category == 'data_obs' or category == 'data':
@@ -432,7 +509,7 @@ def PlotShape(settings=dict()):
             Integral[category] += h_postfix.Integral()
             Histogram[region_name][category] = h_postfix.Clone()
 
-            print('Access Histogram {fpath}'.format(fpath = fpath))
+            print('Access Histogram {fpath}'.format(fileName = outputFile, RootLevel = RootLevel, fpath = fpath))
     for region_ in Histogram:
       for category in Histogram_Names:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
@@ -442,6 +519,19 @@ def PlotShape(settings=dict()):
         elif category == 'data_obs' or category == 'data': category = 'Data'
         if Maximum < Histogram[region_][category].GetMaximum():
             Maximum = Histogram[region_][category].GetMaximum()
+
+    if settings['combined']:
+        Histogram_merged       = dict()
+        for region_ in Histogram:
+            region_out = region_.replace("2016postapv", "run2").replace("2017", "run2").replace("2018", "run2").replace("2016apv", "run2").replace('era','')
+            region_out = region_out.replace("ele_resolved", "e+m").replace("mu_resolved", "e+m")
+            if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
+            for category in Histogram[region_]:
+                if category not in Histogram_merged[region_out]:
+                    Histogram_merged[region_out][category] = Histogram[region_][category].Clone()
+                else:
+                    Histogram_merged[region_out][category].Add(Histogram[region_][category].Clone())
+        Histogram = Histogram_merged
 
     Histogram_concatenated = dict()
     region_binning         = dict()
@@ -457,6 +547,7 @@ def PlotShape(settings=dict()):
           Histogram_concatenated[category] = htemp.Clone()
         else:
           Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
+          print(category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
         if region_ not in region_binning:
           region_binning[region_] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
 
@@ -465,7 +556,6 @@ def PlotShape(settings=dict()):
     else:
         Title = 'Post-Fit Distribution'
 
-    print(Histogram)
 
     template_settings= {
             "Maximum":Maximum,
@@ -474,7 +564,7 @@ def PlotShape(settings=dict()):
             "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],
             "Title":Title,
-            "xaxisTitle":settings['POI'],
+            "xaxisTitle":"Observable",
             "yaxisTitle":'Events/bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
@@ -657,10 +747,11 @@ def Plot_Histogram(template_settings=dict()):
     hh_total.SetMarkerStyle(0)
     hh_total.SetMarkerColor(12) #ROOT.kGray + 2)
     hh_total.SetLineWidth(0)
-    legend.AddEntry(hh_total,'Total unc.','F')
+    legend.AddEntry(hh_total,'Stat + Syst unc.','F')
     hh_total.Draw("SAME E2")
 
     sep_line = dict()
+    sep_line_ratio = dict()
     label_text = dict()
     for region_ in template_settings['Region_binning']:
         x_line = template_settings['Region_binning'][region_][1]
@@ -672,7 +763,9 @@ def Plot_Histogram(template_settings=dict()):
         sep_line[region_].Draw()
         region_list = region_.split('_')
         for region_height, region_text in enumerate(region_list):
-          label_text[region_ + region_text] = ROOT.TLatex(x_text, (1.2 - 0.05 * region_height) * hh_total.GetMaximum(),  region_text)
+          if Set_Logy: y_text_log = 10**((1.2 - 0.3 * region_height)) * hh_total.GetMaximum() / 10
+          else: y_text_log = (1.2 - 0.05 * region_height) * hh_total.GetMaximum()
+          label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
           label_text[region_ + region_text].SetTextSize(0.02)
           label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
@@ -691,7 +784,14 @@ def Plot_Histogram(template_settings=dict()):
         hMC     = h_stack.GetStack().Last()
         h_ratio = (template_settings['Histogram']["Data"].Clone())
         # h_ratio.Sumw2()
-        h_ratio.Divide(hh_total)
+        hh_total_sumw2 = hh_total.Clone()
+        for bin_idx in range(1, hh_total_sumw2.GetNbinsX() + 1):
+          bin_content = hh_total_sumw2.GetBinContent(bin_idx)
+          poisson_error = bin_content**0.5 if bin_content > 0 else 0
+          hh_total_sumw2.SetBinError(bin_idx, poisson_error)
+
+
+        h_ratio.Divide(hh_total_sumw2)
         h_ratio.SetMarkerStyle(20)
         h_ratio.SetMarkerSize(3.5)
         h_ratio.SetMarkerColor(1)
@@ -715,6 +815,15 @@ def Plot_Histogram(template_settings=dict()):
           h_ratio.Draw("P")
         else:
           h_ratio.Draw("AXIS")
+
+        for region_ in template_settings['Region_binning']:
+            x_line = template_settings['Region_binning'][region_][1]
+            sep_line_ratio[region_] = ROOT.TLine(x_line, 0.7, x_line, 1.3)
+            sep_line_ratio[region_].SetLineColor(ROOT.kRed)
+            sep_line_ratio[region_].SetLineStyle(2)
+            sep_line_ratio[region_].SetLineWidth(5)
+            sep_line_ratio[region_].Draw("SAME")
+
 
         x = []
         y = []
@@ -867,7 +976,7 @@ def DrawNLL(settings=dict()):
     ### Single Fit ####
     Snapshot_root = 'higgsCombine' + Snapshot_pattern + '.MultiDimFit.mH{mass}.root'.format(mass = settings['mass'])
 
-    commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
     commands.append('{plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern))
 
@@ -875,14 +984,14 @@ def DrawNLL(settings=dict()):
     ####  SnapShot #####
     ####################
 
-    commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax']))
+    commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], command = settings["command"]))
 
     #####################
     #### Profile Scan ###
     #####################
 
     commands.append('echo Start to do breakdown')
-    commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
     FreezeGroup_root = []
     FreezeGroup_pattern = []
@@ -903,7 +1012,7 @@ def DrawNLL(settings=dict()):
     for Idx, group in enumerate(Group):
         if Idx == len(Group) - 1: break
         FREEZE += group if Idx == 0 else ',' + group
-        commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE))
+        commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE, command = settings["command"]))
 
     freeze_pattern = '.freeze.All' + common_pattern
 
@@ -913,7 +1022,7 @@ def DrawNLL(settings=dict()):
 
 
 
-    commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points))
+    commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
     ## Plot ##
     Queue = ''
@@ -1093,175 +1202,23 @@ def GoFPlot(settings = dict()):
     else:
         print('Please check whether {rootDataFiles} {outputdir}/results/{year}/{region}/{channel}'.format(rootDataFiles = rootDataFiles, outputdir=settings['outputdir'], year = settings['year'], region = settings['region'], channel = settings['channel']))
 
-    fToys = ROOT.TFile(OutputFile)
-    if settings['unblind']:
-        fData = ROOT.TFile(rootDataFiles)
-    else:
-        fData = ROOT.TFile(OutputFile)
-    tToys = fToys.Get("limit")
-    tData = fData.Get("limit")
-    nToys = tToys.GetEntries()
+    plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
+    plotname = os.path.join(settings['outputdir'], 'results', plotname)
 
-    print('NData = {:.1f}, NToys = {:.1f}'.format(tData.GetEntries(), tToys.GetEntries()))
-    tData.GetEntry(0)
-    GoF_DATA = tData.limit
+    print (ts +"You may Clean up the following files"+ ns)
+    print (os.path.join(settings['outputdir']+'/results',OutputFile))
+    print (os.path.join(settings['outputdir']+'/results',rootToysFiles))
+    print (os.path.join(settings['outputdir']+'/results',rootDataFiles))
 
-    print(GoF_DATA)
 
-    ### Setting(Toys) ###
-    GoF_TOYS_TOT = 0
-    pval_cum = 0
-    toys     = []
-    minToy   = +99999999
-    maxToy   = -99999999
+    command = "combineTool.py -M CollectGoodnessOfFit --input {DataFiles} {OutputFile} -m {mass} -o gof.json \n".format(DataFiles = rootDataFiles if settings['unblind'] else OutputFile, OutputFile = OutputFile, mass = settings['mass'])
+    command += "{cmssw}/src/HiggsAnalysis/CombinedLimit/scripts/plotGof.py gof.json --statistic saturated --mass {mass:.1f} -o gof_plot \n".format(cmssw = cmsswBase, mass = int(settings['mass']), output = plotname)
+    command += "mv gof_plot.png {plotname}.png\n".format(plotname = plotname)
+    command += "mv gof_plot.pdf {plotname}.pdf\n".format(plotname = plotname)
     settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_{region}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-    with open(settings['Log_Path'], 'w') as f:
-        for i in range(0, tToys.GetEntries()):
-            tToys.GetEntry(i)
-            GoF_TOYS_TOT += tToys.limit
-            toys.append(tToys.limit)
-
-            # Accumulate p-Value if GoF_toy > GoF_data
-            if tToys.limit > GoF_DATA:
-                f.write("GoF (toy) = {:.3f}, GoF (data) = {:.3f}, p-Value += {} ({})\n".format(tToys.limit, GoF_DATA, tToys.limit, pval_cum))
-                pval_cum += tToys.limit
-    settings['Log_Path'] = os.path.join('{outputdir}/results'.format(outputdir = settings['outputdir']), settings['Log_Path'])
-
-    pval = pval_cum/GoF_TOYS_TOT
-    msg = "p-Value = {:.3f} (= {:.2f}/{:.2f})".format(pval, pval_cum, GoF_TOYS_TOT)
-
-    nBins = 100
-    xMax = {}
-    xMax["saturated"] = 200.0
-    xMax["KS"] = 200.0
-    xMax["AD"] = 200.0
-    xMin = dict()
-    xMin["saturated"] = 0
-    xMin["KS"] = 0.0
-    xMin["AD"] = 0.0
-    binWidth = dict()
-    binWidth['saturated'] = 5
-    binWidth['KS'] = 0.002
-    binWidth['AD'] = 0.2
-    nBins = (xMax[algo]-xMin[algo])/binWidth[algo]
-
-    hist = ROOT.TH1D("GoF-{}".format(algo), "", int(nBins), xMin[algo], xMax[algo])
-
-    for k in toys:
-        hist.Fill(k)
-    xMin  = hist.GetBinLowEdge(hist.FindFirstBinAbove(0.0))*0.25
-    xMax  = hist.GetBinLowEdge(hist.FindLastBinAbove(0.0))*1.75
-    yMin  = 0.0
-    yMax  = hist.GetMaximum()*1.05
-
-    c = ROOT.TCanvas('c', 'c')
-
-    binW = hist.GetBinWidth(0)
-    if binW >= 5.0:
-        yTitle = "Entries / {:.1f}".format(binW)
-    elif binW >= 0.1:
-        yTitle = "Entries / {:.2f}".format(binW)
-    elif binW >= 0.01:
-        yTitle = "Entries / {:.3f}".format(binW)
-    else:
-        yTitle = "Entries / {:.4f}".format(binW)
-
-    hist.GetYaxis().SetTitle(yTitle) # bin width does not change
-    hist.GetXaxis().SetTitle("test-statistic t")
-    hist.GetXaxis().SetTitle("test-statistic t")
-    hist.SetLineColorAlpha(ROOT.kRed, 0.4)
-    hist.SetLineWidth(3)
-
-
-    hist.GetXaxis().SetRangeUser(xMin, xMax)
-    hist.GetYaxis().SetRangeUser(yMin, yMax)
-
-    hist.GetYaxis().SetTitleOffset(1.30)
-
-
-    hist.Draw()
-    # Duplicate histogram for filling only part which is above GoF_DATA
-    hCum = hist.Clone("Cumulative")
-    for b in range(0, hCum.GetNbinsX()):
-        if b < hCum.FindBin(GoF_DATA):
-            hCum.SetBinContent(b + 1 , 0)
-    hCum.SetLineWidth(0)
-    hCum.SetFillColorAlpha(ROOT.kBlue - 6, 0.35) #kLightRed)
-    hCum.SetFillStyle(1001)
-    hCum.Draw("same")
-    hist.Draw("same") # re-draw to get line
-
-    # Customise arrow indicating data-observed
-    tZeroX = hist.GetBinLowEdge(hist.FindBin(GoF_DATA)) # GoF_DATA
-    if hist.GetBinContent(hist.FindBin(GoF_DATA)) > 0.0:
-        tZeroY = hist.GetBinContent(hist.FindBin(GoF_DATA))*0.25
-    else:
-        tZeroY = hist.GetMaximum()/5
-
-
-
-
-    arr = ROOT.TArrow(GoF_DATA, 0.0001, GoF_DATA, hist.GetMaximum()/8, 0.02, "<|")
-    arr.SetLineColor(ROOT.kBlue + 3)
-    arr.SetFillColor(ROOT.kBlue + 3)
-    arr.SetFillStyle(1001)
-    arr.SetLineWidth(3)
-    arr.SetLineStyle(1)
-    arr.SetAngle(60)
-    arr.Draw("<|same")
-
-    # Add data observed value
-    left = ROOT.TLatex()
-    #left.SetNDC()
-    left.SetTextFont(43)
-    left.SetTextSize(22)
-    left.SetTextAlign(11)
-    if GoF_DATA < 1.0:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.2f}" % (GoF_DATA))
-    elif GoF_DATA < 10.0:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.1f}" % (GoF_DATA))
-    else:
-        left.DrawLatex(tZeroX, tZeroY*1.1, "#color[4]{t_{0}= %.0f}" % (GoF_DATA))
-
-
-    anaText = ROOT.TLatex()
-    anaText.SetNDC()
-    anaText.SetTextFont(43)
-    anaText.SetTextSize(22)
-    anaText.SetTextAlign(31)
-    anaText.DrawLatex(0.92, 0.86, analysis)
-
-    # p-value
-    pvalText = ROOT.TLatex()
-    pvalText.SetNDC()
-    pvalText.SetTextFont(43)
-    pvalText.SetTextSize(22)
-    pvalText.SetTextAlign(31) #11
-    pvalText.DrawLatex(0.85, 0.80, "# toys: %d" % nToys)
-    pvalText.DrawLatex(0.85, 0.74, "p-value: %.2f" % pval)
-    pvalText.DrawLatex(0.85, 0.68, "channel: %s" % settings['channel'])
-
-    import CMS_lumi
-    CMS_lumi.writeExtraText = 1
-    CMS_lumi.extraText = "Internal"
-    CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-    iPos = 11
-    if( iPos==0 ): CMS_lumi.relPosX = 0.12
-    iPeriod = settings['year']
-
-    CMS_lumi.CMS_lumi(c, iPeriod, iPos)
-
-
-
-    plotname = 'GoF_{algo}.{coupling_value}.{year}.{region}.{channel}.{mass}.mH{mass}.pdf'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)
-    plotname = os.path.join(settings['outputdir']+'/results', plotname)
-    c.Update()
-    c.SaveAs(plotname)
-    c.SaveAs(plotname.replace('.pdf', '.png'))
-    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname))
-    print('\033[1;33m* Please check plot: \033[4m{}\033[0;m'.format(plotname.replace('.pdf', '.png')))
-
-    # Now clean up the results directory:
+    
+    print(command)
+    os.system(command)
     print (ts +"You may Clean up the following files"+ ns)
     print (os.path.join(settings['outputdir']+'/results',OutputFile))
     print (os.path.join(settings['outputdir']+'/results',rootToysFiles))

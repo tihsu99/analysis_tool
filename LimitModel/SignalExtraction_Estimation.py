@@ -56,7 +56,7 @@ parser.add_argument('--rMax',help='rMax values',default='20')
 parser.add_argument('--text_y',help='y values of text in pre/post-fit plots',default=800,type=float)
 parser.add_argument('--logy',help='log y in pre/post-fit plots',action='store_true')
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
-parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=20.0, type=float)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 0.1', default=0.1, type=float)
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
@@ -67,6 +67,8 @@ parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit'
 parser.add_argument('--group', type = int, default = 0)
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
+parser.add_argument('--command', default = '', type = str)
+parser.add_argument('--combined', action='store_true')
 args = parser.parse_args()
 
 '''
@@ -115,7 +117,9 @@ settings ={
     'signal_name': signal_name_template,
     'POI': x_variable,
     'datacard_dir': '/'.join(datacards.split('/')[:-1]),
-    'datacard_name': datacards.split('/')[-1]
+    'datacard_name': datacards.split('/')[-1],
+    'command': args.command,
+    'combined': args.combined
 }
 
 if args.mode =='PlotShape':
