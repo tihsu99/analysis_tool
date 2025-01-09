@@ -231,6 +231,10 @@ if __name__ == "__main__":
                 process_list.append(subprocess)
             else:
               process_list.append(iin)
+
+            if "LO" in samples[iin]:
+              process_list.append(iin + "_LO")
+
             Outdir   = os.path.join(args.outdir, Era, region, channel)
 
             for process_ in process_list:
@@ -319,6 +323,10 @@ if __name__ == "__main__":
                 process_list.append(process)
             else:
               process_list.append(sample)
+
+            if "LO" in samples[sample]:
+              process_list.append(sample + "_LO")
+
             for process_ in process_list:
               job_name = "{}_{}_{}_{}".format(Era, region, channel, process_)
               if args.check and not check_file(os.path.join(Outdir, '{}.root'.format(process_))):
@@ -421,6 +429,9 @@ if __name__ == "__main__":
            else:
              process_list.append(sample_name)
 
+           if "LO" in samples[sample_name]:
+             process_list.append(sample_name + "_LO")
+
            json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
            json_command += ' --pNN ' if args.pNN else ''
            json_command += ' --multi_class_pNN ' if args.multi_class_pNN else ''
@@ -438,10 +449,16 @@ if __name__ == "__main__":
              condor[Era][region][channel][process_] = open(os.path.join(farm_dir, 'condor_{}_{}_{}_{}.sub'.format(Era, region, channel, process_)), 'a')
              merge_shell[Era][region][channel][process_] = open(os.path.join(farm_dir, 'merge_{}_{}_{}_{}.sh'.format(Era, region, channel, process_)), 'a')
              # Clear the files except the merged one
+      
+             LO_command = ""
+             if "_LO" in process_:
+               process_name = process_.replace("_LO", "")
+               if "LO" in samples[process_name]:
+                 LO_command = samples[process_name]["LO"]
 
              if args.blocksize == -1:
                shell_file = "slim_%s_%s_%s_%s_%s.sh"%(iin, Era, region, channel,process_)
-               command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
+               command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
                command += json_command
                prepare_shell(shell_file, command, condor[Era][region][channel][process_], farm_dir)
 
@@ -450,10 +467,11 @@ if __name__ == "__main__":
                for idx, num in enumerate(ranges[:-1]):
                  start = ranges[idx]
                  end   = ranges[idx+1]
-                 command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_)
+                 command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
                  command += json_command
                  shell_file = "slim_%s_%s_%s_%s_%d_%s.sh"%(iin, Era, region, channel, idx, process_)
                  outputfile_name = '{}_{}.root'.format(idx, process_) if "SubProcess" in samples[sample_name] else '{}_{}'.format(idx, iin)
+                 outputfile_name = '{}_{}.root'.format(idx, process_) if "LO" in samples[sample_name] else outputfile_name
 
                  if not args.check:
                      prepare_shell(shell_file,command, condor[Era][region][channel][process_], farm_dir)
@@ -557,6 +575,8 @@ if __name__ == "__main__":
             else:
               process_list.append(iin)
 
+            if "LO" in samples[iin]:
+              process_list.append(iin + "_LO")
 
             for process in process_list:
               os.system('chmod +x {}/{}.sh'.format(farm_dir, 'merge_{}_{}_{}_{}'.format(Era, region, channel, process)))

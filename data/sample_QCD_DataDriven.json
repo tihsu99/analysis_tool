@@ -169,7 +169,7 @@
 
 "DYnlo":{
   "xsec": 6077.22,
-  "xsec_err": 0.3,
+  "xsec_err": 10.0,
   "Category": "DY",
   "Train_ratio": {"2b": 0.15, "3b": 0.5},
   "Label":  ["MC", "Background"]
@@ -328,7 +328,6 @@
     "Train_ratio": {"2b": 0.0, "3b": 0.0},
     "Label": ["DataDriven"]
   },
-
 
   "SingleEG":{
     "xsec": 1,

@@ -47,6 +47,38 @@
     "Label": ["Control_plot"]
   },
 
+  "b1_flavour": {
+    "Title": ";Leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "b2_flavour": {
+    "Title": ";Second leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "b3_flavour": {
+    "Title": ";Third leading b Jet flavor; nEntries",
+    "xlow": -0.5,
+    "xhigh": 6.5,
+    "nbin": 7,
+    "Label": ["Debug"]
+  },
+
+  "btag_probability":{
+    "Title": ";btag probability; nEntries",
+    "xlow": 0.0,
+    "xhigh": 1.0,
+    "nbin": 100,
+    "Label": ["Debug"]
+  },
+
   "DeepB_medium_j1_pt":{
     "Title": ";Leading b jet Pt [GeV];nEntries",
     "xlow": 0,
@@ -178,7 +210,7 @@
   "top_reco_pt":{
     "Title": ";pT^{rec0} [GeV]; nEntries",
     "xlow": 0,
-    "xhigh": 400,
+    "xhigh": 800,
     "nbin": 40,
     "Label": ["Reco", "Control_plot"]
   },
@@ -186,8 +218,8 @@
   "top_reco_mass":{
     "Title": ";mt^{reco} [GeV];nEntries",
     "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
+    "xhigh": 800,
+    "nbin": 35,
     "Label": ["Reco", "Control_plot"]
   },
 
@@ -271,6 +303,48 @@
     "Label": ["Control_plot"]
   },
 
+  "inv_m_lb1":{
+    "Title": ";M(l, b_{1});nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "Label": ["Control_plot"]
+  },
+
+  "inv_m_lb2":{
+    "Title": ";M(l, b_{2});nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "Label": ["Control_plot"]
+  },
+
+  "inv_m_lb3":{
+    "Title": ";M(l, b_{3});nEntries",
+    "xlow": 0,
+    "xhigh": 500,
+    "nbin": 100,
+    "Label": ["Control_plot"]
+  },
+
+  "delta_phi_l_met":{
+    "Title": ";#Delta#Phi(l,MET); nEntries",
+    "xlow":  0.0,
+    "xhigh": 3.2,
+    "nbin":  16,
+    "plottingbins": [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.14],
+    "Label": ["Control_plot"]
+  },
+
+  "Lepton_topMVA":{
+    "Title": ";Lepton MVA; nEntries",
+    "xlow":  -1,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.8, 0.9, 0.925, 0.950, 0.975, 1.0],
+    "Label": ["Control_plot"]
+  },
+
   "inv_m_b1b2":{
     "Title": ";M(b_{1},b_{2}); nEntries",
     "xlow": 0,
@@ -317,5 +391,87 @@
     "xhigh": 500,
     "nbin": 100,
     "Label": ["Control_plot"]
+  },
+
+
+  "DNN300":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN350":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN400":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN500":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN600":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN700":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN800":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN900":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
+  },
+
+  "DNN1000":{
+    "Title": ";DNN;nEntries",
+    "xlow":  0,
+    "xhigh": 1,
+    "nbin":  20,
+    "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "Label": ["DNN_LowMVA"]
   }
 }

@@ -32,6 +32,13 @@ inputFile_path = {
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v7/'
 }
 
+#inputFile_path = {
+#   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v0_qcd/',
+#   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v0_qcd/',
+#   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v0_qcd/',
+#   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v0_qcd/'
+#}
+
 subera_list = {
   '2016apv':     ['B2', 'C', 'D', 'E', 'F'],
   '2016postapv': ['F',  'G', 'H'],
