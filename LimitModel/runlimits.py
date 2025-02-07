@@ -11,6 +11,67 @@ from array import array
 import ROOT
 from Util.Plot_Tool import Plot_1D_Limit_For, Plot_2D_Limit_For
 
+import pandas as pd
+
+def get_color_from_value(x, min_val, max_val):
+    """
+    Given a value x, return a color based on the default heatmap gradient (kTemperature).
+    """
+    # Normalize x to the range [0, 1]
+    normalized_x = (x - min_val) / (max_val - min_val)
+    
+    # Clamp the value between 0 and 1
+    normalized_x = max(0.0, min(1.0, normalized_x))
+    
+    # Set the default color palette (kTemperature)
+    rt.gStyle.SetPalette(rt.kLightTemperature)  # Choose a predefined palette like kTemperature
+    
+    # Retrieve the color at the normalized position
+    color = rt.gStyle.GetColorPalette(int(normalized_x * 255))  # Scale to [0, 255] range for the palette
+    
+    return color
+
+
+
+# Read the file into a DataFrame, skipping the header separator lines
+file_path = "../data/signal_xsec.txt"  # Replace with your file path
+df_sig_xsec = pd.read_csv(
+    file_path,
+    delim_whitespace=True,  # Handle white-space delimited data
+    skiprows=2,             # Skip the second row containing '---'
+)
+
+# Rename columns to match the file structure (optional)
+df_sig_xsec.columns = ["Mass", "rtt", "rtc", "xsec", "sigma(bgth)[pb]", "sigma(bgth)/sigma(cgbh)"]
+
+
+file_path = "../data/signal_xsec_unc.txt"
+# Define column names explicitly, as some have spaces or special characters
+column_names = [
+    "Mass", "rtt", "rtc",
+    "scale_unc_+", "scale_unc_-", "scale_unc_avg",
+    "PDF_unc_(%)", "total_unc"
+]
+# Read the file while handling whitespace and missing columns
+df_sig_xsec_err = pd.read_csv(
+    file_path,
+    delim_whitespace=True,  # Handle white-space delimited data
+    skiprows=1,             # Skip the comment row (starts with #)
+    names=column_names,     # Use predefined column names
+    engine="python",        # Use Python engine for complex parsing
+    na_values=["..."]       # Handle potential missing values
+)
+
+# Clean up the uncertainty columns
+# Ensure "scale_unc_+" and "scale_unc_-" are numeric
+df_sig_xsec_err["scale_unc_+"] = pd.to_numeric(df_sig_xsec_err["scale_unc_+"], errors="coerce")
+df_sig_xsec_err["scale_unc_-"] = pd.to_numeric(df_sig_xsec_err["scale_unc_-"], errors="coerce")
+df_sig_xsec_err["rtt"] = df_sig_xsec_err["rtt"] * 0.1
+df_sig_xsec_err["rtc"] = df_sig_xsec_err["rtc"] * 0.1
+
+print(df_sig_xsec)
+print(df_sig_xsec_err)
+
 usage = "python runlimits.py -c em"
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-c", "--channel", dest="channel", default="ele")
@@ -40,6 +101,7 @@ parser.add_argument('--Scan2DNLL', action = 'store_true')
 parser.add_argument('--POI_name', type=str, default='r_3b')
 parser.add_argument('--model_name', type=str, default='g2HDM_3Bbased')
 parser.add_argument('--ratio_file', type=str, default=None)
+parser.add_argument('--coupling_varied', type=str, default='rtt')
 args = parser.parse_args()
 
 year     = args.year
@@ -66,7 +128,7 @@ print("datacards_{}_{}/log".format(year, analysis_name))
 CheckDir("datacards_{}_{}/log".format(year, analysis_name),True)
 start_time = time.time()
 
-RL  = RunLimits(year=year, analysis= analysis_name, region=region, channel=channel, postfix="asimov", unblind=args.unblind, verbose=args.verbose, rMax=args.rMax, signal_param=signal_param)
+RL  = RunLimits(year=year, analysis= analysis_name, region=region, channel=channel, postfix="asimov", unblind=args.unblind, verbose=args.verbose, rMax=args.rMax, signal_param=signal_param, outputdir = args.outputdir)
 
 if args.reset_outputfiles:
     CheckFile(RL.limitlog,True)
@@ -79,31 +141,56 @@ if args.plot_only:
 
   signal_xsec_TGraph = None
   if args.signal_xsec:
-    signal_xsec = array('d')
-    signal_xsec_up = array('d')
-    signal_xsec_do = array('d')
-    mass_bin    = array('d')
-    errx = array('d')
-    samples = Extend_sample_dict(read_json(args.sample_json), key_word='MASS')
-    for imass in mass_points:
-        mH = str(imass)
-        signal = signal_name_template.replace('MASS', mH)
-        xsec = samples[signal]['xsec'] if signal in samples else 0.0
-        xsec_err = samples[signal]['xsec_err'] if (signal in samples and 'xsec_err' in samples[signal]) else 10.0 #TODO: should be corrected
-        signal_xsec.append(xsec)
-        signal_xsec_up.append(xsec*xsec_err/100.)
-        signal_xsec_do.append(xsec*xsec_err/100.)
-        mass_bin.append(float(mH))
-        errx.append(0.0)
-    print(mass_bin)
-    print(signal_xsec)
-    signal_xsec_TGraph = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
+    signal_xsec_TGraph = dict()
+    signal_xsec_TGraph['color'] = dict()
+    if args.coupling_varied == "rtt":
+        for rtt_ in [0.1, 0.4, 0.6, 1.0]:
+            signal_xsec = array('d')
+            signal_xsec_up = array('d')
+            signal_xsec_do = array('d')
+            mass_bin    = array('d')
+            errx = array('d')
+            for imass in mass_points:
+                try:
+                    xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(imass)) & (abs(df_sig_xsec['rtt'] -rtt_) < 1e-5) & (abs(df_sig_xsec['rtc'] - args.rtc) < 1e-5)]['xsec'].iloc[0]
+                    xsec_err = df_sig_xsec_err[(df_sig_xsec_err['Mass'] == int(imass)) & (abs(df_sig_xsec_err['rtt'] - rtt_) < 1e-5) & ((df_sig_xsec_err['rtc'] - args.rtc) < 1e-5)]['total_unc'].iloc[0]
 
+                    signal_xsec.append(xsec)
+                    signal_xsec_up.append(xsec*xsec_err/100.)
+                    signal_xsec_do.append(xsec*xsec_err/100.)
+                    mass_bin.append(float(imass))
+                    errx.append(0.0)
+                except:
+                    print(imass, rtt_, args.rtc, 'no points')
+            signal_xsec_TGraph["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(rtt_, args.rtc)] = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
+            signal_xsec_TGraph['color']["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(rtt_, args.rtc)] = get_color_from_value(rtt_, 0.0, 1.1)
+    else:
+        for rtc_ in [0.1, 0.4, 0.6, 1.0]:
+            signal_xsec = array('d')
+            signal_xsec_up = array('d')
+            signal_xsec_do = array('d')
+            mass_bin    = array('d')
+            errx = array('d')
+            for imass in mass_points:
+                try:
+                    xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(imass)) & (abs(df_sig_xsec['rtt'] - args.rtt) < 1e-5) & (abs(df_sig_xsec['rtc'] - rtc_) < 1e-5)]['xsec'].iloc[0]
+                    xsec_err = df_sig_xsec_err[(df_sig_xsec_err['Mass'] == int(imass)) & (abs(df_sig_xsec_err['rtt'] - args.rtt) < 1e-5) & ((df_sig_xsec_err['rtc'] - rtc_) < 1e-5)]['total_unc'].iloc[0]
+
+                    signal_xsec.append(xsec)
+                    signal_xsec_up.append(xsec*xsec_err/100.)
+                    signal_xsec_do.append(xsec*xsec_err/100.)
+                    mass_bin.append(float(imass))
+                    errx.append(0.0)
+                except Exception as e:
+                    print(e)
+                    print(imass, args.rtt, rtc_, 'no points')
+            signal_xsec_TGraph["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
+            signal_xsec_TGraph['color']["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = get_color_from_value(rtc_, 0.0, 1.1)
 
   if args.Scan2DNLL:
       for imass in mass_points:
           mH = str(imass)
-          RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file)
+          RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file, df_sig_xsec = df_sig_xsec)
 
  
 
@@ -119,7 +206,7 @@ if args.plot_only:
       Rb_list.append(Rb)
       RL.limit_pdf_file = "limits_" + RL.analysis_ + "_"+ RL.signal_str_ + "_" + RL.postfix_+"_"+RL.model_ + "_" + RL.region_ + "_" + RL.channel_ + "_Rb%.1f.pdf"%(Rb)
       print("saving")
-      RL.SaveLimitPdf1D(outputdir=args.outputdir, y_max=args.plot_y_max, y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph)
+      RL.SaveLimitPdf1D(outputdir=args.outputdir, y_max=args.plot_y_max, y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied)
 
     print(TGraph_File_dict)
     Plot_2D_Limit_For(TGraph_File_dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, y_axis_title = 'R_{b}', ratio_file = args.ratio_file, signal_xsec_TGraph = signal_xsec_TGraph)
@@ -128,7 +215,7 @@ if args.plot_only:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
     #RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
-    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph)
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied)
 else:
     counter=0
     template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=year, signal=signal_name_template, region=region, channel=channel)
@@ -153,7 +240,7 @@ else:
           mode_ = 'w'
           for Rb in [0.1 * i for i in range(11)]:
             extraCommand = '--redefineSignalPOIs {POI}  --setParameters Rb={Rb},{POI}=0.0 --freezeParameters Rb --defineBackgroundOnlyModelParameters {POI}=0,Rb={Rb}'.format(Rb=Rb, POI=args.POI_name)
-            logname = RL.getLimits(card_name.replace('txt','root'),asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log', logname=card_name.replace('.txt','_%s_Rb%.1f.log'%(args.POI_name, Rb)), extraCommand = extraCommand)
+            logname = RL.getLimits(card_name.replace('txt','root'),asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir=os.path.join(args.outputdir, 'datacard_log'), logname=card_name.replace('.txt','_%s_Rb%.1f.log'%(args.POI_name, Rb)), extraCommand = extraCommand)
             param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
             print('post logname:', logname)
             limitlogfile = RL.LogToLimitList(logname, param_list, mode_, postfix='_%s_Rb%.1f'%(args.POI_name, Rb), POI=args.POI_name)

@@ -63,7 +63,7 @@ if __name__ == '__main__':
     canvas.legend.setPosition(0.35, 0.77, 0.8, 0.9)
     canvas.raxis.SetNdivisions(101)
     #canvas.SetLogy()
-    canvas.rlimits = (0.9, 1.1)
+    canvas.rlimits = (0.8, 1.2)
     canvas.legend.SetTextSize(0.018)
     canvas.legend.SetX2(0.95)
     canvas.ytitle = "Events/bin"
@@ -107,7 +107,19 @@ if __name__ == '__main__':
     signal_histo_3b = fin.Get("bH{era}_{process}_3b".format(era=era, process=signal_name)).Clone()
     signal_histo.Add(signal_histo_3b)
     signal_histo.Scale(10)
-    canvas.addSignal(signal_histo, title = "Signal(x10)", color=ROOT.kBlue) 
+
+    if "SIGNAL" in data_info["NuisForProc"][nuisance]:
+      h_up_tmp = fin.Get("bH{era}_{process}_2b_{nui}Up".format(era=era, process   = signal_name, nui=nuisance_name)).Clone()
+      h_do_tmp = fin.Get("bH{era}_{process}_2b_{nui}Down".format(era=era, process = signal_name, nui=nuisance_name)).Clone()
+      h_up_tmp.Add(fin.Get("bH{era}_{process}_3b_{nui}Up".format(era=era, process   = signal_name, nui=nuisance_name)).Clone())
+      h_do_tmp.Add(fin.Get("bH{era}_{process}_3b_{nui}Down".format(era=era, process = signal_name, nui=nuisance_name)).Clone())
+
+      h_up_tmp.Scale(10)
+      h_do_tmp.Scale(10)
+      canvas.addSignal(h_up_tmp, title = "Signal_up(x10)", color=ROOT.kGreen+1, lwidth = 1) 
+      canvas.addSignal(h_do_tmp, title = "Signal_down(x10)", color=ROOT.kGreen-1, lwidth = 1) 
+
+    canvas.addSignal(signal_histo, title = "Signal(x10)", color=ROOT.kBlue, lwidth = 1) 
     canvas.addText('Region: {}'.format(region), 0.18, 0.79, 0.3, 0.82, size=0.02, align=12)
     canvas.addText('Channel: {}'.format(channel), 0.18, 0.76, 0.3, 0.79, size=0.02, align=12)
 

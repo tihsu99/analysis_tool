@@ -13,13 +13,16 @@ from collections import OrderedDict
 import numpy as np
 sys.path.insert(0, '../python')
 from common import read_json
+from scipy.interpolate import griddata
+from scipy.interpolate import LinearNDInterpolator
+from scipy.optimize import root
 
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict()):
+    def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict(), outputdir = "./"):
         self.year_                 = year
         self.analysis_             = analysis 
         self.region_               = region
@@ -28,7 +31,8 @@ class RunLimits:
         self.model_                = model
         self.rMax_                 = rMax        
         self.signal_param_         = signal_param
-        self.limit_dir             = os.path.join("bin", self.year_, self.region_, self.channel_)
+        self.outputdir_            = outputdir
+        self.limit_dir             = os.path.join(self.outputdir_, "bin", self.year_, self.region_, self.channel_)
         if CheckDir(self.limit_dir,MakeDir=True):pass
         else:pass
         
@@ -224,7 +228,7 @@ class RunLimits:
         f1.Close()
         return self.limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None):
         rootfile = self.limit_root_file
         setlogX=0
         y_max=y_max # scale of y axis 
@@ -238,7 +242,7 @@ class RunLimits:
         c.SetGrid(0,0)
         c.SetLogy(1)
         c.SetLogx(setlogX)
-        c.SetLeftMargin(0.12)
+        c.SetLeftMargin(0.15)
         #leg = rt.TLegend(.15, .65, .35, .890);
         f = rt.TFile(rootfile,"read")
         exp2s =  f.Get("exp2")
@@ -251,14 +255,14 @@ class RunLimits:
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
         if signal_xsec_TGraph is None:
-          exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #mu=#sigma/#sigma_{theory}");
+          exp2s.GetYaxis().SetTitle("95% C.L. limit on #mu=#sigma/#sigma_{theory}");
         #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
         else:
-          exp2s.GetYaxis().SetTitle("95% C.L. asymptotic limit on #sigma(pp#rightarrow XH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]")
+          exp2s.GetYaxis().SetTitle("95% C.L. limit on #sigma(pp#rightarrow XH^{#pm}) #it{B}(H^{#pm}#rightarrow tb)[pb]")
         exp2s.GetYaxis().SetTitleOffset(1.6)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
-        exp2s.GetYaxis().SetMoreLogLabels()
+        #exp2s.GetYaxis().SetMoreLogLabels()
         #exp2s.GetXaxis().SetMoreLogLabels()
         #exp2s.GetXaxis().SetRangeUser(10,750)
         exp2s.Draw("A 3")
@@ -287,7 +291,7 @@ class RunLimits:
             obs.SetLineWidth(3)
             obs.Draw("LP same")
     
-        leg = rt.TLegend(.55, .65, .80, .890);
+        leg = rt.TLegend(.52, .55, .80, .890);
         leg.SetBorderSize(0);
         leg.SetFillColor(0);
         leg.SetShadowColor(0);
@@ -311,18 +315,23 @@ class RunLimits:
         if signal_xsec_TGraph is None:
           pass
         else:
-          signal_xsec_TGraph.SetLineColor(rt.kRed)
-          signal_xsec_TGraph.SetFillColor(rt.kRed)
-          signal_xsec_TGraph.SetLineWidth(2)
-          signal_xsec_TGraph.Draw('3 L same')
-          param_string = ''
-          for param_ in self.signal_param_:
-            if type(self.signal_param_[param_]) == str:
-              value = self.signal_param_[param_].replace("p",".")
-            param_string += "{}={} ".format(param_, value)
+          color_idx = 0
+          colors = [
+            rt.TColor.GetColor(235, 52, 128),      # Bright Green
+            rt.TColor.GetColor(162, 52, 235),      # Bright Blue
+            rt.TColor.GetColor(255, 0, 0),    # Gold
+            rt.TColor.GetColor(235, 162, 52),     # Indigo
+          ]
+          for stuff_ in signal_xsec_TGraph:
+            if stuff_ == 'color': continue
+            signal_xsec_TGraph[stuff_].SetLineColor(signal_xsec_TGraph['color'][stuff_])
+            signal_xsec_TGraph[stuff_].SetLineStyle(1)
+            signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
+            signal_xsec_TGraph[stuff_].SetLineWidth(3)
+            signal_xsec_TGraph[stuff_].Draw('3 L same')
+            leg.AddEntry(signal_xsec_TGraph[stuff_], "g2HDM ({})".format(stuff_), "L")
+            color_idx += 1
 
-          leg.AddEntry(signal_xsec_TGraph, "g2HDM ({})".format(param_string), "L")
-    
         latex =  rt.TLatex();
         latex.SetNDC();
         latex.SetTextFont(42);
@@ -333,10 +342,13 @@ class RunLimits:
         
         import CMS_lumi
         CMS_lumi.writeExtraText = 1
-        CMS_lumi.extraText = "Internal"
+        CMS_lumi.extraText = "Preliminary"
+        CMS_lumi.cmsTextSize = 0.55
+        CMS_lumi.relPosX    = 0.15
+        CMS_lumi.relPosY    = 0.05
         CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
         iPos = 11
-        if( iPos==0 ): CMS_lumi.relPosX = 0.12
+        if( iPos==0 ): CMS_lumi.relPosX = 0.5
         iPeriod=self.year_
 
         param_string = ''
@@ -344,9 +356,9 @@ class RunLimits:
           if type(self.signal_param_[param_]) == str:
             value = self.signal_param_[param_].replace("p",".")
           param_string += "{}={} ".format(param_, value)
-        CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.09)
-        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format('g2HDM', self.region_, self.channel_));
-        latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
+        CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.1, 0.092)
+#        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format('g2HDM', self.region_, self.channel_));
+#        latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
         if signal_xsec_TGraph is None:
           latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
         
@@ -363,6 +375,9 @@ class RunLimits:
         CheckDir(OUT_DIR,True)
         self.limit_pdf_file  = os.path.join(OUT_DIR,self.limit_pdf_file)
         
+        if signal_xsec_TGraph is not None and coupling_varied is not None:
+          self.limit_pdf_file = self.limit_pdf_file.replace(".pdf", "_{}_varied.pdf".format(coupling_varied))
+
         CheckFile(self.limit_pdf_file,True)
         
         c.SaveAs(self.limit_pdf_file)
@@ -370,7 +385,8 @@ class RunLimits:
 
         CheckFile(self.limit_png_file,True)
         c.SaveAs(self.limit_png_file)
-        
+       
+        c.SaveAs(self.limit_png_file.replace(".png", ".C"))
         c.Close()
         
         return "pdf file is saved"
@@ -579,8 +595,21 @@ class RunLimits:
     def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased'):
         asimovstr ="-t -1 "
         tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+
+        imass = mass_point.replace('MA', '').replace('mH','')
+        input_file = self.limitlog_tmp_node.format(mass_point)
+        if CheckFile(input_file):pass
+        else:
+            raise ValueError('Make sure you have this file: {}'.format(input_file))
+
+        f = open(input_file,"r")
+        expmed = 1.0
+        for line in f:
+            if len(line.rsplit())<7: continue
+            expmed = (float(line.rstrip().split()[4])) * 4.0
+
         if model_name == 'g2HDM_separate':
-          command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges r_2b=0,1:r_3b=0,1 --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
+          command_ = "combine -M MultiDimFit " + dc + extraCommand + f' --setParameterRanges r_2b=0,{expmed}:r_3b=0,{expmed*2} --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
         else:
           command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
         if asimov:
@@ -588,34 +617,32 @@ class RunLimits:
         if self.__verbose:
             command_ = command_ + '-v 3'
 
-        os.system(command_ + "--algo grid --points 2000 -n {tag} --fastScan".format(tag = tag + "_2DNLL" ))
+        os.system(command_ + "--algo grid --points 800 -n {tag} --cminDefaultMinimizerStrategy 0 ".format(tag = tag + "_2DNLL" ))
         output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DNLL.MultiDimFit.mH120.root"
-        print(command_  + "--algo grid --points 2000")
+        print(command_  + "--algo grid --points 2000 & ")
         CheckDir(out_dir,MakeDir=True)
         # delete the output combine root file (not to make dirty your home area!)
         os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
 
-        os.system(command_ + "--algo contour2d --cl 0.68 -n {tag} --fastScan".format(tag = tag + "_2DContour68" ))
-        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour68.MultiDimFit.mH120.root"
-        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+        #output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour68.MultiDimFit.mH120.root"
+        #os.system("(" + command_ + "--algo contour2d --cl 0.68 -n {tag} --points 20 --fastScan && mv {out} {outdir}/.) &".format(tag = tag + "_2DContour68", out=output_rootfile, outdir=out_dir))
 
-        os.system(command_ + "--algo contour2d --cl 0.95 -n {tag} --fastScan".format(tag = tag + "_2DContour95" ))
-        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour95.MultiDimFit.mH120.root"
-        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+        #output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour95.MultiDimFit.mH120.root"
+        #os.system(command_ + "--algo contour2d --cl 0.95 -n {tag} --points 20 --fastScan ; mv {out} {outdir}/.".format(tag = tag + "_2DContour95" , out=output_rootfile, outdir=out_dir))
 
-        os.system(command_ + "--algo contour2d --cl 0.99 -n {tag} --fastScan".format(tag = tag + "_2DContour99" ))
-        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour99.MultiDimFit.mH120.root"
-        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
+#        os.system(command_ + "--algo contour2d --cl 0.99 -n {tag} --points 20 --fastScan".format(tag = tag + "_2DContour99" ))
+#        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour99.MultiDimFit.mH120.root"
+#        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
 
-    def bestFit(self, fin_name, x, y):
+    def bestFit(self, fin_name, x, y, xsec_2b = 1.0, xsec_3b = 1.0):
         x_values = array('d', [])
         y_values = array('d', [])
         fin = rt.TFile.Open(fin_name, "READ")
         t = fin.Get("limit")
         for entry in t:
           if entry.quantileExpected == -1:
-            x_values.append(getattr(entry, x))
-            y_values.append(getattr(entry, y))
+            x_values.append(getattr(entry, x) * xsec_2b)
+            y_values.append(getattr(entry, y) * xsec_3b)
             # Assuming x_values and y_values are lists or arrays containing your data points
         graph = rt.TGraph(len(x_values), x_values, y_values)  # Create the TGraph with your data
         graph.SetName("MyGraph")  # Set the name of the graph to "MyGraph"
@@ -631,11 +658,28 @@ class RunLimits:
         fin.Close()
         return gr0
 
-    def draw_2DNLL(self, fin_name, x, y, xsec_2b = 1.0, xsec_3b = 1.0):
+    def drawPoint(self, x, y, style = 34, color = rt.kRed, size = 4.0):
+      x_values = array('d', [x])
+      y_values = array('d', [y])
+      graph = rt.TGraph(len(x_values), x_values, y_values)  # Create the TGraph with your data
+      graph.SetName("MyGraph")  # Set the name of the graph to "MyGraph"
+      gr0 = graph.Clone()  # Clone the graph to gr0
+      gr0.SetMarkerStyle(style)
+      gr0.SetMarkerSize(size)
+      gr0.SetMarkerColor(color)
+      return gr0
+
+
+    def draw_2DNLL(self, fin_name, x, y, xsec_2b_limit = 1.0, xsec_3b_limit = 1.0, xsec_2b = 1.0, xsec_3b = 1.0):
         fin = rt.TFile.Open(fin_name, "READ")
         t = fin.Get("limit")
+        # Compute boundaries dynamically
+        xsec_2b_boundary = t.GetMaximum("{x}*{xsec_2b}".format(x=x, xsec_2b=xsec_2b))
+        xsec_3b_boundary = t.GetMaximum("{y}*{xsec_3b}".format(y=y, xsec_3b=xsec_3b))
+
+        print(xsec_3b_limit, xsec_3b)
 #        h = rt.TH2F('2DNLL', '2*deltaNLL:{x}:{y}'.format(x=x,y=y),44,0,2,44,0,2)
-        t.Draw("2*deltaNLL:{y}*{xsec_3b}:{x}*{xsec_2b}>>2DNLL(44, 0, {xsec_2b}, 44, 0, {xsec_3b})".format(x=x, y=y, xsec_2b = xsec_2b, xsec_3b = xsec_3b),"","PROF COLZ")
+        t.Draw("2*deltaNLL:{y}*{xsec_3b}:{x}*{xsec_2b}>>2DNLL(28, 0, {xsec_2b_boundary}, 28, 0, {xsec_3b_boundary})".format(x=x, y=y, xsec_2b_boundary = xsec_2b * xsec_2b_limit, xsec_3b_boundary = xsec_3b * xsec_3b_limit, xsec_2b = xsec_2b, xsec_3b = xsec_3b),"","PROF COLZ")
         h = rt.gROOT.FindObject("2DNLL").Clone()
 #        for entry in range(t.GetEntries()):
 #          t.GetEntry(entry)
@@ -643,20 +687,97 @@ class RunLimits:
         h.SetDirectory(0)
         fin.Close()
         return h
+
+
+
+
+    def draw_contour2D(self, fin_name, x, y, xsec_2b_limit = 1.0, xsec_3b_limit = 1.0, xsec_2b = 1.0, xsec_3b = 1.0):
+
+        # Ref: https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/tutorial2023/parametric_exercise/?h=contour#two-dimensional-likelihood-scan
+
+        fin = rt.TFile.Open(fin_name, "READ")
+        t = fin.Get("limit")
+
+        # Number of points in interpolation
+        n_points = 200
+        x_range = [0, xsec_2b_limit * xsec_2b]
+        y_range = [0, xsec_3b_limit * xsec_3b]
+
+        n_bins = 40
+
+        x_array, y_array, deltaNLL = [], [], []
+        for ev in t:
+            x_array.append(getattr(ev, x) * xsec_2b)
+            y_array.append(getattr(ev, y) * xsec_3b)
+            deltaNLL.append(getattr(ev, "deltaNLL"))
+
+        dnll = np.asarray(deltaNLL)
+        points = np.array([x_array, y_array]).transpose()
+        # Set up grid
+        grid_x, grid_y = np.mgrid[x_range[0] : x_range[1] : n_points * 1j, y_range[0] : y_range[1] : n_points * 1j]
+        grid_vals = griddata(points, dnll, (grid_x, grid_y), "cubic")
+
+
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        # Remove NANS
+        grid_x = grid_x[grid_vals == grid_vals]
+        grid_y = grid_y[grid_vals == grid_vals]
+        grid_vals = grid_vals[grid_vals == grid_vals]
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+        # Define Profile2D histogram
+        h2D = rt.TProfile2D("h", "h", n_bins, x_range[0], x_range[1], n_bins, y_range[0], y_range[1])
+        h2D.SetDirectory(0)
+
+
+        for i in range(len(grid_vals)):
+           # Factor of 2 comes from 2*NLL
+           h2D.Fill(grid_x[i], grid_y[i], 2 * grid_vals[i])
+
+        # Loop over bins: if content = 0 then set 999
+        for ibin in range(1, h2D.GetNbinsX() + 1):
+          for jbin in range(1, h2D.GetNbinsY() + 1):
+              if h2D.GetBinContent(ibin, jbin) == 0:
+                  xc = h2D.GetXaxis().GetBinCenter(ibin)
+                  yc = h2D.GetYaxis().GetBinCenter(jbin)
+                  h2D.Fill(xc, yc, 999)
+        h2D.SetContour(999)
+        
+        c68, c95 = h2D.Clone(), h2D.Clone()
+        c68.SetContour(2)
+        c68.SetContourLevel(1, 2.3)
+        c68.SetContourLevel(0, 1e10)
+        c68.SetLineWidth(3)
+        c68.SetLineColor(rt.kBlue)
+        c95.SetContour(2)
+        c95.SetContourLevel(0, 1e10)
+        c95.SetContourLevel(1, 5.99)
+        c95.SetLineWidth(3)
+        c95.SetLineStyle(2)
+        c95.SetLineColor(rt.kRed)
+        c68.SetDirectory(0)
+        c95.SetDirectory(0)
+        fin.Close()       
+
+        return h2D, c68, c95
+
     def draw_contour(self, fin_name, x, y, pmin, pmax, bestFit, xsec_2b = 1.0, xsec_3b = 1.0):
       fin = rt.TFile.Open(fin_name, "READ")
       t = fin.Get("limit")
       t.Draw("{y}*{xsec_3b}:{x}*{xsec_2b}".format(x=x, y=y, xsec_2b = xsec_2b, xsec_3b = xsec_3b), "%f <= quantileExpected && quantileExpected <= %f && quantileExpected != 1"%(pmin,pmax), "SAME p");
       gr = rt.gROOT.FindObject("Graph").Clone();
       rt.gROOT.FindObject("Graph").SetName("aa")
-      x0 = bestFit.GetX()[0]
-      y0 = bestFit.GetY()[0];
+      x0 = bestFit.GetX()[0] * xsec_2b
+      y0 = bestFit.GetY()[0] * xsec_3b;
       xi = gr.GetX()
       yi = gr.GetY();
       n  = gr.GetN();
       for i in range(n):
-        xi[i] -= x0
-        yi[i] -= y0
+        xi[i] -= x0 
+        yi[i] -= y0 
 
       gr.Sort(rt.TGraph.CompareArg)
       for i in range(n):
@@ -664,34 +785,74 @@ class RunLimits:
         yi[i] += y0
       fin.Close()
       return gr
-    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_3b', model_name = 'g2HDM_3Bbased', ratio_file = None):
+
+    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_3b', model_name = 'g2HDM_3Bbased', ratio_file = None, df_sig_xsec = None):
         rt.gStyle.Reset()
         rt.gStyle.SetOptTitle(0)
         rt.gStyle.SetOptStat(0)
         rt.gROOT.SetBatch(1)
-        rt.gStyle.SetPalette(rt.kLake)
+        rt.gStyle.SetCanvasColor(0)
+        rt.gStyle.SetPalette(rt.kLightTemperature)
         rt.TColor.InvertPalette();
         c = rt.TCanvas("c","c",700, 600)
-        c.SetRightMargin(0.12)
+        c.SetTopMargin(0.085)
+        c.SetRightMargin(0.14)
+        c.SetLeftMargin(0.14)
+        c.SetLogz(1)
+        c.SetGrid(0,0)
+        c.SetTicks(1,1)
+
+
+        imass = mass_point.replace('MA', '').replace('mH','')
+        input_file = self.limitlog_tmp_node.format(mass_point)
+        if CheckFile(input_file):pass
+        else:
+            raise ValueError('Make sure you have this file: {}'.format(input_file))
+
+        f = open(input_file,"r")
+        expmed = 1.0
+        for line in f:
+            if len(line.rsplit())<7: continue
+            expmed = (float(line.rstrip().split()[4])) * 4.0
+            print("expmed", expmed)
+        xsec_2b_limit = expmed
+        xsec_3b_limit = expmed * 2.0
+
         tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
         MultiFit_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag))
 
-        xsec_2b = 1.0
-        xsec_3b = 1.0
+
+        xsec_2b_ratio = 1.0
+        xsec_3b_ratio = 1.0
+        signal_points = OrderedDict()
         if model_name == 'g2HDM_separate':
           POI_name = 'r_2b'
           second_POI_name = 'r_3b'
           if ratio_file is not None:
             ratios = read_json(ratio_file)
             ratio_ = ratios[str(mass_point).replace('MH', '')]
-            xsec_2b = ratio_ / (1.0 + ratio_)
-            xsec_3b = 1.0 / (1.0 + ratio_)
+            xsec_2b_ratio = ratio_ / (1.0 + ratio_)
+            xsec_3b_ratio = 1.0 / (1.0 + ratio_)
+            mass = mass_point.replace('MH','')
+
+            if int(mass) < 600:
+              couplings = [(0.1, 0.1), (0.1, 0.4), (0.1, 0.6), (0.1, 1.0)]
+            if int(mass) >= 600:
+              couplings = [(0.1, 0.1), (0.1, 0.4), (0.4, 0.6), (0.6, 0.4)]
+            for coupling_ in couplings:
+              rtc = coupling_[0]
+              rtt = coupling_[1]
+              xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(mass)) & (abs(df_sig_xsec['rtt'] - rtt) < 1e-5) & (abs(df_sig_xsec['rtc'] - rtc) < 1e-5)]['xsec'].iloc[0]
+              xsec_2b = xsec * xsec_2b_ratio
+              xsec_3b = xsec * xsec_3b_ratio
+              signal_points["#rho_{tc}=%.1f, #rho_{tt}=%.1f"%(rtc, rtt)] = self.drawPoint(xsec_2b, xsec_3b, 47, rt.kRed + len(signal_points), size = 2.0)
         else:
           second_POI_name = 'Rb'
 
-        signal_prediction = rt.TGraph(1, array('d', [xsec_2b]), array('d', [xsec_3b]))
 
-        h = self.draw_2DNLL(MultiFit_root_file, POI_name, second_POI_name, xsec_2b, xsec_3b)
+        h = self.draw_2DNLL(MultiFit_root_file, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
+        h, CL68, CL95 = self.draw_contour2D(MultiFit_root_file, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
+
         h.SetTitle("2 #Delta NLL;;;")
         if model_name == 'g2HDM_separate':
           h.GetXaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})Br(H^{#pm}#rightarrow tb)[pb]' if POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]')
@@ -701,26 +862,51 @@ class RunLimits:
           h.GetYaxis().SetTitle(second_POI_name)
         h.GetZaxis().SetTitle("2 #Delta NLL")
         h.GetZaxis().SetMaxDigits(2)
-        best_fit = self.bestFit(MultiFit_root_file, POI_name, second_POI_name)
-        CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
-        CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b, xsec_3b = xsec_3b)
-        CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
-        CL95_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour95.MultiDimFit.mH120.root'.format(tag=tag))
-        CL95 = self.draw_contour(CL95_root_file, POI_name, second_POI_name, 0.049, 1.0, best_fit, xsec_2b = xsec_2b, xsec_3b = xsec_3b)
-        CL95.SetLineWidth(2); CL95.SetLineStyle(7); CL95.SetLineColor(1); CL95.SetFillStyle(1001); CL95.SetFillColorAlpha(43, 0.5); CL95.SetMarkerSize(3)
+        best_fit = self.bestFit(MultiFit_root_file, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
+        
+        #CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
+        #CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
+        #CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
+        #CL95_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour95.MultiDimFit.mH120.root'.format(tag=tag))
+        #CL95 = self.draw_contour(CL95_root_file, POI_name, second_POI_name, 0.049, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
+        #CL95.SetLineWidth(2); CL95.SetLineStyle(7); CL95.SetLineColor(1); CL95.SetFillStyle(1001); CL95.SetFillColorAlpha(43, 0.5); CL95.SetMarkerSize(3)
         h.Draw("COLZ")
-        CL95.Draw("LF SAME")
-        CL68.Draw("LF SAME")
+        CL68.Draw("cont3same")
+        CL95.Draw("cont3same")
+
+        SM = self.drawPoint(0, 0, 29, rt.kBlue)
+        SM.Draw("P SAME")
+        for signal_point in signal_points:
+          signal_points[signal_point].Draw("P SAME")
+
         best_fit.Draw("P SAME")
-        signal_prediction.Draw("P SAME")
-        legend = rt.TLegend(0.6, 0.7, 0.80, 0.9)
+
+        legend = rt.TLegend(0.55, 0.45, 0.80, 0.9)
         legend.AddEntry(CL68, "1 #sigma band")
         legend.AddEntry(CL95, "2 #sigma band")
-        legend.AddEntry(best_fit, "Best Fit({})".format(mass_point.replace('A', '')))
-        #legend.AddEntry(signal_prediction, "g2HDM({})".format(mass_point.replace('A', '')))
+        legend.AddEntry(best_fit, "Best Fit(mH^{#pm} = %s GeV)"%(mass_point.replace('MH', '')))
+        legend.AddEntry(SM, "SM")
+        for signal_point in signal_points:
+          legend.AddEntry(signal_points[signal_point], signal_point)
         legend.Draw("SAME")
         plotdir = os.path.join(outputdir, '2DNLL', 'plot')
         CheckDir(plotdir)
+
+
+        # CMS style
+  
+        import CMS_lumi
+
+        CMS_lumi.writeExtraText = 1
+        CMS_lumi.relPosX = 0.15
+        CMS_lumi.extraText = "Preliminary"
+        CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+        iPos = 0
+        iPeriod="run2"
+        CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.135)
+        c.Update()
+
         c.SaveAs(os.path.join(plotdir, '{tag}.png'.format(tag=tag)))
         c.SaveAs(os.path.join(plotdir, '{tag}.pdf'.format(tag=tag)))
+        c.SaveAs(os.path.join(plotdir, '{tag}.C'.format(tag=tag)))
 

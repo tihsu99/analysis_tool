@@ -79,9 +79,11 @@ def combine_histograms(hist1, hist2):
     # Fill the new histogram with contents from hist1 and hist2
     for i in range(1, hist1.GetNbinsX() + 1):
         hist_combined.SetBinContent(i, hist1.GetBinContent(i))
+        hist_combined.SetBinError(i, hist1.GetBinError(i))
         
     for i in range(1, hist2.GetNbinsX() + 1):
         hist_combined.SetBinContent(i + hist1.GetNbinsX(), hist2.GetBinContent(i))
+        hist_combined.SetBinError(i + hist1.GetNbinsX(), hist2.GetBinError(i))
     
     return hist_combined
 

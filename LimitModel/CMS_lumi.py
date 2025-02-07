@@ -37,7 +37,7 @@ lumi_sqrtS = ""
 
 drawLogo      = False
 
-def CMS_lumi(pad,  iPeriod,  iPosX ,sepX = 0.07):
+def CMS_lumi(pad,  iPeriod,  iPosX ,sepX = 0.07, sepY=0.088):
     outOfFrame    = False
     if(iPosX/10==0 ): outOfFrame = True
 
@@ -172,7 +172,7 @@ def CMS_lumi(pad,  iPeriod,  iPosX ,sepX = 0.07):
                 latex.SetTextFont(extraTextFont)
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
-                latex.DrawLatex(posX_+ sepX, posY_+0.088, extraText)
+                latex.DrawLatex(posX_+ sepX, posY_+sepY, extraText)
                 #print(extraText)
     elif( writeExtraText ):
         if( iPosX==0):

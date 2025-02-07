@@ -69,6 +69,7 @@ parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
 parser.add_argument('--command', default = '', type = str)
 parser.add_argument('--combined', action='store_true')
+parser.add_argument('--channel_mask', default = None, type = str)
 args = parser.parse_args()
 
 '''
@@ -92,6 +93,8 @@ datacards = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".fo
 coupling_name = "rtt{}_rtc{}".format(signal_param["rtt"], signal_param["rtc"])
 x_variable = 'HT'
 #######################################
+
+args.command = args.command.replace(':', ' ')
 
 settings ={
     'year':args.year,
@@ -119,7 +122,8 @@ settings ={
     'datacard_dir': '/'.join(datacards.split('/')[:-1]),
     'datacard_name': datacards.split('/')[-1],
     'command': args.command,
-    'combined': args.combined
+    'combined': args.combined,
+    'channel_mask': args.channel_mask
 }
 
 if args.mode =='PlotShape':

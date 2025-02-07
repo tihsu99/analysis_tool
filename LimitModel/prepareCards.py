@@ -198,7 +198,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         print(merge_command)
         os.system(merge_command)
         if create_WorkSpace:
-          os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+            os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(outdir_, PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

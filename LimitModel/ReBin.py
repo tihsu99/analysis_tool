@@ -59,7 +59,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
 #  print('produce', analysis_name + era + "_" + category + nuis, era + "_" + category + nuis, indir, sample_)
   try:
     if h is None:
-      print(category, sample_nuis_name, samples_list, indir)
+      print(f"Histogram not exisits. Category: {category}, sample: {sample_nuis_name}, {samples_list}, {indir}")
     h.Scale(scale)
   except:
     print(sample_nuis_name)
@@ -262,7 +262,7 @@ for era_ in eras:
 
         #### Special Case ######
         if POI_in == 'DNN200':
-           POI_binning = np.array( [0., 0.05, 0.1,  0.55, 1.0])
+           POI_binning = np.array( [0., 0.05, 0.1, 1.0])
 
         if args.sig_norm:
           sig_scale = 1./samples[signal_]["xsec"]

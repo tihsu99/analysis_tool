@@ -111,7 +111,8 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
 def datacard2workspace(settings=dict()):
 
     CheckFile(settings['workspace_root'],True,True)
-    command = 'text2workspace.py {datacards}  -o {workspace_root}'.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'])
+    channel_mask_command = " --channel-masks " if settings['channel_mask'] is not None else ""
+    command = 'text2workspace.py {datacards}  -o {workspace_root} {channel_mask} '.format(datacards=settings['datacards'],workspace_root=settings['workspace_root'], channel_mask = channel_mask_command)
     print(ts+command+ns)
 
     command+=' >& {Log_Path} '.format(Log_Path=settings['Log_Path'])
@@ -128,7 +129,7 @@ def BiasTest(settings=dict()):
     farm_dir = "Farm_BiasTest"
     os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
 
-    for r in [0.0, 0.03, 0.05, 0.1, 0.15, 0.2]:
+    for r in [0.0, 0.05, 0.1, 0.2, 1.0, 2.0]:
       r_min = r - 10
       r_max = r + 10
       condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
@@ -145,7 +146,7 @@ def BiasTest(settings=dict()):
         command = "cd {outputdir}/bias_test\n".format(outputdir=settings['outputdir'])
         command += "combine -M GenerateOnly {workspace_root} -m 125  -t 20 --seed {seed} --saveToys  --toysFrequentist --bypassFrequentistFit --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min} {command}\n".format(workspace_root = settings['workspace_root'], r = r, r_min = r_min, r_max = r_max, seed = seed, command = settings["command"])
 
-        command += "combine -M MultiDimFit {workspace_root} -m 125  -t 20 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH125.{seed}.root --algo singles --rMax {r_max} --rMin {r_min} {command}   --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(workspace_root = settings['workspace_root'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed, command = settings["command"])
+        command += "combine -M MultiDimFit {workspace_root} --toysFrequentist  -m 125  -t 20 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH125.{seed}.root --algo singles --rMax {r_max} --rMin {r_min} {command}   --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(workspace_root = settings['workspace_root'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed, command = settings["command"])
 #        command += "combine -M GenerateOnly {datacards} -t 10 --saveToys --toysFrequentist --bypassFrequentistFit --seed {seed} --expectSignal {r} -n r_{r}_toys --rMax {r_max} --rMin {r_min} {command}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, seed = seed, command = settings["command"])
 #        command += "combineTool.py -M FitDiagnostics {datacards}  --skipBOnlyFit -t 10 -n  r_{r}_toys_{seed} --toysFile higgsCombiner_{r}_toys.GenerateOnly.mH120.{seed}.root --rMax {r_max} --rMin {r_min} {command}   --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}\n".format(datacards=settings['datacards'], r = r, r_min = r_min, r_max = r_max, cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], seed = seed, command = settings["command"])
         prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
@@ -176,7 +177,7 @@ def BiasTestPlot(settings=dict()):
       f = ROOT.TFile.Open("higgsCombiner_"+str(r)+"_toys.root")
 
       t=f.Get("limit")
-      hist_pull = ROOT.TH1F("", "Pull distribution: truth=%.1f" % (r), 80, -4, 4)
+      hist_pull = ROOT.TH1F("", "Pull distribution: truth=%.2f" % (r), 80, -4, 4)
       hist_pull.GetXaxis().SetTitle("Pull = (r_{truth}-r_{fit})/#sigma_{fit}")
       hist_pull.GetYaxis().SetTitle("Entries")
 
@@ -324,9 +325,9 @@ def Impact_doInitFit(settings=dict()):
 
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
     else:
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
 
     print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
@@ -346,9 +347,10 @@ def Impact_doFits(settings=dict()):
 
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
     else:
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doFits --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --job-mode condor --task-name {year}-{region}-{channel}-{coupling_value}-M{higgs}{mass} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,year=settings['year'],channel=settings['channel'],higgs=settings['higgs'],mass=settings['mass'],coupling_value=settings['coupling_value'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'],region=settings['region'], command = settings["command"])+'--sub-opts='+"'+JobFlavour="+'"tomorrow"'+"'"
+
 
     print(ts+command+ns)
     command += ' >& {}'.format(Log_Path)
@@ -379,7 +381,7 @@ def Plot_Impacts(settings=dict()):
     os.system(command)
 
     os.chdir('../')
-    command = 'plotImpacts.py -i  {impacts_json} -o {impacts_json_prefix}'.format(impacts_json=settings['impacts_json'],impacts_json_prefix=settings['impacts_json'].replace(".json",""))
+    command = 'plotImpacts.py -i  {impacts_json} -o {impacts_json_prefix} {command}'.format(impacts_json=settings['impacts_json'],impacts_json_prefix=settings['impacts_json'].replace(".json",""), command = settings['command'])
 
     print("\033[0;35m"+command+"\n\n"+"\033[0;m")
     command += ' >> {Log_Path}'.format(Log_Path=Log_Path)
@@ -531,7 +533,12 @@ def PlotShape(settings=dict()):
                     Histogram_merged[region_out][category] = Histogram[region_][category].Clone()
                 else:
                     Histogram_merged[region_out][category].Add(Histogram[region_][category].Clone())
+                print(region_, category, Histogram[region_][category].GetBinContent(1), Histogram[region_][category].GetBinError(1))
         Histogram = Histogram_merged
+
+#    for name in Histogram_merged:
+#        for process in Histogram_merged[name]:
+#          print(name, process, Histogram_merged[name][process].GetBinContent(1), Histogram_merged[name][process].GetBinError(1))
 
     Histogram_concatenated = dict()
     region_binning         = dict()
@@ -547,9 +554,10 @@ def PlotShape(settings=dict()):
           Histogram_concatenated[category] = htemp.Clone()
         else:
           Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
-          print(category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
+#          print(category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
         if region_ not in region_binning:
           region_binning[region_] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
+
 
     if settings['shape_type'].lower() == 'prefit':
         Title = 'Pre-Fit Distribution'
@@ -1154,23 +1162,33 @@ def plotCorrelationRanking(settings=dict()):
 
 def SubmitGOF(settings = dict()):
 
+    outputdir = os.path.join(settings['outputdir'], "GoF_results")
+    os.system("mkdir -p {outputdir}".format(outputdir = outputdir))
+    print("\033[0;35mcd {outputdir}\n\033[0;m".format(outputdir=outputdir))
 
-    os.system('cd {outputdir}'.format(outputdir=settings['outputdir']))
-    command = "./SubmitGOF.sh {algo} {year} {region} {channel} {coupling} {Higgs} {mass}".format(algo = settings['GoF_Algorithm'], year = settings['year'], channel = settings['channel'], coupling = settings['coupling_value'], mass = settings['mass'], region = settings['region'], Higgs = settings['higgs'])
+    os.chdir(outputdir)
+    os.system("rm {outputdir}/higgsCombine*.{COUPLING}.{YEAR}.{REGION}.{CHANNEL}.{MASS}.{ALGO}.GoodnessOfFit.mH${MASS}.*.root".format(outputdir = outputdir, COUPLING = settings['coupling_value'], YEAR = settings['year'], REGION = settings['region'], CHANNEL = settings['channel'], MASS = settings['mass'], ALGO = settings['GoF_Algorithm']))
+    os.system("cp {DATACARD_DIR}/{DATACARD_NAME} {DATACARD_NAME}".format(DATACARD_DIR = settings['datacard_dir'], DATACARD_NAME = settings['datacard_name']))
 
+    nJobs = 20
+    for t in range(1, nJobs +1):
+        command = "combineTool.py -m {MASS} -M GoodnessOfFit {datacards} --algo={ALGO}  -t 50 --job-mode condor --sub-opts='+JobFlavour=\"workday\"\nRequestCpus=2' --task-name {t}  --seed {seed} -n toys{t}.{COUPLING}.{YEAR}.{REGION}.{CHANNEL}.{MASS}.{ALGO}  --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} --toysFrequentist > SubmitGoF_${t}.log".format(MASS = settings['mass'], datacards = settings['datacard_name'], ALGO =  settings['GoF_Algorithm'], t = t, seed = 123456 * t, COUPLING = settings['coupling_value'], YEAR = settings['year'], REGION = settings['region'], CHANNEL = settings['channel'], cminDefaultMinimizerStrategy = settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance = settings['cminDefaultMinimizerTolerance'], rMin = settings['rMin'], rMax = settings['rMax'])
+        print(command)
+        os.system(command)
     if settings['unblind']:
-        command += ' unblind'
-    else:
-        if settings['expectSignal']:
-            command += ' sig_bkg'
-        else:
-            command += ' bkg'
-    command += ' {datacard_dir} {datacard_name}'.format(datacard_dir=settings['datacard_dir'], datacard_name=settings['datacard_name'])
+        command = "combineTool.py -m {MASS} -M GoodnessOfFit {datacards} --algo={ALGO} -n Data.{COUPLING}.{YEAR}.{REGION}.{CHANNEL}.{MASS}.{ALGO}  --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} ".format(MASS = settings['mass'], datacards = settings['datacard_name'], ALGO =  settings['GoF_Algorithm'], t = t, seed = 123456 * t, COUPLING = settings['coupling_value'], YEAR = settings['year'], REGION = settings['region'], CHANNEL = settings['channel'], cminDefaultMinimizerStrategy = settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance = settings['cminDefaultMinimizerTolerance'], rMin = settings['rMin'], rMax = settings['rMax'])
+        print(command)
+        os.system(command)
 
-    print(ts+command+ns)
-
+    condorDir = os.path.join(settings['condorDir'], "GoF")
+    CheckDir(condorDir)
+    command = "cp {origin}/*.s* {dest}/.".format(origin = outputdir, dest = condorDir)
     os.system(command)
-
+    for f in os.listdir(condorDir):
+      if 'sub' in f:
+        os.chdir("{dest}".format(dest = condorDir))
+        os.system("condor_submit {submit_file}".format(submit_file = f))
+        os.chdir("{dest}".format(dest = settings['WorkDir']))
 
 def GoFPlot(settings = dict()):
     ROOT.gStyle.SetOptTitle(0)
@@ -1178,8 +1196,8 @@ def GoFPlot(settings = dict()):
     ROOT.gROOT.SetBatch(1)
     algo = settings['GoF_Algorithm']
 
-    
-    os.chdir("results/{year}/{region}/{channel}".format(year = settings['year'], region = settings['region'], channel = settings['channel'])) #.format(outputdir=settings['outputdir']))
+    outputdir = os.path.join(settings['outputdir'], "GoF_results")
+    os.chdir(outputdir)
     print('Processing {algo} algorithm...'.format(algo = algo))
 
     analysis = "ExtraYukawa"
