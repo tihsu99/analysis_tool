@@ -13,6 +13,21 @@ from Util.Plot_Tool import Plot_1D_Limit_For, Plot_2D_Limit_For
 
 import pandas as pd
 
+def get_line_style_from_value(x, y):
+    """
+    Given a value x and y return a line style based on the default line styles.
+    """
+    if x==0.6 and y==0.1:
+        return 1
+    elif x==0.6 and y==1.0:
+        return 2
+    elif x==0.1 and y==0.4:
+        return 3
+    elif x==1.0 and y==0.4:
+        return 4
+    else:
+        return 1
+
 def get_color_from_value(x, min_val, max_val):
     """
     Given a value x, return a color based on the default heatmap gradient (kTemperature).

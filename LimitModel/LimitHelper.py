@@ -297,11 +297,6 @@ class RunLimits:
         leg.SetShadowColor(0);
         leg.SetTextFont(42);
         leg.SetTextSize(0.03);
-        leg.AddEntry(exp, "Median Expected ", "LP");
-        leg.AddEntry(exp1s, "68% Expected", "LF");
-        leg.AddEntry(exp2s, "95% Expected", "LF");
-        if self.__unblind:
-            leg.AddEntry(obs, "Observed", "LP");
 
         leg.Draw("same")
         c.Update()
@@ -322,16 +317,24 @@ class RunLimits:
             rt.TColor.GetColor(255, 0, 0),    # Gold
             rt.TColor.GetColor(235, 162, 52),     # Indigo
           ]
+          style_idx = 1
           for stuff_ in signal_xsec_TGraph:
+
             if stuff_ == 'color': continue
             signal_xsec_TGraph[stuff_].SetLineColor(signal_xsec_TGraph['color'][stuff_])
-            signal_xsec_TGraph[stuff_].SetLineStyle(1)
+            signal_xsec_TGraph[stuff_].SetLineStyle(style_idx)
             signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
             signal_xsec_TGraph[stuff_].SetLineWidth(3)
             signal_xsec_TGraph[stuff_].Draw('3 L same')
             leg.AddEntry(signal_xsec_TGraph[stuff_], "{}".format(stuff_), "L")
             color_idx += 1
+            style_idx += 1
 
+        leg.AddEntry(exp, "Median expected ", "LP");
+        leg.AddEntry(exp1s, "68% expected", "LF");
+        leg.AddEntry(exp2s, "95% expected", "LF");
+        if self.__unblind:
+            leg.AddEntry(obs, "Observed", "LP");
         latex =  rt.TLatex();
         latex.SetNDC();
         latex.SetTextFont(42);
@@ -347,8 +350,8 @@ class RunLimits:
         CMS_lumi.relPosX    = 0.15
         CMS_lumi.relPosY    = 0.05
         CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-        iPos = 11
-        if( iPos==0 ): CMS_lumi.relPosX = 0.5
+        iPos = 0
+        # if( iPos==0 ): CMS_lumi.relPosX = 0.5
         iPeriod=self.year_
 
         param_string = ''
@@ -358,7 +361,7 @@ class RunLimits:
           param_string += "{}={} ".format(param_, value)
         CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.1, 0.092)
 #        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format('g2HDM', self.region_, self.channel_));
-        latex.DrawLatex(0.20, 0.7, "g2HDM")
+        latex.DrawLatex(0.20, 0.8, "g2HDM")
         if signal_xsec_TGraph is None:
           latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
 
