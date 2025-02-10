@@ -329,7 +329,7 @@ class RunLimits:
             signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
             signal_xsec_TGraph[stuff_].SetLineWidth(3)
             signal_xsec_TGraph[stuff_].Draw('3 L same')
-            leg.AddEntry(signal_xsec_TGraph[stuff_], "g2HDM ({})".format(stuff_), "L")
+            leg.AddEntry(signal_xsec_TGraph[stuff_], "{}".format(stuff_), "L")
             color_idx += 1
 
         latex =  rt.TLatex();
@@ -358,7 +358,7 @@ class RunLimits:
           param_string += "{}={} ".format(param_, value)
         CMS_lumi.CMS_lumi(c, iPeriod, iPos, 0.1, 0.092)
 #        latex.DrawLatex(0.20, 0.76, '{} {} {}'.format('g2HDM', self.region_, self.channel_));
-#        latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
+        latex.DrawLatex(0.20, 0.7, "g2HDM")
         if signal_xsec_TGraph is None:
           latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
 
