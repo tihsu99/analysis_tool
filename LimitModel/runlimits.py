@@ -19,16 +19,16 @@ def get_color_from_value(x, min_val, max_val):
     """
     # Normalize x to the range [0, 1]
     normalized_x = (x - min_val) / (max_val - min_val)
-    
+
     # Clamp the value between 0 and 1
     normalized_x = max(0.0, min(1.0, normalized_x))
-    
+
     # Set the default color palette (kTemperature)
     rt.gStyle.SetPalette(rt.kLightTemperature)  # Choose a predefined palette like kTemperature
-    
+
     # Retrieve the color at the normalized position
     color = rt.gStyle.GetColorPalette(int(normalized_x * 255))  # Scale to [0, 255] range for the palette
-    
+
     return color
 
 
@@ -143,7 +143,53 @@ if args.plot_only:
   if args.signal_xsec:
     signal_xsec_TGraph = dict()
     signal_xsec_TGraph['color'] = dict()
-    if args.coupling_varied == "rtt":
+    if args.coupling_varied == "best_rtt_rtc":
+        print ("here 1")
+        # Vary rtc
+        for rtc_ in [0.1, 1.0]:
+            signal_xsec = array('d')
+            signal_xsec_up = array('d')
+            signal_xsec_do = array('d')
+            mass_bin    = array('d')
+            errx = array('d')
+            for imass in mass_points:
+                try:
+                    xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(imass)) & (abs(df_sig_xsec['rtt'] - args.rtt) < 1e-5) & (abs(df_sig_xsec['rtc'] - rtc_) < 1e-5)]['xsec'].iloc[0]
+                    xsec_err = df_sig_xsec_err[(df_sig_xsec_err['Mass'] == int(imass)) & (abs(df_sig_xsec_err['rtt'] - args.rtt) < 1e-5) & ((df_sig_xsec_err['rtc'] - rtc_) < 1e-5)]['total_unc'].iloc[0]
+
+                    signal_xsec.append(xsec)
+                    signal_xsec_up.append(xsec*xsec_err/100.)
+                    signal_xsec_do.append(xsec*xsec_err/100.)
+                    mass_bin.append(float(imass))
+                    errx.append(0.0)
+                except Exception as e:
+                    print(e)
+                    print(imass, args.rtt, rtc_, 'no points')
+            signal_xsec_TGraph["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
+            signal_xsec_TGraph['color']["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = get_color_from_value(rtc_, 0.0, 1.1)
+        # Vary rtt
+        for rtt_ in [0.1, 1.0]:
+            signal_xsec = array('d')
+            signal_xsec_up = array('d')
+            signal_xsec_do = array('d')
+            mass_bin    = array('d')
+            errx = array('d')
+            for imass in mass_points:
+                try:
+                    xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(imass)) & (abs(df_sig_xsec['rtt'] -rtt_) < 1e-5) & (abs(df_sig_xsec['rtc'] - args.rtc) < 1e-5)]['xsec'].iloc[0]
+                    xsec_err = df_sig_xsec_err[(df_sig_xsec_err['Mass'] == int(imass)) & (abs(df_sig_xsec_err['rtt'] - rtt_) < 1e-5) & ((df_sig_xsec_err['rtc'] - args.rtc) < 1e-5)]['total_unc'].iloc[0]
+
+                    signal_xsec.append(xsec)
+                    signal_xsec_up.append(xsec*xsec_err/100.)
+                    signal_xsec_do.append(xsec*xsec_err/100.)
+                    mass_bin.append(float(imass))
+                    errx.append(0.0)
+                except:
+                    print(imass, rtt_, args.rtc, 'no points')
+            signal_xsec_TGraph["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(rtt_, args.rtc)] = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
+            signal_xsec_TGraph['color']["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(rtt_, args.rtc)] = get_color_from_value(rtt_+0.3, 0.0, 1.1) #gkole(fixme color in better way)
+
+    elif args.coupling_varied == "rtt":
         for rtt_ in [0.1, 0.4, 0.6, 1.0]:
             signal_xsec = array('d')
             signal_xsec_up = array('d')
@@ -192,7 +238,7 @@ if args.plot_only:
           mH = str(imass)
           RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file, df_sig_xsec = df_sig_xsec)
 
- 
+
 
   elif args.Scan2D:
     limitlog = RL.limitlog
@@ -215,7 +261,7 @@ if args.plot_only:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
     #RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
-    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied)
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied) #gkole-9Feb2025
 else:
     counter=0
     template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=year, signal=signal_name_template, region=region, channel=channel)

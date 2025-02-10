@@ -1,12 +1,12 @@
-import os 
-import  sys 
+import os
+import  sys
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 from array import  array
 from ROOT import TGraph, TFile, TGraphAsymmErrors
 import ROOT as rt
 import argparse
-import csv 
+import csv
 import pandas as pd
 from Util.General_Tool import CheckDir,CheckFile
 from collections import OrderedDict
@@ -20,22 +20,22 @@ from scipy.optimize import root
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
-    
-    ''' instantiation of the class is done here ''' 
+
+    ''' instantiation of the class is done here '''
     def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict(), outputdir = "./"):
         self.year_                 = year
-        self.analysis_             = analysis 
+        self.analysis_             = analysis
         self.region_               = region
         self.channel_              = channel
         self.postfix_              = postfix
         self.model_                = model
-        self.rMax_                 = rMax        
+        self.rMax_                 = rMax
         self.signal_param_         = signal_param
         self.outputdir_            = outputdir
         self.limit_dir             = os.path.join(self.outputdir_, "bin", self.year_, self.region_, self.channel_)
         if CheckDir(self.limit_dir,MakeDir=True):pass
         else:pass
-        
+
         param_string = []
         for key in self.signal_param_:
           param_string.append(str(key) + str(self.signal_param_[key]))
@@ -49,24 +49,24 @@ class RunLimits:
         self.__verbose = verbose
         #self.runmode = runmode
         print("class instantiation done")
-        
-        
+
+
     ''' convert a text file with just one columns into a list '''
     def TextFileToList(self, textfile):
         return [iline.rstrip() for iline in open (textfile)]
-        
+
     def PrintSpacing(self, nLine=1):
         for iline in range(nLine):
             print("***************************************************************************************************************************************")
-            
+
     def TimeFormat(self):
         from datetime import datetime
         now = datetime.now()
-        date_str = ((str(now)).replace("-","_")).split(":")  
+        date_str = ((str(now)).replace("-","_")).split(":")
         date_format = (date_str[0]).replace(" ","_") + "_" + str(date_str[1])
         return date_format
-    
-    
+
+
     def setupDirs(self, txtfile):
         for idir in open(txtfile):
             os.system('mkdir -p '+idir.rstrip())
@@ -76,23 +76,23 @@ class RunLimits:
     def datacard_to_mparameters(self, name_):
         analysis_ = self.analysis_
         print ("LimitHelper.py::datacard_to_mparameters: ",analysis_, self.model_, name_)
-        
-        if ("Yukawa" in self.model_) and (analysis_ == "ttc"):  
+
+        if ("Yukawa" in self.model_) and (analysis_ == "ttc"):
             mparameters = name_.split()
-        
+
         if ("2hdma" in self.model_) and (analysis_ == self.analysis_):
             mparameters_ = ((name_.split("Merged_")[1]).replace(".log","")).split("_")
             mparameters_ = [mp.replace("p",".") for mp in mparameters_]
             ## ma, mA, tb, st, mdm
             return ([mparameters_[9], mparameters_[7], mparameters_[3], mparameters_[1], mparameters_[5]])
-            
+
         if ("dmsimp" in self.model_) and (analysis_ == self.analysis_):
             ## this needs to be changed
             mparameters_ = ((name_.split("Merged_")[1]).replace(".log","")).split("_")
             #mparameters_ = [mp.replace("p",".") for mp in mparameters_]
             ## mPhi, mChi
             return ([mparameters_[1], mparameters_[3] ])
-            
+
 
     def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None, logname = None, extraCommand=''):
         asimovstr =""
@@ -103,9 +103,9 @@ class RunLimits:
           logname = logname.replace(dc_dir, log_dir)
         CheckDir('/'.join(logname.split('/')[:-1]), True)
         print ("logname: ",logname)
-        
+
         if self.__unblind:
-            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' ' + extraCommand + ' ' 
+            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' ' + extraCommand + ' '
         else:
             command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + ' ' + extraCommand + ' ' #TODO check -t -1 is correct
         if asimov:
@@ -120,13 +120,13 @@ class RunLimits:
         # delete the output combine root file (not to make dirty your home area!)
         os.system("rm "+output_rootfile)
         return logname
-        
+
     ## category can be merged/resolved/combined
     def LogToLimitList(self, logfile, allparameters, mode="a", postfix = '', POI = 'r'):
-        expected25_="" 
-        expected16_="" 
-        expected50_="" 
-        expected84_="" 
+        expected25_=""
+        expected16_=""
+        expected50_=""
+        expected84_=""
         expected975_=""
         observed_=""
         for ilongline in open(logfile):
@@ -142,28 +142,28 @@ class RunLimits:
                 expected84_ = ilongline.replace("Expected 84.0%: {} < ".format(POI),"").rstrip()
             if "Expected 97.5%: {} < ".format(POI) in ilongline:
                 expected975_ = ilongline.replace("Expected 97.5%: {} < ".format(POI),"").rstrip()
-        
+
         print("allparameters:", allparameters)
         towrite =  str(allparameters[2])+" "+str(allparameters[1])+" "+expected25_+" "+expected16_+" "+ expected50_+" "+ expected84_+" "+ expected975_+" "+ observed_+"\n"
-        
+
         print(towrite)
         #os.system ("mkdir -p bin/"+self.postfix_)
         #os.system ("mkdir -p plots_limit/"+self.postfix_)
         limitlog_tmp_node = self.limitlog.replace('.txt','{}.txt'.format(postfix + "_{}"))
-        outfile=limitlog_tmp_node.format(allparameters[0]+allparameters[1]) 
+        outfile=limitlog_tmp_node.format(allparameters[0]+allparameters[1])
 
 
-        
+
         fout = open(outfile,mode)
         fout.write(towrite)
         fout.close()
         return outfile
-    
+
 
 
     def TextFileToRootGraphs(self,med_idx=0,Masses=[],Higgs="MA"):
         #limit_root_file = filename.replace(".txt",".root")
-        
+
         med=array('f')
         #mchi=array('c')
         expm2=array('f')
@@ -176,19 +176,19 @@ class RunLimits:
 
         counter = 0
         Merged_txt_file = open(self.limitlog,'w')
-         
-        
+
+
         for imass in Masses:
             input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
             if CheckFile(input_file):pass
             else:
                 raise ValueError('Make sure you have this file: {}'.format(input_file))
-            
+
             f = open(input_file,"r")
             for line in f:
                 if len(line.rsplit())<7: continue
                 med.append(float(line.rstrip().split()[1]))
-                #mchi.append(chr(line.rstrip().split()[0]))                
+                #mchi.append(chr(line.rstrip().split()[0]))
                 expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
                 expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
                 expmed.append(float(line.rstrip().split()[4]))
@@ -214,10 +214,10 @@ class RunLimits:
         g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
         g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
         g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
-        
+
         if self.__unblind:
             g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
-    
+
         f1 = TFile(self.limit_root_file,'RECREATE')
         g_exp2.Write()
         g_exp1.Write()
@@ -231,10 +231,10 @@ class RunLimits:
     def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None):
         rootfile = self.limit_root_file
         setlogX=0
-        y_max=y_max # scale of y axis 
-        y_min=y_min # scale of y axis 
-        
-        
+        y_max=y_max # scale of y axis
+        y_min=y_min # scale of y axis
+
+
         rt.gStyle.SetOptTitle(0)
         rt.gStyle.SetOptStat(0)
         rt.gROOT.SetBatch(1)
@@ -274,7 +274,7 @@ class RunLimits:
         exp1s.SetFillColor(rt.kGreen + 2);
         exp1s.SetLineColor(rt.kGreen + 2)
         exp1s.Draw("3 same")
-    
+
         exp =  f.Get("expmed")
         exp.SetMarkerStyle(1)
         exp.SetMarkerSize(1.1)
@@ -290,19 +290,19 @@ class RunLimits:
             obs.SetLineColor(1)
             obs.SetLineWidth(3)
             obs.Draw("LP same")
-    
+
         leg = rt.TLegend(.52, .55, .80, .890);
         leg.SetBorderSize(0);
         leg.SetFillColor(0);
         leg.SetShadowColor(0);
         leg.SetTextFont(42);
         leg.SetTextSize(0.03);
-        leg.AddEntry(exp, " CL_{S}  Expected ", "LP");
-        leg.AddEntry(exp1s, "CL_{S}  Expected #pm 1#sigma", "LF");
-        leg.AddEntry(exp2s, " CL_{S}  Expected #pm 2#sigma", "LF");
+        leg.AddEntry(exp, "Median Expected ", "LP");
+        leg.AddEntry(exp1s, "68% Expected", "LF");
+        leg.AddEntry(exp2s, "95% Expected", "LF");
         if self.__unblind:
             leg.AddEntry(obs, "Observed", "LP");
-    
+
         leg.Draw("same")
         c.Update()
         #print (c.GetUxmin(),c.GetUxmax())
@@ -339,7 +339,7 @@ class RunLimits:
         latex.SetTextAlign(31);
         latex.SetTextAlign(12);
         model_ = '2HDM+a'
-        
+
         import CMS_lumi
         CMS_lumi.writeExtraText = 1
         CMS_lumi.extraText = "Preliminary"
@@ -361,47 +361,47 @@ class RunLimits:
 #        latex.DrawLatex(0.20, 0.7, "Extra Yukawa");
         if signal_xsec_TGraph is None:
           latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
-        
-                
+
+
         OUT_DIR = os.path.join(outputdir,"plots_limit", self.year_)
-        
+
         #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
 
         #self.limit_pdf_file  = rootfile.replace(".root","_"+self.model_+".pdf").replace("bin","plot_limit")
         #c.SetLogx(1)
         c.Update()
         #c.SaveAs(name+".png")
-        
+
         CheckDir(OUT_DIR,True)
         self.limit_pdf_file  = os.path.join(OUT_DIR,self.limit_pdf_file)
-        
+
         if signal_xsec_TGraph is not None and coupling_varied is not None:
           self.limit_pdf_file = self.limit_pdf_file.replace(".pdf", "_{}_varied.pdf".format(coupling_varied))
 
         CheckFile(self.limit_pdf_file,True)
-        
+
         c.SaveAs(self.limit_pdf_file)
         self.limit_png_file = self.limit_pdf_file.replace(".pdf",".png")
 
         CheckFile(self.limit_png_file,True)
         c.SaveAs(self.limit_png_file)
-       
+
         c.SaveAs(self.limit_png_file.replace(".png", ".C"))
         c.Close()
-        
+
         return "pdf file is saved"
-        
+
 
 
     def getlimitScaled_1D(self, coupling_value=0.1, divisionfactor=10000000000):
         limit_file_in  = self.limitlog
         limit_file_out = self.limitlog_scaled
-        
+
         df = pd.read_fwf("ttc_cross_sections.txt")
-        
+
         print('xs_before\n{}'.format(df))
-        
-        if self.Coupling == 'rtc': 
+
+        if self.Coupling == 'rtc':
             xs = df[(df.rhotu==0) & (df.rhott==0) & (df.PID=="a0")]
         elif self.Coupling =='rtu':
             xs = df[(df.rhotc==0) & (df.rhott==0) & (df.PID=="a0")]
@@ -428,7 +428,7 @@ class RunLimits:
         else:raise ValueError("We haven't set this coupling :{}".format(self.Coupling))
         limits = pd.read_csv(limit_file_in, delimiter=" ", names=[index_name,"Mass","expm2", "expm1", "exp", "expp1", "expp2", "obs"])
         #limits[self.Coupling] = 0.4 ## this is dummy value
-        print(limits) 
+        print(limits)
         #print(limits['rhotc'])
         if self.Coupling =='rtc':
             xs_skim_ = xs[xs.rhotc==coupling_value]
@@ -446,30 +446,30 @@ class RunLimits:
         print('limits\n{}'.format(limits))
         limits_merged = limits.merge(xs_Mass_, left_index=True, right_index=True, how='outer')
         print('limits_merged\n{}'.format(limits_merged))
-            
+
         limits_merged.drop(axis=1,
                            labels=[Drop_index[0],Drop_index[1],"cross_section"],
                            inplace=True)
-        
+
         limits_scaled = limits_merged
         print(limits_scaled)
-        
+
         limits_scaled.reset_index(inplace=True)
         print(limits_scaled)
 
         limits_scaled.dropna(axis=0,
                              inplace=True)
         print(limits_scaled)
-        
+
         p0 = limits_scaled.to_string(justify='right',
                                      index=False,
                                      header=False)
-        
-        
+
+
         fout = open(limit_file_out,"w")
         fout.write(p0)
         fout.close()
-        
+
         print (limits_scaled)
         return limits_scaled
 
@@ -478,10 +478,10 @@ class RunLimits:
 
     def RunImpacts(self, datacard, logfilename, runmode="data"):
         workspace=datacard.replace(".txt",".root")
-        
-        
+
+
         if runmode=="data":
-            ''' First we perform an initial fit for the signal strength and its uncertainty''' 
+            ''' First we perform an initial fit for the signal strength and its uncertainty'''
             os.system("combineTool.py -M Impacts -d "+workspace+" -m 200 --rMin -1 --rMax 2 --robustFit 1 --doInitialFit  -t -1 ")
             '''Then we run the impacts for all the nuisance parameters'''
             os.system("combineTool.py -M Impacts -d "+workspace+" -m 200 --rMin -1 --rMax 2 --robustFit 1 --doFits  -t -1 ")
@@ -489,46 +489,46 @@ class RunLimits:
             os.system("combineTool.py -M Impacts -d "+workspace+" -m 200 --rMin -1 --rMax 2 --robustFit 1 --output impacts.json")
             '''then make a plot showing the pulls and parameter impacts, sorted by the largest impact'''
             os.system("plotImpacts.py -i impacts.json -o impacts")
-            
-            
-        ## run impact  asimov 
+
+
+        ## run impact  asimov
         print("do nothing for now")
-        ## run impact  data 
-        
-        
+        ## run impact  data
+
+
     def SavePrePostComparison(self,run_mode, outdir, category, year):
         default_fit_root   = "fitDiagnostics.root"
         default_pull_root  = "pulls.root"
-        
+
         ''' prepare the names of root file '''
         fit_Diagnostics = default_fit_root.replace(".root", "_"+category+"_"+year+"_"+run_mode+".root")
         pull_root       = default_pull_root.replace(".root",  "_"+category+"_"+year+"_"+run_mode+".root")
-        
+
         print("run_mode, fit_Diagnostics, pull_root", run_mode, fit_Diagnostics, pull_root)
-        ''' move the rootfile to avoid ambiguity '''         
+        ''' move the rootfile to avoid ambiguity '''
 
         postfix_ = "_"+category+"_"+year+"_"
-        
-        
+
+
         if run_mode == "cronly":
             self.PrintSpacing()
             dir_ = outdir["pulls"]
             os.system("mv "+default_fit_root+" " + fit_Diagnostics)
             os.system('root -l -b -q plotPostNuisance_combine.C\(\\"'+fit_Diagnostics+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
-            
+
             print("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             os.system("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
-        
+
         if run_mode != "cronly":
             os.system("mv "+default_fit_root+" " + fit_Diagnostics)
-            ''' get the different of nuisances ''' 
+            ''' get the different of nuisances '''
             self.PrintSpacing()
             print("python diffNuisances.py "+fit_Diagnostics+" --abs --all -g "+pull_root)
             os.system("python diffNuisances.py "+fit_Diagnostics+" --abs --all -g "+pull_root)
             os.system("mv "+default_pull_root+" " + pull_root)
             self.PrintSpacing()
             dir_ = outdir["pulls"]
-            
+
             print('root -l -b -q PlotPulls.C\(\\"'+pull_root+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
             os.system('root -l -b -q PlotPulls.C\(\\"'+pull_root+'\\",\\"'+dir_+'\\",\\"'+postfix_+'\\"\)')
             dir_ = outdir["yr"]
@@ -537,25 +537,25 @@ class RunLimits:
             os.system("python yieldratio.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             dir_ = outdir["pfitOverlay"]
             self.PrintSpacing()
-            
+
             print("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
             os.system("python PlotPreFitPostFit.py "+fit_Diagnostics+" "+dir_+" "+postfix_)
-            
+
             dir_ = outdir["stack"]
             print("call the stack file")
             dir_ = outdir["tf"]
             print("call the TF file")
-            
 
-                        
 
-    
-            
+
+
+
+
 
     def RunPulls(self, datacard, run_mode, outdir, category, year):
-        ## setup the dir structure 
+        ## setup the dir structure
         #self.setupDirs("configs/pulls_dir.txt")
-        ## data fit 
+        ## data fit
         if run_mode == "data":
             self.PrintSpacing(2)
             print("performing the fit in run_mode ",run_mode)
@@ -563,18 +563,18 @@ class RunLimits:
             os.system("combine -M FitDiagnostics --saveShapes "+datacard+ " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic ")
             self.PrintSpacing(1)
             self.SavePrePostComparison("data",outdir,category, year)
-        
-            
 
-        ## asimov fit 
+
+
+        ## asimov fit
         if run_mode == "asimov":
             self.PrintSpacing(2)
             print("combine -M FitDiagnostics --saveShapes "+datacard + " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic  --rMin -100 -t -1 --expectSignal 0")
             os.system("combine -M FitDiagnostics --saveShapes "+datacard + " --saveWithUncertainties --saveNormalizations --X-rtd MINIMIZER_analytic  --rMin -100 -t -1 --expectSignal 0")
             self.PrintSpacing(1)
             self.SavePrePostComparison("asimov",outdir,category,year)
-        
-        ## CR only fit 
+
+        ## CR only fit
         if run_mode == "cronly":
             print("text2workspace.py "+datacard+" --channel-masks")
             os.system("text2workspace.py "+datacard+" --channel-masks")
@@ -582,10 +582,10 @@ class RunLimits:
 
             print("combine -M FitDiagnostics  "+wsname+" --saveShapes --saveWithUncertainties --setParameters mask_SR=1,mask_cat_1b_SR=1,mask_cat_2b_SR=1 --X-rtd MINIMIZER_analytic --cminFallbackAlgo Minuit2,0:1.0")
             os.system("combine -M FitDiagnostics  "+wsname+" --saveShapes --saveWithUncertainties --setParameters mask_SR=1,mask_cat_1b_SR=1,mask_cat_2b_SR=1 --X-rtd MINIMIZER_analytic --cminFallbackAlgo Minuit2,0:1.0")
-            
-            
+
+
             self.SavePrePostComparison("cronly",outdir, category,year)
-        
+
     def SetLimitLog(self, name):
       self.limitlog = name
       self.limit_root_file   = self.limitlog.replace(".txt",".root")
@@ -745,7 +745,7 @@ class RunLimits:
                   yc = h2D.GetYaxis().GetBinCenter(jbin)
                   h2D.Fill(xc, yc, 999)
         h2D.SetContour(999)
-        
+
         c68, c95 = h2D.Clone(), h2D.Clone()
         c68.SetContour(2)
         c68.SetContourLevel(1, 2.3)
@@ -760,7 +760,7 @@ class RunLimits:
         c95.SetLineColor(rt.kRed)
         c68.SetDirectory(0)
         c95.SetDirectory(0)
-        fin.Close()       
+        fin.Close()
 
         return h2D, c68, c95
 
@@ -776,8 +776,8 @@ class RunLimits:
       yi = gr.GetY();
       n  = gr.GetN();
       for i in range(n):
-        xi[i] -= x0 
-        yi[i] -= y0 
+        xi[i] -= x0
+        yi[i] -= y0
 
       gr.Sort(rt.TGraph.CompareArg)
       for i in range(n):
@@ -863,7 +863,7 @@ class RunLimits:
         h.GetZaxis().SetTitle("2 #Delta NLL")
         h.GetZaxis().SetMaxDigits(2)
         best_fit = self.bestFit(MultiFit_root_file, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
-        
+
         #CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
         #CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
         #CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
@@ -894,7 +894,7 @@ class RunLimits:
 
 
         # CMS style
-  
+
         import CMS_lumi
 
         CMS_lumi.writeExtraText = 1
@@ -909,4 +909,3 @@ class RunLimits:
         c.SaveAs(os.path.join(plotdir, '{tag}.png'.format(tag=tag)))
         c.SaveAs(os.path.join(plotdir, '{tag}.pdf'.format(tag=tag)))
         c.SaveAs(os.path.join(plotdir, '{tag}.C'.format(tag=tag)))
-
