@@ -161,7 +161,7 @@ if args.plot_only:
     if args.coupling_varied == "best_rtt_rtc":
         print ("here 1")
         # Vary rtc
-        for rtc_ in [0.1, 1.0]:
+        for rtc_ in [0.4, 1.0]:
             signal_xsec = array('d')
             signal_xsec_up = array('d')
             signal_xsec_do = array('d')
@@ -183,7 +183,7 @@ if args.plot_only:
             signal_xsec_TGraph["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = ROOT.TGraphAsymmErrors(len(mass_bin), mass_bin, signal_xsec, errx, errx, signal_xsec_up, signal_xsec_do)
             signal_xsec_TGraph['color']["#rho_{tt}=%.1f, #rho_{tc}=%.1f"%(args.rtt, rtc_)] = get_color_from_value(rtc_, 0.0, 1.1)
         # Vary rtt
-        for rtt_ in [0.1, 1.0]:
+        for rtt_ in [0.1]:
             signal_xsec = array('d')
             signal_xsec_up = array('d')
             signal_xsec_do = array('d')
