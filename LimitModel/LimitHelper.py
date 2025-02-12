@@ -317,13 +317,14 @@ class RunLimits:
             rt.TColor.GetColor(255, 0, 0),    # Gold
             rt.TColor.GetColor(235, 162, 52),     # Indigo
           ]
-          style_idx = 1
+          style_idx = 3
           for stuff_ in signal_xsec_TGraph:
 
             if stuff_ == 'color': continue
-            signal_xsec_TGraph[stuff_].SetLineColor(signal_xsec_TGraph['color'][stuff_])
+            signal_xsec_TGraph[stuff_].SetLineColor(2)
             signal_xsec_TGraph[stuff_].SetLineStyle(style_idx)
-            signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
+            signal_xsec_TGraph[stuff_].SetFillColorAlpha(2, 0.2)
+            # signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
             signal_xsec_TGraph[stuff_].SetLineWidth(3)
             signal_xsec_TGraph[stuff_].Draw('3 L same')
             leg.AddEntry(signal_xsec_TGraph[stuff_], "{}".format(stuff_), "L")
