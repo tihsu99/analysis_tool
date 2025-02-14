@@ -11,6 +11,7 @@ sys.path.insert(1, '../../python')
 from common import *
 from aux import colors
 from termcolor import cprint
+import pandas as pd
 
 def prepare_range(path, fin, step, half, isdata):
 
@@ -48,7 +49,7 @@ def check_file(fname, key_name=None):
           key_list.append(e.GetName())
         for key_ in key_name:
           if '_TT1L_' in key_ or '_Signal_' in key_: continue #TODO: Now hardcoded, need to be corrected to process dependent
-          if key_ not in key_list:
+          if key_ not in key_list and "DNN" not in key_:
             cprint(fname + " lost key: " + key_,"red")
             GreenLight = False
 
@@ -394,28 +395,58 @@ if __name__ == "__main__":
            ###########################
            ## MC Lumi x xSec / nDAS ##
            ###########################
-           if 'Signal' in sample_Label: sample_name = iin.replace('.root', '')
-           elif 'Data' in sample_Label: sample_name = iin.split('_')[0]
-           else: sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', iin).replace('.root','')
+
+           norm_dict  = dict()
+
+           if 'Signal' in sample_Label: 
+               sample_name = iin.replace('.root', '')
+           elif 'Data' in sample_Label: 
+               sample_name = iin.split('_')[0]
+               norm_dict[sample_name] = 1.0
+           else: 
+               sample_name = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', iin).replace('.root','')
+
            if "MC" in sample_Label:  # MC normalize with lumi x cross section
-             # Find which samples this iin belongs to #TODO(well structure of File_List that contains sample info)
-             nDAS  = 0
+
+             sample_tag = samples[sample_name]["Label"]
+
+             nDAS = 0
              for file_ in File_List:
-               if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
-               else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
-               if (sample_name == sample_name_file):
-                 ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
-                 nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
-                 ftemp.Close()
-             norm_factor = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
+                 if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
+                 else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
+                 if (sample_name == sample_name_file):
+                     ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
+                     nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
+                     ftemp.Close()
+             norm_factors = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
+
+             norm_dict[sample_name] = norm_factors
+             if "LO" in samples[sample_name]:
+                 norm_dict[sample_name + "_LO"] = norm_factors
+
+             if "SubProcess" in samples[sample_name]:
+                  if "Randomized_Scan" in sample_tag:
+                     for subprocess in samples[sample_name]["SubProcess"]:
+                         df_nDAS = pd.read_csv(f"../../data/output_data_{Era}.txt", delim_whitespace=True)
+                         mass = subprocess.split('_')[2]
+                         rtt_str = subprocess.split('_')[3]
+                         rtc_str = subprocess.split('_')[4]
+                         nDAS = df_nDAS.loc[(df_nDAS["rhott"] == rtt_str) & (df_nDAS["rhotc"] == rtc_str) & (df_nDAS["Mass"] == int(mass)), "nDAS"].iloc[0]
+                         norm_dict[subprocess] = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
+                  else:
+                     for subprocess in samples[sample_name]["SubProcess"]:
+                         norm_dict[subprocess] = norm_factors
+
              if args.half in ['train', 'test']:
                num_bjet = '2b' if '2b' in region else '3b' # TODO: Hard coded
                ratio = samples[sample_name]['Train_ratio'][num_bjet]
                ratio = 0.0 if '1b' in region else ratio # TODO: Hard coded
-               if (args.half == 'train'): norm_factor = norm_factor * (1. / (ratio + 1e-10))
-               else: norm_factor = norm_factor * (1. / (1. - ratio + 1e-10))
-           else: # data doesn't need to be normalized by lumi x cross section
-             norm_factor = 1.0
+               if (args.half == 'train'): 
+                   for norm_key, norm_factor in norm_dict.items():
+                       norm_dict[norm_idx] = norm_factor * (1. / (ratio + 1e-10))
+               else:
+                   for norm_key, norm_factor in norm_dict.items():
+                       norm_dict[norm_key] = norm_factor * (1. / (1. - ratio + 1e-10))
 
            if "Region" in samples[sample_name] and region not in samples[sample_name]["Region"]:
              continue
@@ -431,6 +462,9 @@ if __name__ == "__main__":
 
            if "LO" in samples[sample_name]:
              process_list.append(sample_name + "_LO")
+
+
+           print(norm_dict)
 
            json_command = " --sample_json {} --cut_json {} --variable_json {} --histogram_json {} --nuisance_json {} --trigger_json {} --MET_filter_json {} --MVA_json {}".format(args.sample_json, args.cut_json, args.variable_json, args.histogram_json, args.nuisance_json, args.trigger_json, args.MET_filter_json, args.MVA_json)
            json_command += ' --pNN ' if args.pNN else ''
@@ -458,7 +492,7 @@ if __name__ == "__main__":
 
              if args.blocksize == -1:
                shell_file = "slim_%s_%s_%s_%s_%s.sh"%(iin, Era, region, channel,process_)
-               command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
+               command = 'python slim.py --era %s --iin %s --outdir %s --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, region, channel, Labels_text,Black_list_text, sample_label_text, POIs_text, norm_dict[process_], args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
                command += json_command
                prepare_shell(shell_file, command, condor[Era][region][channel][process_], farm_dir)
 
@@ -467,7 +501,7 @@ if __name__ == "__main__":
                for idx, num in enumerate(ranges[:-1]):
                  start = ranges[idx]
                  end   = ranges[idx+1]
-                 command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_factor, args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
+                 command = 'python slim.py --era %s --iin %s --outdir %s --start %d --end %d --index %d --region %s --channel %s --Labels %s %s --sample_labels %s --POIs %s --scale %f --Btag_WP %s --MVA_weight_dir %s --SubProcess %s %s'%(Era, iin, Outdir, start, end, idx, region, channel, Labels_text, Black_list_text, sample_label_text, POIs_text, norm_dict[process_], args.Btag_WP, args.MVA_weight_dir, process_, LO_command)
                  command += json_command
                  shell_file = "slim_%s_%s_%s_%s_%d_%s.sh"%(iin, Era, region, channel, idx, process_)
                  outputfile_name = '{}_{}.root'.format(idx, process_) if "SubProcess" in samples[sample_name] else '{}_{}'.format(idx, iin)

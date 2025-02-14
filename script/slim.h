@@ -44,6 +44,7 @@ TString puhist = "SpecialEra";
 TH2D*pujetid_sf               = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T");
 TH2D*pujetid_sf_Systuncty     = (TH2D*)f_pujetid->Get("h2_eff_sfUL"+puhist+"_T_Systuncty");
 
+
 // Btag Efficiency (Derived by ourgroup)
 TFile*f_btag_efficiency=TFile::Open("../../data/BTagEfficiency_"+era+".root");
 TH2D*btag_efficiency_loose_b = (TH2D*) (((TEfficiency*) f_btag_efficiency->Get("h2_LEff_b"))->CreateHistogram());
@@ -313,7 +314,7 @@ float top_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_statu
   return weight;
 }
 
-float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status, Vec_i& genPart_statusFlags){
+float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_status, Vec_i& genPart_statusFlags, int return_value = 0){
 
   int  daughter_id, daughter_status;
   bool isdaughter_lastcopy;
@@ -336,8 +337,8 @@ float wjets_ptweight(Vec_f& genPart_pt, Vec_i& genPart_pdgId, Vec_i& genPart_sta
         kfactor = Constant * TMath::Landau(wjet_pt, MPV, Sigma, false);
       }
   }
-
-  return kfactor;
+  if (return_value == 0)  return kfactor;
+  else return wjet_pt;
 }
 
 int match_reco_parton(int Reco_index, std::vector<int> Gen_Reco_match, std::vector<int> Part_Gen_match){
@@ -1002,15 +1003,15 @@ int ArgMax(vector<float> inV){
 
 float PDF_Uncertainty(ROOT::VecOps::RVec<Float_t> LHEPdfWeight){
 
-  float rms_hes = 0;
-  for(int i = 1; i < 101; i++){
-    if (!(abs(LHEPdfWeight[i]) < 2)) rms_hes += 1;
-    else rms_hes += pow((LHEPdfWeight[i] - LHEPdfWeight[0]) , 2);
-  }
+      float rms_hes = 0;
+      for(int i = 1; i < 101; i++){
+        if (!(abs(LHEPdfWeight[i]) < 2)) rms_hes += 1;
+        else rms_hes += pow((LHEPdfWeight[i] - LHEPdfWeight[0]) , 2);
+      }
 
-  float alpha_var = (LHEPdfWeight[102] - LHEPdfWeight[101])/2.;
-  if (abs(alpha_var) > 10) alpha_var = 0.05;
-  return sqrt(rms_hes + alpha_var*alpha_var);
+      float alpha_var = (LHEPdfWeight[102] - LHEPdfWeight[101])/2.;
+      if (abs(alpha_var) > 10) alpha_var = 0.05;
+      return sqrt(rms_hes + alpha_var*alpha_var);
 }
 
 int Assign_Train_Label(float prob_2b, float prob_3b, int num_b){

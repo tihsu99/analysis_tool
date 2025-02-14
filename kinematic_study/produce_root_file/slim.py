@@ -67,6 +67,7 @@ def Slim_module(filein,
   ROOT.gSystem.Load("libGenVector.so")
   header_path = os.path.join("script/slim_" + era + ".h")
   ROOT.gInterpreter.Declare('#include "{}"'.format(header_path))
+
   Mass_bin = [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
   #################
   ##  Load File  ##
@@ -84,6 +85,47 @@ def Slim_module(filein,
   # sample_category mainly used for nuisance def.
   sample_category = samples[sample_name]['Category']
   sample_category = 'Signal' if 'Signal' in sample_labels else sample_category
+  if 'Randomized_Scan' in samples[sample_name]['Label']:
+      command = f'''\
+         TFile*f_nanoGen=TFile::Open("../../data/NanoGen_2017.root");\n\
+         TH1D* h_pdfvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_pdfvarup");\n\
+         TH1D* h_pdfvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_pdfvardown");\n\
+         TH1D* h_ISRvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_ISRvarup");\n\
+         TH1D* h_ISRvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_ISRvardown");\n\
+         TH1D* h_FSRvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_FSRvarup");\n\
+         TH1D* h_FSRvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_FSRvardown");\n\
+         TH1D* h_murvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_murvarup");\n\
+         TH1D* h_murvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_murvardown");\n\
+         TH1D* h_mufvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_mufvarup");\n\
+         TH1D* h_mufvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_mufvardown");\n\
+         float right_edge = h_pdfvarup->GetXaxis()->GetXmax() - 1.0; \n\
+
+         float PDF_Uncertainty(float j1_pt){{ \n\
+             float pdfup = h_pdfvarup->GetBinContent(h_pdfvarup->FindBin(j1_pt)); \n\
+             float pdfdo = h_pdfvardo->GetBinContent(h_pdfvardo->FindBin(j1_pt)); \n\
+             return ((pdfup + pdfdo) / 2.); \n\
+         }} \n\
+         std::vector<float> PS_Weight_define(float j1_pt){{ \n\
+            if (j1_pt > right_edge) j1_pt = right_edge; \n\
+            float ISRup = h_ISRvarup->GetBinContent(h_ISRvarup->FindBin(j1_pt)); \n\
+            float FSRup = h_FSRvarup->GetBinContent(h_FSRvarup->FindBin(j1_pt)); \n\
+            float ISRdo = h_ISRvardo->GetBinContent(h_ISRvardo->FindBin(j1_pt)); \n\
+            float FSRdo = h_FSRvardo->GetBinContent(h_FSRvardo->FindBin(j1_pt)); \n\
+            std::vector<float> output = {{(float) (1.0 + ISRup), (float) (1.0 + FSRup), (float) (1.0 - ISRdo), (float) (1.0 - FSRdo)}}; \n\
+            return output; \n\
+         }} \n\
+         std::vector<float> LHEScaleWeight_define(float j1_pt){{ \n\
+            if (j1_pt > right_edge) j1_pt = right_edge; \n\
+            float mur_do = h_murvardo->GetBinContent(h_murvardo->FindBin(j1_pt)); \n\
+            float muf_do = h_mufvardo->GetBinContent(h_mufvardo->FindBin(j1_pt)); \n\
+            float mur_up = h_murvarup->GetBinContent(h_murvarup->FindBin(j1_pt)); \n\
+            float muf_up = h_mufvarup->GetBinContent(h_mufvarup->FindBin(j1_pt)); \n\
+            std::vector<float> output = {{0.0, (float) (1.0 - mur_do), 0.0, (float)(1.0 - muf_do), 0.0, (float) (1.0 + muf_up), 0.0, (float) (1.0 + mur_up)}}; \n\
+            return output; \n\
+        }} \n\
+      '''
+      print(command)
+      ROOT.gInterpreter.Declare(command)
 
   path    = str(inputFile_path[era])
   fin     = os.path.join(path, filein)
@@ -190,6 +232,7 @@ def Slim_module(filein,
     'Label': ['Normal']
   }
 
+
   print('nuisances_valid', nuisances_valid)
   for variable in variables:
 
@@ -211,6 +254,10 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
+      elif(variables[variable]["Def"] == "Randomized_Dep"):
+        print(variable)
+        type_ = "Randomized" if ('Randomized_Scan' in samples[sample_name]['Label']) else "Normal" 
+        df = df.Define(str(variable), str(variables[variable]["Category"][type_]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
@@ -340,8 +387,18 @@ def Slim_module(filein,
 
   # POIs setting
   if 'ASCUTJSON' in POIs:
-     POIs = cuts[region]['POI']
+     POIs_tmp = cuts[region]['POI']
+  else:
+     POIs_tmp = []
 
+
+  POI_list = POIs_tmp
+  for POI in POIs:
+     if POI == 'ASCUTJSON':
+         continue
+     else:
+         POI_list.append(POI)
+  POIs = POI_list
 
   ####################
   ##  MVA Variable  ##
@@ -461,6 +518,7 @@ def Slim_module(filein,
     else:
       POIs_after_consider_mass.append(POI_)
   POIs = POIs_after_consider_mass
+  print("POI", POIs)
 
   Histos_from_df = dict()
   Histos_from_df_var = dict()
