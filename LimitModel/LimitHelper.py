@@ -22,7 +22,7 @@ class RunLimits:
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
     
     ''' instantiation of the class is done here ''' 
-    def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict(), outputdir = "./"):
+    def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict(), outputdir = "./", all_signal = []):
         self.year_                 = year
         self.analysis_             = analysis 
         self.region_               = region
@@ -45,6 +45,17 @@ class RunLimits:
         self.limit_pdf_file    = "limits_" + self.analysis_ + "_"+ param_string + "_" + self.postfix_+"_"+self.model_ + "_" + self.region_ + "_" + self.channel_ + ".pdf"
         self.limit_root_file   = self.limitlog.replace(".txt",".root")
         self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
+
+        self.all_signal_limit_root_file = []
+        self.all_signal_limitlog_tmp_node = []
+        self.all_signal_limitlog = []
+        for signal_ in all_signal:
+            limitlog = os.path.join(self.limit_dir, "limits_" + self.analysis_ + "_" + signal_ + "_" + self.postfix_ + "_" + self.model_ + ".txt")           
+            self.all_signal_limitlog.append(limitlog)
+            self.all_signal_limit_root_file.append(limitlog.replace('.txt', '.root'))
+            self.all_signal_limitlog_tmp_node.append(limitlog.replace('.txt', '_{}.txt'))
+
+
         self.__unblind = unblind
         self.__verbose = verbose
         #self.runmode = runmode
@@ -163,69 +174,75 @@ class RunLimits:
 
     def TextFileToRootGraphs(self,med_idx=0,Masses=[],Higgs="MA"):
         #limit_root_file = filename.replace(".txt",".root")
-        
-        med=array('f')
-        #mchi=array('c')
-        expm2=array('f')
-        expm1=array('f')
-        expmed=array('f')
-        expp1=array('f')
-        expp2=array('f')
-        obs=array('f')
-        errx=array('f')
 
-        counter = 0
-        Merged_txt_file = open(self.limitlog,'w')
+
+        input_limitlog_tmp_list = [self.limitlog_tmp_node] if (len(self.all_signal_limitlog_tmp_node) == 0) else self.all_signal_limitlog_tmp_node
+        limit_log_list = [self.limitlog] if (len(self.all_signal_limitlog_tmp_node) == 0) else  self.all_signal_limitlog
+        limit_log_root_list = [self.limit_root_file] if (len(self.all_signal_limitlog_tmp_node) == 0) else self.all_signal_limit_root_file
+
+        for file_idx, limitlog_tmp_ in enumerate(input_limitlog_tmp_list):
+            med=array('f')
+            #mchi=array('c')
+            expm2=array('f')
+            expm1=array('f')
+            expmed=array('f')
+            expp1=array('f')
+            expp2=array('f')
+            obs=array('f')
+            errx=array('f')
+
+            counter = 0
+            Merged_txt_file = open(limit_log_list[file_idx],'w')
          
         
-        for imass in Masses:
-            input_file = self.limitlog_tmp_node.format(Higgs+str(imass))
-            if CheckFile(input_file):pass
-            else:
-                raise ValueError('Make sure you have this file: {}'.format(input_file))
+            for imass in Masses:
+                input_file = input_limitlog_tmp_list[file_idx].format(Higgs+str(imass))
+                if CheckFile(input_file):pass
+                else:
+                    raise ValueError('Make sure you have this file: {}'.format(input_file))
             
-            f = open(input_file,"r")
-            for line in f:
-                if len(line.rsplit())<7: continue
-                med.append(float(line.rstrip().split()[1]))
-                #mchi.append(chr(line.rstrip().split()[0]))                
-                expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
-                expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
-                expmed.append(float(line.rstrip().split()[4]))
-                expp1.append(float(line.rstrip().split()[5]) - float(line.rstrip().split()[4]) )
-                expp2.append(float(line.rstrip().split()[6]) - float(line.rstrip().split()[4]) )
+                f = open(input_file,"r")
+                for line in f:
+                    if len(line.rsplit())<7: continue
+                    med.append(float(line.rstrip().split()[1]))
+                    #mchi.append(chr(line.rstrip().split()[0]))                
+                    expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
+                    expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
+                    expmed.append(float(line.rstrip().split()[4]))
+                    expp1.append(float(line.rstrip().split()[5]) - float(line.rstrip().split()[4]) )
+                    expp2.append(float(line.rstrip().split()[6]) - float(line.rstrip().split()[4]) )
 
-                if self.__unblind:
-                    obs.append(float(line.rstrip().split()[7]))
-                errx.append(0.0)
-                print('imass: {}->{} GeV'.format(Higgs,imass))
-                print ('expm2: ', expm2[counter])
-                print ('expm1: ', expm1[counter])
-                print ('expmed: ', expmed[counter])
-                print ('expp1: ', expp1[counter])
-                print ('expp2: ', expp2[counter])
-                print('')
-                Merged_txt_file.write(line)
+                    if self.__unblind:
+                        obs.append(float(line.rstrip().split()[7]))
+                    errx.append(0.0)
+                    print('imass: {}->{} GeV'.format(Higgs,imass))
+                    print ('expm2: ', expm2[counter])
+                    print ('expm1: ', expm1[counter])
+                    print ('expmed: ', expmed[counter])
+                    print ('expp1: ', expp1[counter])
+                    print ('expp2: ', expp2[counter])
+                    print('')
+                    Merged_txt_file.write(line)
 
-                counter +=1
-        Merged_txt_file.close()
-        print('-----------------------------------------------------------------------------------------------------------')
-        print("Merged Information for Limit is written into {} .".format(self.limitlog))
-        g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
-        g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
-        g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
+                    counter +=1
+            Merged_txt_file.close()
+            print('-----------------------------------------------------------------------------------------------------------')
+            print("Merged Information for Limit is written into {} .".format(limit_log_list[file_idx]))
+            g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
+            g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
+            g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
         
-        if self.__unblind:
-            g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
+            if self.__unblind:
+                g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
     
-        f1 = TFile(self.limit_root_file,'RECREATE')
-        g_exp2.Write()
-        g_exp1.Write()
-        g_expmed.Write()
-        if self.__unblind:
-            g_obs.Write()
-        f1.Write()
-        f1.Close()
+            f1 = TFile(limit_log_root_list[file_idx],'RECREATE')
+            g_exp2.Write()
+            g_exp1.Write()
+            g_expmed.Write()
+            if self.__unblind:
+                g_obs.Write()
+            f1.Write()
+            f1.Close()
         return self.limit_root_file
 
     def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None):
@@ -305,6 +322,22 @@ class RunLimits:
     
         leg.Draw("same")
         c.Update()
+
+
+        for limit_root_file_ in self.all_signal_limit_root_file:
+            if (limit_root_file_ == rootfile): continue
+            print(limit_root_file_)
+            f_signal_limit = rt.TFile(limit_root_file_, "read")
+            exp = f_signal_limit.Get("expmed")
+            exp.SetMarkerStyle(5)
+            exp.SetMarkerSize(1.1)
+            exp.SetLineWidth(0)
+            exp.SetLineStyle(0)
+            exp.Draw("P same")
+            c.Update()
+            f_signal_limit.Close()
+
+
         #print (c.GetUxmin(),c.GetUxmax())
         if signal_xsec_TGraph is None:
           line = rt.TLine(c.GetUxmin(),1.0,c.GetUxmax(),1.0);

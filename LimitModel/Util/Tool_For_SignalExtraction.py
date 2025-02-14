@@ -525,7 +525,7 @@ def PlotShape(settings=dict()):
     if settings['combined']:
         Histogram_merged       = dict()
         for region_ in Histogram:
-            region_out = region_.replace("2016postapv", "run2").replace("2017", "run2").replace("2018", "run2").replace("2016apv", "run2").replace('era','')
+            region_out = region_.replace("2016postapv", "").replace("2017", "").replace("2018", "").replace("2016apv", "").replace('era','')
             region_out = region_out.replace("ele_resolved", "e+m").replace("mu_resolved", "e+m")
             if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
             for category in Histogram[region_]:
@@ -542,6 +542,7 @@ def PlotShape(settings=dict()):
 
     Histogram_concatenated = dict()
     region_binning         = dict()
+
     for category in Histogram_Names:
       if ('TotalSig' in category) or  ('TotalProcs' in category):continue
       if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
@@ -572,7 +573,7 @@ def PlotShape(settings=dict()):
             "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
             "year":settings['year'],
             "Title":Title,
-            "xaxisTitle":"Observable",
+            "xaxisTitle":"",
             "yaxisTitle":'Events/bin',
             "channel":settings['channel'],
             "coupling_value":settings['coupling_value'],
@@ -583,7 +584,8 @@ def PlotShape(settings=dict()):
             "expectSignal":settings['expectSignal'],
             "plotRatio":settings['plotRatio'],
             "paper":settings['paper'],
-            "Region_binning": region_binning
+            "Region_binning": region_binning,
+            "region_info": settings['region_info']
             }
     #if settings["unblind"] or settings["expectSignal"]:
     template_settings["Signal_Name"] = settings['signal_name']
@@ -616,7 +618,7 @@ def Plot_Histogram(template_settings=dict()):
     if template_settings["unblind"]:
         Color_Dict['Data'] = ROOT.kBlack
     #if template_settings["unblind"] or template_settings["expectSignal"]:
-    Color_Dict[template_settings["Signal_Name"]] = ROOT.kRed
+    Color_Dict[template_settings["Signal_Name"]] = ROOT.kBlack
     print(template_settings["Signal_Name"])
 
 
@@ -732,11 +734,11 @@ def Plot_Histogram(template_settings=dict()):
     h_stack.Draw()
     h_stack.GetYaxis().SetTitle("Events/bin")
     if template_settings['plotRatio']:
-      h_stack.GetYaxis().SetTitleSize(0.055) # THStack should first be drawn and then can do this step
-      h_stack.GetYaxis().SetLabelSize(0.055)
-      h_stack.GetYaxis().SetTitleOffset(0.9)
-      h_stack.GetXaxis().SetLabelOffset(3.0)
-      h_stack.GetXaxis().SetLabelSize(0.055)
+      h_stack.GetYaxis().SetTitleSize(0.035) # THStack should first be drawn and then can do this step
+      h_stack.GetYaxis().SetLabelSize(0.035)
+      h_stack.GetYaxis().SetTitleOffset(1.2)
+      h_stack.GetXaxis().SetLabelOffset(3.2)
+      h_stack.GetXaxis().SetLabelSize(0.04)
     else:
       h_stack.GetYaxis().SetTitleSize(0.03) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.03)
@@ -765,20 +767,21 @@ def Plot_Histogram(template_settings=dict()):
         x_line = template_settings['Region_binning'][region_][1]
         x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
         sep_line[region_] = ROOT.TLine(x_line, 0, x_line, hh_total.GetMaximum()* 1.2)
-        sep_line[region_].SetLineColor(ROOT.kRed)
+        sep_line[region_].SetLineColor(ROOT.kBlack)
         sep_line[region_].SetLineStyle(2)
         sep_line[region_].SetLineWidth(5)
         sep_line[region_].Draw()
         region_list = region_.split('_')
         for region_height, region_text in enumerate(region_list):
-          if Set_Logy: y_text_log = 10**((1.2 - 0.3 * region_height)) * hh_total.GetMaximum() / 10
+          if Set_Logy: y_text_log = 10**((2.4 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
           else: y_text_log = (1.2 - 0.05 * region_height) * hh_total.GetMaximum()
           label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
-          label_text[region_ + region_text].SetTextSize(0.02)
-          label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
-          label_text[region_ + region_text].SetTextFont(62)
+          label_text[region_ + region_text].SetTextSize(0.04)
+#          label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
+          label_text[region_ + region_text].SetTextFont(42)
           label_text[region_ + region_text].Draw("SAME")
+
 
     if type(h_sig )== ROOT.TH1F:
         h_sig.Scale(2.5)
@@ -812,12 +815,15 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.SetMinimum(0.7)
         h_ratio.GetYaxis().SetNdivisions(4)
         h_ratio.GetYaxis().SetTitleOffset(0.33)
-        h_ratio.GetYaxis().SetTitleSize(0.15)
-        h_ratio.GetYaxis().SetLabelSize(0.17)
+        h_ratio.GetYaxis().SetTitleSize(0.1)
+        h_ratio.GetYaxis().SetLabelSize(0.12)
         h_ratio.GetYaxis().SetTickLength(0.02)
-        h_ratio.GetXaxis().SetTitleSize(0.2)
-        h_ratio.GetXaxis().SetLabelSize(0.17)
+        h_ratio.GetXaxis().SetTitleSize(0.1)
+        h_ratio.GetXaxis().SetLabelSize(0.0) # Hide X label
         h_ratio.GetXaxis().SetTitleOffset(0.8)
+ 
+
+
         if template_settings['unblind']:
           h_ratio.SetMarkerSize(1)
           h_ratio.Draw("P")
@@ -827,10 +833,20 @@ def Plot_Histogram(template_settings=dict()):
         for region_ in template_settings['Region_binning']:
             x_line = template_settings['Region_binning'][region_][1]
             sep_line_ratio[region_] = ROOT.TLine(x_line, 0.7, x_line, 1.3)
-            sep_line_ratio[region_].SetLineColor(ROOT.kRed)
+            sep_line_ratio[region_].SetLineColor(ROOT.kBlack)
             sep_line_ratio[region_].SetLineStyle(2)
             sep_line_ratio[region_].SetLineWidth(5)
             sep_line_ratio[region_].Draw("SAME")
+
+            region_name = '_'.join(region_.split('_')[-2:])
+            x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
+            label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, 0.55, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
+            label_text[region_ + region_text + "axis"].SetTextAlign(22)  # Center align
+            label_text[region_ + region_text + "axis"].SetTextSize(0.12)
+            #label_text[region_ + region_text + "axis"].SetTextColor(ROOT.kBlue + 1)  # Blue color
+            label_text[region_ + region_text + "axis"].SetTextFont(42)
+            label_text[region_ + region_text + "axis"].Draw("SAME")
+
 
 
         x = []
@@ -886,7 +902,7 @@ def Plot_Histogram(template_settings=dict()):
       CMS_lumi.relPosY = 0.03
     else:
       CMS_lumi.extraText = "Preliminary"
-      CMS_lumi.relPosX = 0.22
+      CMS_lumi.relPosX = 0.12
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.15
@@ -1230,7 +1246,7 @@ def GoFPlot(settings = dict()):
 
 
     command = "combineTool.py -M CollectGoodnessOfFit --input {DataFiles} {OutputFile} -m {mass} -o gof.json \n".format(DataFiles = rootDataFiles if settings['unblind'] else OutputFile, OutputFile = OutputFile, mass = settings['mass'])
-    command += "{cmssw}/src/HiggsAnalysis/CombinedLimit/scripts/plotGof.py gof.json --statistic saturated --mass {mass:.1f} -o gof_plot \n".format(cmssw = cmsswBase, mass = int(settings['mass']), output = plotname)
+    command += "{cmssw}/src/HiggsAnalysis/CombinedLimit/scripts/plotGof.py gof.json --statistic saturated --mass {mass:.1f} -o gof_plot --range 0 500\n".format(cmssw = cmsswBase, mass = int(settings['mass']), output = plotname)
     command += "mv gof_plot.png {plotname}.png\n".format(plotname = plotname)
     command += "mv gof_plot.pdf {plotname}.pdf\n".format(plotname = plotname)
     settings['Log_Path'] = 'ttc_{algo}_{coupling_value}_{year}_{region}_{channel}_MA{mass}_doGoFPlot.log'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], mass = settings['mass'], coupling_value = settings['coupling_value'], algo = algo)

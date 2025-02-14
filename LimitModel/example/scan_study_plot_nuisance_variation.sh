@@ -26,19 +26,24 @@ BWhite='\033[1;37m'       # White
 
 command=${1}
 
-for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
+for era in 2016apv 2016postapv 2017 2018
 do
-  for channel in ele_resolved mu_resolved
+  for mass in 200 500 1000
   do
-    if [[ "$region" == "CR_1b4j" ]]; then
-      unblind_name="--unblind"
-    else
-      unblind_name=""
-    fi
-    command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name}" 
-    echo -e "${BCyan}[tmux: ${region}_${channel}]${NC} ${BYellow} ${command_} ${NC}"
-    tmux new-session -d -s $region\_$channel "${command_} ${MASS};"
+    for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
+    do
+      for channel in merged_resolved
+      do
+        if [[ "$region" == "CR_1b4j" ]]; then
+          unblind_name="--unblind"
+        else
+          unblind_name=""
+        fi
+        command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name} --mass_point ${mass} --era ${era}" 
+        echo -e "${BCyan}[tmux: ${region}_${channel}_${mass}_${era}]${NC} ${BYellow} ${command_} ${NC}"
+        tmux new-session -d -s $region\_$channel\_$mass\_$era "${command_} ${MASS};"
+      done
+    done
   done
 done
-
 

@@ -28,6 +28,8 @@ if __name__ == '__main__':
   parser.add_argument('--sig_norm', action = 'store_true')
   parser.add_argument('--test', action = 'store_true')
   parser.add_argument('--farm', default = 'Farm', type=str)
+  parser.add_argument('--merge', action = 'store_true')
+  parser.add_argument('--randomized_scan', action = 'store_true')
   args = parser.parse_args()
 
 
@@ -40,6 +42,7 @@ if __name__ == '__main__':
   unblind   = '--unblind' if args.unblind else ''
   POI       = args.POI
   sig_norm  = '--sig_norm' if args.sig_norm else ''
+  merge     = '--merge' if args.merge else ''
 
   farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
@@ -65,10 +68,15 @@ if __name__ == '__main__':
   signal_list = []
   if "all" in args.signal:
     for sample_ in samples:
-      if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
+       if "Signal" in samples[sample_]["Label"]:
+            if args.randomized_scan:
+                if "Randomized_Scan" in samples[sample_]["Label"]:
+                      signal_list.append(sample_)
+            else:
+                signal_list.append(sample_)
 
   for sig_ in signal_list:
-    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json)
+    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {merge}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, merge = merge)
     prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir, True)
 
   condor.close()

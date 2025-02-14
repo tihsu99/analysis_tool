@@ -30,7 +30,7 @@ workdir=$(pwd)
 
 for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-    command="python3 prepareCards.py --PhysicsModel ${model} --year 2016apv 2016postapv 2017 2018 --mass ${MASS} --dataset_dir ${refdir} --outdir ${refdir} --cut_json ${cutjson} --combined"
+    command="python3 prepareCards.py --PhysicsModel ${model} --year 2016apv 2016postapv 2017 2018 --mass ${MASS} --dataset_dir ${refdir} --outdir ${refdir} --cut_json ${cutjson} --combined --merge"
     echo -e "${BCyan}[tmux: $MASS\_datacard]${NC} ${BYellow} ${command} ${NC}"
     tmux new-session -d -s $MASS\_datacard "${command}"
 done

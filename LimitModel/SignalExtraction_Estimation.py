@@ -21,7 +21,7 @@ Step8
 '''
 import os 
 import sys
-from Util.General_Tool import CheckDir,CheckFile
+from Util.General_Tool import CheckDir,CheckFile, read_json
 import argparse
 import time
 from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot
@@ -67,6 +67,7 @@ parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit'
 parser.add_argument('--group', type = int, default = 0)
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
+parser.add_argument('--cut_json', help = 'json for regions definition', default = '../data/cut.json', type=str)
 parser.add_argument('--command', default = '', type = str)
 parser.add_argument('--combined', action='store_true')
 parser.add_argument('--channel_mask', default = None, type = str)
@@ -94,7 +95,7 @@ coupling_name = "rtt{}_rtc{}".format(signal_param["rtt"], signal_param["rtc"])
 x_variable = 'HT'
 #######################################
 
-args.command = args.command.replace(':', ' ')
+args.command = str(args.command.replace(':', ' ').replace('"', ''))
 
 settings ={
     'year':args.year,
@@ -123,7 +124,8 @@ settings ={
     'datacard_name': datacards.split('/')[-1],
     'command': args.command,
     'combined': args.combined,
-    'channel_mask': args.channel_mask
+    'channel_mask': args.channel_mask,
+    'region_info': read_json(args.cut_json)
 }
 
 if args.mode =='PlotShape':

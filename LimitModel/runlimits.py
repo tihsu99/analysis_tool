@@ -86,8 +86,8 @@ parser.add_argument("--plot_y_min",help='Plot Only',default=0.01,type=float)
 parser.add_argument("--datacard_dir", help='datacard directory', default='datacards_test', type=str)
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
-parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=0,type=int)
-parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=5.0, type=float)
+parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=2, type=int)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=0.5, type=float)
 parser.add_argument('--rAbsAcc', help='default = 0.001', default=0.001, type=float)
 parser.add_argument('--unblind', help='for limit unbliding', action="store_true")
 parser.add_argument('--verbose','-v', dest='verbose', help='for combine verbose', action="store_true")
@@ -102,6 +102,7 @@ parser.add_argument('--POI_name', type=str, default='r_3b')
 parser.add_argument('--model_name', type=str, default='g2HDM_3Bbased')
 parser.add_argument('--ratio_file', type=str, default=None)
 parser.add_argument('--coupling_varied', type=str, default='rtt')
+parser.add_argument('--all_signal', action = 'store_true')
 args = parser.parse_args()
 
 year     = args.year
@@ -122,13 +123,24 @@ signal_param["rtc"] = str(args.rtc).replace('.','p')
 signal_name_template = args.signal_template.replace('RTT', signal_param["rtt"].replace('p','')).replace('RTC', signal_param["rtc"].replace('p',''))
 analysis_name        = args.analysis_name
 Higgs_Mass_Name      = "MH"
-##############################
+######################
+## All Signal plot  ##
+######################
+
+all_signal = []
+if args.all_signal:
+  for rtt_ in ["0.1", "0.4", "0.6", "1.0"]:
+      for rtc_ in ["0.1", "0.4", "0.6", "1.0"]:
+          rtt_str = str(rtt_).replace(".","p")
+          rtc_str = str(rtc_).replace(".","p")
+          all_signal.append('_'.join(["rtt" + rtt_str, "rtc"+rtc_str]))
+
 
 print("datacards_{}_{}/log".format(year, analysis_name))
 CheckDir("datacards_{}_{}/log".format(year, analysis_name),True)
 start_time = time.time()
 
-RL  = RunLimits(year=year, analysis= analysis_name, region=region, channel=channel, postfix="asimov", unblind=args.unblind, verbose=args.verbose, rMax=args.rMax, signal_param=signal_param, outputdir = args.outputdir)
+RL  = RunLimits(year=year, analysis= analysis_name, region=region, channel=channel, postfix="asimov", unblind=args.unblind, verbose=args.verbose, rMax=args.rMax, signal_param=signal_param, outputdir = args.outputdir, all_signal = all_signal)
 
 if args.reset_outputfiles:
     CheckFile(RL.limitlog,True)
