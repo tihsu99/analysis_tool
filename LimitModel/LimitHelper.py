@@ -637,6 +637,13 @@ class RunLimits:
         else:
             raise ValueError('Make sure you have this file: {}'.format(input_file))
 
+        if CheckFile(dc): pass
+        else:
+           datacard_dir = '/'.join(dc.split('/')[:-1])
+           output_datacard_txt = dc.replace(".root", ".txt")
+           os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(datacard_dir, model_name, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+           print('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(datacard_dir, model_name, output_datacard_txt, output_datacard_txt.replace('txt','root')))
+
         f = open(input_file,"r")
         expmed = 1.0
         for line in f:
@@ -652,7 +659,7 @@ class RunLimits:
         if self.__verbose:
             command_ = command_ + '-v 3'
 
-        os.system(command_ + "--algo grid --points 800 -n {tag} --cminDefaultMinimizerStrategy 0 ".format(tag = tag + "_2DNLL" ))
+        os.system(command_ + "--algo grid --points 801 -n {tag} --cminDefaultMinimizerStrategy 0 --fastScan --alignEdges 1 ".format(tag = tag + "_2DNLL" ))
         output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DNLL.MultiDimFit.mH120.root"
         print(command_  + "--algo grid --points 2000 & ")
         CheckDir(out_dir,MakeDir=True)

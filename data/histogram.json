@@ -219,7 +219,7 @@
     "Title": ";mt^{reco} [GeV];nEntries",
     "xlow":100,
     "xhigh": 800,
-    "nbin": 35,
+    "nbin": 70,
     "Label": ["Reco", "Control_plot"]
   },
 

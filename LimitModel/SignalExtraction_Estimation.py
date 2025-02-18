@@ -71,6 +71,7 @@ parser.add_argument('--cut_json', help = 'json for regions definition', default 
 parser.add_argument('--command', default = '', type = str)
 parser.add_argument('--combined', action='store_true')
 parser.add_argument('--channel_mask', default = None, type = str)
+parser.add_argument('--pull', action='store_true')
 args = parser.parse_args()
 
 '''
@@ -125,7 +126,8 @@ settings ={
     'command': args.command,
     'combined': args.combined,
     'channel_mask': args.channel_mask,
-    'region_info': read_json(args.cut_json)
+    'region_info': read_json(args.cut_json),
+    'pull': args.pull
 }
 
 if args.mode =='PlotShape':

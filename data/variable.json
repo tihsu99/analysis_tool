@@ -10,10 +10,17 @@
   },
 
   "wjet_NLO_kfactor":{
-    "Def": "wjets_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags)",
+    "Def": "wjets_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags, 0)",
     "Label": ["Normal", "MC"],
     "Save":  ["Control_plot"]
   },
+
+  "wjet_gen_pt":{
+    "Def": "wjets_ptweight(GenPart_pt, GenPart_pdgId, GenPart_status, GenPart_statusFlags, 1)",
+    "Label": ["Normal", "MC"],
+    "Save":  ["Control_plot"]
+  },
+
 
   "MET_T1Smear_phi_RVec":{
 	  "Def": "ROOT::RVec{MET_T1Smear_phi}",
@@ -501,7 +508,7 @@
   "bh_HT":{
     "Def": "HT_(tightJets_id_in24, Jet_pt_nom)",
     "Label": ["Normal"],
-    "Save": ["BDT_training"]
+    "Save": ["BDT_training", "Control_plot"]
   },
 
   "DiObject_kine":{
@@ -518,9 +525,27 @@
   },
 
   "pdf_unc": {
-    "Def": "PDF_Uncertainty(LHEPdfWeight)",
+    "Def": "Randomized_Dep",
+    "Category": {"Randomized": "PDF_Uncertainty(iArray(Jet_pt_nom, tightJets_id_in24[0]))",
+                 "Normal":     "PDF_Uncertainty(LHEPdfWeight)"},
     "Label": ["Normal", "MC"],
       "Process_Forbid": ["WZ","WW"]
+  },
+
+  "PSWeight_v": {
+    "Def": "Randomized_Dep",
+    "Category": {"Randomized": "PS_Weight_define(iArray(Jet_pt_nom, tightJets_id_in24[0]))",
+                 "Normal":     "PSWeight"},
+    "Label": ["Normal", "MC"],
+    "Process_Forbid": ["WZ", "WW"]
+  },
+
+  "LHEScaleWeight_v":{
+    "Def": "Randomized_Dep",
+    "Category": {"Randomized": "LHEScaleWeight_define(iArray(Jet_pt_nom, tightJets_id_in24[0]))",
+                 "Normal":     "LHEScaleWeight"},
+    "Label": ["Normal", "MC"],
+    "Process_Forbid": ["WZ", "WW"]
   },
 
   "isTrain":{

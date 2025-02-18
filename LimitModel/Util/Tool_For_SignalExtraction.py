@@ -505,7 +505,7 @@ def PlotShape(settings=dict()):
             elif category == 'total_background':
                 category = 'TotalBkg'
 
-            region_name = first_level_name.replace('_prefit', '').replace('_postfit', '')
+            region_name = first_level_name.replace('_prefit', '').replace('_postfit', '').replace('era', '')
             if region_name not in Histogram:
                 Histogram[region_name] = dict()
             Integral[category] += h_postfix.Integral()
@@ -585,7 +585,10 @@ def PlotShape(settings=dict()):
             "plotRatio":settings['plotRatio'],
             "paper":settings['paper'],
             "Region_binning": region_binning,
-            "region_info": settings['region_info']
+            "region_info": settings['region_info'],
+            "combined": settings['combined'],
+            "pull": settings['pull'],
+            'shape_type': settings['shape_type'].lower()
             }
     #if settings["unblind"] or settings["expectSignal"]:
     template_settings["Signal_Name"] = settings['signal_name']
@@ -629,7 +632,11 @@ def Plot_Histogram(template_settings=dict()):
     ROOT.gROOT.SetBatch(1)
 
     if template_settings['plotRatio']:
-      canvas = ROOT.TCanvas("","",1500,1500)
+      if template_settings['combined']:
+        canvas = ROOT.TCanvas("","",1500,1500)
+      else:
+        canvas = ROOT.TCanvas("","",6500,1500)
+    
     else:
       canvas = ROOT.TCanvas("","",500,500)
 
@@ -641,7 +648,10 @@ def Plot_Histogram(template_settings=dict()):
       pad1.SetBottomMargin(0.02)
       pad1.SetLeftMargin(0.1)
       pad1.SetRightMargin(0.01)
-      pad2.SetTopMargin(0.005);
+      if template_settings['pull']:
+        pad2.SetTopMargin(0.008);
+      else:
+        pad2.SetTopMargin(0.005);
       pad2.SetLeftMargin(0.1)
       pad2.SetRightMargin(0.01)
       pad2.SetBottomMargin(0.40);
@@ -649,7 +659,7 @@ def Plot_Histogram(template_settings=dict()):
       pad2.SetBorderMode(1)
       pad1.SetTicks(1,1)
       pad2.SetTicks(1,1)
-      pad2.SetGrid(1,1)
+      pad2.SetGrid(5,5)
       pad1.Draw()
       pad2.Draw()
       pad1.cd()
@@ -683,6 +693,13 @@ def Plot_Histogram(template_settings=dict()):
       legend.SetTextSize(0.02);
     else:
       legend.SetTextSize(0.04);
+
+      legend2 = ROOT.TLegend(.90, .85, .95, .99);
+      legend2.SetBorderSize(0);
+      legend2.SetFillColor(0);
+      legend2.SetShadowColor(0);
+      legend2.SetTextFont(42);
+      legend2.SetTextSize(0.08);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -760,6 +777,7 @@ def Plot_Histogram(template_settings=dict()):
     legend.AddEntry(hh_total,'Stat + Syst unc.','F')
     hh_total.Draw("SAME E2")
 
+
     sep_line = dict()
     sep_line_ratio = dict()
     label_text = dict()
@@ -794,6 +812,7 @@ def Plot_Histogram(template_settings=dict()):
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
         h_ratio = (template_settings['Histogram']["Data"].Clone())
+        h_data = (template_settings['Histogram']["Data"].Clone())
         # h_ratio.Sumw2()
         hh_total_sumw2 = hh_total.Clone()
         for bin_idx in range(1, hh_total_sumw2.GetNbinsX() + 1):
@@ -801,18 +820,36 @@ def Plot_Histogram(template_settings=dict()):
           poisson_error = bin_content**0.5 if bin_content > 0 else 0
           hh_total_sumw2.SetBinError(bin_idx, poisson_error)
 
+        if template_settings['pull']:
+            for bin_idx in range(1, h_ratio.GetNbinsX() + 1):
+                if h_data.GetBinError(bin_idx) == 0:
+                  unc = 1.0
+                else:
+                  unc =  h_data.GetBinError(bin_idx)
+                bin_content = (h_data.GetBinContent(bin_idx) - hh_total.GetBinContent(bin_idx)) / unc
+                bin_error   = h_data.GetBinError(bin_idx) / unc
+                h_ratio.SetBinContent(bin_idx, bin_content)
+                h_ratio.SetBinError(bin_idx, bin_error)
 
-        h_ratio.Divide(hh_total_sumw2)
+            h_ratio_max = 6 if template_settings['shape_type'] == 'postfit' else 105.0
+            h_ratio_min = -6 if template_settings['shape_type'] == 'postfit' else -105.0
+            h_ratio.GetYaxis().SetTitle("Pull")
+
+        else:
+            h_ratio.Divide(hh_total_sumw2)
+            h_ratio_max = 1.3
+            h_ratio_min = 0.7
+            h_ratio.GetYaxis().SetTitle("Obs/Exp")
+
+        h_ratio.SetMaximum(h_ratio_max)
+        h_ratio.SetMinimum(h_ratio_min)
         h_ratio.SetMarkerStyle(20)
         h_ratio.SetMarkerSize(3.5)
         h_ratio.SetMarkerColor(1)
         h_ratio.SetLineWidth(3)
 
-        h_ratio.GetYaxis().SetTitle("Obs/Exp")
         h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
-        h_ratio.SetMaximum(1.3)
-        h_ratio.SetMinimum(0.7)
         h_ratio.GetYaxis().SetNdivisions(4)
         h_ratio.GetYaxis().SetTitleOffset(0.33)
         h_ratio.GetYaxis().SetTitleSize(0.1)
@@ -822,28 +859,29 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.GetXaxis().SetLabelSize(0.0) # Hide X label
         h_ratio.GetXaxis().SetTitleOffset(0.8)
  
-
-
         if template_settings['unblind']:
           h_ratio.SetMarkerSize(1)
           h_ratio.Draw("P")
         else:
           h_ratio.Draw("AXIS")
 
+
+
         for region_ in template_settings['Region_binning']:
             x_line = template_settings['Region_binning'][region_][1]
-            sep_line_ratio[region_] = ROOT.TLine(x_line, 0.7, x_line, 1.3)
+            sep_line_ratio[region_] = ROOT.TLine(x_line, h_ratio_min, x_line, h_ratio_max)
             sep_line_ratio[region_].SetLineColor(ROOT.kBlack)
             sep_line_ratio[region_].SetLineStyle(2)
             sep_line_ratio[region_].SetLineWidth(5)
             sep_line_ratio[region_].Draw("SAME")
 
+            y_text = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.25
+
             region_name = '_'.join(region_.split('_')[-2:])
             x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
-            label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, 0.55, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
+            label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, y_text, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
             label_text[region_ + region_text + "axis"].SetTextAlign(22)  # Center align
             label_text[region_ + region_text + "axis"].SetTextSize(0.12)
-            #label_text[region_ + region_text + "axis"].SetTextColor(ROOT.kBlue + 1)  # Blue color
             label_text[region_ + region_text + "axis"].SetTextFont(42)
             label_text[region_ + region_text + "axis"].Draw("SAME")
 
@@ -860,7 +898,6 @@ def Plot_Histogram(template_settings=dict()):
 
         for i in range(0,h_ratio.GetNbinsX()):
           x.append(h_ratio.GetBinCenter(i+1))
-          y.append(1.0)
           xerror_l.append(0.5*h_ratio.GetBinWidth(i+1))
           xerror_r.append(0.5*h_ratio.GetBinWidth(i+1))
           # print (h_ratio.GetBinContent(i+1)*math.pow(math.pow(template_settings['Histogram']["Data"].GetBinError(i+1) / template_settings['Histogram']["Data"].GetBinContent(i+1), 2)+math.pow(hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1),2),0.5))
@@ -870,12 +907,30 @@ def Plot_Histogram(template_settings=dict()):
             err_tmp = hh_total.GetBinError(i+1)/hMC.GetBinContent(i+1)
           else:
             err_tmp = 0.0
-          yerror_u.append(err_tmp)
-          yerror_d.append(err_tmp)
+
+          if template_settings['pull']:
+              y.append(0.0)
+              if h_data.GetBinError(i+1) == 0:
+                yerror_u.append(0.0)
+                yerror_d.append(0.0)
+              else:
+                yerror_u.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
+                yerror_d.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
+          else:
+              y.append(1.0)
+              yerror_u.append(err_tmp)
+              yerror_d.append(err_tmp)
+
         ru = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
-        ru.SetFillColor(1)
-        ru.SetFillStyle(3005)
+        ru.SetFillColorAlpha(ROOT.kOrange - 3, 0.8)
+#        legend2.AddEntry(ru, '#frac{#sigma_{total}}{#sigma_{stat}}', 'F')
+#        ru.SetFillStyle(3005)
         ru.Draw("SAME 2")
+#        legend2.Draw("SAME E2")
+        if template_settings['unblind']:
+          h_ratio.SetMarkerSize(1)
+          h_ratio.Draw("P SAME")
+
 
         pad1.cd()
 
@@ -919,9 +974,11 @@ def Plot_Histogram(template_settings=dict()):
     else:
       log_tag = ""
     canvas.Update()
-    canvas.SaveAs('{prefix}{log}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag))
-    canvas.SaveAs('{prefix}{log}.png'.format(prefix=template_settings['outputfilename'],log=log_tag))
-    canvas.SaveAs('{prefix}{log}.C'.format(prefix=template_settings['outputfilename'],log=log_tag))
+
+    combined_text = "_combined" if template_settings['combined'] else ""
+    canvas.SaveAs('{prefix}{log}{combined}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
+    canvas.SaveAs('{prefix}{log}{combined}.png'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
+    canvas.SaveAs('{prefix}{log}{combined}.C'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
 
 
 
