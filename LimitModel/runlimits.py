@@ -92,12 +92,13 @@ parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-c", "--channel", dest="channel", default="ele")
 parser.add_argument("-r", "--region", dest="region", default="SR")
 parser.add_argument("-y", "--year", dest="year", default="2017")
+parser.add_argument("--year_for_plot", dest = 'year_for_plot', default = ['2016apv', '2016postapv', '2017', '2018', 'run2'])
 parser.add_argument("--rtc", dest="rtc", default=0.4, type=float)
 parser.add_argument("--rtt", dest="rtt", default=0.6, type=float)
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
 parser.add_argument("--plot_only",help='Plot Only',action="store_true")
-parser.add_argument("--plot_y_max",help='Plot Only',default=1000,type=float)
-parser.add_argument("--plot_y_min",help='Plot Only',default=0.01,type=float)
+parser.add_argument("--plot_y_max",help='Plot Only',default=3e2,type=float)
+parser.add_argument("--plot_y_min",help='Plot Only',default=5e-3,type=float)
 parser.add_argument("--datacard_dir", help='datacard directory', default='datacards_test', type=str)
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
@@ -113,11 +114,13 @@ parser.add_argument('--signal_xsec', action='store_true')
 parser.add_argument('--sample_json', type=str, default='../data/sample.json')
 parser.add_argument('--Scan2D', action='store_true')
 parser.add_argument('--Scan2DNLL', action = 'store_true')
+parser.add_argument('--Significance', action = 'store_true')
 parser.add_argument('--POI_name', type=str, default='r_3b')
 parser.add_argument('--model_name', type=str, default='g2HDM_separate')
 parser.add_argument('--ratio_file', type=str, default=None)
-parser.add_argument('--coupling_varied', type=str, default='rtt')
+parser.add_argument('--coupling_varied', type=str, default='best_rtt_rtc')
 parser.add_argument('--all_signal', action = 'store_true')
+parser.add_argument('--fastScan', action = 'store_true')
 args = parser.parse_args()
 
 year     = args.year
@@ -164,6 +167,8 @@ else:pass
 #print ("self.limitlog: ",RL.limitlog)
 
 if args.plot_only:
+
+
 
 
   signal_xsec_TGraph = None
@@ -284,6 +289,10 @@ if args.plot_only:
     print(TGraph_File_dict)
     Plot_2D_Limit_For(TGraph_File_dict, args.unblind, args.year, args.channel, args.outputdir, args.Masses, y_axis_title = 'R_{b}', ratio_file = args.ratio_file, signal_xsec_TGraph = signal_xsec_TGraph)
     Plot_1D_Limit_For(TGraph_File_dict, args.unblind, y_max=args.plot_y_max, y_min=args.plot_y_min, year=[args.year], region=[args.region], channel=[args.channel], outputFolder=args.outputdir, Masses=args.Masses, mode = "Rb", legend_dict={(0.1*0):'pp\\rightarrow bH^{+}', (0.1*10):'pp\\rightarrow bH^{+} + H^{+}'}, AN=True)
+
+  elif args.Significance:
+    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot)
+
   else:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
@@ -297,17 +306,8 @@ else:
         mH = str(imass)
         card_name = template_card.replace("MASS", mH)
         if args.Scan2DNLL:
-          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'), model_name = args.model_name)
+          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'), model_name = args.model_name, cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, fastScan = args.fastScan)
 
-        elif not args.Scan2D:
-          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log')
-          mode_ = "w"
-
-          if counter==0: mode_="w"
-
-          param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
-          limitlogfile = RL.LogToLimitList(logname,param_list,mode_)
-          counter=counter+1
 
         elif args.Scan2D:
           mode_ = 'w'
@@ -317,6 +317,22 @@ else:
             param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
             print('post logname:', logname)
             limitlogfile = RL.LogToLimitList(logname, param_list, mode_, postfix='_%s_Rb%.1f'%(args.POI_name, Rb), POI=args.POI_name)
+
+        elif args.Significance:
+          logname = RL.getSignificance(card_name, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, log_dir = 'significance_log', cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance)
+          param_list = (Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
+          significance_log_file = RL.LogToSignificanceList(logname, param_list, 'w')
+
+        else:
+          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log')
+          mode_ = "w"
+
+          if counter==0: mode_="w"
+
+          param_list=(Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
+          limitlogfile = RL.LogToLimitList(logname,param_list,mode_)
+          counter=counter+1
+
 ## this is out of the for loop
 
 ### scale the limits with cross-section

@@ -91,7 +91,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   #binning = [0.2 * i for i in range(6)] if binning is None else binning
   binning = [100 * i for i in range(11)] if binning is None else binning
   binning = array.array('d', binning)
-  print(binning)
+  print(POI, binning)
   sample_json = 'data_info/Sample_Names/process_name_{}.json'.format(era)
   datacard_json = 'data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel)
 
@@ -131,7 +131,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
     scale = 1.0
     if "SIGNAL" in category:
       category_name = samples[category][0]
-      scale = sig_scale 
+      scale = sig_scale[category_name] 
     else: category_name = category
 
     if merge_channel is not None:
@@ -293,15 +293,17 @@ samples = Extend_sample_dict(samples, key_word = 'MASS')
 for era_ in eras:
   for region_ in region_channel_dict:
       signal_list = []
-      if "all" in args.signal:
-        for sample_ in samples:
-          if "Signal" in samples[sample_]["Label"]:
-              if args.randomized_scan:
-                  if "Randomized_Scan" in samples[sample_]["Label"]:
-                      signal_list.append(sample_)
-              else:
-                  signal_list.append(sample_)
-      else:
+      all_signal_list = []
+      for sample_ in samples:
+        if "Signal" in samples[sample_]["Label"]:
+            if args.randomized_scan:
+                if "Randomized_Scan" in samples[sample_]["Label"]:
+                    signal_list.append(sample_)
+                    all_signal_list.append(sample_)
+            else:
+                signal_list.append(sample_)
+                all_signal_list.append(sample_)
+      if not "all" in args.signal:
         signal_list = args.signal
       for signal_ in signal_list:
         CheckDir(os.path.join(args.outputdir, era_, signal_), True)
@@ -335,18 +337,27 @@ for era_ in eras:
             POI_in = 'DNNScore{}'.format(mass)
 
         #### Special Case ######
-        if POI_in in regions[region_]["POI_binnings"]:
+        if "POI_binnings" in regions[region_] and POI_in in regions[region_]["POI_binnings"]:
            POI_binning = np.array(regions[region_]["POI_binnings"][POI_in])
 
-        if args.sig_norm:
-          sig_scale = 1./samples[signal_]["xsec"]
-        else:
-          sig_scale = 1.0
 
+        sig_scale = dict()
+        for signal_in_loop in all_signal_list:
+
+            if args.sig_norm:
+              sig_scale[signal_in_loop] = 1./samples[signal_in_loop]["xsec"]
+            else:
+              sig_scale[signal_in_loop] = 1.0
         subprocess = []
-        if "SubProcess" in samples[signal_]:
-          for process in samples[signal_]["SubProcess"]:
-            subprocess.append(process)
+        print(all_signal_list)
+        for signal_in_loop in all_signal_list:
+          if "SubProcess" in samples[signal_in_loop]:
+            for process in samples[signal_in_loop]["SubProcess"]:
+              subprocess.append(process)
+              if args.sig_norm:
+                  sig_scale[process] =  1./samples[signal_in_loop]["xsec"]
+              else:
+                  sig_scale[process] = 1.0
         print(subprocess)
         if not args.merge:
           for channel_ in region_channel_dict[region_]:

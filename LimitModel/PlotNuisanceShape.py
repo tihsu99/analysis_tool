@@ -28,6 +28,7 @@ if __name__ == '__main__':
   parser.add_argument('--process_blacklist',       default = None)
   parser.add_argument("--logy",          action  = "store_true")
   parser.add_argument("--unblind", action = "store_true")
+  parser.add_argument("--background", default = None)
   args = parser.parse_args()
 
   rtc = args.rtc.replace('.', '')
@@ -72,6 +73,8 @@ if __name__ == '__main__':
 
     # Nominal process
     for process_ in data_info["Process"]:
+
+      if args.background is not None and not (process_ == args.background): continue
       if process_ == "SIGNAL": continue
       if (args.process_blacklist is not None) and (process_ == args.process_blacklist): continue
       histo = fin.Get("bH{era}_{process}".format(era = era, process = process_)).Clone()

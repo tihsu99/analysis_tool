@@ -16,6 +16,10 @@ from common import read_json
 from scipy.interpolate import griddata
 from scipy.interpolate import LinearNDInterpolator
 from scipy.optimize import root
+import cmsstyle as CMS
+
+CMS.SetExtraText("Preliminary")
+CMS.SetEnergy("13")
 
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
@@ -131,7 +135,39 @@ class RunLimits:
         os.system("rm "+output_rootfile)
         return logname
 
+    def getSignificance(self, dc,  dc_dir=None, log_dir = None, logname = None,  mass_point='MA200', cminDefaultMinimizerStrategy = 0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0):
+        if logname is None:
+            logname = dc.replace(".txt", ".log")
+        logname = logname.replace(dc_dir, log_dir)
+        CheckDir('/'.join(logname.split('/')[:-1]), True)
+
+        if self.__unblind:
+          command_ = f"combine -M Significance {dc} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy}  --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMax {self.rMax_} "
+        else:
+          pass
+        os.system(command_ + " >& " + logname)
+        print(command_ + " >& " + logname)   
+        return logname
     ## category can be merged/resolved/combined
+
+
+    def LogToSignificanceList(self, logfile, allparameters, mode = 'w', postfix = ''):
+
+        for ilongline in open(logfile):
+            if 'Significance: ' in ilongline:
+               significance_ = ilongline.replace('Significance: ', '').rstrip() 
+
+        towrite = str(allparameters[2]) + " " + str(allparameters[1]) + " " + significance_
+        print(towrite)
+        limitlog_tmp_node = self.limitlog.replace('.txt','{}_significance.txt'.format(postfix + "_{}"))
+        outfile=limitlog_tmp_node.format(allparameters[0]+allparameters[1])
+
+        fout = open(outfile,mode)
+        fout.write(towrite)
+        fout.close()
+        return outfile
+
+
     def LogToLimitList(self, logfile, allparameters, mode="a", postfix = '', POI = 'r'):
         expected25_=""
         expected16_=""
@@ -170,7 +206,67 @@ class RunLimits:
         return outfile
 
 
+    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Higgs="MH"):
+        significance_dict = dict()
 
+        mass_array = array('f')
+        for Mass in Masses:
+          mass_array.append(float(Mass))
+        for Era in Eras: 
+            y_array = array('f')
+            for imass in Masses:
+               limit_dir = os.path.join(self.outputdir_, "bin", Era, self.region_, self.channel_)
+               significance_file = os.path.join(limit_dir, self.limitlog_tmp_node.format(Higgs+str(imass)).split('/')[-1]).replace('.txt', '_significance.txt')
+               for ilongline in open(significance_file):
+                   local_significance = float(ilongline.rstrip().split()[2])
+
+               p_value = rt.Math.normal_cdf_c(local_significance)
+               y_array.append(p_value)
+            print(Era, y_array)
+            significance_dict[Era] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
+
+        x_binnings = mass_array
+        x_title = "mH^{#pm} [GeV]"
+        y_title = "p value"
+        c = CMS.cmsCanvas('', min(x_binnings), max(x_binnings), rt.Math.normal_cdf_c(5.2), 1.0, x_title, y_title, square = CMS.kSquare, extraSpace=0.03, iPos=0, with_z_axis=False)
+        c.SetLogy()
+        legend = CMS.cmsLeg(0.65, 0.2, 0.85, 0.4, textSize=0.028)
+
+        iColor = 1
+        for Era, graph in significance_dict.items():
+            if Era == "run2":
+                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 2) 
+            else:
+                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=0, fstyle = 0, lwidth = 1, lstyle = iColor)
+                iColor += 1
+            legend.AddEntry(graph, Era, "L")
+
+        Line_collection = dict()
+        for i in range(6):
+            p_value_for_sigma = rt.Math.normal_cdf_c(i)
+            Line_collection[i] = rt.TLine( min(x_binnings), p_value_for_sigma, max(x_binnings), p_value_for_sigma)
+            Line_collection[i].SetLineColor(rt.kRed)
+            Line_collection[i].SetLineStyle(2)
+            Line_collection[i].SetLineWidth(2)
+            Line_collection[i].Draw("L E SAME" )
+
+
+            latex = rt.TLatex()
+            latex.SetTextSize(0.03)
+            latex.SetTextAlign(12)
+            latex.SetTextFont(42);
+            latex.SetTextColor(rt.kRed)
+            latex.DrawLatex( max(x_binnings) * 0.95, p_value_for_sigma * 0.85, f"{i}#sigma")
+
+
+        out_dir = os.path.join(self.outputdir_, "Significance")
+        CheckDir(out_dir,MakeDir=True)
+        outputfilename = os.path.join(out_dir, "local_significance_summary")
+        c.SaveAs(outputfilename + ".png")
+        c.SaveAs(outputfilename + ".pdf")
+        c.SaveAs(outputfilename + ".C")
+
+        print("succsess")
     def TextFileToRootGraphs(self,med_idx=0,Masses=[],Higgs="MA"):
         #limit_root_file = filename.replace(".txt",".root")
 
@@ -334,7 +430,7 @@ class RunLimits:
         #print (c.GetUxmin(),c.GetUxmax())
         if signal_xsec_TGraph is None:
           line = rt.TLine(c.GetUxmin(),1.0,c.GetUxmax(),1.0);
-          line.SetLineColor(rt.kRed)
+          line.SetLineColor(rt.kBlack)
           line.SetLineWidth(2)
           line.Draw('same ')
 
@@ -352,9 +448,9 @@ class RunLimits:
           for stuff_ in signal_xsec_TGraph:
 
             if stuff_ == 'color': continue
-            signal_xsec_TGraph[stuff_].SetLineColor(2)
+            signal_xsec_TGraph[stuff_].SetLineColor(rt.kBlack)
             signal_xsec_TGraph[stuff_].SetLineStyle(style_idx)
-            signal_xsec_TGraph[stuff_].SetFillColorAlpha(2, 0.2)
+            signal_xsec_TGraph[stuff_].SetFillColorAlpha(rt.kBlack, 0.4)
             # signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
             signal_xsec_TGraph[stuff_].SetLineWidth(3)
             signal_xsec_TGraph[stuff_].Draw('3 L same')
@@ -627,9 +723,11 @@ class RunLimits:
       self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
 
 
-    def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased'):
+    def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased', fastScan = False):
         asimovstr ="-t -1 "
-        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ 
+        if self.__unblind:
+          tag += "_unblind"
 
         imass = mass_point.replace('MA', '').replace('mH','')
         input_file = self.limitlog_tmp_node.format(mass_point)
@@ -641,6 +739,7 @@ class RunLimits:
         else:
            datacard_dir = '/'.join(dc.split('/')[:-1])
            output_datacard_txt = dc.replace(".root", ".txt")
+           print("produce workspace...")
            os.system('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(datacard_dir, model_name, output_datacard_txt, output_datacard_txt.replace('txt','root')))
            print('cd {}; text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(datacard_dir, model_name, output_datacard_txt, output_datacard_txt.replace('txt','root')))
 
@@ -648,33 +747,29 @@ class RunLimits:
         expmed = 1.0
         for line in f:
             if len(line.rsplit())<7: continue
-            expmed = (float(line.rstrip().split()[4])) * 4.0
+            expmed = (float(line.rstrip().split()[4]))
 
         if model_name == 'g2HDM_separate':
-          command_ = "combine -M MultiDimFit " + dc + extraCommand + f' --setParameterRanges r_2b=0,{expmed}:r_3b=0,{expmed*2} --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
+          command_ = "combine -M MultiDimFit " + dc + extraCommand + f' --setParameterRanges r_2b=0,{expmed*4}:r_3b=0,{expmed*8} --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
         else:
           command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
+
+        if self.__unblind: 
+            asimov = False
+
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
             command_ = command_ + '-v 3'
 
-        os.system(command_ + "--algo grid --points 801 -n {tag} --cminDefaultMinimizerStrategy 0 --fastScan --alignEdges 1 ".format(tag = tag + "_2DNLL" ))
-        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DNLL.MultiDimFit.mH120.root"
-        print(command_  + "--algo grid --points 2000 & ")
+        if fastScan:
+            command_ = command_ + " --fastScan "
+
+        os.system(command_ + "--algo grid --points 800 -n {tag} --cminDefaultMinimizerStrategy {strategy} --cminDefaultMinimizerTolerance {tolerance} ".format(tag = tag + "_2DNLL" , strategy = cminDefaultMinimizerStrategy, tolerance = cminDefaultMinimizerTolerance))
+        output_rootfile = 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag)
         CheckDir(out_dir,MakeDir=True)
         # delete the output combine root file (not to make dirty your home area!)
         os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
-
-        #output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour68.MultiDimFit.mH120.root"
-        #os.system("(" + command_ + "--algo contour2d --cl 0.68 -n {tag} --points 20 --fastScan && mv {out} {outdir}/.) &".format(tag = tag + "_2DContour68", out=output_rootfile, outdir=out_dir))
-
-        #output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour95.MultiDimFit.mH120.root"
-        #os.system(command_ + "--algo contour2d --cl 0.95 -n {tag} --points 20 --fastScan ; mv {out} {outdir}/.".format(tag = tag + "_2DContour95" , out=output_rootfile, outdir=out_dir))
-
-#        os.system(command_ + "--algo contour2d --cl 0.99 -n {tag} --points 20 --fastScan".format(tag = tag + "_2DContour99" ))
-#        output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+"_2DContour99.MultiDimFit.mH120.root"
-#        os.system("mv {out} {outdir}/.".format(out=output_rootfile, outdir=out_dir))
 
     def bestFit(self, fin_name, x, y, xsec_2b = 1.0, xsec_3b = 1.0):
         x_values = array('d', [])
@@ -686,6 +781,19 @@ class RunLimits:
             x_values.append(getattr(entry, x) * xsec_2b)
             y_values.append(getattr(entry, y) * xsec_3b)
             # Assuming x_values and y_values are lists or arrays containing your data points
+
+        if len(x_values) == 0:
+          min_tmp = 1e10
+          x_tmp   = -100
+          y_tmp   = -100
+          for entry in t:
+             nll = getattr(entry, "deltaNLL")   
+             if nll < min_tmp:
+                 min_tmp = nll
+                 x_tmp = getattr(entry, x) * xsec_2b
+                 y_tmp = getattr(entry, y) * xsec_3b
+          x_values.append(x_tmp)
+          y_values.append(y_tmp)
         graph = rt.TGraph(len(x_values), x_values, y_values)  # Create the TGraph with your data
         graph.SetName("MyGraph")  # Set the name of the graph to "MyGraph"
         graph.Draw("P SAME")  # Draw the graph on the same canvas as existing plots

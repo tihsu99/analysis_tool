@@ -23,8 +23,11 @@ def compare_two_list(l1, l2):
     if not l1[idx] in l2: return False
   return True
 
-def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json', create_WorkSpace = False, randomized_scan = False):
+def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json', create_WorkSpace = False, randomized_scan = False, signal_nominal = None):
 
+
+  if signal_nominal is None:
+      signal_nominal = signal
 
   # List of Years
   if 'all' in years:
@@ -57,7 +60,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
     elif shared_channel:
       shared_channel = compare_two_list(ref_list, region_channel_dict[region_])
   
-  signal_directory_name = '_'.join(signal.split('_')[:3]) if randomized_scan else signal # Hard coded
+  signal_directory_name = '_'.join(signal_nominal.split('_')[:3]) if randomized_scan else signal_nominal # Hard coded
 
   ####################
   ## Write datacard ##
@@ -99,7 +102,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
             for ff_process in Datacards_Input["FreeFloat"]:
                 cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
                 #cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process), "rateParam", ch.SystMap()(1.0))
-                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0.0, 20.0]
+                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0, 20.0]
                 #parameter_constraint[str("scale_" + ff_process)] = [0.0, 20.0]
         # Set Rate
         cb.ForEachProc(set_Rate)
@@ -107,7 +110,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         # Set AutoMCStats
         cb.SetAutoMCStats(cb, 10.0, False, 1)
         # Output datacard
-        outdir_ = os.path.join(outdir, era, signal)
+        outdir_ = os.path.join(outdir, era, signal_nominal)
         CheckDir(outdir_, True)
         output_datacard_txt = os.path.join(outdir_, '{}_{}_{}_{}'.format(signal, era, region, channel) + ".txt")
         cb.cp().WriteDatacard(str(output_datacard_txt))
@@ -145,7 +148,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
     # Combine channel
     for era in years:
       for region in region_channel_dict:
-        outdir_ = os.path.join(outdir, era, signal)
+        outdir_ = os.path.join(outdir, era, signal_nominal)
         CheckDir(outdir_)
         output_datacard_txt = '{}_{}_{}_C'.format(signal, era, region) + ".txt"
         merge_command = 'cd {}; combineCards.py '.format(outdir_)
@@ -164,7 +167,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
       else:
         channel_list = ['C']
       for channel in channel_list:
-        outdir_ = os.path.join(outdir, era, signal)
+        outdir_ = os.path.join(outdir, era, signal_nominal)
         CheckDir(outdir_)
         output_datacard_txt = '{}_{}_C_{}'.format(signal, era, channel) + '.txt'
         merge_command = 'cd {}; combineCards.py '.format(outdir_)
@@ -181,14 +184,14 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
       region_channel_dict[region].append('C')
     region_channel_dict['C'] = channel_list #TODO better coding
 
-    outdir_ = os.path.join(outdir, 'run2', signal)
+    outdir_ = os.path.join(outdir, 'run2', signal_nominal)
     CheckDir(outdir_)
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
         output_datacard_txt = '{}_run2_{}_{}'.format(signal, region, channel) + '.txt'
         merge_command = 'cd {}; '.format(outdir_)
         for era in years:
-          merge_command += 'cp ../../{}/{}/{} {};'.format(era, signal, output_datacard_txt.replace('run2',era), output_datacard_txt.replace('run2',era))
+          merge_command += 'cp ../../{}/{}/{} {};'.format(era, signal_nominal, output_datacard_txt.replace('run2',era), output_datacard_txt.replace('run2',era))
         merge_command += 'combineCards.py '
         for era in years:
           merge_command += 'era{}={} '.format(era, '{}_{}_{}_{}.txt'.format(signal, era, region, channel))
@@ -220,6 +223,7 @@ if __name__ == "__main__":
   parser.add_argument('--cut_json', default='../data/cut.json')
   parser.add_argument('--merge', action = 'store_true')
   parser.add_argument('--randomized_scan', action = 'store_true')
+  parser.add_argument('--mass_detailed',  help="List of mass", default=[200, 300, 350, 400, 500, 600, 700, 800, 900, 1000], nargs='+')
   args = parser.parse_args()
   CheckDir(args.outdir, True)
 
@@ -250,13 +254,20 @@ if __name__ == "__main__":
       for rtt_ in args.rtt:
         for rtc_ in args.rtc:
           signal_name = args.signal_template.replace("MASS", mass_).replace("RTT", rtt_).replace("RTC", rtc_)
-          subprocess = []
-          if signal_name in samples:
-            if "SubProcess" in samples[signal_name]:
-              for subprocess_ in samples[signal_name]["SubProcess"]:
-                subprocess.append(subprocess_)
-            else:
-              subprocess.append(signal_name)
-          else:
-            subprocess.append(signal_name)
-          create_datacards(args.year, args.region, args.channel, signal_name, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json, create_WorkSpace = args.create_WorkSpace, randomized_scan = args.randomized_scan)
+
+          for mass_in_loop in args.mass_detailed:
+              mass_in_loop = str(mass_in_loop)
+              signal_name_in_loop = args.signal_template.replace("MASS", mass_in_loop).replace("RTT", rtt_).replace("RTC", rtc_)
+
+
+              subprocess = []
+              if signal_name_in_loop in samples:
+                if "SubProcess" in samples[signal_name_in_loop]:
+                  for subprocess_ in samples[signal_name_in_loop]["SubProcess"]:
+                     subprocess.append(subprocess_)
+                else:
+                  subprocess.append(signal_name_in_loop)
+              else:
+                subprocess.append(signal_name_in_loop)
+
+              create_datacards(args.year, args.region, args.channel, signal_name_in_loop, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json, create_WorkSpace = args.create_WorkSpace, randomized_scan = args.randomized_scan, signal_nominal = signal_name)

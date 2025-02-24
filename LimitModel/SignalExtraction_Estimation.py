@@ -24,7 +24,7 @@ import sys
 from Util.General_Tool import CheckDir,CheckFile, read_json
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot, GlobalSignificance, GlobalSignificancePlot
 from Util.aux import *
 from collections import OrderedDict
 
@@ -36,7 +36,7 @@ start = time.time()
 year_choices = ['2016apv','2016postapv','2017','2018','run2']
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot', 'GlobalSignificance', 'GlobalSignificancePlot']
 
 
 parser = argparse.ArgumentParser()
@@ -112,6 +112,7 @@ settings ={
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
+    'working_directory': args.outdir,
     'prefix': args.prefix,
     'GoF_Algorithm': args.GoF_Algorithm,
     'correlation': args.correlation,

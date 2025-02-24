@@ -22,6 +22,11 @@ from plotstyle import *
 import random
 import matplotlib.pyplot as plt
 from array import array
+import cmsstyle as CMS
+
+CMS.SetExtraText("Preliminary")
+CMS.SetEnergy("13")
+
 #####################
 ## Dict of regions ##
 #####################
@@ -120,6 +125,136 @@ def datacard2workspace(settings=dict()):
 
     print("\nNext mode: [\033[0;32m FitDiagnostics \033[0;m]")
     print("\n* A new Workspace root file: \033[0;32m\033[4m{}\033[0;m is created!".format(os.path.join(settings['outputdir'],settings['workspace_root'])))
+
+def GlobalSignificance(settings=dict()):
+
+    nToys = 2000
+    nToys_per_jobs = 40
+
+    Log_Path = os.path.basename(settings['Log_Path'])
+
+    farm_dir = f"{os.getcwd()}/Farm_Significance"
+    os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
+
+    condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
+    condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
+    condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
+    condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
+    condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
+    condor.write('+JobFlavour = "microcentury"\n')
+    condor.write('RequestCpus = 1\n')
+    condor.write('queue 1 cfgFile in ')
+
+    CheckDir((os.path.join(settings['outputdir'], 'GlobalSignificance')))
+    os.chdir(os.path.join(settings['outputdir'], 'GlobalSignificance'))
+    #command = f"combine -M GenerateOnly {settings['workspace_root']} -m 125 -t {nToys} --seed 123456 --saveToys --expectSignal=0 --toysFrequentist"
+    #os.system(command)
+
+    dc = dict()
+    os.system("mkdir -p workspace")
+    command = f"combine -M GenerateOnly {settings['workspace_root']} -m 125 -t {nToys} --seed 123456 --saveToys --expectSignal=0 --toysFrequentist \n"
+    os.system(command)
+
+    mass_list = [200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    seed_numbers = random.sample(range(1, 1000000), 1000)
+    for mass_ in mass_list:
+        wp_root = settings['workspace_root'].split('/')[-1].replace(str(settings['mass']), str(mass_))
+        target_datacard = os.path.join('/'.join(settings['datacards'].split('/')[:-1]), settings['datacards'].split('/')[-1].replace(str(settings['mass']), str(mass_)))
+        print('text2workspace.py {datacards}  -o workspace/{workspace_root} '.format(datacards=target_datacard,workspace_root=wp_root))
+        if not os.path.exists(f'workspace/{wp_root}'):
+            os.system('text2workspace.py {datacards}  -o workspace/{workspace_root} '.format(datacards=target_datacard, workspace_root=wp_root))
+        workspace_for_certain_mass = os.path.join('workspace', wp_root)
+        for iTask in range(int(nToys/nToys_per_jobs)):
+           shell_file = f"global_significance_mass{mass_}_iTask{iTask}.sh"
+           command    = f"cd {settings['outputdir']}/GlobalSignificance \n"
+           root_file_pool = []
+           for i in range(nToys_per_jobs):
+               global_index = iTask * nToys_per_jobs + i + 1
+               command += f"combine -M Significance {workspace_for_certain_mass}  --redefineSignalPOI r -n M{mass_}_{global_index} -D higgsCombineTest.GenerateOnly.mH125.123456.root:toys/toy_{global_index} --cminDefaultMinimizerStrategy 2 --cminDefaultMinimizerTolerance 0.5  --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND\n"
+               root_file_pool.append(f'higgsCombineM{mass_}_{global_index}.Significance.mH120.root')
+           command += f"hadd higgsCombineM{mass_}_{iTask}.root " + ' '.join(root_file_pool) + " \n"
+           for root_file_ in root_file_pool:
+             command += f'rm {root_file_}\n'
+           prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
+    condor.close()
+    os.system(f"condor_submit {farm_dir}/condor.sub")
+
+def GlobalSignificancePlot(settings=dict()):
+
+    mass_list = [200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    nToys     = 2000
+    nToys_per_job = 40
+
+    significance_tensor = np.ones((nToys, len(mass_list)), dtype = float) * -1
+    outputdir = "{outputdir}/GlobalSignificance".format(outputdir=settings['outputdir'])
+    os.chdir(outputdir)
+    import uproot
+
+    for idx, mass_ in enumerate(mass_list):
+        iglobal = 0
+        print(mass_)
+        for iTask in range(int(nToys / nToys_per_job)):
+            if not os.path.exists(f"higgsCombineM{mass_}_{iTask}.root"): 
+                continue
+            with uproot.open(f"higgsCombineM{mass_}_{iTask}.root") as file:
+              tree = file["limit"]
+              array = tree.arrays(["limit"], library = "np")
+              if(len(array["limit"]) < nToys_per_job):
+                  continue
+              significance_tensor[iTask * nToys_per_job: iTask * nToys_per_job + len(array["limit"]), idx] = array["limit"]
+
+    significance_tensor = significance_tensor[~np.any(significance_tensor < 0, axis=1)]
+    significance_max = np.max(significance_tensor, axis = 1)
+
+    significance_file = os.path.join(settings['working_directory'], 'bin', settings['year'], settings['region'], settings['channel'], f'limits_bH_rtt0p6_rtc0p4_asimov_extYukawa_MH{settings["mass"]}_significance.txt')
+    for ilongline in open(significance_file):
+        significance_local = float(ilongline.rstrip().split()[2])
+
+    p_value = len(significance_max[significance_max > significance_local]) / len(significance_max)
+    global_significance = ROOT.TMath.NormQuantile(1 - p_value)
+
+    histo = ROOT.TH1F("histo", ";#sigma_{max};nEntries", 100, 0, 5)
+    for value in significance_max:
+        histo.Fill(value)
+
+    x_axis = histo.GetXaxis()
+    y_axis = histo.GetYaxis()
+    x_title = histo.GetXaxis().GetTitle()
+    y_title = histo.GetYaxis().GetTitle()
+    nbinX  = x_axis.GetNbins()
+    nbinY  = y_axis.GetNbins()
+    x_binnings = [x_axis.GetBinLowEdge(bin_+1) for bin_ in range(nbinX+1)]
+    y_binnings = [y_axis.GetBinLowEdge(bin_+1) for bin_ in range(nbinY+1)]
+
+    c = CMS.cmsCanvas('', min(x_binnings), max(x_binnings), 0, histo.GetMaximum() * 1.2, x_title, y_title, square = CMS.kSquare, extraSpace=0.03, iPos=0, with_z_axis=False)
+
+    CMS.cmsDraw(histo, 'HIST', mcolor = ROOT.kBlack,  lcolor = ROOT.kBlack, msize=0, fstyle = 0)
+
+    arr = ROOT.TArrow(significance_local, 0.001, significance_local, histo.GetMaximum() / 8, 0.02, "<|")
+    arr.SetLineColor(ROOT.kBlue)
+    arr.SetFillColor(ROOT.kBlue)
+    arr.SetFillStyle(1001)
+    arr.SetLineWidth(6)
+    arr.SetLineStyle(1)
+    arr.SetAngle(60)
+    arr.Draw("<|same")
+
+    latex = ROOT.TLatex()
+    latex.SetTextSize(0.03)
+    latex.SetTextAlign(12)
+    latex.SetNDC()
+    latex.SetTextFont(42);
+    latex.DrawLatex(0.65, 0.8, f"nToys: {len(significance_max)}")
+    latex.DrawLatex(0.65, 0.76, f"p-value: {p_value:.4f}")
+    latex.DrawLatex(0.65, 0.72, f"global significance: {global_significance:.1f}#sigma")
+    latex.DrawLatex(0.65, 0.68, f"local significance: {significance_local:.1f}#sigma")
+
+
+    outfile_name = "../results/global_significance"
+    c.SaveAs(outfile_name + ".png")
+    c.SaveAs(outfile_name + ".pdf")
+    c.SaveAs(outfile_name + ".C")
+
 
 def BiasTest(settings=dict()):
 
