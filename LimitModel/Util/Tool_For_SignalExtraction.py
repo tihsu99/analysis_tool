@@ -1517,6 +1517,7 @@ def FinalYieldComputation(settings=dict()):
                 Yield[process][Type][channel]['Error'] = 0
 
 
+    return 0 #TODO work on tex file
 
     for first_level in FileIn.GetListOfKeys():
         first_level_name = first_level.GetName()
@@ -1564,7 +1565,6 @@ def FinalYieldComputation(settings=dict()):
     PostFixstr += "-" + settings['coupling_value']
     PostFixstr += "-m" + settings['higgs'] + settings['mass']
 
-    return 0 #TODO work on tex file
     with open('finalyield{PostFixstr}.tex'.format(PostFixstr = PostFixstr), 'w') as f:
         End = '\n'
         f.write(r'\begin{table}[!htpb]'+End)
