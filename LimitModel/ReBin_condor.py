@@ -56,7 +56,7 @@ if __name__ == '__main__':
   condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = vanilla\n')
-  condor.write('+JobFlavour = "longlunch"\n')
+  condor.write('+JobFlavour = "workday"\n')
   condor.write('queue 1 cfgFile in ')
 
 

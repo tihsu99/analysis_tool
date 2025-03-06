@@ -128,12 +128,12 @@ def datacard2workspace(settings=dict()):
 
 def GlobalSignificance(settings=dict()):
 
-    nToys = 2000
+    nToys = settings['nToys']
     nToys_per_jobs = 40
 
     Log_Path = os.path.basename(settings['Log_Path'])
 
-    farm_dir = f"{os.getcwd()}/Farm_Significance"
+    farm_dir = f"{os.getcwd()}/Farm_Significance/{settings['mass']}"
     os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
 
     condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
@@ -147,8 +147,6 @@ def GlobalSignificance(settings=dict()):
 
     CheckDir((os.path.join(settings['outputdir'], 'GlobalSignificance')))
     os.chdir(os.path.join(settings['outputdir'], 'GlobalSignificance'))
-    #command = f"combine -M GenerateOnly {settings['workspace_root']} -m 125 -t {nToys} --seed 123456 --saveToys --expectSignal=0 --toysFrequentist"
-    #os.system(command)
 
     dc = dict()
     os.system("mkdir -p workspace")
@@ -182,7 +180,7 @@ def GlobalSignificance(settings=dict()):
 def GlobalSignificancePlot(settings=dict()):
 
     mass_list = [200, 300, 400, 500, 600, 700, 800, 900, 1000]
-    nToys     = 2000
+    nToys     = settings['nToys']
     nToys_per_job = 40
 
     significance_tensor = np.ones((nToys, len(mass_list)), dtype = float) * -1
@@ -660,7 +658,11 @@ def PlotShape(settings=dict()):
     if settings['combined']:
         Histogram_merged       = dict()
         for region_ in Histogram:
-            region_out = region_.replace("2016postapv", "").replace("2017", "").replace("2018", "").replace("2016apv", "").replace('era','')
+            if settings['region'] == 'C': 
+                region_out = region_.replace("2016postapv", "").replace("2017", "").replace("2018", "").replace("2016apv", "").replace('era','')
+            else:
+                region_out = region_.replace('era', '').replace('merged_resolved', '')
+                region_out += f"_{settings['region']}"
             region_out = region_out.replace("ele_resolved", "e+m").replace("mu_resolved", "e+m")
             if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
             for category in Histogram[region_]:
@@ -692,7 +694,8 @@ def PlotShape(settings=dict()):
           Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
 #          print(category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
         if region_ not in region_binning:
-          region_binning[region_] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
+          region_name = region_ if settings['region'] == 'C' else region_ + f"_{settings['region']}" 
+          region_binning[region_name] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
 
 
     if settings['shape_type'].lower() == 'prefit':
@@ -795,6 +798,10 @@ def Plot_Histogram(template_settings=dict()):
       pad1.SetTicks(1,1)
       pad2.SetTicks(1,1)
       pad2.SetGrid(5,5)
+      if not template_settings['combined']:
+        pad1.SetLeftMargin(0.1)
+        pad2.SetLeftMargin(0.1)
+
       pad1.Draw()
       pad2.Draw()
       pad1.cd()
@@ -1012,6 +1019,7 @@ def Plot_Histogram(template_settings=dict()):
 
             y_text = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.25
 
+            print('region', region_)
             region_name = '_'.join(region_.split('_')[-2:])
             x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
             label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, y_text, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))

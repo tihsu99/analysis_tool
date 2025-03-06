@@ -93,6 +93,7 @@ parser.add_argument("-c", "--channel", dest="channel", default="ele")
 parser.add_argument("-r", "--region", dest="region", default="SR")
 parser.add_argument("-y", "--year", dest="year", default="2017")
 parser.add_argument("--year_for_plot", dest = 'year_for_plot', default = ['2016apv', '2016postapv', '2017', '2018', 'run2'])
+parser.add_argument("--region_for_plot", dest = 'region_for_plot', default = ['SR_2b2j', 'SR_2b3j', 'SR_2b4j', 'SR_3b3j', 'SR_3b4j'])
 parser.add_argument("--rtc", dest="rtc", default=0.4, type=float)
 parser.add_argument("--rtt", dest="rtt", default=0.6, type=float)
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
@@ -103,8 +104,8 @@ parser.add_argument("--datacard_dir", help='datacard directory', default='dataca
 parser.add_argument("--outputdir",help='Create your favour outputdir. (If the directory is already existed, then the plots will simply stored under this directory, otherwise create one.)',default='./')
 parser.add_argument("--reset_outputfiles",help='Reset the output files.',action="store_true")
 parser.add_argument('--cminDefaultMinimizerStrategy', help='cminDefaultMinimizerStrategy: default = 0', default=2, type=int)
-parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=0.5, type=float)
-parser.add_argument('--rAbsAcc', help='default = 0.001', default=0.001, type=float)
+parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 1.0', default=0.1, type=float)
+parser.add_argument('--rAbsAcc', help='default = 0.001', default=0.0002, type=float)
 parser.add_argument('--unblind', help='for limit unbliding', action="store_true")
 parser.add_argument('--verbose','-v', dest='verbose', help='for combine verbose', action="store_true")
 parser.add_argument('--rMax',dest='rMax', default=5, type=float)
@@ -291,7 +292,8 @@ if args.plot_only:
     Plot_1D_Limit_For(TGraph_File_dict, args.unblind, y_max=args.plot_y_max, y_min=args.plot_y_min, year=[args.year], region=[args.region], channel=[args.channel], outputFolder=args.outputdir, Masses=args.Masses, mode = "Rb", legend_dict={(0.1*0):'pp\\rightarrow bH^{+}', (0.1*10):'pp\\rightarrow bH^{+} + H^{+}'}, AN=True)
 
   elif args.Significance:
-    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot)
+    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'era')
+#    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'region')
 
   else:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)

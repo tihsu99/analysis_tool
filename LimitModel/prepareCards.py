@@ -102,7 +102,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
             for ff_process in Datacards_Input["FreeFloat"]:
                 cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
                 #cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process), "rateParam", ch.SystMap()(1.0))
-                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0, 20.0]
+                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0, 100.0]
                 #parameter_constraint[str("scale_" + ff_process)] = [0.0, 20.0]
         # Set Rate
         cb.ForEachProc(set_Rate)
@@ -122,7 +122,7 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
               for param_ in parameter_constraint:
               # Add the bounds to the line
                 if param_ in line:
-                  line = line.strip() + f" [0,20]\n"
+                  line = line.strip() + f" [0,100]\n"
               file.write(line)
         # Specify systematic histogram naming rule
         dataset_dir_v = dataset_dir.replace('/','\/')
