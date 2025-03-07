@@ -894,7 +894,7 @@ def Plot_Histogram(template_settings=dict()):
       pad2.SetBorderMode(1)
       pad1.SetTicks(1,1)
       pad2.SetTicks(1,1)
-      pad2.SetGrid(5,5)
+      # pad2.SetGrid(5,5)
       if not template_settings['combined']:
         pad1.SetLeftMargin(0.1)
         pad2.SetLeftMargin(0.1)
