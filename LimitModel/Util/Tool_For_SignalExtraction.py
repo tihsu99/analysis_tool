@@ -1214,6 +1214,10 @@ def Plot_Histogram(template_settings=dict()):
     latex.SetTextFont(42);
     #latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
 
+    # Temporary solution for the region name
+    for region_ in template_settings['Region_binning']:
+        # print('region', '_'.join(region_.split('_')[-2:]))
+        latex.DrawLatex(0.180, 0.57, '_'.join(region_.split('_')[-2:]))
     ### CMS Pad #####
 
     import CMS_lumi
