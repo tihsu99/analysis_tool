@@ -100,6 +100,13 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       for channel_ in merge_channel:
           datacard_json_dict[channel_] =  read_json('data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel_))
 
+  jsonfile = open(args.sample_json)
+  if python_version == 2:
+      samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
+  else:
+      samples_contain_datainfo = json.load(jsonfile)
+  jsonfile.close()
+
 
   jsonfile = open(sample_json)
   if python_version == 2:
@@ -138,6 +145,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
     
         h_merge = None
         for channel_ in merge_channel:
+             if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel_ not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
              indir_tmp = os.path.join(indir, channel_)
              h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel_, region=region, scale=scale))
              if h_merge is None: 
@@ -155,6 +163,8 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
             for variation in ["_up", "_down"]:
                 h_merge = None
                 for channel_ in merge_channel:
+                    
+                    if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel_ not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
                     indir_tmp = os.path.join(indir, channel_)
                     if nuisance not in datacard_json_dict[channel_]["UnclnN"]:
                         h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel_, region=region, scale=scale))
@@ -171,6 +181,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                 h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
                 Histograms.append(h_merge)
     else:
+        if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
         h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale)
         #    Histograms.append(over_flowbin(MakePositive_Hist(h)))
         Histograms.append(MakePositive_Hist(h))
