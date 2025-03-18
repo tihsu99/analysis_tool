@@ -250,12 +250,5 @@
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
-  },
-
-
-  "QCD_shape_ERA_REGION_CHANNEL":{
-    "Label": ["DataDriven", "Shape"],
-    "Process": ["QCD"]
   }
-
 }

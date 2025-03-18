@@ -28,7 +28,8 @@ if __name__ == '__main__':
   parser.add_argument('--sig_norm', action = 'store_true')
   parser.add_argument('--test', action = 'store_true')
   parser.add_argument('--farm', default = 'Farm', type=str)
-  parser.add_argument('--merge', action = 'store_true')
+  parser.add_argument('--ch_merge', action = 'store_true')
+  parser.add_argument('--era_merge', action = 'store_true')
   parser.add_argument('--randomized_scan', action = 'store_true')
   args = parser.parse_args()
 
@@ -42,7 +43,10 @@ if __name__ == '__main__':
   unblind   = '--unblind' if args.unblind else ''
   POI       = args.POI
   sig_norm  = '--sig_norm' if args.sig_norm else ''
-  merge     = '--merge' if args.merge else ''
+  ch_merge  = '--ch_merge' if args.ch_merge else ''
+  era_merge = '--era_merge' if args.era_merge else ''
+
+  print(era_merge)
 
   farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
@@ -76,7 +80,7 @@ if __name__ == '__main__':
                 signal_list.append(sample_)
 
   for sig_ in signal_list:
-    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {merge}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, merge = merge)
+    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {ch_merge} {era_merge}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, ch_merge = ch_merge, era_merge = era_merge)
     prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir, True)
 
   condor.close()

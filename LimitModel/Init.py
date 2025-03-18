@@ -22,7 +22,8 @@ parser.add_argument('-b','--blacklist',help='Block certain nuisance.',default=['
 parser.add_argument('--cut_json', default = '../data/cut.json')
 parser.add_argument('--sample_json', default = '../data/sample.json')
 parser.add_argument('--nuisance_json', default = '../data/nuisance.json')
-parser.add_argument('--merge', action = 'store_true')
+parser.add_argument('--ch_merge', action = 'store_true')
+parser.add_argument('--era_merge', action = 'store_true')
 
 #####################
 ## mkdir data_info ##
@@ -88,38 +89,65 @@ for era in era_list:
 ####################
 ## Datacard Input ##
 ####################
+if not args.era_merge:
+  for era in era_list:
+    CheckDir("data_info/Datacard_Input/{}/".format(era),MakeDir=True)
+    with open('./data_info/Sample_Names/process_name_{}.json'.format(era),'r') as f:
+      NAME = json.load(f)
+      process = NAME.keys()
+    for region in region_list:
+      for channel in region_list[region]:
+          print(nuisances_for_data_card[era][region][channel])
+          Datacard_Input_Producer(year=era, region=region, channel=channel,nuisances=nuisances_for_data_card[era][region][channel],process=process, config=args)
+      if args.ch_merge:
+          merged_input = None
+          for channel in region_list[region]:
+              channel_input_tmp = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
+              channel_input = dict()
+              for key_, input_ in channel_input_tmp.items():
+                if isinstance(input_, dict):
+                    channel_input[key_] = dict()
+                    for sub_key in input_:
+                        key_name = sub_key.replace("_CHANNEL", "")
+                        channel_input[key_][key_name] = input_[sub_key]
+                else:
+                    channel_input[key_] = input_
 
-for era in era_list:
-  CheckDir("data_info/Datacard_Input/{}/".format(era),MakeDir=True)
-  with open('./data_info/Sample_Names/process_name_{}.json'.format(era),'r') as f:
-    NAME = json.load(f)
-    process = NAME.keys()
+              if merged_input is None:
+                  merged_input = channel_input
+              else:
+                  for key_, input_ in channel_input.items():
+                      if isinstance(input_, dict):
+                          for sub_key in input_:
+                              if sub_key not in merged_input[key_]:
+                                  merged_input[key_][sub_key] = input_[sub_key]
+          CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era, region, "merged_resolved"),True)
+          with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era, region, "merged_resolved"),'w') as f:
+              json.dump(merged_input, f, indent=4)
+else:
   for region in region_list:
     for channel in region_list[region]:
-        print(nuisances_for_data_card[era][region][channel])
-        Datacard_Input_Producer(year=era, region=region, channel=channel,nuisances=nuisances_for_data_card[era][region][channel],process=process, config=args)
-    if args.merge:
-        merged_input = None
-        for channel in region_list[region]:
-            channel_input_tmp = read_json(f"data_info/Datacard_Input/2017/Datacard_Input_{region}_{channel}.json")
-            channel_input = dict()
-            for key_, input_ in channel_input_tmp.items():
-              if isinstance(input_, dict):
-                  channel_input[key_] = dict()
-                  for sub_key in input_:
-                      key_name = sub_key.replace("_CHANNEL", "")
-                      channel_input[key_][key_name] = input_[sub_key]
-              else:
-                  channel_input[key_] = input_
-
-            if merged_input is None:
-                merged_input = channel_input
+      merged_input = None
+      for era in era_list:
+          era_input_tmp = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
+          era_input = dict()
+          for key_, input_ in era_input_tmp.items():
+            if isinstance(input_, dict):
+                era_input[key_] = dict()
+                for sub_key in input_:
+                  era_input[key_][sub_key] = input_[sub_key]
             else:
-                for key_, input_ in channel_input.items():
-                    if isinstance(input_, dict):
-                        for sub_key in input_:
-                            if sub_key not in merged_input[key_]:
-                                merged_input[key_][sub_key] = input_[sub_key]
-        CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era, region, "merged_resolved"),True)
-        with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era, region, "merged_resolved"),'w') as f:
-            json.dump(merged_input, f, indent=4)
+                era_input[key_] = input_
+
+          if merged_input is None:
+              merged_input = era_input
+          else:
+              for key_, input_ in era_input.items():
+                  if isinstance(input_, dict):
+                      for sub_key in input_:
+                          if sub_key not in merged_input[key_]:
+                              merged_input[key_][sub_key] = input_[sub_key]
+      CheckDir("./data_info/Datacard_Input/{}/".format('Merged_run2'),MakeDir=True)
+      CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format('Merged_run2', region, channel),True)
+      with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format('Merged_run2', region, channel),'w') as f:
+        json.dump(merged_input, f, indent=4)
