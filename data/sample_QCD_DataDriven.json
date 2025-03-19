@@ -175,6 +175,15 @@
   "Label":  ["MC", "Background"]
 },
 
+
+  "QCD_DataDriven":{
+    "xsec": 1,
+    "Category": "QCD",
+    "Train_ratio": {"2b": 0.0, "3b": 0.0},
+    "Label": ["DataDriven"]
+  },
+
+
 "TZQBBar":{
   "xsec": 0.426,
   "xsec_err": 3.3,
@@ -320,13 +329,6 @@
     "Category": "TT",
     "Train_ratio": {"2b": 0.15, "3b": 0.5},
     "Label": ["MC", "Background"]
-  },
-
-  "QCD_DataDriven":{
-    "xsec": 1,
-    "Category": "QCD",
-    "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["FreeFloat", "DataDriven"]
   },
 
   "SingleEG":{
