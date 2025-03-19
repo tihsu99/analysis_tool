@@ -46,7 +46,8 @@ def Slim_module(filein,
                 notoppt = False,
                 noNLOwjet = False,
                 not_ensemble = False,
-                train = None):
+                train = None,
+                dir_tag = None):
 
   #############
   ##  Basic  ##
@@ -127,11 +128,11 @@ def Slim_module(filein,
       print(command)
       ROOT.gInterpreter.Declare(command)
 
-  path    = str(inputFile_path[era])
+  path    = str(inputFile_path[dir_tag][era])
   fin     = os.path.join(path, filein)
   if 'eos' in fin and 'root://eosuser.cern.ch//' not in fin:
       fin = 'root://eosuser.cern.ch//' + fin
-
+  cprint("input file: {}".format(fin), "green")  
   if not index == -1:
     fileOut = os.path.join(output_dir, str(index) + "_" + filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
@@ -257,6 +258,7 @@ def Slim_module(filein,
       elif(variables[variable]["Def"] == "Randomized_Dep"):
         print(variable)
         type_ = "Randomized" if ('Randomized_Scan' in samples[sample_name]['Label']) else "Normal" 
+        print(variable, type_)
         df = df.Define(str(variable), str(variables[variable]["Category"][type_]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
@@ -478,7 +480,7 @@ def Slim_module(filein,
         "Title": ";DNN;nEntries",
         "xlow":0,
         "xhigh":1,
-        "nbin": 20,
+        "nbin": 100,
         "Label": ["Normal", "pNN"],
         "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
       }
@@ -489,7 +491,7 @@ def Slim_module(filein,
           "Title": ";DNNScore;nEntries",
           "xlow":0.5,
           "xhigh":1,
-          "nbin": 20,
+          "nbin": 100,
           "Label": ["Normal", "pNN"],
           "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
         }
@@ -689,6 +691,7 @@ if __name__ == "__main__":
   parser.add_argument("--noNLOwjet", action='store_true')
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   type=str, default = None)
+  parser.add_argument("--dir_tag", type=str, default = None)
 
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
@@ -717,6 +720,7 @@ if __name__ == "__main__":
               notoppt = args.notoppt,\
               noNLOwjet = args.noNLOwjet,\
               not_ensemble = args.not_ensemble,\
-              train = args.train)
+              train = args.train,
+              dir_tag = args.dir_tag)
   end_time = time.time()
   print('process time', end_time - start_time)

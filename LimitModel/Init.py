@@ -23,6 +23,7 @@ parser.add_argument('--cut_json', default = '../data/cut.json')
 parser.add_argument('--sample_json', default = '../data/sample.json')
 parser.add_argument('--nuisance_json', default = '../data/nuisance.json')
 parser.add_argument('--merge', action = 'store_true')
+parser.add_argument('--no_signal', action = 'store_true')
 
 #####################
 ## mkdir data_info ##
@@ -45,9 +46,6 @@ if args.year == 'all':
 else:
   era_list = [args.year]
 
-CheckDir("data_info/Sample_Names/",MakeDir=True)
-for era in era_list:
-  Bkg_MC_SAMPLE_NAME(year=era,outputdir="data_info/Sample_Names/", config=args)
 
 ##########################
 ## Write Nuisances List ##
@@ -77,6 +75,14 @@ else:
   for region in region_list:
     region_list[region].append(args.channel)
 
+CheckDir("data_info/Sample_Names/",MakeDir=True)
+
+for region in region_list:
+  for channel in region_list[region]:
+    for era in era_list:
+      Bkg_MC_SAMPLE_NAME(year=era,outputdir="data_info/Sample_Names/", config=args, region = region, channel = channel)
+
+
 nuisances_for_data_card = dict()
 for era in era_list:
   nuisances_for_data_card[era] = dict()
@@ -91,7 +97,7 @@ for era in era_list:
 
 for era in era_list:
   CheckDir("data_info/Datacard_Input/{}/".format(era),MakeDir=True)
-  with open('./data_info/Sample_Names/process_name_{}.json'.format(era),'r') as f:
+  with open(f'./data_info/Sample_Names/process_name_{era}_{region}_{channel}.json','r') as f:
     NAME = json.load(f)
     process = NAME.keys()
   for region in region_list:
@@ -101,7 +107,7 @@ for era in era_list:
     if args.merge:
         merged_input = None
         for channel in region_list[region]:
-            channel_input_tmp = read_json(f"data_info/Datacard_Input/2017/Datacard_Input_{region}_{channel}.json")
+            channel_input_tmp = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
             channel_input = dict()
             for key_, input_ in channel_input_tmp.items():
               if isinstance(input_, dict):

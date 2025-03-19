@@ -10,12 +10,16 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     samples = read_json(config.sample_json)
     process_raw = list(process)
     Input = dict()    
- 
+
+    region_info = read_json(config.cut_json)
 
     print("process_raw", process_raw)
     process = []
     process_data_driven = []
     process_free_float  = []
+    region_ABCD = dict() 
+    if 'ABCDmethod' in region_info[region]:
+      region_ABCD = region_info[region]['ABCDmethod']
 
     for process_ in process_raw:
       for sample in samples:
@@ -31,9 +35,11 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     Input['bin']=dict()
 
     Input['Process'] = process_raw
-    if 'SIGNAL' in process:
-      pass
-    else:
+
+    if not config.no_signal:
+      if 'SIGNAL' in process:
+        pass
+      else:
         Input['Process'].insert(0,'SIGNAL')
 
     Input['bin'][region] = len(Input['Process'])
@@ -42,6 +48,8 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     Input['NuisForProc'] = dict()
     Input['UnclnN'] = dict()
     Input['FreeFloat'] = list(process_free_float)
+    Input['ABCDmethod'] = region_ABCD
+
 
     jsonfile = open(config.nuisance_json)
     if python_version == 2:
@@ -69,9 +77,13 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
           if "PROCESS" in nuisance_name_:
             if "Process" not in nuisance_dict[nuisance]:
               nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in process] # All Background
-              if("Signal" in nuisance_dict[nuisance]["Label"]): nuisance_names.append(nuisance_name_.replace("PROCESS", "Signal"))
+              if("Signal" in nuisance_dict[nuisance]["Label"]) and not config.no_signal: nuisance_names.append(nuisance_name_.replace("PROCESS", "Signal"))
             else:
-              nuisance_names = [nuisance_name_.replace("PROCESS", process_) for process_ in nuisance_dict[nuisance]["Process"]]
+              nuisance_names = []
+              for process_ in nuisance_dict[nuisance]["Process"]:
+                if config.no_signal and "Signal" in process_: continue
+                nuisance_names.append(nuisance_name_.replace("PROCESS", process_))
+
               print(nuisance_names)
           else:
             nuisance_names = [nuisance_name_]
@@ -95,15 +107,22 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
             if "PROCESS" in nuisance_name_:
               blind_process_name = nuisance_name_.replace('PROCESS', '')
               process_name = nuisance_name.replace(blind_process_name, '')
+              if "Signal" in process_name and config.no_signal: continue
               Input['NuisForProc'][nuisance_name] = [process_name.replace("Signal", "SIGNAL")]
  
             elif "Process" in nuisance_dict[nuisance]:
-              Input['NuisForProc'][nuisance_name] = [process_.replace("Signal", "SIGNAL") for process_ in nuisance_dict[nuisance]["Process"]]
+              nuisance_tmp = []
+              for  process_ in nuisance_dict[nuisance]["Process"]:
+                if "Signal" in process_ and config.no_signal: 
+                    continue
+                else:
+                    nuisance_tmp.append(process_.replace("Signal", "SIGNAL"))
+              Input['NuisForProc'][nuisance_name] = nuisance_tmp
             else:
               if "Background" in nuisance_dict[nuisance]["Label"]: 
                 Input['NuisForProc'][nuisance_name] = process
               if "Signal" in nuisance_dict[nuisance]["Label"]:
-                if "SIGNAL" not in Input['NuisForProc'][nuisance_name]:
+                if "SIGNAL" not in Input['NuisForProc'][nuisance_name] and not config.no_signal:
                   Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
 
 

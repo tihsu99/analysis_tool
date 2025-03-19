@@ -10,6 +10,45 @@ from Util.General_Tool import CheckDir, python_version, read_json
 sys.path.append('../python')
 from common import *
 import copy
+import re
+
+def create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx, ABCD_regionA = False, ABCD_region = dict()):
+    Datacards_Input = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
+    # Add background
+    bkg_list = []
+    for process in Datacards_Input["Process"]:
+        if process == "SIGNAL": continue
+        bkg_list.append(str(process))
+    sig_list = signal_process if "SIGNAL" in Datacards_Input["Process"] else []
+
+    cb.AddProcesses(["*"], [analysis_name], [era], [str(channel)], bkg_list, [(region_idx,str(region + "_" + channel))], False)
+    # Add signal
+    cb.AddProcesses(["*"], [analysis_name], [era], [str(channel)], sig_list, [(region_idx,str(region + "_" + channel))], True)
+    # Add observable
+    cb.AddObservations(["*"], [analysis_name], [era], [str(channel)], [(region_idx, str(region + "_" + channel))])
+    # Add systematic
+    for nuisance in Datacards_Input["UnclnN"]:
+        process_list = []
+        for process in Datacards_Input["NuisForProc"][nuisance]:
+            if process == 'SIGNAL':
+              for sig_ in sig_list:
+                process_list.append(sig_)
+            else:
+              process_list.append(process)
+        if Datacards_Input["UnclnN"][nuisance] == 'shape':
+            cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "shape", ch.SystMap()(1.0))
+        else:
+            cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "lnN",  ch.SystMap()(float(Datacards_Input["UnclnN"][nuisance])))
+
+    if ABCD_regionA:
+      for ff_process in Datacards_Input["FreeFloat"]:
+        ABCD_region_list = [f"scale_{ff_process}_{era}_{ABCD_region[ABCD_subregion]}_{channel}" for ABCD_subregion in ['B', 'C', 'D']]
+        cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, f"scale_{ff_process}_{era}_{region}_{channel}", "rateParam", ch.SystMap()(('(@0*@1/@2)', ','.join(ABCD_region_list))))
+
+    if "FreeFloat" in Datacards_Input and not ABCD_regionA:
+        for ff_process in Datacards_Input["FreeFloat"]:
+            cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
+            parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0, 100.0]
 
 def set_Rate(p, rate=-1):
   if rate==-1:
@@ -69,41 +108,17 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
   for era in years:
     for region in region_channel_dict:
       for channel in region_channel_dict[region]:
+        print('era', era, 'region', region, 'channel', channel)
         parameter_constraint = dict()
         year = '2016' if '2016' in era else era
         cb = ch.CombineHarvester()
-        Datacards_Input = read_json("data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json".format(era, region, channel))
-        # Add background
-        bkg_list = []
-        for process in Datacards_Input["Process"]:
-          if process == "SIGNAL": continue
-          bkg_list.append(str(process))
-        sig_list = signal_process
-        cb.AddProcesses(["*"], [analysis_name], [era], [str(channel)], bkg_list, [(1,str(region + "_" + channel))], False)
-        # Add signal
-        cb.AddProcesses(["*"], [analysis_name], [era], [str(channel)], sig_list, [(1,str(region + "_" + channel))], True)
-        # Add observable
-        cb.AddObservations(["*"], [analysis_name], [era], [str(channel)], [(1,str(region + "_" + channel))])
-        # Add systematic
-        for nuisance in Datacards_Input["UnclnN"]:
-          process_list = []
-          for process in Datacards_Input["NuisForProc"][nuisance]:
-            if process == 'SIGNAL':
-              for sig_ in sig_list:
-                process_list.append(sig_)
-            else:
-              process_list.append(process)
-          if Datacards_Input["UnclnN"][nuisance] == 'shape':
-            cb.cp().process(process_list).AddSyst(cb, str(nuisance), "shape", ch.SystMap()(1.0))
-          else:
-            cb.cp().process(process_list).AddSyst(cb, str(nuisance), "lnN",  ch.SystMap()(float(Datacards_Input["UnclnN"][nuisance])))
-
-        if "FreeFloat" in Datacards_Input:
-            for ff_process in Datacards_Input["FreeFloat"]:
-                cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel), "rateParam", ch.SystMap()(1.0))
-                #cb.cp().bin([str(region + "_" + channel)]).process([ff_process]).AddSyst(cb, str("scale_" + ff_process), "rateParam", ch.SystMap()(1.0))
-                parameter_constraint[str("scale_" + ff_process + "_" + era + "_" + region + "_" + channel)] = [0, 100.0]
-                #parameter_constraint[str("scale_" + ff_process)] = [0.0, 20.0]
+        Datacards_Input = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
+        ABCDmethod = (len(Datacards_Input["ABCDmethod"]) > 0)
+        if len(Datacards_Input["ABCDmethod"]) > 0:
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["B"], channel, signal_process, analysis_name, region_idx = 2)
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["C"], channel, signal_process, analysis_name, region_idx = 3)
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["D"], channel, signal_process, analysis_name, region_idx = 4)
+        create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx = 1, ABCD_regionA = ABCDmethod, ABCD_region = Datacards_Input["ABCDmethod"])
         # Set Rate
         cb.ForEachProc(set_Rate)
         cb.ForEachObs(set_Rate)
@@ -121,18 +136,42 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
             # Check if the line defines a rateParam
               for param_ in parameter_constraint:
               # Add the bounds to the line
-                if param_ in line:
+                if line.startswith(param_):
                   line = line.strip() + f" [0,100]\n"
               file.write(line)
         # Specify systematic histogram naming rule
-        dataset_dir_v = dataset_dir.replace('/','\/')
-        os.system('sed -i "s/FAKE/%s\/FinalInputs\/%s\/%s\/TMVApp\_%s\_%s.root %s%s\_\$PROCESS %s%s\_\$PROCESS\_\$SYSTEMATIC/g"  %s'%(dataset_dir_v, era, signal_directory_name, region, channel, analysis_name, era, analysis_name, era, output_datacard_txt))
+        dataset_dir_v = dataset_dir
+
+        # Refer Input Files
+        with open(output_datacard_txt, "r") as file:
+            lines = file.readlines()
+
+        new_lines = []
+        for line in lines:
+        # Match the "shapes * REGION FAKE" pattern
+            match = re.match(r"shapes \* (\S+) FAKE", line)
+            if match:
+                region_name = match.group(1)  # Extracts the region name dynamically
+
+                # Construct the replacement string
+                replacement = f"{dataset_dir_v}/FinalInputs/{era}/{signal_directory_name}/TMVApp_{region_name}.root {analysis_name}{era}_$PROCESS {analysis_name}{era}_$PROCESS_$SYSTEMATIC"
+                # Replace "FAKE" with the constructed string
+                line = line.replace("FAKE", replacement)
+            if re.match('observation ', line):
+                line = line.replace("-1.0", '-1')
+
+            new_lines.append(line)
+
+        # Write the modified content back to the file
+        with open(output_datacard_txt, "w") as file:
+          file.writelines(new_lines)
+        #os.system('sed -i "s/FAKE/%s\/FinalInputs\/%s\/%s\/TMVApp\_%s\_%s.root %s%s\_\$PROCESS %s%s\_\$PROCESS\_\$SYSTEMATIC/g"  %s'%(dataset_dir_v, era, signal_directory_name, region, channel, analysis_name, era, analysis_name, era, output_datacard_txt))
         # Replace template setting
         os.system('sed -i "s/ERA/%s/g" %s'%(era, output_datacard_txt))
         os.system('sed -i "s/YEAR/%s/g" %s'%(year, output_datacard_txt))
         os.system('sed -i "s/CHANNEL/%s/g" %s'%(channel, output_datacard_txt))
         os.system('sed -i "s/REGION/%s/g" %s'%(region, output_datacard_txt))
-        os.system('sed -i "s/observation  -1.0/observation  -1/g" %s'%(output_datacard_txt)) #TODO 
+#        os.system('sed -i "s/observation  -1.0/observation  -1/g" %s'%(output_datacard_txt)) #TODO 
         print("\033[0;32m info \033[0;m: create datacard: %s"%(output_datacard_txt)) 
         if create_WorkSpace:
           os.system('text2workspace.py -P HiggsAnalysis.CombinedLimit.g2HDM:{} {} -o {}'.format(PhysicsModel, output_datacard_txt, output_datacard_txt.replace('txt','root')))

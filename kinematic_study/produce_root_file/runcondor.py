@@ -115,8 +115,10 @@ if __name__ == "__main__":
   parser.add_argument("--half",   dest = 'half', type=str, default=None)
   parser.add_argument("--notoppt",   dest = 'notoppt',  action='store_true')
   parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
+  parser.add_argument('--dir_tag', type=str, default = 'Prompt')
   args = parser.parse_args()
   args_dict = vars(args)
+
 
   ############
   ##  Path  ##
@@ -218,7 +220,7 @@ if __name__ == "__main__":
         merge_shell[Era][region][channel] = dict()
         for sample_Label in sample_label_list:
           json_file_name = args.sample_json
-          File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+          File_List      = Get_Sample(json_file_name, sample_Label, Era, dir_tag = args.dir_tag, withTail = False) # Use all the MC samples
           Final_List     = []
           for iin in File_List:
             if "Region" in samples[iin] and region not in samples[iin]["Region"]:
@@ -311,8 +313,8 @@ if __name__ == "__main__":
         Failed_Sample[Era][region][channel]['key'] = []
         Outdir = os.path.join(args.outdir, Era, region, channel)
         for sample_label in sample_label_list:
-          File_List = Get_Sample(args.sample_json, sample_label, Era)
-          Sample_List = Get_Sample(args.sample_json, sample_label, Era, False)
+          File_List = Get_Sample(args.sample_json, sample_label, Era, dir_tag = args.dir_tag)
+          Sample_List = Get_Sample(args.sample_json, sample_label, Era, args.dir_tag, False)
           for sample in Sample_List:
             if "Region" in samples[sample] and region not in samples[sample]["Region"]:
               continue
@@ -362,6 +364,7 @@ if __name__ == "__main__":
 
 
   for Era in Eras:
+   cprint(f"using input from {inputFile_path[args.dir_tag][Era]}", "green")
    for region in region_channel_dict:
      for channel in region_channel_dict[region]:
        Outdir   = os.path.join(args.outdir, Era, region, channel)
@@ -386,8 +389,8 @@ if __name__ == "__main__":
          cprint("Creating configuration for slim (Era: {}, Region: {}, Channel: {})".format(Era, region, channel), "yellow")
          python_file   =  os.path.join(cwd, 'slim.py')
 
-         File_List      = Get_Sample(json_file_name, sample_Label, Era) # Use all the MC samples (List of files)
-         Sample_List    = Get_Sample(json_file_name, sample_Label, Era, False) # List of process name
+         File_List      = Get_Sample(json_file_name, sample_Label, Era, dir_tag = args.dir_tag) # Use all the MC samples (List of files)
+         Sample_List    = Get_Sample(json_file_name, sample_Label, Era, args.dir_tag, False) # List of process name
          sample_label_text = " ".join(sample_Label)
          print(File_List)
          for iin in File_List:
@@ -415,7 +418,7 @@ if __name__ == "__main__":
                  if 'Signal' in sample_Label:  sample_name_file = file_.replace('.root', '') # Special rule for signal
                  else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
                  if (sample_name == sample_name_file):
-                     ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[Era], file_), "READ")
+                     ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[args.dir_tag][Era], file_), "READ")
                      nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                      ftemp.Close()
              norm_factors = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
@@ -472,7 +475,8 @@ if __name__ == "__main__":
            json_command += ' --cutflow ' if args.cutflow else ''
            json_command += ' --notoppt ' if args.notoppt else ''
            json_command += ' --train {}'.format(args.half) if ((args.half == 'train') or (args.half == 'test')) else ''
-
+           json_command += f' --dir_tag {args.dir_tag} '
+          
            for process_ in process_list:
              if args.clear:
                if process_ == 'TTTo1L' or process_ == 'TTTo2L':
@@ -497,7 +501,7 @@ if __name__ == "__main__":
                prepare_shell(shell_file, command, condor[Era][region][channel][process_], farm_dir)
 
              else:
-               ranges = prepare_range(inputFile_path[Era], iin, args.blocksize, half=args.half, isdata=("Data" in sample_Label))
+               ranges = prepare_range(inputFile_path[args.dir_tag][Era], iin, args.blocksize, half=args.half, isdata=("Data" in sample_Label))
                for idx, num in enumerate(ranges[:-1]):
                  start = ranges[idx]
                  end   = ranges[idx+1]
@@ -534,7 +538,7 @@ if __name__ == "__main__":
         for sample_Label in sample_label_list:
          Outdir = os.path.join(args.outdir, Era, region, channel)
          json_file_name = args.sample_json
-         File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+         File_List      = Get_Sample(json_file_name, sample_Label, Era, dir_tag = args.dir_tag, withTail = False) # Use all the MC samples
          Final_List     = []
          for iin in File_List:
 
@@ -596,7 +600,7 @@ if __name__ == "__main__":
       for channel in region_channel_dict[region]:
         for sample_Label in sample_label_list:
           json_file_name = args.sample_json
-          File_List      = Get_Sample(json_file_name, sample_Label, Era, withTail = False) # Use all the MC samples
+          File_List      = Get_Sample(json_file_name, sample_Label, Era, dir_tag = args.dir_tag, withTail = False) # Use all the MC samples
           for iin in File_List:
             if "Region" in samples[iin] and region not in samples[iin]["Region"]:
               continue

@@ -24,20 +24,21 @@ python_version = int(sys.version.split('.')[0])
 ############
 ##  Path  ##
 ############
+inputFile_path = dict()
 
-inputFile_path = {
+inputFile_path["Prompt"] = {
    '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v7/',
    '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v7/',
    '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v7/',
    '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v7/'
 }
 
-#inputFile_path = {
-#   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v0_qcd/',
-#   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v0_qcd/',
-#   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v0_qcd/',
-#   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v0_qcd/'
-#}
+inputFile_path["NonPrompt"] = {
+   '2016apv':     '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016apv/v0_qcd/',
+   '2016postapv': '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2016/v0_qcd/',
+   '2017':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2017/v0_qcd/',
+   '2018':        '/eos/cms/store/group/phys_b2g/ExYukawa/bHplus/2018/v0_qcd/'
+}
 
 subera_list = {
   '2016apv':     ['B2', 'C', 'D', 'E', 'F'],
@@ -136,7 +137,7 @@ def Extend_sample_dict(dict_, key_word = 'MASS'):
   return dict_clone
 
 
-def Get_Sample(json_file_name, Labels, era, withTail=True):
+def Get_Sample(json_file_name, Labels, era, dir_tag, withTail=True):
 
 ####################################################
 # Train_idx:                                       #
@@ -165,13 +166,13 @@ def Get_Sample(json_file_name, Labels, era, withTail=True):
 
     if Flag:
       if withTail:
-        dirs = os.listdir(inputFile_path[era])
+        dirs = os.listdir(inputFile_path[dir_tag][era])
         if "subfile" in desc: sublist_ = desc["subfile"][era]
         elif "Data" in desc["Label"]: sublist_ = ["_" + subera for subera in subera_list[era]]
         else: sublist_ = [""]
         for sub_ in sublist_:
           file_ = process + sub_ + ".root"
-          if not os.path.exists(os.path.join(inputFile_path[era], file_)): cprint(os.path.join(inputFile_path[era], file_) +  ' not exists', 'yellow')
+          if not os.path.exists(os.path.join(inputFile_path[dir_tag][era], file_)): cprint(os.path.join(inputFile_path[dir_tag][era], file_) +  ' not exists', 'yellow')
           else:
             File_List.append(file_)
       else:
@@ -208,6 +209,8 @@ Color_Dict_ref = {
   'WJets': ROOT.TColor.GetColor("#ffa90e"),
   'VJetsQQ': ROOT.TColor.GetColor("#eda69a"),
   'SingleTop': ROOT.TColor.GetColor("#bd1f01"),
+  'QCD_e': ROOT.TColor.GetColor("#94a4a2"),
+  'QCD_m': ROOT.kBlue + 1,
   'QCD': ROOT.TColor.GetColor("#94a4a2"),
   'DY': ROOT.TColor.GetColor("#832db6"),
   'VVV': ROOT.TColor.GetColor("#a96b59"),
@@ -228,8 +231,13 @@ Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, 
 def overunder_flowbin(h1):
   h1.SetBinContent(1,h1.GetBinContent(0)+h1.GetBinContent(1))
   h1.SetBinError(1,sqrt(h1.GetBinError(0)*h1.GetBinError(0)+h1.GetBinError(1)*h1.GetBinError(1)))
+  h1.SetBinContent(0, 0.0)
+  h1.SetBinError(0, 0.0)
+
   h1.SetBinContent(h1.GetNbinsX(),h1.GetBinContent(h1.GetNbinsX())+h1.GetBinContent(h1.GetNbinsX()+1))
   h1.SetBinError(h1.GetNbinsX(),sqrt(h1.GetBinError(h1.GetNbinsX())*h1.GetBinError(h1.GetNbinsX())+h1.GetBinError(h1.GetNbinsX()+1)*h1.GetBinError(h1.GetNbinsX()+1)))
+  h1.SetBinContent(h1.GetNbinsX()+1, 0.0)
+  h1.SetBinError(h1.GetNbinsX()+1,   0.0)
   return h1
 
 def over_flowbin(h1):

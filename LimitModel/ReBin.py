@@ -92,7 +92,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   binning = [100 * i for i in range(11)] if binning is None else binning
   binning = array.array('d', binning)
   print(POI, binning)
-  sample_json = 'data_info/Sample_Names/process_name_{}.json'.format(era)
+  sample_json = 'data_info/Sample_Names/process_name_{}_{}_{}.json'.format(era, region, channel)
   datacard_json = 'data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel)
 
   if merge_channel is not None:
@@ -128,11 +128,15 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   #############################
 
   Histograms = []
-  if (len(subprocess) == 0):
-    samples["SIGNAL"] = [signal] # one signal, no subprocess
-  else:
-    for idx, subprocess_ in enumerate(subprocess):
-      samples["SIGNAL{}".format(idx)] = [subprocess_]
+
+  if "SIGNAL" in datacard_inputs["Process"]:
+    if (len(subprocess) == 0):
+      samples["SIGNAL"] = [signal] # one signal, no subprocess
+    else:
+      for idx, subprocess_ in enumerate(subprocess):
+        samples["SIGNAL{}".format(idx)] = [subprocess_]
+
+  print(samples)
   for category in samples:
     # Nominal
     scale = 1.0

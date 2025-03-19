@@ -95,7 +95,7 @@ def CheckAndExec(MODE,datacards,mode='',settings=dict()):
     settings['FitDiagnostics_file'] = os.path.join(settings['outputdir'],'results/'+FitDiagnostics_file)
     settings['diffNuisances_File'] = diffNuisances_File
     settings['impacts_json'] = impacts_json
-    settings['shapePlot'] = 'results/{}_{}'.format(settings['shape_type'],settings['channel'])
+    settings['shapePlot'] = '{}_{}'.format(settings['shape_type'],settings['channel'])
     settings['plotNLLcode'] = os.path.join(settings['WorkDir'],'../../CombineHarvester/CombineTools/scripts/plot1DScan.py')
 
     if mode == 'PlotShape' or mode == "PlotPulls" or mode=="Plot_Impacts" or mode =="ResultsCopy":
@@ -458,7 +458,8 @@ def Impact_doInitFit(settings=dict()):
 
     if settings['unblind']:
         print (hs + "**Unbliding IMPACT command**"+ ns)
-        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
+        #command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
+        command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass}  --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance}'.format(workspace_root=workspace_root,mass=settings['mass'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
     else:
         command = 'combineTool.py -M Impacts -d {workspace_root} --doInitialFit --robustFit 1 -m {mass} -t -1 --expectSignal {expectSignal} --rMin {rMin} --rMax {rMax} {command} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --X-rtd MINIMIZER_skipDiscreteIterations  --X-rtd MINIMIZER_freezeDisassociatedParams  --setCrossingTolerance 0.00005 --X-rtd MINIMIZER_multiMin_maskConstraints --X-rtd MINIMIZER_multiMin_hideConstants '.format(workspace_root=workspace_root,mass=settings['mass'],expectSignal=settings['expectSignal'],rMin=settings['rMin'],rMax=settings['rMax'], cminDefaultMinimizerStrategy=settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance=settings['cminDefaultMinimizerTolerance'], command = settings["command"])
 
@@ -646,7 +647,7 @@ def PlotShape(settings=dict()):
 
             print('Access Histogram {fpath}'.format(fileName = outputFile, RootLevel = RootLevel, fpath = fpath))
     for region_ in Histogram:
-      for category in Histogram_Names:
+      for category in Histogram[region_]:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
         if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
         if category == 'total_background':
@@ -659,11 +660,10 @@ def PlotShape(settings=dict()):
         Histogram_merged       = dict()
         for region_ in Histogram:
             if settings['region'] == 'C':
-                region_out = region_.replace("2016postapv", "").replace("2017", "").replace("2018", "").replace("2016apv", "").replace('era','')
+                region_out = region_.replace("2016postapv_", "").replace("2017_", "").replace("2018_", "").replace("2016apv_", "").replace('era','')
             else:
                 region_out = region_.replace('era', '').replace('merged_resolved', '')
                 region_out += f"_{settings['region']}"
-            region_out = region_out.replace("ele_resolved", "e+m").replace("mu_resolved", "e+m")
             if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
             for category in Histogram[region_]:
                 if category not in Histogram_merged[region_out]:
@@ -677,9 +677,22 @@ def PlotShape(settings=dict()):
 #        for process in Histogram_merged[name]:
 #          print(name, process, Histogram_merged[name][process].GetBinContent(1), Histogram_merged[name][process].GetBinError(1))
 
+
+    Histogram_concatenated = dict()
+    region_binning         = dict()
+    
+
     for region_ in Histogram:
-        Histogram_concatenated = dict()
-        region_binning = dict()
+
+        Histogram_concatenated_tmp = dict()
+        region_binning_tmp        = dict()
+        Integral_tmp              =dict()
+        year_tmp = settings['year']
+        for year_candidate in ['2016apv', '2016postapv', '2017', '2018']:
+          if year_candidate in region_:
+              year_tmp = year_candidate
+
+
         for category in Histogram_Names:
             # print("gkole->", Histogram.keys())
             if ('TotalSig' in category) or ('TotalProcs' in category):
@@ -690,64 +703,80 @@ def PlotShape(settings=dict()):
                 category = 'TotalBkg'
             elif category == 'data_obs' or category == 'data':
                 category = 'Data'
-            # print("gkole-> region_", region_)
-            htemp = Histogram[region_][category]
 
-            if category not in Histogram_concatenated:
-                Histogram_concatenated[category] = htemp.Clone()
-                # print("gkole->", "1")
+
+            if category not in Histogram[region_]:
+                htemp = Histogram[region_]["TotalBkg"].Clone()
+                for ibin in range(htemp.GetNbinsX() + 2):
+                  htemp.SetBinContent(ibin, 0)
+                  htemp.SetBinError(ibin, 0)
+
             else:
-                Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
+                htemp = Histogram[region_][category]
 
-            # print("gkole->", category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
-            if region_ not in region_binning:
-                region_name = region_ if settings['region'] == 'C' else region_ + f"_{settings['region']}"
-                region_binning[region_name] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
+            region_name = region_ if settings['region'] == 'C' else region_ + f"_{settings['region']}"
+            Histogram_concatenated_tmp[category] = htemp.Clone()
+            Integral_tmp[category] = htemp.Integral()
 
-            print ("gkole", region_binning)
-
+        print('binning tmp', region_binning_tmp)
+        shape_type = settings['shape_type'].lower()
         if settings['shape_type'].lower() == 'prefit':
             Title = 'Pre-Fit Distribution'
         else:
             Title = 'Post-Fit Distribution'
 
-        print(100 * "*")
         # may be redifine a histogram and add the bin content and error
-        print ('gkole Redefine binning')
-        correct_region = '_'.join(region_.split('_')[-2:])
+        for region_candidate in settings['region_info']:
+          if region_candidate in region_:
+            correct_region = region_candidate
+
+        # ABCD method bins only use 1 bin (Poisson)
+        isABCD = False
+        for ABCD_region in ['CRb', 'CRc', 'CRd']:
+            if ABCD_region in region_:
+                isABCD = True
+
         xaxisTitlestring = 'mass'
         if correct_region == 'CR_1b4j':
-            print ('gkole->', correct_region)
-            new_binning = settings['region_info'][correct_region]['POI_binnings']['Normal']
-            print ('gkole->', new_binning)
+            new_binning = settings['region_info'][correct_region]['POI_binnings']['Normal'] if not isABCD else [0, 1]
             xaxisTitlestring = settings['region_info'][correct_region]['POI_name']
-            redefine_binning(Histogram_concatenated, new_binning)
+            redefine_binning(Histogram_concatenated_tmp, new_binning)
         elif correct_region.startswith('SR'):
-            print ('gkole->', correct_region)
             # check if the DNNMASS bin present or not
             print (template_settings['region_info'][correct_region]["POI"][0]+template_settings['mass'])
             xaxisTitlestring = settings['region_info'][correct_region]['POI_name'].replace('MASS', settings['mass'])
             temp_string = template_settings['region_info'][correct_region]["POI"][0]+template_settings['mass']
             if temp_string in settings['region_info'][correct_region]['POI_binnings']:
-                new_binning = settings['region_info'][correct_region]['POI_binnings'][temp_string]
-                print ('gkole->', new_binning)
-                redefine_binning(Histogram_concatenated, new_binning)
+                new_binning = settings['region_info'][correct_region]['POI_binnings'][temp_string] if not isABCD else [0, 1]
+                redefine_binning(Histogram_concatenated_tmp, new_binning)
             else:
-                new_binning = settings['region_info'][correct_region]['POI_binnings']['Normal']
-                print ('gkole->', new_binning)
-                redefine_binning(Histogram_concatenated, new_binning)
-        else:
-            print ('Should not be here')
+                new_binning = settings['region_info'][correct_region]['POI_binnings']['Normal'] if not isABCD else [0, 1]
+                redefine_binning(Histogram_concatenated_tmp, new_binning)
 
-        # xaixs title
-        if correct_region == 'CR_1b4j':
-            xaxisTitle = 'DNN score'
+
+        else:
+            print ('Region musts name with CR_1b4j or SR')
+
+
+        for category in Histogram_concatenated_tmp:
+           htemp = Histogram_concatenated_tmp[category]
+           if category not in Histogram_concatenated:
+                Histogram_concatenated[category] = htemp.Clone()
+           else:
+                Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
+
+           if region_ not in region_binning:
+                region_binning[region_name] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
+                region_binning_tmp[region_name] = [0, htemp.GetNbinsX()]
+
+        print(os.path.join(CURRENT_WORKDIR, os.path.join(settings['outputdir'], shape_type, year_tmp, f"{settings['shapePlot']}_{region_}")))
+        CheckDir(os.path.join(CURRENT_WORKDIR, os.path.join(settings['outputdir'], shape_type, year_tmp)))
         template_settings = {
             "Maximum": Maximum,
-            "Integral": Integral,
-            "Histogram": Histogram_concatenated,
-            "outputfilename": os.path.join(CURRENT_WORKDIR, os.path.join(settings['outputdir'], f"{settings['shapePlot']}_{region_}")),
-            "year": region_.split('_')[0],
+            "Integral": Integral_tmp,
+            "Histogram": Histogram_concatenated_tmp,
+            "outputfilename": os.path.join(CURRENT_WORKDIR, os.path.join(settings['outputdir'], shape_type, year_tmp, f"{settings['shapePlot']}_{region_}")),
+            "year": year_tmp,
             "Title": Title,
             "xaxisTitle": xaxisTitlestring,
             "yaxisTitle": 'Events/bin',
@@ -760,7 +789,7 @@ def PlotShape(settings=dict()):
             "expectSignal": settings['expectSignal'],
             "plotRatio": settings['plotRatio'],
             "paper": settings['paper'],
-            "Region_binning": region_binning,
+            "Region_binning": region_binning_tmp,
             "region_info": settings['region_info'],
             "combined": settings['combined'],
             "pull": settings['pull'],
@@ -770,29 +799,9 @@ def PlotShape(settings=dict()):
         template_settings["Signal_Name"] = settings['signal_name']
         print("\n")
         Plot_Histogram(template_settings=template_settings)
-    '''
-    for category in Histogram_Names:
-      print ("gkole->", category) #bkgs
-      print ("gkole->", Histogram.keys())
-      if ('TotalSig' in category) or  ('TotalProcs' in category):continue
-      if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
-      if category == 'total_background':
-          category = 'TotalBkg'
-      elif category == 'data_obs' or category == 'data': category = 'Data'
-      for region_ in Histogram:
-        print ("gkole-> region_", region_)
-        htemp = Histogram[region_][category]
-        if category not in Histogram_concatenated:
-          Histogram_concatenated[category] = htemp.Clone()
-          print ("gkole->", "1")
-        else:
-          Histogram_concatenated[category] = combine_histograms(Histogram_concatenated[category], htemp)
-          print ("gkole->", "2")
-        print("gkole->", category, Histogram_concatenated[category].GetBinContent(1), Histogram_concatenated[category].GetBinError(1))
-        if region_ not in region_binning:
-          region_name = region_ if settings['region'] == 'C' else region_ + f"_{settings['region']}"
-          region_binning[region_name] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
 
+    
+    shape_type = settings['shape_type'].lower()
 
     if settings['shape_type'].lower() == 'prefit':
         Title = 'Pre-Fit Distribution'
@@ -804,7 +813,7 @@ def PlotShape(settings=dict()):
             "Maximum":Maximum,
             "Integral":Integral,
             "Histogram":Histogram_concatenated,
-            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'],settings['shapePlot'])),
+            "outputfilename":os.path.join(CURRENT_WORKDIR,os.path.join(settings['outputdir'], shape_type, 'unrolled')),
             "year":settings['year'],
             "Title":Title,
             "xaxisTitle":"",
@@ -822,7 +831,8 @@ def PlotShape(settings=dict()):
             "region_info": settings['region_info'],
             "combined": settings['combined'],
             "pull": settings['pull'],
-            'shape_type': settings['shape_type'].lower()
+            'shape_type': settings['shape_type'].lower(),
+            'xaxisSize': 6500
             }
     #if settings["unblind"] or settings["expectSignal"]:
     template_settings["Signal_Name"] = settings['signal_name']
@@ -832,7 +842,6 @@ def PlotShape(settings=dict()):
     #template_settings["Signal_Name"] = template_settings["Signal_Name"].replace("01","04").replace("10","04")
 
     Plot_Histogram(template_settings=template_settings)
-    '''
 
     FileIn.Close()
     #a = h_stack.GetXaxis();
@@ -968,8 +977,8 @@ def Plot_Histogram(template_settings=dict()):
         else:
             if Histogram_Name == 'Data':
                 if template_settings['unblind']:
-                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name, 'PE') #+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
-                    # legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
+#                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name, 'PE') #+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
+                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
                     template_settings['Histogram'][Histogram_Name].SetMarkerSize(3.5)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
@@ -978,35 +987,11 @@ def Plot_Histogram(template_settings=dict()):
             else:
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
-                '''
-                #gkole here put histogram binning label
-                for region_ in template_settings['Region_binning']:
-                    print('region', region_)
-                    region_name = '_'.join(region_.split('_')[-2:])
-                    print('region_name', region_name)
-                    print (template_settings['region_info'][region_name]["POI_binnings"]['Normal'])
-
-                    bin_edges = template_settings['region_info'][region_name]["POI_binnings"]['Normal']
-                    bin_edges = [float(x) for x in bin_edges]
-                    # bin_edges = ['one','two','three','four','five','six'] #string test (not successfull)
-                    n_bins = len(bin_edges) - 1
-                    if region_name == 'CR_1b4j':
-                        print ('gkole change binning for CR_1b4j')
-                        x_axis = template_settings['Histogram'][Histogram_Name].GetXaxis()
-                        for i in range(1, n_bins + 1):  # ROOT bins start at 1
-                            print (i, bin_edges[i-1], bin_edges[i])
-                            print (x_axis.GetBinLowEdge(i), x_axis.GetBinUpEdge(i))
-                            print (x_axis.GetBinWidth(i))
-                            print (x_axis.GetBinLabel(i))
-                            x_axis.SetBinLabel(i, f"{bin_edges[i-1]}-{bin_edges[i]}")
-                            x_axis.SetNdivisions(414)
-                            print (x_axis.GetBinLabel(i))
-                '''
 
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
                 print(Histogram_Name, template_settings['Integral'][Histogram_Name])
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H"), 'F') # + ' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]), 'F')
-                #legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [%.1f]'%(float(template_settings['Integral'][Histogram_Name])), 'F')
+                #legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H"), 'F') # + ' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]), 'F')
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H") + ' [%.1f]'%(float(template_settings['Integral'][Histogram_Name])), 'F')
 
     h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
@@ -1049,16 +1034,40 @@ def Plot_Histogram(template_settings=dict()):
     label_text = dict()
     for region_ in template_settings['Region_binning']:
         x_line = template_settings['Region_binning'][region_][1]
-        x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
+        x_text = (hh_total.GetBinLowEdge(template_settings['Region_binning'][region_][0] + 1) + hh_total.GetBinLowEdge(template_settings['Region_binning'][region_][1] + 1)) / 2
         sep_line[region_] = ROOT.TLine(x_line, 0, x_line, hh_total.GetMaximum()* 1.2)
         sep_line[region_].SetLineColor(ROOT.kBlack)
         sep_line[region_].SetLineStyle(2)
         sep_line[region_].SetLineWidth(5)
         sep_line[region_].Draw()
-        region_list = region_.split('_')
+
+        region_name = ''
+        channel_name = ''
+        region_list = []
+
+        for era_candidate in ['16apv', '16postapv', '2017', '2018']:
+          if era_candidate in region_:
+            era_name = era_candidate
+            if era_candidate == '16apv': 
+              era_name = '16pre'
+            elif era_candidate == '16postapv':
+              era_name = '16post'
+            region_list.append(era_name)
+        for region_candidate in template_settings['region_info']:
+            if region_candidate in region_:
+                region_name = region_candidate.replace('SR_','').replace('CR_', '')
+                region_list.append(region_name)
+        for QCD_ABCD in ["CRb", "CRc", "CRd"]:
+            if QCD_ABCD in region_:
+              region_list.append(QCD_ABCD)
+        for channel_ in ['ele_resolved', 'mu_resolved', 'merged_resolved']:
+          if channel_ in region_:
+            channel_name = channel_.replace('_resolved', '')
+            region_list.append(channel_name)
         for region_height, region_text in enumerate(region_list):
           if Set_Logy: y_text_log = 10**((2.4 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
           else: y_text_log = (1.2 - 0.05 * region_height) * hh_total.GetMaximum()
+          print(x_text, y_text_log,  region_text)
           label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
           label_text[region_ + region_text].SetTextSize(0.04)
@@ -1144,7 +1153,9 @@ def Plot_Histogram(template_settings=dict()):
             y_text = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.25
 
             print('region', region_)
-            region_name = '_'.join(region_.split('_')[-2:])
+            for region_candidate in template_settings['region_info']:
+                if region_candidate in region_:
+                    region_name = region_candidate
             x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
             label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, y_text, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
             label_text[region_ + region_text + "axis"].SetTextAlign(22)  # Center align
@@ -1214,10 +1225,6 @@ def Plot_Histogram(template_settings=dict()):
     latex.SetTextFont(42);
     #latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
 
-    # Temporary solution for the region name
-    for region_ in template_settings['Region_binning']:
-        # print('region', '_'.join(region_.split('_')[-2:]))
-        latex.DrawLatex(0.180, 0.57, '_'.join(region_.split('_')[-2:]))
     ### CMS Pad #####
 
     import CMS_lumi
@@ -1294,10 +1301,9 @@ def DrawNLL(settings=dict()):
             Group = json.load(f)
 
 
-    os.system('cd {outputdir}'.format(outputdir=settings['outputdir']))
     os.chdir(settings['outputdir'])
     workspace_root = os.path.basename(settings['workspace_root'])
-    plot1Dscan = os.path.join(CURRENT_WORKDIR, 'plot1DScan.py')
+    plot1Dscan = os.path.join(CURRENT_WORKDIR, '../../HiggsAnalysis/CombinedLimit/scripts/plot1DScan.py')
 
     # safety check:
     if not os.path.isfile(workspace_root):
@@ -1330,7 +1336,7 @@ def DrawNLL(settings=dict()):
 
     commands.append('combine -M MultiDimFit {workspace_root} -n {SingleScan_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points}'.format(workspace_root = workspace_root, SingleScan_pattern = SingleScan_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
-    commands.append('{plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern))
+    commands.append('python3 {plot1Dscan}  {SingleScan_root} -o Likelihood{SingleScan_pattern}'.format(plot1Dscan = plot1Dscan, SingleScan_root = SingleScan_root, SingleScan_pattern = SingleScan_pattern))
 
     ####################
     ####  SnapShot #####
