@@ -29,7 +29,8 @@ if __name__ == '__main__':
   parser.add_argument('--sig_norm', action = 'store_true')
   parser.add_argument('--test', action = 'store_true')
   parser.add_argument('--farm', default = 'Farm', type=str)
-  parser.add_argument('--merge', action = 'store_true')
+  parser.add_argument('--ch_merge', action = 'store_true')
+  parser.add_argument('--era_merge', action = 'store_true')
   parser.add_argument('--randomized_scan', action = 'store_true')
   parser.add_argument('--check', action = 'store_true')
   args = parser.parse_args()
@@ -44,7 +45,10 @@ if __name__ == '__main__':
   unblind   = '--unblind' if args.unblind else ''
   POI       = args.POI
   sig_norm  = '--sig_norm' if args.sig_norm else ''
-  merge     = '--merge' if args.merge else ''
+  ch_merge  = '--ch_merge' if args.ch_merge else ''
+  era_merge = '--era_merge' if args.era_merge else ''
+
+  print(era_merge)
 
   farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
@@ -84,11 +88,12 @@ if __name__ == '__main__':
 
   for sig_ in signal_list:
     for region_ in region_list:
-        command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {merge}'.format(year=year, region=region_, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, merge = merge)
+        command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {ch_merge} {era_merge}'.format(year=year, region=region_, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, ch_merge = ch_merge, era_merge = era_merge)
 
         if args.check:
-          if not os.path.exists(os.path.join(outputdir, "FinalInputs", year, sig_, f"TMVApp_{region_}_mu_resolved.root")):
-              cprint(os.path.join(outputdir, "FinalInputs", year, sig_, f"TMVApp_{region_}_mu_resolved.root") + "not exists", "red")
+          year_check = year[0] if not era_merge else "Merged_run2"
+          if not os.path.exists(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root")):
+              cprint(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root") + "not exists", "red")
           else:
               continue
         prepare_shell(f'{sig_}_{region_}.sh', command, condor, farm_dir, True)

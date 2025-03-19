@@ -82,7 +82,7 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
 
   return h
 
-def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None, args=None, merge_channel = None):
+def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', prefix_='', signal=None, quiet=False, analysis_name='bH', sig_scale=1.0, subprocess=[], binning = None, args=None, merge_channel = None, merge_era = None):
 
   fout = TFile.Open(fout_name, "RECREATE")
   ######################
@@ -93,35 +93,26 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   binning = array.array('d', binning)
   print(POI, binning)
   sample_json = 'data_info/Sample_Names/process_name_{}_{}_{}.json'.format(era, region, channel)
+
+  if merge_era:
+    sample_json = 'data_info/Sample_Names/process_name_{}_{}_{}.json'.format('2017', region, channel)
   datacard_json = 'data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel)
+
+
 
   if merge_channel is not None:
       datacard_json_dict = dict()
       for channel_ in merge_channel:
           datacard_json_dict[channel_] =  read_json('data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era,region,channel_))
 
-  jsonfile = open(args.sample_json)
-  if python_version == 2:
-      samples_contain_datainfo = json.load(jsonfile, encoding='utf-8')
-  else:
-      samples_contain_datainfo = json.load(jsonfile)
-  jsonfile.close()
+  elif merge_era is not None:
+      datacard_json_dict = dict()
+      for era_ in era_list:
+        datacard_json_dict[era_] =  read_json('data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(era_,region,channel))
 
-
-  jsonfile = open(sample_json)
-  if python_version == 2:
-    samples = json.load(jsonfile, encoding='utf-8')
-  else:
-    samples = json.load(jsonfile)
-  jsonfile.close()
-
-
-  jsonfile = open(datacard_json)
-  if python_version == 2:
-    datacard_inputs = json.load(jsonfile, encoding='utf-8')
-  else:
-    datacard_inputs = json.load(jsonfile)
-  jsonfile.close()
+  samples = read_json(sample_json)
+  samples_contain_datainfo = read_json(args.sample_json)
+  datacard_inputs = read_json(datacard_json)
 
   #############################
   ##  Merge Histogram (bkg)  ##
@@ -146,7 +137,6 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
     else: category_name = category
 
     if merge_channel is not None:
-    
         h_merge = None
         for channel_ in merge_channel:
              if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel_ not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
@@ -173,7 +163,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                     if nuisance not in datacard_json_dict[channel_]["UnclnN"]:
                         h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel_, region=region, scale=scale))
                     else:
-                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir_tmp, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale))
+                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir_tmp, bins=binning, era = era, q=quiet, analysis_name=analysis_name, channel=channel_, region = region, scale=scale))
                     if h_merge is None:
                         h_merge = h.Clone()
                     else:
@@ -184,6 +174,42 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                 nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region)
                 h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
                 Histograms.append(h_merge)
+    elif merge_era is not None:
+        print(era)
+        h_merge = None
+        for era_ in era_list:
+             print(indir)
+             indir_tmp = indir.replace('Merged_run2', era_)
+             h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale))
+             if h_merge is None: 
+                 h_merge = h.Clone()
+             else:
+                 h_merge.Add(h.Clone())
+        Histograms.append(h_merge)
+        for nuisance in datacard_inputs["NuisForProc"]:
+            if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
+            category_replace_signal = category
+            if "SIGNAL" in category:
+                category_replace_signal = "SIGNAL"
+            if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
+            for variation in ["_up", "_down"]:
+                h_merge = None
+                for era_ in era_list:
+                    indir_tmp = indir.replace('Merged_run2', era_)
+                    if nuisance not in datacard_json_dict[era_]["UnclnN"]:
+                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale))
+                    else:
+                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir_tmp, bins=binning, era = era_, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale))
+                    if h_merge is None:
+                        h_merge = h.Clone()
+                    else:
+                        h_merge.Add(h.Clone())
+                nuis = str("_" + nuisance + variation)
+                year = '2016' if '2016' in era else era
+                nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region)
+                h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
+                Histograms.append(h_merge)
+       
     else:
         if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
         h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale)
@@ -225,13 +251,31 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                 if "Era" in samples_contain_datainfo[sample_] and era not in samples_contain_datainfo[sample_]["Era"]: continue
                 data_list.append(sample_)
 
-            h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir_tmp, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region = region)
+            h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir_tmp, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel_, region = region)
             if h_merge is None:
                 h_merge = h.Clone()
             else:
                 h_merge.Add(h.Clone())
         Histograms.append(h_merge)
+    elif merge_era is not None:
+        h_merge = None
+        for era_ in era_list:
+            data_list = []
+            indir_tmp = indir.replace('Merged_run2', era_)
+            for sample_ in samples_contain_datainfo:
+                if not "Data" in samples_contain_datainfo[sample_]["Label"]: continue
+                if "Region" in samples_contain_datainfo[sample_] and region not in samples_contain_datainfo[sample_]["Region"]: continue
+                if "Channel" in samples_contain_datainfo[sample_] and channel not in samples_contain_datainfo[sample_]["Channel"]: continue
+                if "Era" in samples_contain_datainfo[sample_] and era_ not in samples_contain_datainfo[sample_]["Era"]: continue
+                data_list.append(sample_)
 
+            h = Make_Hist(prefix=POI, samples_list=data_list, nuis='', category='data_obs', indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region = region)
+            if h_merge is None:
+                h_merge = h.Clone()
+            else:
+                h_merge.Add(h.Clone())
+        h_merge.SetNameTitle(analysis_name + era + "_data_obs", analysis_name + era + "_data_obs")
+        Histograms.append(h_merge)   
     else:
         data_list = []
         for sample_ in samples_contain_datainfo:
@@ -266,14 +310,18 @@ parser.add_argument('--unblind',action='store_true')
 parser.add_argument('-q','--quiet',action='store_true')
 parser.add_argument('--POI', default = 'BDT')
 parser.add_argument('--sig_norm', action = 'store_true')
-parser.add_argument('--merge',  action = 'store_true')
+parser.add_argument('--ch_merge',  action = 'store_true')
+parser.add_argument('--era_merge',  action = 'store_true')
 parser.add_argument('--randomized_scan', action = 'store_true')
 args = parser.parse_args()
 
 args.outputdir = os.path.join(args.outputdir, 'FinalInputs')
 
-if "all" in args.era:
+if "all" in args.era and not args.era_merge:
   eras = ["2016postapv", "2016apv", "2017", "2018"]
+elif args.era_merge:
+  eras = ['Merged_run2']
+  era_list = ["2016postapv", "2016apv", "2017", "2018"]
 else:
   eras = args.era
 
@@ -358,7 +406,6 @@ for era_ in eras:
 
         sig_scale = dict()
         for signal_in_loop in all_signal_list:
-
             if args.sig_norm:
               sig_scale[signal_in_loop] = 1./samples[signal_in_loop]["xsec"]
             else:
@@ -374,13 +421,14 @@ for era_ in eras:
               else:
                   sig_scale[process] = 1.0
         print(subprocess)
-        if not args.merge:
+        print(era_)
+        if not args.ch_merge:
           for channel_ in region_channel_dict[region_]:
             inputdir = os.path.join(args.inputdir, era_, region_, channel_) # Rule for input directory
             fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, channel_))
-            ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning, args=args)
+            ReBin(inputdir, fname, era_, region_, channel_, unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning, args=args, merge_era=args.era_merge)
         else:
             inputdir = os.path.join(args.inputdir, era_, region_)
-            fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, 'merged_resolved'))
-            ReBin(inputdir, fname, era_, region_, "merged_resolved", unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning, args=args, merge_channel = region_channel_dict[region_])
+            fname = os.path.join(args.outputdir, era_, signal_, 'TMVApp_{}_{}.root'.format(region_, 'ch_merged_resolved'))
+            ReBin(inputdir, fname, era_, region_, "ch_merged_resolved", unblind=args.unblind, POI=POI_in, signal=signal_, quiet=args.quiet, analysis_name=args.analysis_name, sig_scale=sig_scale, subprocess=subprocess, binning = POI_binning, args=args, merge_channel = region_channel_dict[region_])
                                         
