@@ -10,7 +10,9 @@ import re
 sys.path.insert(1, '../python')
 from common import *
 from termcolor import cprint
+import sys
 
+# Reconstruct the command
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
 
@@ -56,13 +58,17 @@ if __name__ == '__main__':
   if not os.path.exists(farm_dir):
     os.system('mkdir -p {}'.format(farm_dir))
 
+  input_command = "python3 " + " ".join(sys.argv)
+  with open(os.path.join(farm_dir, 'check.sh'), 'w') as check_file:
+    check_file.write(input_command + " --check")
+
   condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
   condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
   condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
   condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = vanilla\n')
-  condor.write('+JobFlavour = "longlunch"\n')
+  condor.write('+JobFlavour = "workday"\n')
   condor.write('queue 1 cfgFile in ')
 
 

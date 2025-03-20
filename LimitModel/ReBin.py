@@ -185,6 +185,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                  h_merge = h.Clone()
              else:
                  h_merge.Add(h.Clone())
+        h_merge.SetNameTitle(analysis_name + era + "_" + category_name, analysis_name + era + "_" + category_name)
         Histograms.append(h_merge)
         for nuisance in datacard_inputs["NuisForProc"]:
             if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
@@ -206,7 +207,7 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                         h_merge.Add(h.Clone())
                 nuis = str("_" + nuisance + variation)
                 year = '2016' if '2016' in era else era
-                nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region)
+                nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region).replace("CHANNEL", channel)
                 h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
                 Histograms.append(h_merge)
        

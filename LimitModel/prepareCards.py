@@ -260,15 +260,18 @@ if __name__ == "__main__":
   parser.add_argument('--PhysicsModel', help='Physics model name', default='g2HDM_3Bbased')
   parser.add_argument('--create_WorkSpace', action = 'store_true')
   parser.add_argument('--cut_json', default='../data/cut.json')
-  parser.add_argument('--merge', action = 'store_true')
+  parser.add_argument('--era_merge', action = 'store_true')
+  parser.add_argument('--ch_merge', action = 'store_true')
   parser.add_argument('--randomized_scan', action = 'store_true')
   parser.add_argument('--mass_detailed',  help="List of mass", default=[200, 300, 350, 400, 500, 600, 700, 800, 900, 1000], nargs='+')
   args = parser.parse_args()
   CheckDir(args.outdir, True)
 
 
-  if args.merge: 
+  if args.ch_merge: 
       args.channel = ["merged_resolved"]
+  if args.era_merge: 
+      args.year = ["Merged_run2"]
 
   args.outdir = os.path.join(args.outdir, 'datacards_{}'.format(args.PhysicsModel))
 

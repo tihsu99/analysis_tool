@@ -52,12 +52,7 @@ else:
 ## Write Nuisances List ##
 ##########################
 
-jsonfile = open(args.cut_json)
-if python_version == 2:
-    regions = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict)
-else:
-    regions = json.load(jsonfile, object_pairs_hook=OrderedDict)
-jsonfile.close()
+regions = read_json(args.cut_json)
 
 CheckDir("./data_info/NuisanceList",MakeDir=True)
 
@@ -97,12 +92,13 @@ for era in era_list:
 ####################
 for era in era_list:
     CheckDir("data_info/Datacard_Input/{}/".format(era),MakeDir=True)
-    with open('./data_info/Sample_Names/process_name_{}.json'.format(era),'r') as f:
-      NAME = json.load(f)
-      process = NAME.keys()
     for region in region_list:
       for channel in region_list[region]:
           print(nuisances_for_data_card[era][region][channel])
+          with open('./data_info/Sample_Names/process_name_{}_{}_{}.json'.format(era, region, channel),'r') as f:
+            NAME = json.load(f)
+            process = NAME.keys()
+
           Datacard_Input_Producer(year=era, region=region, channel=channel,nuisances=nuisances_for_data_card[era][region][channel],process=process, config=args)
 
 ###################

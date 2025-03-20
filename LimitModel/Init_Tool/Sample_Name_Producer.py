@@ -1,5 +1,5 @@
 import json, sys
-from Util.General_Tool import CheckFile, python_version
+from Util.General_Tool import CheckFile, python_version, read_json
 from collections import OrderedDict
 
 '''
@@ -9,15 +9,11 @@ You need to fill in the process name for MC sample in root file manually.
 
 def Bkg_MC_SAMPLE_NAME(year='',outputdir='', region='', channel='', config=None):
 
-    jsonfile = open(config.sample_json)
-    if python_version == 2:
-      samples = json.load(jsonfile, encoding='utf-8', object_pairs_hook=OrderedDict).items()
-    else:
-      samples = json.load(jsonfile, object_pairs_hook=OrderedDict). items()
-    jsonfile.close()
+
+    samples = read_json(config.sample_json)
 
     SAMPLE=dict()
-    for process, desc in samples:
+    for process, desc in samples.items():
       if (("Data" in desc["Label"]) or ("Signal" in desc["Label"])): continue
       if "Region" in desc and region not in desc["Region"]: continue
       if "Channel" in desc and channel not in desc["Channel"]: continue
