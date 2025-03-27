@@ -32,3 +32,5 @@ datacards/*
 Farm*
 kinematic_study/produce_root_file/data/*
 kinematic_study/produce_root_file/script/*
+LimitModel/datacards_*/run2/CGToBHpm_a_*_rtt06_rtc04/CGToBHpm_*.txt
+

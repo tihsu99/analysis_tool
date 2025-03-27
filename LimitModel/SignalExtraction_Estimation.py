@@ -1,30 +1,30 @@
 '''
 Step0
 Step1
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800 
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
     #This would give your the workspace root file of datacards.
-Step2    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 
-Step3    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 
-Step4    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800 
-Step5    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800 
-Step6    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800 
-Step7    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 
-Step8    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 
+Step2
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
+Step3
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
+Step4
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800
+Step5
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
+Step6
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
+Step7
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
+Step8
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
 '''
-import os 
+import os
 import sys
-from Util.General_Tool import CheckDir,CheckFile
+from Util.General_Tool import CheckDir,CheckFile, read_json
 import argparse
 import time
-from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot
+from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot, GlobalSignificance, GlobalSignificancePlot
 from Util.aux import *
 from collections import OrderedDict
 
@@ -33,10 +33,10 @@ sys.path.append(CURRENT_WORKDIR)
 
 start = time.time()
 
-year_choices = ['2016apv','2016postapv','2017','2018','run2']
+year_choices = ['2016apv','2016postapv','2017','2018','run2','Merged_run2']
 
 
-mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot']
+mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot', 'GlobalSignificance', 'GlobalSignificancePlot']
 
 
 parser = argparse.ArgumentParser()
@@ -67,8 +67,12 @@ parser.add_argument('--shape_type', help = 'preFit/postFit', choices = ['preFit'
 parser.add_argument('--group', type = int, default = 0)
 parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
+parser.add_argument('--cut_json', help = 'json for regions definition', default = '../data/cut.json', type=str)
 parser.add_argument('--command', default = '', type = str)
 parser.add_argument('--combined', action='store_true')
+parser.add_argument('--channel_mask', default = None, type = str)
+parser.add_argument('--pull', action='store_true')
+parser.add_argument('--nToys', default = 2000, type = int)
 args = parser.parse_args()
 
 '''
@@ -93,6 +97,8 @@ coupling_name = "rtt{}_rtc{}".format(signal_param["rtt"], signal_param["rtc"])
 x_variable = 'HT'
 #######################################
 
+args.command = str(args.command.replace(':', ' ').replace('"', ''))
+
 settings ={
     'year':args.year,
     'region':args.region,
@@ -107,6 +113,7 @@ settings ={
     'cminDefaultMinimizerTolerance': str(args.cminDefaultMinimizerTolerance),
     'cminDefaultMinimizerStrategy': str(args.cminDefaultMinimizerStrategy),
     'outdir': args.outdir,
+    'working_directory': args.outdir,
     'prefix': args.prefix,
     'GoF_Algorithm': args.GoF_Algorithm,
     'correlation': args.correlation,
@@ -119,7 +126,11 @@ settings ={
     'datacard_dir': '/'.join(datacards.split('/')[:-1]),
     'datacard_name': datacards.split('/')[-1],
     'command': args.command,
-    'combined': args.combined
+    'combined': args.combined,
+    'channel_mask': args.channel_mask,
+    'region_info': read_json(args.cut_json),
+    'pull': args.pull,
+    'nToys': args.nToys
 }
 
 if args.mode =='PlotShape':
@@ -129,7 +140,5 @@ if args.mode =='PlotShape':
 elif args.mode=='ResultsCopy':
     settings['dest'] = args.dest
 
-MODE = eval(args.mode) 
+MODE = eval(args.mode)
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
-
-    

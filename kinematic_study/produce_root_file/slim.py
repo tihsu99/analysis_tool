@@ -46,7 +46,8 @@ def Slim_module(filein,
                 notoppt = False,
                 noNLOwjet = False,
                 not_ensemble = False,
-                train = None):
+                train = None,
+                dir_tag = None):
 
   #############
   ##  Basic  ##
@@ -67,6 +68,7 @@ def Slim_module(filein,
   ROOT.gSystem.Load("libGenVector.so")
   header_path = os.path.join("script/slim_" + era + ".h")
   ROOT.gInterpreter.Declare('#include "{}"'.format(header_path))
+
   Mass_bin = [200, 300, 350, 400, 500, 600, 700, 800, 900, 1000]
   #################
   ##  Load File  ##
@@ -84,12 +86,53 @@ def Slim_module(filein,
   # sample_category mainly used for nuisance def.
   sample_category = samples[sample_name]['Category']
   sample_category = 'Signal' if 'Signal' in sample_labels else sample_category
+  if 'Randomized_Scan' in samples[sample_name]['Label']:
+      command = f'''\
+         TFile*f_nanoGen=TFile::Open("../../data/NanoGen_2017.root");\n\
+         TH1D* h_pdfvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_pdfvarup");\n\
+         TH1D* h_pdfvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_pdfvardown");\n\
+         TH1D* h_ISRvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_ISRvarup");\n\
+         TH1D* h_ISRvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_ISRvardown");\n\
+         TH1D* h_FSRvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_FSRvarup");\n\
+         TH1D* h_FSRvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_FSRvardown");\n\
+         TH1D* h_murvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_murvarup");\n\
+         TH1D* h_murvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_murvardown");\n\
+         TH1D* h_mufvarup = (TH1D*) f_nanoGen->Get("{SubProcess}_mufvarup");\n\
+         TH1D* h_mufvardo = (TH1D*) f_nanoGen->Get("{SubProcess}_mufvardown");\n\
+         float right_edge = h_pdfvarup->GetXaxis()->GetXmax() - 1.0; \n\
 
-  path    = str(inputFile_path[era])
+         float PDF_Uncertainty(float j1_pt){{ \n\
+             float pdfup = h_pdfvarup->GetBinContent(h_pdfvarup->FindBin(j1_pt)); \n\
+             float pdfdo = h_pdfvardo->GetBinContent(h_pdfvardo->FindBin(j1_pt)); \n\
+             return ((pdfup + pdfdo) / 2.); \n\
+         }} \n\
+         std::vector<float> PS_Weight_define(float j1_pt){{ \n\
+            if (j1_pt > right_edge) j1_pt = right_edge; \n\
+            float ISRup = h_ISRvarup->GetBinContent(h_ISRvarup->FindBin(j1_pt)); \n\
+            float FSRup = h_FSRvarup->GetBinContent(h_FSRvarup->FindBin(j1_pt)); \n\
+            float ISRdo = h_ISRvardo->GetBinContent(h_ISRvardo->FindBin(j1_pt)); \n\
+            float FSRdo = h_FSRvardo->GetBinContent(h_FSRvardo->FindBin(j1_pt)); \n\
+            std::vector<float> output = {{(float) (1.0 + ISRup), (float) (1.0 + FSRup), (float) (1.0 - ISRdo), (float) (1.0 - FSRdo)}}; \n\
+            return output; \n\
+         }} \n\
+         std::vector<float> LHEScaleWeight_define(float j1_pt){{ \n\
+            if (j1_pt > right_edge) j1_pt = right_edge; \n\
+            float mur_do = h_murvardo->GetBinContent(h_murvardo->FindBin(j1_pt)); \n\
+            float muf_do = h_mufvardo->GetBinContent(h_mufvardo->FindBin(j1_pt)); \n\
+            float mur_up = h_murvarup->GetBinContent(h_murvarup->FindBin(j1_pt)); \n\
+            float muf_up = h_mufvarup->GetBinContent(h_mufvarup->FindBin(j1_pt)); \n\
+            std::vector<float> output = {{0.0, (float) (1.0 - mur_do), 0.0, (float)(1.0 - muf_do), 0.0, (float) (1.0 + muf_up), 0.0, (float) (1.0 + mur_up)}}; \n\
+            return output; \n\
+        }} \n\
+      '''
+      print(command)
+      ROOT.gInterpreter.Declare(command)
+
+  path    = str(inputFile_path[dir_tag][era])
   fin     = os.path.join(path, filein)
   if 'eos' in fin and 'root://eosuser.cern.ch//' not in fin:
       fin = 'root://eosuser.cern.ch//' + fin
-
+  cprint("input file: {}".format(fin), "green")  
   if not index == -1:
     fileOut = os.path.join(output_dir, str(index) + "_" + filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
@@ -190,6 +233,7 @@ def Slim_module(filein,
     'Label': ['Normal']
   }
 
+
   print('nuisances_valid', nuisances_valid)
   for variable in variables:
 
@@ -211,6 +255,11 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][channel]))
       elif(variables[variable]["Def"] == "Btag_WP_Dep"):
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
+      elif(variables[variable]["Def"] == "Randomized_Dep"):
+        print(variable)
+        type_ = "Randomized" if ('Randomized_Scan' in samples[sample_name]['Label']) else "Normal" 
+        print(variable, type_)
+        df = df.Define(str(variable), str(variables[variable]["Category"][type_]))
       else:
         df = df.Define(str(variable), str(variables[variable]["Def"]))
       if("Children" in variables[variable]):
@@ -340,8 +389,18 @@ def Slim_module(filein,
 
   # POIs setting
   if 'ASCUTJSON' in POIs:
-     POIs = cuts[region]['POI']
+     POIs_tmp = cuts[region]['POI']
+  else:
+     POIs_tmp = []
 
+
+  POI_list = POIs_tmp
+  for POI in POIs:
+     if POI == 'ASCUTJSON':
+         continue
+     else:
+         POI_list.append(POI)
+  POIs = POI_list
 
   ####################
   ##  MVA Variable  ##
@@ -421,7 +480,7 @@ def Slim_module(filein,
         "Title": ";DNN;nEntries",
         "xlow":0,
         "xhigh":1,
-        "nbin": 20,
+        "nbin": 100,
         "Label": ["Normal", "pNN"],
         "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
       }
@@ -432,7 +491,7 @@ def Slim_module(filein,
           "Title": ";DNNScore;nEntries",
           "xlow":0.5,
           "xhigh":1,
-          "nbin": 20,
+          "nbin": 100,
           "Label": ["Normal", "pNN"],
           "cut": cuts[region]["DNN_category"] if "DNN_category" in cuts[region] else None
         }
@@ -461,6 +520,7 @@ def Slim_module(filein,
     else:
       POIs_after_consider_mass.append(POI_)
   POIs = POIs_after_consider_mass
+  print("POI", POIs)
 
   Histos_from_df = dict()
   Histos_from_df_var = dict()
@@ -631,6 +691,7 @@ if __name__ == "__main__":
   parser.add_argument("--noNLOwjet", action='store_true')
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   type=str, default = None)
+  parser.add_argument("--dir_tag", type=str, default = None)
 
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
@@ -659,6 +720,7 @@ if __name__ == "__main__":
               notoppt = args.notoppt,\
               noNLOwjet = args.noNLOwjet,\
               not_ensemble = args.not_ensemble,\
-              train = args.train)
+              train = args.train,
+              dir_tag = args.dir_tag)
   end_time = time.time()
   print('process time', end_time - start_time)

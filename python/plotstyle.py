@@ -1490,14 +1490,14 @@ class DataMCCanvas(RatioCanvas):
 
         return idx
 
-    def addSignal(self, sig, title = '', color = 0, idx = -1, drawOpt = 'HIST'):
+    def addSignal(self, sig, title = '', color = 0, idx = -1, drawOpt = 'HIST', lwidth = 4, lstyle = ROOT.kSolid):
         idx = self.addHistogram(sig, drawOpt = drawOpt, idx = idx)
 
         if idx not in self._sigs:
             # a new signal
             self._sigs.append(idx)
 
-            self.legend.add('sig%d' % idx, title = title, opt = 'L', color = color, lwidth = 4, lstyle = ROOT.kSolid, fstyle = 0)
+            self.legend.add('sig%d' % idx, title = title, opt = 'L', color = color, lwidth = lwidth, lstyle = lstyle, fstyle = 0)
             self.legend.apply('sig%d' % idx, self._histograms[idx].obj)
 
         self._modified()

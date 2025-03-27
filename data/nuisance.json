@@ -180,28 +180,28 @@
 
   "ps_isr_PROCESS": {
     "Nominal": ["weight"],
-    "Def": "RVec{(float)(weight*PSWeight[2]), (float)(weight*PSWeight[0])}",
+    "Def": "RVec{(float)(weight*PSWeight_v[2]), (float)(weight*PSWeight_v[0])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Process": ["TT", "Signal", "WJets"]
   },
 
   "ps_fsr_PROCESS":{
     "Nominal": ["weight"],
-    "Def": "RVec{(float)(weight*PSWeight[3]), (float)(weight*PSWeight[1])}",
+    "Def": "RVec{(float)(weight*PSWeight_v[3]), (float)(weight*PSWeight_v[1])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Process": ["TT", "Signal", "WJets"]
   },
 
   "QCDscale_mur_PROCESS":{
     "Nominal": ["weight"],
-    "Def": "RVec{(float)(weight*LHEScaleWeight[1]), (float)(weight*LHEScaleWeight[7])}",
+    "Def": "RVec{(float)(weight*LHEScaleWeight_v[1]), (float)(weight*LHEScaleWeight_v[7])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Process": ["TT", "Signal", "WJets"]
   },
 
   "QCDscale_muf_PROCESS":{
     "Nominal": ["weight"],
-    "Def": "RVec{(float)(weight*LHEScaleWeight[3]), (float)(weight*LHEScaleWeight[5])}",
+    "Def": "RVec{(float)(weight*LHEScaleWeight_v[3]), (float)(weight*LHEScaleWeight_v[5])}",
     "Label": ["MC", "Background", "Signal", "Shape"],
     "Process": ["TT", "Signal", "WJets"]
   },
@@ -220,11 +220,6 @@
     "Era": ["2016apv", "2016postapv"]
   },
 
-  "normQCD_ERA_REGION_CHANNEL":{
-    "value": 1.50,
-    "Label": ["lnN", "Background"],
-    "Process": ["QCD"]
-  },
 
   "normTT":{
     "value": 1.052,
@@ -232,6 +227,7 @@
     "Process": ["TT"]
   },
 
+  
   "CMS_lumi_YEAR":{
     "value": {"2017": 1.02, "2018": 1.015},
     "vary" : ["Era"],
@@ -250,12 +246,5 @@
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
-  },
-
-
-  "QCD_shape_ERA_REGION_CHANNEL":{
-    "Label": ["DataDriven", "Shape"],
-    "Process": ["QCD"]
   }
-
 }

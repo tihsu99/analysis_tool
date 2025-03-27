@@ -13,7 +13,7 @@ MVA_bin = [ 0.1*i for i in range(11)]
 Mtb_bin = [ 100*i for i in range(16)]
 Score_bin = [(0.2*i) for i in range(6)]
 #binning = array.array('d', BDT_bin)
-HT_bin = [ 50*i for i in range(9)]
+HT_bin = [ 50*i for i in range(5)]
 binning = array.array('d', HT_bin)
 python_version = int(sys.version.split('.')[0])
 

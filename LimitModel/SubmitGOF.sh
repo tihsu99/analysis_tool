@@ -1,5 +1,5 @@
 #!/bin/bash
-#./SubmitGOF.sh saturated [year] [region] [channel] [coupling:rtu04] [Higgs] [mass] [unblind/blind] [datacard_dir] [datacard_name]
+#./SubmitGOF.sh saturated [year] [region] [channel] [coupling:rtu04] [Higgs] [mass] [unblind/blind] [datacard_dir] [datacard_name] 
 ALGO=$1
 YEAR=$2
 REGION=$3
@@ -9,6 +9,7 @@ MASS=$7
 DATACARD_DIR=$9
 DATACARD=${10}
 Higgs=$6
+
 if [[ $8 == "unblind" ]];then
     UNBLIND="--unblind"
     expectSignal=""
@@ -67,12 +68,12 @@ echo "=== Submit job for toys (`pwd`)"
 for (( t=1; t<=nJobs; t++ ))
 do
     echo "=== Submit Jobs for toys $t/$nJobs ==="
-    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20 --toysFreq > SubmitGoF_${t}.log
+    combineTool.py -m ${MASS} -M GoodnessOfFit $datacards --algo=${ALGO}  -t $toysPerJob --job-mode $jobMode --sub-opts=${subOpts} --task-name $t  --seed "$((123456*$t))" -n toys${t}.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20 --toysFrequentist > SubmitGoF_${t}.log
 done
 
 if [[ $8 == "unblind" ]];then
     echo "=== Run job on data:(`pwd`) ==="
-    combineTool.py -m ${MASS} -M GoodnessOfFit ${datacards} --algorithm ${ALGO}  -n Data.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20
+    combineTool.py -m ${MASS} -M GoodnessOfFit ${datacards} --algorithm ${ALGO}  -n Data.${COUPLING}.${YEAR}.${REGION}.${CHANNEL}.${MASS}.${ALGO}  --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=20.0 --rMin -20 --rMax 20 --toysFrequentist
 fi
 cd ${CWD}
 

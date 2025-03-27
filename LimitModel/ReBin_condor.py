@@ -9,7 +9,10 @@ import glob
 import re
 sys.path.insert(1, '../python')
 from common import *
+from termcolor import cprint
+import sys
 
+# Reconstruct the command
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
 
@@ -28,6 +31,10 @@ if __name__ == '__main__':
   parser.add_argument('--sig_norm', action = 'store_true')
   parser.add_argument('--test', action = 'store_true')
   parser.add_argument('--farm', default = 'Farm', type=str)
+  parser.add_argument('--ch_merge', action = 'store_true')
+  parser.add_argument('--era_merge', action = 'store_true')
+  parser.add_argument('--randomized_scan', action = 'store_true')
+  parser.add_argument('--check', action = 'store_true')
   args = parser.parse_args()
 
 
@@ -40,6 +47,10 @@ if __name__ == '__main__':
   unblind   = '--unblind' if args.unblind else ''
   POI       = args.POI
   sig_norm  = '--sig_norm' if args.sig_norm else ''
+  ch_merge  = '--ch_merge' if args.ch_merge else ''
+  era_merge = '--era_merge' if args.era_merge else ''
+
+  print(era_merge)
 
   farm_dir  = os.path.join('./', args.farm)
   cwd       = os.getcwd()
@@ -47,13 +58,17 @@ if __name__ == '__main__':
   if not os.path.exists(farm_dir):
     os.system('mkdir -p {}'.format(farm_dir))
 
+  input_command = "python3 " + " ".join(sys.argv)
+  with open(os.path.join(farm_dir, 'check.sh'), 'w') as check_file:
+    check_file.write(input_command + " --check")
+
   condor = open(os.path.join(farm_dir, 'condor.sub'), 'w')
   condor.write('output = %s/job_common_$(cfgFile).out\n'%farm_dir)
   condor.write('error  = %s/job_common_$(cfgFile).err\n'%farm_dir)
   condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = vanilla\n')
-  condor.write('+JobFlavour = "longlunch"\n')
+  condor.write('+JobFlavour = "workday"\n')
   condor.write('queue 1 cfgFile in ')
 
 
@@ -65,11 +80,29 @@ if __name__ == '__main__':
   signal_list = []
   if "all" in args.signal:
     for sample_ in samples:
-      if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
+       if "Signal" in samples[sample_]["Label"]:
+            if args.randomized_scan:
+                if "Randomized_Scan" in samples[sample_]["Label"]:
+                      signal_list.append(sample_)
+            else:
+                signal_list.append(sample_)
+  else:
+    signal_list = args.signal
+
+  region_json = read_json(args.cut_json)
+  region_list = list(region_json.keys()) if region == 'all' else [region]
 
   for sig_ in signal_list:
-    command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json}'.format(year=year, region=region, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json)
-    prepare_shell('{}.sh'.format(sig_), command, condor, farm_dir, True)
+    for region_ in region_list:
+        command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {ch_merge} {era_merge}'.format(year=year, region=region_, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, ch_merge = ch_merge, era_merge = era_merge)
+
+        if args.check:
+          year_check = year[0] if not era_merge else "Merged_run2"
+          if not os.path.exists(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root")):
+              cprint(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root") + "not exists", "red")
+          else:
+              continue
+        prepare_shell(f'{sig_}_{region_}.sh', command, condor, farm_dir, True)
 
   condor.close()
   if not args.test:

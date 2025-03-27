@@ -28,6 +28,7 @@ if __name__ == '__main__':
   parser.add_argument('--process_blacklist',       default = None)
   parser.add_argument("--logy",          action  = "store_true")
   parser.add_argument("--unblind", action = "store_true")
+  parser.add_argument("--background", default = None)
   args = parser.parse_args()
 
   rtc = args.rtc.replace('.', '')
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     canvas.legend.setPosition(0.35, 0.77, 0.8, 0.9)
     canvas.raxis.SetNdivisions(101)
     #canvas.SetLogy()
-    canvas.rlimits = (0.9, 1.1)
+    canvas.rlimits = (0.8, 1.2)
     canvas.legend.SetTextSize(0.018)
     canvas.legend.SetX2(0.95)
     canvas.ytitle = "Events/bin"
@@ -72,6 +73,8 @@ if __name__ == '__main__':
 
     # Nominal process
     for process_ in data_info["Process"]:
+
+      if args.background is not None and not (process_ == args.background): continue
       if process_ == "SIGNAL": continue
       if (args.process_blacklist is not None) and (process_ == args.process_blacklist): continue
       histo = fin.Get("bH{era}_{process}".format(era = era, process = process_)).Clone()
@@ -85,6 +88,7 @@ if __name__ == '__main__':
     h_down = None
     for process_ in data_info["Process"]:
       if (args.process_blacklist is not None) and (process_ == args.process_blacklist): continue
+      if args.background is not None and not (process_ == args.background): continue
       if process_ == "SIGNAL": continue
       if process_ in data_info["NuisForProc"][nuisance] and not (args.process is not None and not process_ == args.process):
         h_up_tmp = fin.Get("bH{era}_{process}_{nui}Up".format(era=era, process=process_,nui=nuisance_name)).Clone()
@@ -107,10 +111,32 @@ if __name__ == '__main__':
     signal_histo_3b = fin.Get("bH{era}_{process}_3b".format(era=era, process=signal_name)).Clone()
     signal_histo.Add(signal_histo_3b)
     signal_histo.Scale(10)
-    canvas.addSignal(signal_histo, title = "Signal(x10)", color=ROOT.kBlue) 
+
+    if "SIGNAL" in data_info["NuisForProc"][nuisance]:
+      h_up_tmp = fin.Get("bH{era}_{process}_2b_{nui}Up".format(era=era, process   = signal_name, nui=nuisance_name)).Clone()
+      h_do_tmp = fin.Get("bH{era}_{process}_2b_{nui}Down".format(era=era, process = signal_name, nui=nuisance_name)).Clone()
+      h_up_tmp.Add(fin.Get("bH{era}_{process}_3b_{nui}Up".format(era=era, process   = signal_name, nui=nuisance_name)).Clone())
+      h_do_tmp.Add(fin.Get("bH{era}_{process}_3b_{nui}Down".format(era=era, process = signal_name, nui=nuisance_name)).Clone())
+
+      h_up_tmp.Scale(10)
+      h_do_tmp.Scale(10)
+      canvas.addSignal(h_up_tmp, title = "Sig_up", color=ROOT.kGreen+1, lwidth = 1) 
+      canvas.addSignal(h_do_tmp, title = "Sig_down", color=ROOT.kGreen-1, lwidth = 1) 
+
+    canvas.addSignal(signal_histo, title = f"Sig [{mass}GeV]", color=ROOT.kBlue, lwidth = 4) 
     canvas.addText('Region: {}'.format(region), 0.18, 0.79, 0.3, 0.82, size=0.02, align=12)
     canvas.addText('Channel: {}'.format(channel), 0.18, 0.76, 0.3, 0.79, size=0.02, align=12)
 
+
+    icolor = [ROOT.kRed-6, ROOT.kMagenta-3, ROOT.kGreen-6, ROOT.kBlue - 7]
+    for imass, mass_ in enumerate([300, 500, 800, 1000]):
+        if int(mass_) == int(mass): continue
+        other_signal_name = 'CGToBHpm_a_{mass}_rtt{rtt}_rtc{rtc}'.format(mass = mass_, rtt = rtt, rtc = rtc)
+        other_signal_histo = fin.Get("bH{era}_{process}_2b".format(era=era, process=other_signal_name)).Clone()
+        other_signal_histo_3b = fin.Get("bH{era}_{process}_3b".format(era=era, process=other_signal_name)).Clone()
+        other_signal_histo.Add(other_signal_histo_3b)
+        other_signal_histo.Scale(10)
+        canvas.addSignal(other_signal_histo, title = f"Sig [{mass_}GeV]", color = icolor[imass], lwidth = 3, lstyle = 9)
 
     if not DrawNominal:
       canvas.applyStyles()

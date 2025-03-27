@@ -18,7 +18,7 @@ sh example/scan_study_plot_nuisance_variation.sh "--era [ERA] --input_dir [OUTPU
 python3 PlotNuisanceShape.py --region [REGION] --channel [CHANNEL] --era [ERA] --input_dir [OUTPUTDIR] --mass_point 500 --logy [--unblind]
 
 ```
-
+## NB: always use the fullpath for ``outdir`` or ``outputdir``
 
 To produce datacard:
 ```
@@ -123,7 +123,7 @@ Normally, you should use the following commands. (By default, the code will wron
 python3 ReBin.py --sample_json [sample_json] --era [era] --region [region]  --channel [channel] --signal CGToBHpm_a_[MASS]_rtt06_rtc04 --outputdir [outdir] --inputdir [indir] --unblind --POI [POI] --sig_norm --cut_json [cut json]
 ```
 
-## 2.2 Quiet the thousands of warning message 
+## 2.2 Quiet the thousands of warning message
 
 If you don't want your terminal filled with these messages, you can add [-q/--quiet] like:
 ```
