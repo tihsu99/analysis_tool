@@ -1,4 +1,28 @@
 {
+  "QCD_Lepton_pt_eta":{
+    "Title": ";QCD_Lepton_pt;QCD_Lepton_eta",
+    "xlow": 20,
+    "xhigh": 400,
+    "nbinx": 80,
+    "ylow": -2.4,
+    "yhigh": 2.4,
+    "nbiny": 50,
+    "definition": "QCD_Lepton_pt",
+    "y_definition": "QCD_Lepton_eta",
+    "Label": ["Normal"]
+  },
+  "bh_l1_pt_eta":{
+    "Title": ";bh_l1_pt;bh_l1_eta",
+    "xlow": 20,
+    "xhigh": 400,
+    "nbinx": 80,
+    "ylow": -2.4,
+    "yhigh": 2.4,
+    "nbiny": 50,
+    "definition": "bh_l1_pt",
+    "y_definition": "bh_l1_eta",
+    "Label": ["Normal"]
+  },
   "met_pt":{
     "Title": ";MET [GeV];nEntries",
     "xlow":  20,
@@ -452,85 +476,7 @@
     "nbin":  20,
 	  "plottingbins": [0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.82, 0.84, 0.86, 0.88, 0.9, 0.92, 0.94, 0.96, 0.98, 1.0],
     "Label": ["Control_plot"]
-    },
-    "DNN200":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN300":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN350":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN400":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN500":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN600":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN700":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN800":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN900":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
-    },
-    "DNN1000":{
-    "Title": ";DNN;nEntries",
-    "xlow":  0,
-    "xhigh": 1,
-    "nbin":  20,
-	  "plottingbins": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    "Label": ["Control_plot"]
     }
+
+
 }
