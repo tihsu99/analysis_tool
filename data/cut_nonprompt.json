@@ -62,7 +62,7 @@
          "QCD_Lepton_pt":  "bh_l1_pt > 35"
        },
        "mu_resolved": {
-         "channel_lepton":  "n_loose_muon == 1",
+         "channel_lepton":  "n_tight_muon == 1",
          "Tight_Lepton_pt": "bh_l1_pt > 30"
          }
      },
