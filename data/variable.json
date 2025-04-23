@@ -168,6 +168,12 @@
                  "mu_resolved":  "Muon_pt[QCD_Lepton_id]"},
     "Label": ["Normal"]
   },
+  "QCD_Lepton_eta":{
+    "Def": "Channel_Dep",
+    "Category": {"ele_resolved": "Electron_eta[QCD_Lepton_id]",
+                 "mu_resolved":  "Muon_eta[QCD_Lepton_id]"},
+    "Label": ["Normal"]
+  },
 
   "Electron_Scale_err_up":{
     "Def": "Channel_Dep",

@@ -1,0 +1,77 @@
+{
+  "NonPrompt_D_default":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "met":          "bh_met<35"
+    },
+    "MVA_Label": "DNN_SR_2b2j",
+    "POI": ["DNN"],
+    "POI_bin": [0, 1, 5]
+  },
+  "NonPrompt_D_0btag":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "met":          "bh_met<35",
+      "b jet cut":    "n_bjet_DeepB_v == 0"
+    },
+    "MVA_Label": "DNN_SR_2b2j",
+    "POI": ["DNN"],
+    "POI_bin": [0, 1, 5]
+  },
+
+   "NonPrompt_C_default":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_tight_ele == 1",
+         "QCD_Lepton_pt":  "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton":  "n_tight_muon == 1",
+         "Tight_Lepton_pt": "bh_l1_pt > 30"
+         }
+     },
+     "general_cut":{
+      "met":          "bh_met<35"
+    },
+    "MVA_Label": "DNN_SR_2b2j",
+    "POI": ["DNN"],
+    "POI_bin": [0, 1, 5]
+  },
+  "NonPrompt_C_0btag":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_tight_ele == 1",
+         "QCD_Lepton_pt":  "bh_l1_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton":  "n_tight_muon == 1",
+         "Tight_Lepton_pt": "bh_l1_pt > 30"
+         }
+     },
+     "general_cut":{
+      "met":          "bh_met<35",
+      "b jet cut":    "n_bjet_DeepB_v == 0"
+    },
+    "MVA_Label": "DNN_SR_2b2j",
+    "POI": ["DNN"],
+    "POI_bin": [0, 1, 5]
+  }
+}
