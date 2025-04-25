@@ -72,8 +72,8 @@
   "top_reco_mass":{
     "Title": ";mt^{reco} [GeV];nEntries",
     "xlow":100,
-    "xhigh": 400,
-    "nbin": 30,
+    "xhigh": 500,
+    "nbin": 40,
     "Label": ["Reco", "Control_plot"]
   },
 
