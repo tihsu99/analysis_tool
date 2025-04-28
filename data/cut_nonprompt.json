@@ -11,8 +11,7 @@
          }
      },
      "general_cut":{
-	      "met":          "bh_met<35",
-	      "top mass cut": "!((top_reco_mass < 400) && (top_reco_mass > 120))"
+	      "met":          "bh_met<35"
     },
     "MVA_Label": "DNN_SR_2b2j",
     "POI": ["DNN"],
@@ -31,8 +30,8 @@
      },
      "general_cut":{
       "met":          "bh_met<35",
-      "b jet cut":    "n_bjet_DeepB_v == 0",
-      "top mass cut": "!((top_reco_mass < 400) && (top_reco_mass > 120))"
+      "b jet cut":    "n_bjet_DeepB_v == 0"
+
     },
     "MVA_Label": "DNN_SR_2b2j",
     "POI": ["DNN"],
@@ -51,8 +50,8 @@
          }
      },
      "general_cut":{
-      "met":          "bh_met<35",
-      "top mass cut": "!((top_reco_mass < 400) && (top_reco_mass > 120))"
+      "met":          "bh_met<35"
+
     },
     "MVA_Label": "DNN_SR_2b2j",
     "POI": ["DNN"],
@@ -71,8 +70,8 @@
      },
      "general_cut":{
       "met":          "bh_met<35",
-      "b jet cut":    "n_bjet_DeepB_v == 0",
-      "top mass cut": "!((top_reco_mass < 400) && (top_reco_mass > 120))"
+      "b jet cut":    "n_bjet_DeepB_v == 0"
+
     },
     "MVA_Label": "DNN_SR_2b2j",
     "POI": ["DNN"],
