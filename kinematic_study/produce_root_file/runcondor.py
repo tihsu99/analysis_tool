@@ -286,7 +286,7 @@ if __name__ == "__main__":
 #             merge_shell[Era][region][channel][process_].write('mv {}/job*out {}/.\n'.format(farm_dir, farm_dir_mirror))
               merge_shell[Era][region][channel][process_].write('rm %s/.sys*\n'%(Outdir))
               merge_shell[Era][region][channel][process_].write("rm %s.root\n"%os.path.join(Outdir, process_))
-              merge_shell[Era][region][channel][process_].write("python %s/haddnano.py %s.root"%(cwd, os.path.join(Outdir_revised, process_)))
+              merge_shell[Era][region][channel][process_].write("hadd %s.root"%(os.path.join(Outdir_revised, process_)))
               merge_shell[Era][region][channel][process_].close()
 
               job_name = "{}_{}_{}_{}".format(Era, region, channel, process_)
