@@ -18,18 +18,18 @@ regions_vars = {'NonPrompt_D': 'abs(QCD_Lepton_eta):QCD_Lepton_pt',
 years = ['2016apv', '2016postapv', '2017', '2018']
 
 channels = {'mu_resolved_data': [ 'SingleMuon' ],
-            'mu_resolved_mc': ["DYnlo",  "tbarW", "TTtoHadronic", "TTTo1L", "TTTo2L", "tW", "WJets_HT70to100_LO", "WJets_HT100to200_LO", "WJets_HT200to400_LO", "WJets_HT400to600_LO", 
+            'mu_resolved_mc': ["DYnlo",  "tbarW", "TTtoHadronic", "TTTo1L", "TTTo2L", "tW", "WJets_HT70to100_LO", "WJets_HT100to200_LO", "WJets_HT200to400_LO", "WJets_HT400to600_LO",
                                "WJets_HT600to800_LO", "WJets_HT800to1200_LO", "WJets_HT1200to2500_LO", "WJets_HT2500toInf_LO", "tbar_tch", "t_tch",  "t_sch"],
-            'mu_resolved_qcd': ["QCD_HT100to200", "QCD_HT200to300", "QCD_HT300to500", "QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500", 
-                                "QCD_HT1500to2000", "QCD_HT2000toInf"], 
+            'mu_resolved_qcd': ["QCD_HT100to200", "QCD_HT200to300", "QCD_HT300to500", "QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500",
+                                "QCD_HT1500to2000", "QCD_HT2000toInf"],
             'ele_resolved_data': [ 'SingleEG', 'SinglePhoton' ],
-            'ele_resolved_mc': ["DYnlo",  "tbarW", "TTtoHadronic", "TTTo1L", "TTTo2L", "tW", "WJets_HT70to100_LO", "WJets_HT100to200_LO", "WJets_HT200to400_LO", "WJets_HT400to600_LO", 
+            'ele_resolved_mc': ["DYnlo",  "tbarW", "TTtoHadronic", "TTTo1L", "TTTo2L", "tW", "WJets_HT70to100_LO", "WJets_HT100to200_LO", "WJets_HT200to400_LO", "WJets_HT400to600_LO",
                                "WJets_HT600to800_LO", "WJets_HT800to1200_LO", "WJets_HT1200to2500_LO", "WJets_HT2500toInf_LO", "tbar_tch", "t_tch",  "t_sch"],
-            'ele_resolved_qcd': ["QCD_HT100to200", "QCD_HT200to300", "QCD_HT300to500", "QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500", 
+            'ele_resolved_qcd': ["QCD_HT100to200", "QCD_HT200to300", "QCD_HT300to500", "QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500",
                                 "QCD_HT1500to2000", "QCD_HT2000toInf"],
             }
 ROOT.gROOT.cd()
-
+ROOT.gROOT.SetBatch(True)
 def plot_subtract(year, channel, region, newxaxis, newyaxis, selection=''):
     datah = ROOT.TH2F(f"{region}_{year}_{channel}", ";lepton p_{T} [GeV]; lepton |#eta|", len(newxaxis) - 1, newxaxis, len(newyaxis) - 1, newyaxis)
     datah.SetDirectory(0)
@@ -39,7 +39,7 @@ def plot_subtract(year, channel, region, newxaxis, newyaxis, selection=''):
         string = '/'
     else:
         string = '_default/'
-    print(region) 
+    print(region)
     for datafile in channels[channel+'_data']:
         print(datafile)
         datain = ROOT.TFile.Open(folder + '/' + region + '/' + year + '/' + region + string + channel + '/' + datafile + '.root')
@@ -164,25 +164,45 @@ def rebin2D(histo, histo_rebin):
 
 newxaxis = array('d', [0, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 240, 280, 320, 360, 400])
 newxaxis = array('d', [0, 30, 50, 70, 90, 120, 160, 200, 280, 360, 400])
-newyaxis = array('d', list(np.arange(0, 2.4, 0.4)))
+
+
+
+# newyaxis = array('d', list(np.arange(0, 2.4, 0.4)))
+
+# ele bins
+newyaxis_ele = array('d', [0, 0.9, 1.4442, 1.566, 2.0, 2.5])
+newxaxis_ele = array('d', [0, 30, 50, 70, 90, 120, 160, 200, 280, 360, 400])
+
+# mu_eta bins
+newyaxis_mu = array('d', [0, 0.9, 1.5, 2.4])
+newxaxis_mu = array('d', [0, 30, 50, 70, 90, 120, 160, 400])
 
 ROOT.gStyle.SetPaintTextFormat("1.2f")
-                           
+
 if __name__ == '__main__':
     if not os.path.exists('plots_SF'):
         os.system('mkdir plots_SF')
     extra = '_1b_notopcut' #'_0btag' n_bjet_DeepB_v
-    selection = '(n_bjet_DeepB_v == 1)' #&& (top_reco_mass<120 || top_reco_mass>400)
+    selection = '(n_bjet_DeepB_v == 1 && bh_met > 0.0)' #&& (top_reco_mass<120 || top_reco_mass>400)
     for year in years:
         for lep in ['mu_resolved', 'ele_resolved']:
             print('Processing year:', year, 'channel:', lep)
-            numerator = plot_subtract(year, lep, 'NonPrompt_C', newxaxis, newyaxis, selection)
-            print('Numerator: ', numerator.Integral())
-            draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}')
-            denominator = plot_subtract(year, lep, 'NonPrompt_D', newxaxis, newyaxis, selection)
-            print('Denominator: ', denominator.Integral())
+            if lep == "mu_resolved":
+                numerator = plot_subtract(year, lep, 'NonPrompt_C', newxaxis_mu, newyaxis_mu, selection)
+                print('Numerator: ', numerator.Integral())
+                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}')
+                denominator = plot_subtract(year, lep, 'NonPrompt_D', newxaxis_mu, newyaxis_mu, selection)
+                print('Denominator: ', denominator.Integral())
+            elif lep == "ele_resolved":
+                numerator = plot_subtract(year, lep, 'NonPrompt_C', newxaxis_ele, newyaxis_ele, selection)
+                print('Numerator: ', numerator.Integral())
+                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}')
+                denominator = plot_subtract(year, lep, 'NonPrompt_D', newxaxis_ele, newyaxis_ele, selection)
+                print('Denominator: ', denominator.Integral())
+            else:
+                print ("choose either ele or muon")
             draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_denominator{extra}')
-            #denominator.Add(numerator)
+            denominator.Add(numerator)
             draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_fulldenom{extra}')
             ratio = getratio(numerator.Clone(), denominator.Clone())
             write_histogram(ratio, year, lep, extra)
@@ -198,7 +218,7 @@ if __name__ == '__main__':
             print('After rebinning: ',  numerator_rebin.Integral())
             draw_and_save(deepcopy(numerator_rebin), f'nonprompt_{year}_{lep}_numerator{extra}')
             denominator = subtract(year, lep, 'NonPrompt_D' + extra)
-            #rebinning 
+            #rebinning
             denominator.RebinY(5)
             denominator_rebin = ROOT.TH2F(f"denominator_rebinned_{year}_{lep}", denominator.GetTitle(), len(newxaxis) - 1, newxaxis, len(newyaxis) - 1, newyaxis)
             denominator_rebin = rebin2D(denominator, denominator_rebin)
