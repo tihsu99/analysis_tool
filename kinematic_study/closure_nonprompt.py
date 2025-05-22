@@ -125,9 +125,12 @@ for year in years:
         # Save the new tree with the scale factor applied
         df2.Snapshot("Events", output_file)
         # Define the histogram model: (nbins, xmin, xmax)
-        hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", 50, 0, 500)
-        hist_eta = ROOT.RDF.TH1DModel("lep_eta", "; lepton #eta ;Events", 48, -2.4, 2.4)
-        hist_metpt = ROOT.RDF.TH1DModel("met_pt", ";MET p_{T} [GeV];Events", 50, 0, 500)
+        # hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", 50, 0, 500)
+        # Example: variable bin edges for lepton pt
+        pt_bins = np.array([0, 30, 50, 70, 90, 120, 160, 400], dtype=float)
+        hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", len(pt_bins)-1, array('d', pt_bins))
+        hist_eta = ROOT.RDF.TH1DModel("lep_eta", "; lepton #eta ;Events", 24, -2.4, 2.4)
+        hist_metpt = ROOT.RDF.TH1DModel("met_pt", ";MET p_{T} [GeV];Events", 25, 0, 500)
         hist_SF = ROOT.RDF.TH1DModel("SF_lepton", ";SF;Events", 50, 0, 10)
         df2 = df2.Define("total_weight", "weight_n_Norm * SF_lepton")
 
