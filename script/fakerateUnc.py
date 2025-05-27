@@ -2,6 +2,12 @@ import ROOT
 import os
 import math
 
+# Disable GUI popups (useful for batch mode)
+ROOT.gROOT.SetBatch(True)
+
+# Set text precision for bin labels
+ROOT.gStyle.SetPaintTextFormat("1.2f")  # Format: 2 decimal places
+
 def compute_final_histogram(year):
     input_dir = "/afs/cern.ch/user/g/gkole/work/BHplus/SR_plots/Analysis/CMSSW_14_1_0_pre4/src/bHplusAnalysis/data/non-prompt-fr/"  # input directory
     hist_names = ["mu_resolved", "ele_resolved"]
@@ -52,6 +58,21 @@ def compute_final_histogram(year):
 
         # Write histogram to output file
         h_final.Write()
+        # Plotting the histogram
+        canvas = ROOT.TCanvas("c", "", 1000, 800)
+        canvas.SetRightMargin(0.15)
+        h_final.SetStats(0)
+        h_final.Draw("COLZ TEXTE")
+        output_base = f"{hist_name}_{year}"
+        canvas.SaveAs(f"{output_base}.png")
+        canvas.SaveAs(f"{output_base}.pdf")
+        canvas.Close()
+        print(f"Processed histogram {hist_name} for {year}")
+    # Save and close the output file
+    file_out.Write()
+    print(f"Final histograms for {year} saved to non_prompt_{year}_final_notopcut.root")
+    # Close all files
+
 
     file_out.Close()
     file_1b.Close()
