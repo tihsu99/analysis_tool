@@ -9,7 +9,7 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetPaintTextFormat("1.2f")  # Format: 2 decimal places
 
 def compute_final_histogram(year):
-    input_dir = "/afs/cern.ch/user/g/gkole/work/BHplus/SR_plots/Analysis/CMSSW_14_1_0_pre4/src/bHplusAnalysis/data/non-prompt-fr/"  # input directory
+    input_dir = "./"  # input directory
     # hist_names = ["mu_resolved", "ele_resolved"]
 
     file_1b_ele = ROOT.TFile.Open(os.path.join(input_dir, f"non_prompt_{year}_1b_notopcut.root"))
@@ -18,7 +18,9 @@ def compute_final_histogram(year):
     file_1b_mu = ROOT.TFile.Open(os.path.join(input_dir, f"fr2d_mu_resolved_{year}_1b_notopcut.root"))
     file_2b_mu = ROOT.TFile.Open(os.path.join(input_dir, f"fr2d_mu_resolved_{year}_2b_notopcut.root"))
 
-    file_out = ROOT.TFile.Open(os.path.join(input_dir, f"non_prompt_{year}_final_notopcut.root"), "RECREATE")
+    # Output file
+    outdir = "../../data/non-prompt-fr/"
+    file_out = ROOT.TFile.Open(os.path.join(outdir, f"non_prompt_{year}_final_notopcut.root"), "RECREATE")
 
     if not (file_1b_ele or file_1b_mu or file_1b_ele.IsZombie() or file_1b_mu.IsZombie()):
         print(f"Error opening 1b file for {year}")
