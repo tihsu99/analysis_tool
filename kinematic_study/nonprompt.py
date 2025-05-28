@@ -16,6 +16,7 @@ regions_vars = {'NonPrompt_D': 'abs(QCD_Lepton_eta):QCD_Lepton_pt',
                 }
 
 years = ['2016apv', '2016postapv', '2017', '2018']
+# years = ['2016postapv']  # for testing purposes,
 
 channels = {'mu_resolved_data': [ 'SingleMuon' ],
             'mu_resolved_mc': ["DYnlo",  "tbarW", "TTtoHadronic", "TTTo1L", "TTTo2L", "tW", "WJets_HT70to100_LO", "WJets_HT100to200_LO", "WJets_HT200to400_LO", "WJets_HT400to600_LO",
@@ -120,6 +121,90 @@ def getratio(numerator, denominator):
         #print(f"Bin ({ix},{iy}) at ({x_center:.2f}, {y_center:.2f}): {content:.2f}")
     return ratio
 
+
+def overlay_efficiency_slices(numerator, denominator, axis='y', name_prefix='eff', xaxis_title='lepton p_{T} [GeV]', yaxis_title='Efficiency', savedir='plots_SF'):
+    """
+    Overlay TEfficiency slices for each bin in the chosen axis (default: y/eta) on one canvas.
+    """
+    colors = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen+2, ROOT.kMagenta, ROOT.kOrange+2, ROOT.kCyan+2, ROOT.kBlack, ROOT.kViolet, ROOT.kGray+2]
+    fr_list = []
+    legend = ROOT.TLegend(0.45, 0.15, 0.75, 0.38)
+    canvas = ROOT.TCanvas(f"c_{name_prefix}", f"Efficiency Slices {name_prefix}", 900, 700)
+    first = True
+
+    if axis == 'y':
+        nbins = numerator.GetNbinsY()
+        for iy in range(1, nbins+1):
+            num_proj = numerator.ProjectionX(f"num_proj_{iy}", iy, iy)
+            # print (f"Numerator projection for bin {iy}: {num_proj.Integral()}")
+            den_proj = denominator.ProjectionX(f"den_proj_{iy}", iy, iy)
+            # print (f"Denominator projection for bin {iy}: {den_proj.Integral()}")
+
+            # Fix: Ensure numerator <= denominator in every bin
+            epsilon = 1e-6
+            for ibin in range(1, num_proj.GetNbinsX()+2):
+                num_val = num_proj.GetBinContent(ibin)
+                den_val = den_proj.GetBinContent(ibin)
+                # Set negative values to zero
+                if num_val < 0:
+                    print(f"WARNING: Bin {ibin} in slice {iy}: numerator negative ({num_val}), setting to zero")
+                    num_proj.SetBinContent(ibin, 0)
+                    num_val = 0
+                if den_val < 0:
+                    print(f"WARNING: Bin {ibin} in slice {iy}: denominator negative ({den_val}), setting to zero")
+                    den_proj.SetBinContent(ibin, 0)
+                    den_val = 0
+                    num_proj.SetBinContent(ibin, 0)
+                    num_val = 0
+                # Clip numerator to denominator (with epsilon)
+                if num_val > den_val + epsilon:
+                    print(f"WARNING: Bin {ibin} in slice {iy}: numerator {num_val} > denominator {den_val}, setting numerator = denominator")
+                    num_proj.SetBinContent(ibin, den_val)
+
+                # Print projections for debugging
+                # print (f"Bin {ibin} in slice {iy}: numerator = {num_proj.GetBinContent(ibin)}, denominator = {den_proj.GetBinContent(ibin)}")
+                # print (f"Bin {ibin} in slice {iy}: numerator error = {num_proj.GetBinError(ibin)}, denominator error = {den_proj.GetBinError(ibin)}")
+                print (f"Final Bin {ibin} in slice {iy}: numerator i= {num_val}, denominator  = {den_val}")
+            print(f"Numerator projection for bin {iy} after adjustments: {num_proj.Integral()}")
+            print(f"Denominator projection for bin {iy} after adjustments: {den_proj.Integral()}")
+            num_proj.ResetStats()
+            den_proj.ResetStats()
+
+
+            # Create TEfficiency only if denominator is non-empty
+            if den_proj.Integral() > 0:
+                eff = ROOT.TEfficiency(num_proj, den_proj)
+                eff.SetLineColor(colors[(iy-1) % len(colors)])
+                eff.SetMarkerColor(colors[(iy-1) % len(colors)])
+                eff.SetMarkerStyle(20 + (iy-1) % 10)
+                eff.SetTitle(f"{name_prefix}")
+                label = f"{denominator.GetYaxis().GetBinLowEdge(iy):.2f} < |#eta| < {denominator.GetYaxis().GetBinUpEdge(iy):.2f}"
+                legend.AddEntry(eff, label, "lp")
+                drawopt = "AP" if first else "P SAME"
+                eff.Draw(drawopt)
+                ROOT.gPad.Update()
+                graph = eff.GetPaintedGraph()
+                graph.SetMinimum(0)
+                graph.SetMaximum(1.2)
+                ROOT.gPad.Update()
+                print(f"Drawing Fakerate for bin {iy}: {label}")
+                first = False
+                fr_list.append(eff)
+
+    # Set axis titles and draw legend
+    if fr_list:
+        # Use the first TEfficiency's total histogram to set axis titles
+        fr_list[0].GetTotalHistogram().GetXaxis().SetTitle(xaxis_title)
+        fr_list[0].GetTotalHistogram().GetYaxis().SetTitle(yaxis_title)
+        canvas.Modified()
+        canvas.Update()
+
+    legend.Draw()
+    canvas.Update()
+    canvas.SaveAs(f"{savedir}/{name_prefix}_overlay.png")
+    canvas.SaveAs(f"{savedir}/{name_prefix}_overlay.pdf")
+    return canvas, fr_list
+
 def write_histogram(histogram, year, channel, extra=''):
     outfile = ROOT.TFile.Open(f'./non_prompt_{year}{extra}.root', 'UPDATE')
     outfile.cd()
@@ -127,7 +212,7 @@ def write_histogram(histogram, year, channel, extra=''):
     histogram.Write('', ROOT.TObject.kOverwrite)
     outfile.Close()
 
-def draw_and_save(histo, name, options='COLZ', logz=True):
+def draw_and_save(histo, name, options='COLZ', logz=True, savedir='plots_SF'):
     print('Drawing', histo.Integral())
     canvas = ROOT.TCanvas(name, name, 800, 600)
     histo.SetTitle('; lepton p_{T} [GeV]; lepton #eta')
@@ -137,8 +222,8 @@ def draw_and_save(histo, name, options='COLZ', logz=True):
         canvas.SetLogz()
     canvas.Modified()
     canvas.Update()
-    canvas.Print(f'plots_SF/{name}.png')
-    canvas.Print(f'plots_SF/{name}.pdf')
+    canvas.Print(f'{savedir}/{name}.png')
+    canvas.Print(f'{savedir}/{name}.pdf')
     return canvas
 
 def rebin2D(histo, histo_rebin):
@@ -174,39 +259,75 @@ newyaxis_ele = array('d', [0, 0.9, 1.4442, 1.566, 2.0, 2.5])
 newxaxis_ele = array('d', [0, 30, 50, 70, 90, 120, 160, 200, 280, 360, 400])
 
 # mu_eta bins
-newyaxis_mu = array('d', [0, 0.9, 1.5, 2.4])
-newxaxis_mu = array('d', [0, 30, 50, 70, 90, 120, 160, 400])
+newyaxis_mu = array('d', [0, 1.4, 2.4])
+newxaxis_mu = array('d', [0, 50, 70, 90, 120, 160, 400])
 
 ROOT.gStyle.SetPaintTextFormat("1.2f")
 
 if __name__ == '__main__':
-    if not os.path.exists('plots_SF'):
-        os.system('mkdir plots_SF')
     extra = '_1b_notopcut' #'_0btag' n_bjet_DeepB_v
+    savedir = f"plots_SF{extra}"
+    if not os.path.exists(savedir):
+        os.makedirs(savedir)
+    # Define the selection criteria
     selection = '(n_bjet_DeepB_v == 1 && bh_met > 0.0)' #&& (top_reco_mass<120 || top_reco_mass>400)
     for year in years:
         for lep in ['mu_resolved', 'ele_resolved']:
             print('Processing year:', year, 'channel:', lep)
             if lep == "mu_resolved":
+                if year == '2016apv':
+                    newyaxis_mu = array('d', [0, 2.4])
+                    newxaxis_mu = array('d', [0, 50, 400])
+                else:
+                    newyaxis_mu = array('d', [0, 1.4, 2.4])
+                    newxaxis_mu = array('d', [0, 50, 70, 90, 120, 160, 400])
                 numerator = plot_subtract(year, lep, 'NonPrompt_C', newxaxis_mu, newyaxis_mu, selection)
                 print('Numerator: ', numerator.Integral())
-                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}')
+                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}', savedir=savedir)
                 denominator = plot_subtract(year, lep, 'NonPrompt_D', newxaxis_mu, newyaxis_mu, selection)
                 print('Denominator: ', denominator.Integral())
             elif lep == "ele_resolved":
                 numerator = plot_subtract(year, lep, 'NonPrompt_C', newxaxis_ele, newyaxis_ele, selection)
                 print('Numerator: ', numerator.Integral())
-                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}')
+                draw_and_save(numerator.Clone(), f'nonprompt_{year}_{lep}_numerator{extra}', savedir=savedir)
                 denominator = plot_subtract(year, lep, 'NonPrompt_D', newxaxis_ele, newyaxis_ele, selection)
                 print('Denominator: ', denominator.Integral())
             else:
                 print ("choose either ele or muon")
-            draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_denominator{extra}')
+            draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_denominator{extra}', savedir=savedir)
             denominator.Add(numerator)
-            draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_fulldenom{extra}')
+            draw_and_save(denominator.Clone(), f'nonprompt_{year}_{lep}_fulldenom{extra}', savedir=savedir)
+
+            # For muons (overlay eta slices as function of pt)
+            if lep == 'mu_resolved':
+                canvas, fr_list = overlay_efficiency_slices(numerator, denominator, axis='y', name_prefix=f'fakerate_{year}_{lep}', xaxis_title='lepton p_{T} [GeV]', yaxis_title='Fakerate', savedir=savedir)
+
+                # After you have fr_list from overlay_fakerate_slices
+                fr2d = ROOT.TH2F("fr2d", "fakerate 2D;lepton p_{T} [GeV];lepton |#eta|",
+                  numerator.GetNbinsX(), numerator.GetXaxis().GetXbins().GetArray(),
+                  numerator.GetNbinsY(), numerator.GetYaxis().GetXbins().GetArray())
+
+                for iy, eff in enumerate(fr_list, 1):
+                    for ix in range(1, numerator.GetNbinsX()+1):
+                        eff_val = eff.GetEfficiency(ix)
+                        eff_err = eff.GetEfficiencyErrorUp(ix)
+                        print (f"Fakerate for bin ({ix},{iy}): {eff_val} ± {eff_err}")
+                        fr2d.SetBinContent(ix, iy, eff_val)
+                        fr2d.SetBinError(ix, iy, eff_err)
+
+                outfile = ROOT.TFile.Open(f'fr2d_{lep}_{year}{extra}.root', 'RECREATE') # change the fine name
+                #non_prompt_2016postapv_2b_notopcut.root
+                fr2d.Write(lep)
+                outfile.Close()
+
+                canvas2d = ROOT.TCanvas("c_fr2d", "Fakerate 2D", 800, 600)
+                fr2d.Draw("COLZ TEXTE")
+                canvas2d.SaveAs(f'{savedir}/fr2d_{lep}_{year}.png')
+                canvas2d.SaveAs(f'{savedir}/fr2d_{lep}_{year}.pdf')
+
             ratio = getratio(numerator.Clone(), denominator.Clone())
             write_histogram(ratio, year, lep, extra)
-            draw_and_save(ratio.Clone(), f'ratio_{year}_{lep}{extra}', logz=False, options='COLZ TEXTE')
+            draw_and_save(ratio.Clone(), f'ratio_{year}_{lep}{extra}', logz=False, options='COLZ TEXTE', savedir=savedir)
             '''
             numerator = subtract(year, lep, 'NonPrompt_C' + extra)
             print('Before rebinning: ', numerator.Integral())
