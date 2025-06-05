@@ -175,7 +175,6 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="C", la
         print(f"Weighted average ratio for {name}: not defined (no bins with error > 0)")
 
 
-
 def load_sf_histogram(year, channel):
     key = f"{year}_{channel}"
     filename = f"non_prompt_{year}_1b_notopcut.root"
@@ -259,6 +258,17 @@ for year in years:
         hist_lepetaD = df2.Filter(selection).Histo1D(hist_eta, "QCD_Lepton_eta", "total_weight")
         hist_lepetaC = dfC.Filter(selection).Histo1D(hist_eta, "Lepton_eta", 'weight_n_Norm')
 
+        #for eta histogram set bincontent and error to zero for the range (1.4442 1.566) for electrons
+        if channel == "ele_resolved":
+            for i in range(1, hist_lepetaD.GetNbinsX()+1):
+                if hist_lepetaD.GetXaxis().GetBinLowEdge(i) >= 1.4442 and hist_lepetaD.GetXaxis().GetBinUpEdge(i) <= 1.566:
+                    hist_lepetaD.SetBinContent(i, 0)
+                    hist_lepetaD.SetBinError(i, 0)
+            for i in range(1, hist_lepetaC.GetNbinsX()+1):
+                if hist_lepetaC.GetXaxis().GetBinLowEdge(i) >= 1.4442 and hist_lepetaC.GetXaxis().GetBinUpEdge(i) <= 1.566:
+                    hist_lepetaC.SetBinContent(i, 0)
+                    hist_lepetaC.SetBinError(i, 0)
+
         hist_lepptD_woW = dfD.Filter(selection).Histo1D(hist_pt, "QCD_Lepton_pt", "weight_n_Norm")
         hist_lepptD = df2.Filter(selection).Histo1D(hist_pt, "QCD_Lepton_pt", "total_weight")
         hist_lepptC = dfC.Filter(selection).Histo1D(hist_pt, "Lepton_pt", 'weight_n_Norm')
@@ -278,8 +288,8 @@ for year in years:
         draw_and_save(df2.Histo1D(hist_SF, "SF_lepton"), f"lep_sf_{year}_{channel}", 'hist')
         print('histlepetaD', type(hist_lepetaD))
         print('histlepetaC', type(hist_lepetaC))
-        ratio_plot(hist_lepetaC, hist_lepetaD, f"lep_eta_{year}_{channel}_ratio", -2.0, 6.0)
-        ratio_plot(hist_lepptC, hist_lepptD, f"lep_pt_{year}_{channel}_ratio", 0.0, 4.0)
+        ratio_plot(hist_lepetaC, hist_lepetaD, f"lep_eta_{year}_{channel}_ratio", 0.0, 2.0)
+        ratio_plot(hist_lepptC, hist_lepptD, f"lep_pt_{year}_{channel}_ratio", 0.0, 2.0)
         ratio_plot(hist_metptC, hist_metptD, f"met_pt_{year}_{channel}_ratio",0.0, 2.0)
         #ratio_lepeta = ROOT.TRatioPlot(hist_lepetaD.GetPtr(), hist_lepetaC.GetPtr())
         #ratio_leppt = ROOT.TRatioPlot(hist_lepptD.GetPtr(), hist_lepptC.GetPtr())
