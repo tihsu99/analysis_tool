@@ -13,7 +13,7 @@ regions_vars = {'NonPrompt_D': ['QCD_Lepton_eta','QCD_Lepton_pt'],
                 }
 
 years = ['2016apv', '2016postapv', '2017', '2018']
-years = ['2016apv']
+# years = ['2016apv']
 
 # Convert Python function to ROOT callable
 ROOT.gInterpreter.Declare("""
@@ -58,7 +58,7 @@ def draw_and_save(histo, name, options='COLZ', logz=True):
     canvas.Print(f'closure_plots/{name}.pdf')
     return canvas
 
-def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="D", label2="C"):
+def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="C", label2="D"):
 
     h1 = histo1.GetValue()
     h2 = histo2.GetValue()
@@ -87,6 +87,13 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="D", la
     max1 = h1.GetMaximum()
     max2 = h2.GetMaximum()
     ymax = 1.2 * max(max1, max2)
+    # Find minimum nonzero bin content for both histograms
+    min1 = min([h1.GetBinContent(i) for i in range(1, h1.GetNbinsX()+1) if h1.GetBinContent(i) > 0] or [1])
+    min2 = min([h2.GetBinContent(i) for i in range(1, h2.GetNbinsX()+1) if h2.GetBinContent(i) > 0] or [1])
+    ymin = 0.8 * min(min1, min2)
+    # Set y-axis limits
+    h1.SetMinimum(ymin)
+    h2.SetMinimum(ymin)
     h1.SetMaximum(ymax)
     h2.SetMaximum(ymax)
 
@@ -98,8 +105,13 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="D", la
         h2.Draw("E1")
         h1.Draw("E1 SAME")
 
-    # h2.Draw("hist E1")
-    # h1.Draw("hist E1 SAME")
+    # # print error on every bin
+    # for i in range(1, h1.GetNbinsX()+1):
+    #     err1 = h1.GetBinError(i)
+    #     err2 = h2.GetBinError(i)
+    #     print (f"Bin {i}: C = {h1.GetBinContent(i):.3f} ± {err1:.3f}, D = {h2.GetBinContent(i):.3f} ± {err2:.3f}")
+
+
     legend = ROOT.TLegend(0.65, 0.75, 0.88, 0.88)
     legend.AddEntry(h1, label1, "lep")
     legend.AddEntry(h2, label2, "lep")
@@ -112,13 +124,19 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="D", la
     pad2.SetTicks(1,1)
     pad2.SetGrid()
     ratio = h1.Clone("ratio")
-    ratio.Divide(h1, h2, 1.0, 1.0, "B")
+    ratio.Divide(h1, h2, 1.0, 1.0, "")
+
+    # # print error on every bin
+    # for i in range(1, ratio.GetNbinsX()+1):
+    #     err = ratio.GetBinError(i)
+    #     print (f"Bin {i}: Ratio = {ratio.GetBinContent(i):.3f}, Error = {err:.3f}")
+
     ratio.SetStats(0)
     ratio.SetLineColor(ROOT.kBlack)
     ratio.SetMarkerStyle(20)
     ratio.SetMarkerSize(1.0)
     ratio.SetTitle("")
-    ratio.GetYaxis().SetTitle("D/C")
+    ratio.GetYaxis().SetTitle("C/D")
     ratio.GetYaxis().SetNdivisions(505)
     ratio.GetYaxis().SetTitleSize(0.13)
     ratio.GetYaxis().SetTitleOffset(0.4)
@@ -129,43 +147,32 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="D", la
     ratio.SetMaximum(ratio_max)
     ratio.Draw("E1")
 
+    # Draw horizontal line at y=1
+    line = ROOT.TLine(ratio.GetXaxis().GetXmin(), 1.0, ratio.GetXaxis().GetXmax(), 1.0)
+    line.SetLineColor(ROOT.kBlack)
+    line.SetLineStyle(ROOT.kDashed)
+    line.Draw("SAME")
+
     canvas.SaveAs(f'closure_plots/{name}.png')
     canvas.SaveAs(f'closure_plots/{name}.pdf')
 
-        # canvas = ROOT.TCanvas(name, name, 800, 600)
-        # histo1.SetLineColor(ROOT.kRed)
-        # histo2.SetLineColor(ROOT.kBlue)
-        # histo1.SetMarkerColor(ROOT.kRed)
-        # histo2.SetMarkerColor(ROOT.kBlue)
-        # histo1.SetMarkerStyle(20)
-        # histo2.SetMarkerStyle(21)
-        # histo1.SetMarkerSize(1.0)
-        # histo2.SetMarkerSize(1.0)
-        # # Only set E1 for the numerator, since TRatioPlot will draw the denominator with errors
-        # ratio = ROOT.TRatioPlot(histo1.GetPtr(), histo2.GetPtr(), "E1")
-        # ratio.Draw("E1")
-        # ratio.GetLowerRefYaxis().SetRangeUser(ratio_min, ratio_max)
-        # # Draw numerator with errors on the upper pad
-        # upper_pad = ratio.GetUpperPad()
-        # upper_pad.cd()
-        # # histo1.Draw("E1 SAME")
-        # # histo1.SetOption("E1")
-        # # histo2.SetOption("E1")
-        # # ratio = ROOT.TRatioPlot(histo1.GetPtr(), histo2.GetPtr())
-        # # ratio.Draw()
-        # # ratio.GetLowerRefYaxis().SetRangeUser(ratio_min, ratio_max)
-        # # # ratio.SetYAxisRange(ratio_min, ratio_max)
-        # # # Add legend to the upper pad
-        # # upper_pad = ratio.GetUpperPad()
-        # # upper_pad.cd()
-        # legend = ROOT.TLegend(0.65, 0.75, 0.88, 0.88)
-        # legend.AddEntry(histo1.GetPtr(), label1, "l")
-        # legend.AddEntry(histo2.GetPtr(), label2, "l")
-        # legend.Draw()
+    # Compute weighted average of the ratio
+    sumw = 0.0
+    sumwx = 0.0
+    for i in range(1, ratio.GetNbinsX()+1):
+        val = ratio.GetBinContent(i)
+        err = ratio.GetBinError(i)
+        if err > 0:
+            weight = 1.0 / (err * err)
+            sumw += weight
+            sumwx += weight * val
 
-        # canvas.Update()
-        # canvas.Print(f'closure_plots/{name}.png')
-        # canvas.Print(f'closure_plots/{name}.pdf')
+    if sumw > 0:
+        weighted_mean = sumwx / sumw
+        weighted_mean_err = (1.0 / sumw) ** 0.5
+        print(f"Weighted average ratio for {name}: {weighted_mean:.3f} ± {weighted_mean_err:.3f}")
+    else:
+        print(f"Weighted average ratio for {name}: not defined (no bins with error > 0)")
 
 
 
@@ -215,10 +222,36 @@ for year in years:
         df2.Snapshot("Events", output_file)
         # Define the histogram model: (nbins, xmin, xmax)
         # hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", 50, 0, 500)
+
+        # ele bins
+        newyaxis_ele = array('d', [0, 0.9, 1.4442, 1.566, 2.0, 2.5])
+        newxaxis_ele = array('d', [0, 30, 50, 70, 90, 120, 160, 200, 280, 360, 400])
+
+        # mu_eta bins
+        newyaxis_mu = array('d', [0, 1.4, 2.4])
+        newxaxis_mu = array('d', [0, 50, 70, 90, 120, 160, 400])
+
+        if year == '2016apv':
+            if channel == "mu_resolved":
+                newyaxis_mu = array('d', [0, 2.4])
+                newxaxis_mu = array('d', [0, 50, 400])
+            else:
+                newyaxis_mu = array('d', [0, 1.4, 2.4])
+                newxaxis_mu = array('d', [0, 50, 70, 90, 120, 160, 400])
+
+        if channel == "ele_resolved":
+            newyaxis = newyaxis_ele
+            newxaxis = newxaxis_ele
+        else:
+            newyaxis = newyaxis_mu
+            newxaxis = newxaxis_mu
+
         # Example: variable bin edges for lepton pt
-        pt_bins = np.array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500], dtype=float)
-        hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", len(pt_bins)-1, array('d', pt_bins))
-        hist_eta = ROOT.RDF.TH1DModel("lep_eta", "; lepton #eta ;Events", 24, -2.4, 2.4)
+        # pt_bins = np.array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500], dtype=float)
+
+        hist_pt = ROOT.RDF.TH1DModel("lep_pt", ";lepton p_{T} [GeV];Events", len(newxaxis)-1, array('d', newxaxis))
+        hist_eta = ROOT.RDF.TH1DModel("lep_eta", "; lepton #eta ;Events", len(newyaxis)-1, array('d', newyaxis))
+
         hist_metpt = ROOT.RDF.TH1DModel("met_pt", ";MET p_{T} [GeV];Events", 50, 0, 500)
         hist_SF = ROOT.RDF.TH1DModel("SF_lepton", ";SF;Events", 50, 0, 10)
         df2 = df2.Define("total_weight", "weight_n_Norm * SF_lepton")
@@ -245,8 +278,8 @@ for year in years:
         draw_and_save(df2.Histo1D(hist_SF, "SF_lepton"), f"lep_sf_{year}_{channel}", 'hist')
         print('histlepetaD', type(hist_lepetaD))
         print('histlepetaC', type(hist_lepetaC))
-        ratio_plot(hist_lepetaD, hist_lepetaC, f"lep_eta_{year}_{channel}_ratio", -2.0, 6.0)
-        ratio_plot(hist_lepptD, hist_lepptC, f"lep_pt_{year}_{channel}_ratio", 0.0, 4.0)
-        ratio_plot(hist_metptD, hist_metptC, f"met_pt_{year}_{channel}_ratio",0.0, 2.0)
+        ratio_plot(hist_lepetaC, hist_lepetaD, f"lep_eta_{year}_{channel}_ratio", -2.0, 6.0)
+        ratio_plot(hist_lepptC, hist_lepptD, f"lep_pt_{year}_{channel}_ratio", 0.0, 4.0)
+        ratio_plot(hist_metptC, hist_metptD, f"met_pt_{year}_{channel}_ratio",0.0, 2.0)
         #ratio_lepeta = ROOT.TRatioPlot(hist_lepetaD.GetPtr(), hist_lepetaC.GetPtr())
         #ratio_leppt = ROOT.TRatioPlot(hist_lepptD.GetPtr(), hist_lepptC.GetPtr())
