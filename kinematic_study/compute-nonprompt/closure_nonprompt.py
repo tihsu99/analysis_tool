@@ -44,11 +44,17 @@ def apply_sf(df, year, channel):
     df2 = df.Define("SF_lepton", f'get_sf_cpp(QCD_Lepton_pt, QCD_Lepton_eta, "{key}")')
     return df2
 
-def draw_and_save(histo, name, options='COLZ', logz=True):
+def draw_and_save(histo, name, options='COLZ', logz=True, year="", channel=""):
     canvas = ROOT.TCanvas(name, name, 800, 600)
     #histo.SetTitle('; lepton p_{T} [GeV]; lepton #eta')
     print('Drawing', histo.Integral())
     histo.Draw(options)
+    # Draw channel and year information
+    latex = ROOT.TLatex()
+    latex.SetNDC()
+    latex.SetTextSize(0.045)
+    latex.SetTextAlign(13)
+    latex.DrawLatex(0.13, 0.88, f"{year}, {channel}")
     #histo.SetStats(0)
     if logz:
         canvas.SetLogz()
@@ -58,7 +64,7 @@ def draw_and_save(histo, name, options='COLZ', logz=True):
     canvas.Print(f'closure_plots/{name}.pdf')
     return canvas
 
-def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="C", label2="D"):
+def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="C", label2="D", year="", channel=""):
 
     h1 = histo1.GetValue()
     h2 = histo2.GetValue()
@@ -116,6 +122,13 @@ def ratio_plot(histo1, histo2, name,ratio_min=-2.0, ratio_max=2.0,label1="C", la
     legend.AddEntry(h1, label1, "lep")
     legend.AddEntry(h2, label2, "lep")
     legend.Draw()
+
+    # Draw channel and year information
+    latex = ROOT.TLatex()
+    latex.SetNDC()
+    latex.SetTextSize(0.045)
+    latex.SetTextAlign(13)
+    latex.DrawLatex(0.13, 0.88, f"{year}, {channel}")
 
     pad2 = canvas.cd(2)
     pad2.SetPad(0.0, 0.0, 1.0, 0.3)
@@ -276,20 +289,20 @@ for year in years:
         hist_metptD = df2.Filter(selection).Histo1D(hist_metpt, "bh_met", "total_weight")
         hist_metptC = dfC.Filter(selection).Histo1D(hist_metpt, "bh_met", 'weight_n_Norm')
 
-        draw_and_save(hist_lepetaD, f"lep_eta_{year}_{channel}_D", 'hist')
-        draw_and_save(hist_lepetaC, f"lep_eta_{year}_{channel}_C", 'hist')
+        draw_and_save(hist_lepetaD, f"lep_eta_{year}_{channel}_D", 'hist', logz=False, year=year, channel=channel)
+        draw_and_save(hist_lepetaC, f"lep_eta_{year}_{channel}_C", 'hist', logz=False, year=year, channel=channel)
 
-        draw_and_save(hist_lepptD_woW, f"lep_pt_{year}_{channel}_D_woW", 'hist')
-        draw_and_save(hist_lepptD, f"lep_pt_{year}_{channel}_D", 'hist')
-        draw_and_save(hist_lepptC, f"lep_pt_{year}_{channel}_C", 'hist')
-        draw_and_save(hist_metptD, f"met_pt_{year}_{channel}_D", 'hist')
-        draw_and_save(hist_metptC, f"met_pt_{year}_{channel}_C", 'hist')
+        draw_and_save(hist_lepptD_woW, f"lep_pt_{year}_{channel}_D_woW", 'hist', logz=False, year=year, channel=channel)
+        draw_and_save(hist_lepptD, f"lep_pt_{year}_{channel}_D", 'hist', logz=False, year=year, channel=channel)
+        draw_and_save(hist_lepptC, f"lep_pt_{year}_{channel}_C", 'hist', logz=False, year=year, channel=channel)
+        draw_and_save(hist_metptD, f"met_pt_{year}_{channel}_D", 'hist', logz=False, year=year, channel=channel)
+        draw_and_save(hist_metptC, f"met_pt_{year}_{channel}_C", 'hist', logz=False, year=year, channel=channel)
 
-        draw_and_save(df2.Histo1D(hist_SF, "SF_lepton"), f"lep_sf_{year}_{channel}", 'hist')
+        draw_and_save(df2.Histo1D(hist_SF, "SF_lepton"), f"lep_sf_{year}_{channel}", 'hist', logz=False, year=year, channel=channel)
         print('histlepetaD', type(hist_lepetaD))
         print('histlepetaC', type(hist_lepetaC))
-        ratio_plot(hist_lepetaC, hist_lepetaD, f"lep_eta_{year}_{channel}_ratio", 0.0, 2.0)
-        ratio_plot(hist_lepptC, hist_lepptD, f"lep_pt_{year}_{channel}_ratio", 0.0, 2.0)
-        ratio_plot(hist_metptC, hist_metptD, f"met_pt_{year}_{channel}_ratio",0.0, 2.0)
+        ratio_plot(hist_lepetaC, hist_lepetaD, f"lep_eta_{year}_{channel}_ratio", 0.0, 2.0, year=year, channel=channel)
+        ratio_plot(hist_lepptC, hist_lepptD, f"lep_pt_{year}_{channel}_ratio", 0.0, 2.0, year=year, channel=channel)
+        ratio_plot(hist_metptC, hist_metptD, f"met_pt_{year}_{channel}_ratio",0.0, 2.0, year=year, channel=channel)
         #ratio_lepeta = ROOT.TRatioPlot(hist_lepetaD.GetPtr(), hist_lepetaC.GetPtr())
         #ratio_leppt = ROOT.TRatioPlot(hist_lepptD.GetPtr(), hist_lepptC.GetPtr())
