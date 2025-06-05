@@ -71,6 +71,16 @@ def plot_subtract(year, channel, region, newxaxis, newyaxis, selection=''):
                 print(f"WARNING: bin ({ix},{iy}) has negative content: {content}")
                 datah.SetBinContent(ix, iy, 0.0001)
                 datah.SetBinError(ix, iy, 0.0001)
+
+    # set y axis (eta) bincontent and error to zero for the range (1.4442 1.566) for electrons
+    if channel == 'ele_resolved':
+        for ix in range(1, datah.GetNbinsX() + 1):
+            for iy in range(1, datah.GetNbinsY() + 1):
+                y_center = datah.GetYaxis().GetBinCenter(iy)
+                if 1.4442 < y_center < 1.566:
+                    datah.SetBinContent(ix, iy, 0.0)
+                    datah.SetBinError(ix, iy, 0.0)
+
     return datah
 
 def subtract(year, channel, region):
