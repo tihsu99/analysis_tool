@@ -116,6 +116,7 @@ if __name__ == "__main__":
   parser.add_argument("--notoppt",   dest = 'notoppt',  action='store_true')
   parser.add_argument('--farm',    dest = 'farm',     help='farm_dir directory',   type=str, default='Farm')
   parser.add_argument('--dir_tag', type=str, default = 'Prompt')
+  parser.add_argument('--fake_rate', action='store_true')
   args = parser.parse_args()
   args_dict = vars(args)
 
@@ -286,7 +287,7 @@ if __name__ == "__main__":
 #             merge_shell[Era][region][channel][process_].write('mv {}/job*out {}/.\n'.format(farm_dir, farm_dir_mirror))
               merge_shell[Era][region][channel][process_].write('rm %s/.sys*\n'%(Outdir))
               merge_shell[Era][region][channel][process_].write("rm %s.root\n"%os.path.join(Outdir, process_))
-              merge_shell[Era][region][channel][process_].write("python %s/haddnano.py %s.root"%(cwd, os.path.join(Outdir_revised, process_)))
+              merge_shell[Era][region][channel][process_].write("hadd %s.root"%(os.path.join(Outdir_revised, process_)))
               merge_shell[Era][region][channel][process_].close()
 
               job_name = "{}_{}_{}_{}".format(Era, region, channel, process_)
@@ -419,6 +420,7 @@ if __name__ == "__main__":
                  else: sample_name_file = re.sub(r'((?:_(\d+|\w))|(?:_\w_\d)|(?:_\w\d))\.root','', file_).replace('.root','')
                  if (sample_name == sample_name_file):
                      ftemp = ROOT.TFile.Open(os.path.join(inputFile_path[args.dir_tag][Era], file_), "READ")
+                     print(os.path.join(inputFile_path[args.dir_tag][Era], file_))
                      nDAS += ftemp.Get('nEventsGenWeighted').GetBinContent(1)
                      ftemp.Close()
              norm_factors = Lumi[Era]*samples[sample_name]['xsec']/float(nDAS)
@@ -476,6 +478,7 @@ if __name__ == "__main__":
            json_command += ' --notoppt ' if args.notoppt else ''
            json_command += ' --train {}'.format(args.half) if ((args.half == 'train') or (args.half == 'test')) else ''
            json_command += f' --dir_tag {args.dir_tag} '
+           json_command += "" if not args.fake_rate else " --fake_rate "
           
            for process_ in process_list:
              if args.clear:
@@ -493,6 +496,7 @@ if __name__ == "__main__":
                process_name = process_.replace("_LO", "")
                if "LO" in samples[process_name]:
                  LO_command = samples[process_name]["LO"]
+
 
              if args.blocksize == -1:
                shell_file = "slim_%s_%s_%s_%s_%s.sh"%(iin, Era, region, channel,process_)

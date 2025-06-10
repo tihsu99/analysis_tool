@@ -27,6 +27,7 @@ import time
 from Util.Tool_For_SignalExtraction  import CheckAndExec,datacard2workspace,FitDiagnostics,diffNuisances,PlotPulls,Impact_doInitFit,Impact_doFits,Plot_Impacts, PlotShape,ResultsCopy, SubmitFromEOS, DrawNLL, plotCorrelationRanking, SubmitGOF, GoFPlot, FinalYieldComputation, BiasTest, BiasTestPlot, GlobalSignificance, GlobalSignificancePlot
 from Util.aux import *
 from collections import OrderedDict
+import copy
 
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
@@ -60,6 +61,7 @@ parser.add_argument('--cminDefaultMinimizerTolerance', help= 'default = 0.1', de
 parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
+parser.add_argument('--stack_signal', help='plot signal stacking in the pre/post-fit plots', action = 'store_true')
 parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
 parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
@@ -69,6 +71,7 @@ parser.add_argument('--paper', help = 'used paper style', action = "store_true")
 parser.add_argument('--datacard_dir', help = 'datacard directory', default='datacards_test', type=str)
 parser.add_argument('--cut_json', help = 'json for regions definition', default = '../data/cut.json', type=str)
 parser.add_argument('--command', default = '', type = str)
+parser.add_argument('--bonly_gof', action='store_true')
 parser.add_argument('--combined', action='store_true')
 parser.add_argument('--channel_mask', default = None, type = str)
 parser.add_argument('--pull', action='store_true')
@@ -99,6 +102,21 @@ x_variable = 'HT'
 
 args.command = str(args.command.replace(':', ' ').replace('"', ''))
 
+region_info = read_json(args.cut_json)
+region_info_final = copy.deepcopy(region_info)
+for region in region_info:
+  if "ABCDmethod" in region_info[region]:
+    for subregion, subregion_label in region_info[region]["ABCDmethod"].items():
+      new_subregion_name = subregion_label
+      region_info_final[new_subregion_name] = {
+          "POI_name": "bin",
+          "POI_binnings": {
+               "Normal": [0, 1]
+          }
+      }
+      
+
+
 settings ={
     'year':args.year,
     'region':args.region,
@@ -128,9 +146,11 @@ settings ={
     'command': args.command,
     'combined': args.combined,
     'channel_mask': args.channel_mask,
-    'region_info': read_json(args.cut_json),
+    'region_info': region_info_final,
     'pull': args.pull,
-    'nToys': args.nToys
+    'nToys': args.nToys,
+    'bonly_gof': args.bonly_gof,
+    'stack_signal': args.stack_signal
 }
 
 if args.mode =='PlotShape':

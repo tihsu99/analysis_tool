@@ -111,9 +111,9 @@
 
   "tightJets_b_DeepJet_id": {
     "Def": "Btag_WP_Dep",
-    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id)",
-                  "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id)",
-                  "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id)"
+    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id, tightJets_id_in24)",
+                  "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id, tightJets_id_in24)",
+                  "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id, tightJets_id_in24)"
                 },
     "Label": ["Normal"],
     "Save": ["BDT_Training", "Debug"]
