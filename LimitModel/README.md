@@ -46,8 +46,8 @@ sh example/plot_Impact_bHplus.sh "--year run2 --region C --channel C --mass_poin
 sh example/plot_Impact_bHplus.sh "--year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] " 2 # Once condor jobs finished, plot the impacts
 
 # Method 2: Command
-python ./SignalExtraction_Estimation.py --mode datacard2workspace --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode FitDiagnostics --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode datacard2workspace --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode FitDiagnostics --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 python ./SignalExtraction_Estimation.py --mode FinalYieldComputation --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type preFit --plotRatio
 python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type postFit --plotRatio
