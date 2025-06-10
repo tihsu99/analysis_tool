@@ -1,4 +1,39 @@
 {
+  "bh_met":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j1_pt":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j2_pt":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j3_pt":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j1_eta":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j2_eta":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
+  "j3_eta":{
+    "Def": "Defined",
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
+  },
   "MET_T1Smear_phi":{
 	  "Def": "Defined",
 	  "Label": ["Normal", "MC"]
@@ -111,9 +146,9 @@
 
   "tightJets_b_DeepJet_id": {
     "Def": "Btag_WP_Dep",
-    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id, tightJets_id_in24)",
-                  "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id, tightJets_id_in24)",
-                  "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id, tightJets_id_in24)"
+    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id)",
+                  "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id)",
+                  "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id)"
                 },
     "Label": ["Normal"],
     "Save": ["BDT_Training", "Debug"]
@@ -127,7 +162,8 @@
 
   "n_bjet_DeepB_v": {
     "Def": "tightJets_b_DeepJet_id.size()",
-    "Label": ["Normal"]
+    "Label": ["Normal"],
+    "Save": ["Control_plot"]
   },
 
   "puWeight":{
@@ -166,13 +202,15 @@
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "Electron_pt[QCD_Lepton_id]",
                  "mu_resolved":  "Muon_pt[QCD_Lepton_id]"},
-    "Label": ["Normal"]
+    "Label": ["Normal"],
+    "Save":  ["Control_plot"]
   },
   "QCD_Lepton_eta":{
     "Def": "Channel_Dep",
     "Category": {"ele_resolved": "Electron_eta[QCD_Lepton_id]",
                  "mu_resolved":  "Muon_eta[QCD_Lepton_id]"},
-    "Label": ["Normal"]
+    "Label": ["Normal"],
+    "Save":  ["Control_plot"]
   },
 
   "Electron_Scale_err_up":{
@@ -221,7 +259,7 @@
     "Category": {"ele_resolved": "bh_l1_pt",
                  "mu_resolved":  "bh_l1_pt"},
     "Label": ["Normal"],
-    "Save":  ["BDT_training"]
+    "Save":  ["BDT_training","Control_plot"]
   },
 
   "Lepton_r9":{
@@ -236,7 +274,7 @@
     "Category": {"ele_resolved": "bh_l1_eta",
                  "mu_resolved":  "bh_l1_eta"},
     "Label": ["Normal"],
-    "Save":  ["BDT_training"]
+    "Save":  ["BDT_training","Control_plot"]
   },
 
   "Lepton_phi":{
@@ -422,7 +460,7 @@
   "n_tight_jet":{
     "Def": "Defined",
     "Label": ["Normal"],
-    "Save":  ["BDT_training"]
+    "Save":  ["BDT_training", "Control_plot"]
   },
 
   "met_pt":{
@@ -508,7 +546,8 @@
     "Def": "top_reconstruction(W_reco_E, W_reco_px, W_reco_py, W_reco_pz, tightJets_b_DeepJet_id, tightJets_id_in24, Jet_pt_nom, Jet_eta, Jet_phi, Jet_mass_nom)",
     "Label": ["Reco", "Normal"],
     "Children": ["top_reco_mass", "top_reco_pt", "top_reco_b_index_float", "Higgs_reco_mass", "Higgs_reco_b_index_float"],
-    "Save": ["BDT_training"]
+    "Save": ["BDT_training", "Control_plot"]
+
   },
 
   "bh_HT":{

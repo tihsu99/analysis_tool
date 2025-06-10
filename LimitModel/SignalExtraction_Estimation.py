@@ -1,25 +1,25 @@
 '''
 Step0
 Step1
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800 
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode datacard2workspace --coupling_value rtu04 --mass_point 800
     #This would give your the workspace root file of datacards.
-Step2    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800 
-Step3    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800 
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800 
-Step4    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800 
-Step5    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800 
-Step6    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800 
-Step7    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800 
-Step8    
-    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800 
+Step2
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode FitDiagnostics --coupling_value rtu04 --mass_point 800
+Step3
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode preFitPlot --coupling_value rtu04 --mass_point 800
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode postFitPlot --coupling_value rtu04 --mass_point 800
+Step4
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode diffNuisances --coupling_value rtu04 --mass_point 800
+Step5
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode PlotPulls --coupling_value rtu04 --mass_point 800
+Step6
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doInitFit --coupling_value rtu04 --mass_point 800
+Step7
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Impact_doFits --coupling_value rtu04 --mass_point 800
+Step8
+    #python ./SignalExtraction_Estimation.py -y 2018 -c ee --mode Plot_Impacts --coupling_value rtu04 --mass_point 800
 '''
-import os 
+import os
 import sys
 from Util.General_Tool import CheckDir,CheckFile, read_json
 import argparse
@@ -34,7 +34,7 @@ sys.path.append(CURRENT_WORKDIR)
 
 start = time.time()
 
-year_choices = ['2016apv','2016postapv','2017','2018','run2']
+year_choices = ['2016apv','2016postapv','2017','2018','run2','Merged_run2']
 
 
 mode_choices = ['datacard2workspace','FitDiagnostics','diffNuisances','PlotPulls','Impact_doInitFit','Plot_Impacts','Impact_doFits','PlotShape','ResultsCopy','SubmitFromEOS','DrawNLL', 'plotCorrelationRanking', 'SubmitGOF', 'GoFPlot', 'FinalYieldComputation', 'BiasTest', 'BiasTestPlot', 'GlobalSignificance', 'GlobalSignificancePlot']
@@ -160,7 +160,5 @@ if args.mode =='PlotShape':
 elif args.mode=='ResultsCopy':
     settings['dest'] = args.dest
 
-MODE = eval(args.mode) 
+MODE = eval(args.mode)
 CheckAndExec(MODE=MODE,datacards=datacards,settings=settings,mode=args.mode)
-
-    

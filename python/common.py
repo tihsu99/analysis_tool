@@ -139,7 +139,7 @@ def Extend_sample_dict(dict_, key_word = 'MASS'):
   return dict_clone
 
 
-def Get_Sample(json_file_name, Labels, era, dir_tag, withTail=True):
+def Get_Sample(json_file_name, Labels, era, dir_tag = "Prompt", withTail=True):
 
 ####################################################
 # Train_idx:                                       #

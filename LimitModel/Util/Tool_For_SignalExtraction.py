@@ -175,7 +175,7 @@ def GlobalSignificance(settings=dict()):
              command += f'rm {root_file_}\n'
            prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
     condor.close()
-    os.system(f"condor_submit {farm_dir}/condor.sub")
+    # os.system(f"condor_submit {farm_dir}/condor.sub")
 
 def GlobalSignificancePlot(settings=dict()):
 
@@ -250,7 +250,7 @@ def GlobalSignificancePlot(settings=dict()):
     latex.SetTextSize(0.03)
     latex.SetTextAlign(12)
     latex.SetNDC()
-    latex.SetTextFont(42);
+    latex.SetTextFont(42)
     latex.DrawLatex(0.65, 0.8, f"nToys: {len(significance_max)}")
     latex.DrawLatex(0.65, 0.76, f"p-value: {p_value:.4f}")
     latex.DrawLatex(0.65, 0.72, f"global significance: {global_significance:.1f}#sigma")
@@ -689,7 +689,7 @@ def PlotShape(settings=dict()):
 
     Histogram_concatenated = dict()
     region_binning         = dict()
-    
+
 
     for region_ in Histogram:
 
@@ -810,7 +810,7 @@ def PlotShape(settings=dict()):
         print("\n")
         Plot_Histogram(template_settings=template_settings)
 
-    
+
     shape_type = settings['shape_type'].lower()
 
     if settings['shape_type'].lower() == 'prefit':
@@ -1080,7 +1080,7 @@ def Plot_Histogram(template_settings=dict()):
         for era_candidate in ['16apv', '16postapv', '2017', '2018']:
           if era_candidate in region_:
             era_name = era_candidate
-            if era_candidate == '16apv': 
+            if era_candidate == '16apv':
               era_name = '16pre'
             elif era_candidate == '16postapv':
               era_name = '16post'

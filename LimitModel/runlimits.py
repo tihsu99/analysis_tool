@@ -124,6 +124,7 @@ parser.add_argument('--all_signal', action = 'store_true')
 parser.add_argument('--fastScan', action = 'store_true')
 parser.add_argument('--inject_signal', type=float, default = 0.0)
 parser.add_argument('--inject_mass', type=str, default = "500")
+parser.add_argument("--extraCommand", help='extra addtional command', default='', type=str)
 args = parser.parse_args()
 
 year     = args.year
@@ -332,7 +333,7 @@ else:
           significance_log_file = RL.LogToSignificanceList(logname, param_list, 'w')
 
         else:
-          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, gen_card_name = gen_card_name, log_dir='datacard_log', args=args)
+          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, gen_card_name = gen_card_name, log_dir='datacard_log', args=args, extraCommand = args.extraCommand)
           mode_ = "w"
 
           if counter==0: mode_="w"

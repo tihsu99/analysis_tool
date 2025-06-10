@@ -133,7 +133,7 @@ def Slim_module(filein,
   fin     = os.path.join(path, filein)
   if 'eos' in fin and 'root://eosuser.cern.ch//' not in fin:
       fin = 'root://eosuser.cern.ch//' + fin
-  cprint("input file: {}".format(fin), "green")  
+  cprint("input file: {}".format(fin), "green")
   if not index == -1:
     fileOut = os.path.join(output_dir, str(index) + "_" + filein)
     fileOut_alt = os.path.join(cwd, str(index) + "_" + filein)
@@ -263,7 +263,7 @@ def Slim_module(filein,
         df = df.Define(str(variable), str(variables[variable]["Category"][Btag_WP]))
       elif(variables[variable]["Def"] == "Randomized_Dep"):
         print(variable)
-        type_ = "Randomized" if ('Randomized_Scan' in samples[sample_name]['Label']) else "Normal" 
+        type_ = "Randomized" if ('Randomized_Scan' in samples[sample_name]['Label']) else "Normal"
         print(variable, type_)
         df = df.Define(str(variable), str(variables[variable]["Category"][type_]))
       else:
@@ -546,7 +546,7 @@ def Slim_module(filein,
     if Histogram in variables and "MC" in variables[Histogram]["Label"] and sample_type == "Data":
         Label_trigger = "Data"
         Flag = False
-     
+
 
     # Add cut for DNN_Category (for pNN or multi_class_pNN)
     if 'cut' not in Histograms[Histogram]:
@@ -557,19 +557,40 @@ def Slim_module(filein,
       print("Label do not satisfied the requirement. Black list label triggered:%s"%Label_trigger)
       continue
 
-    Title  = str(Histograms[Histogram]["Title"])
-    xlow   = Histograms[Histogram]["xlow"]
-    xhigh  = Histograms[Histogram]["xhigh"]
-    nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
-    if (len(POIs) > 1): nbin = Histograms[Histogram]["nbin"] # When doing systematic variation, do not use large no. of bins to save memory
+    Title = str(Histograms[Histogram]["Title"])
+    xlow = Histograms[Histogram]["xlow"]
+    xhigh = Histograms[Histogram]["xhigh"]
+    nbinx = Histograms[Histogram]["nbinx"] if "nbinx" in Histograms[Histogram] else Histograms[Histogram]["nbin"]
+    ylow = Histograms[Histogram].get("ylow", None)
+    yhigh = Histograms[Histogram].get("yhigh", None)
+    nbiny = Histograms[Histogram].get("nbiny", None)
+
+    # Title  = str(Histograms[Histogram]["Title"])
+    # xlow   = Histograms[Histogram]["xlow"]
+    # xhigh  = Histograms[Histogram]["xhigh"]
+    # nbin   = Histograms[Histogram]["nbin"] * 600 # will be rebinned when plotting
+    # if (len(POIs) > 1): nbin = Histograms[Histogram]["nbin"] # When doing systematic variation, do not use large no. of bins to save memory
 
     if (not "cut" in Histograms[Histogram]): df_plot = df
     elif (Histograms[Histogram]["cut"] is None): df_plot = df
     else: df_plot = df.Filter(str(Histograms[Histogram]["cut"]))
 
-
     Histogram_definition = Histograms[Histogram]['definition'] if 'definition' in Histograms[Histogram] else str(Histogram)
-    df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
+    # Check if it's a 2D histogram
+    if ylow is not None and yhigh is not None and nbiny is not None:
+        y_definition = Histograms[Histogram]['y_definition']
+        df_histo = df_plot.Histo2D(
+            (str(Histogram), Title, nbinx, xlow, xhigh, nbiny, ylow, yhigh),
+            Histogram_definition, y_definition, "weight"
+        )
+    else:
+        # Default to 1D histogram
+        df_histo = df_plot.Histo1D(
+            (str(Histogram), Title, nbinx, xlow, xhigh),
+            Histogram_definition, "weight"
+        )
+
+    # df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
     Histos_from_df[Histogram] = df_histo
 
     if fake_rate:
@@ -607,7 +628,7 @@ def Slim_module(filein,
   for Histogram in Histos_from_df_var:
     h_variation = Histos_from_df_var[Histogram]
     for nuisance in nuisance_list:
-      if("{}:Down".format(nuisance) not in h_variation.GetKeys()): 
+      if("{}:Down".format(nuisance) not in h_variation.GetKeys()):
         cprint("{} not here".format(nuisance), 'yellow')
         continue
       h_variation_do = h_variation[nuisance + ":Down"]
