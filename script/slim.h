@@ -37,6 +37,14 @@ TH2D*trigger_sf_muon_HLT_resolved     = (TH2D*)f_trigger->Get("bh_Muon_scale_fac
 TH2D*trigger_sf_muon_HLT_boost        = (TH2D*)f_trigger->Get("boost_Muon_scale_factor_total");
 const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->GetBinUpEdge(trigger_sf_electron_HLT_resolved->GetNbinsX());
 
+// Fake rate
+// non_prompt_2016postapv_1b_notopcut.root
+TFile*f_fakerate=TFile::Open("../../data/fake_rate/non_prompt_" + era + "_final_notopcut.root");
+TH2D*fake_rate_electron = (TH2D*) f_fakerate->Get("ele_resolved");
+TH2D*fake_rate_muon     = (TH2D*) f_fakerate->Get("mu_resolved");
+
+const float fake_rate_highest_pt = fake_rate_electron->GetXaxis()->GetBinUpEdge(fake_rate_electron->GetNbinsX());
+
 // pileupjetid Scale Factor (Derived by JME)
 // take root file from https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL#Data_MC_Efficiency_Scale_Factors
 TFile*f_pujetid=TFile::Open("../../data/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root");
@@ -612,6 +620,26 @@ float HT_(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<float> jetpt)
   return ht;
 }
 
+///////////////////////
+//  Jet Reselection  //
+///////////////////////
+
+ROOT::VecOps::RVec<Int_t> select_jet_w_lepton_dr_cut(ROOT::VecOps::RVec<Int_t> Jet_jetId, ROOT::VecOps::RVec<Float_t> Jet_pt, ROOT::VecOps::RVec<Float_t> Jet_eta, ROOT::VecOps::RVec<Float_t> Jet_phi, ROOT::VecOps::RVec<Float_t> Jet_mass, Float_t Lepton_pt, Float_t Lepton_eta, Float_t Lepton_phi, Float_t Lepton_mass){
+  ROOT::VecOps::RVec<Int_t> return_id;
+
+  ROOT::Math::PtEtaPhiMVector lepton(Lepton_pt, Lepton_eta, Lepton_phi, Lepton_mass);
+  for (int i = 0; i < Jet_jetId.size(); i++){
+    int jet_idx = Jet_jetId[i];
+    if (jet_idx < 0) continue;
+
+      ROOT::Math::PtEtaPhiMVector jet(Jet_pt[jet_idx], Jet_eta[jet_idx], Jet_phi[jet_idx], Jet_mass[jet_idx]);
+      float deltaR = ROOT::Math::VectorUtil::DeltaR(jet, lepton);
+      if (deltaR > 0.4) return_id.push_back(jet_idx);
+  }
+
+  return return_id;
+} 
+
 ROOT::VecOps::RVec<Int_t> select_btag_jet_wo_lepton_dr_cut(ROOT::VecOps::RVec<Int_t> Jet_jetId, ROOT::VecOps::RVec<Int_t> Jet_puId, ROOT::VecOps::RVec<Float_t> Jet_pt, ROOT::VecOps::RVec<Float_t> Jet_eta, ROOT::VecOps::RVec<Float_t> Jet_btagDeepFlavB){
   ROOT::VecOps::RVec<Int_t> return_id;
   float eta_cut = 2.4;
@@ -635,15 +663,19 @@ ROOT::VecOps::RVec<Int_t> select_btag_jet_wo_lepton_dr_cut(ROOT::VecOps::RVec<In
   return return_id;
 }
 
+
+
 ///////////////
 //  BTag SF  //
 ///////////////
 
-ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid){
+ROOT::VecOps::RVec<Int_t> reselect_btag_jet(ROOT::VecOps::RVec<Int_t> jetid, ROOT::VecOps::RVec<Int_t> tightjetid){
   ROOT::VecOps::RVec<Int_t> return_id;
   for(int i = 0; i < jetid.size(); i++){
     if (jetid[i] < 0) continue;
-    return_id.push_back(jetid[i]);
+    for (int j =0 ; j < tightjetid.size(); j++){
+        if (jetid[i] == tightjetid[j]) return_id.push_back(jetid[i]);
+    }
   }
   return return_id;
 }
@@ -1122,3 +1154,28 @@ float METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, int 
   return CorrectedMETPhi;
 }
 
+
+float fake_weight(float pt, float eta, int channel, float variation){
+   float input_pt = pt;
+   float central_weight = 1.0;
+   float weight_error = 0.0;
+   float fake_rate = 0.0;
+   if (pt > fake_rate_highest_pt) input_pt = fake_rate_highest_pt - 1.0;
+   if (channel == 1){
+    central_weight = fake_rate_muon->GetBinContent(fake_rate_muon->FindBin(input_pt, abs(eta)));
+    weight_error   = fake_rate_muon->GetBinError(fake_rate_muon->FindBin(input_pt, abs(eta)));
+    fake_rate =  (central_weight + variation*weight_error);
+  }
+  else{
+    central_weight = fake_rate_electron->GetBinContent(fake_rate_electron->FindBin(input_pt, abs(eta)));
+    weight_error   = fake_rate_electron->GetBinError(fake_rate_electron->FindBin(input_pt, abs(eta)));
+    fake_rate =  (central_weight + variation*weight_error);
+  }
+
+
+  // Clamp fake_rate to avoid division by zero or infinity
+  if (fake_rate < 1e-2) fake_rate = 1e-2;
+  else if (fake_rate > (1.0 - 1e-2)) fake_rate = 1.0 - 1e-2;
+
+  return (fake_rate / (1.0 - fake_rate));
+}

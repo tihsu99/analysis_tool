@@ -221,7 +221,6 @@ Color_Dict_ref = {
   'ttXY': ROOT.TColor.GetColor("#717581"),
   'cgTotH': ROOT.TColor.GetColor("#92dadd")
 }
-
 Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2, ROOT.kViolet+2, ROOT.kCyan+3, ROOT.kBlue-2, ROOT.kOrange-1, ROOT.kRed-2, ROOT.kBlack]
 
 
