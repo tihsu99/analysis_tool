@@ -148,9 +148,9 @@ class RunLimits:
         if self.__verbose:
             command_ = command_ + '-v 4'
 
+        print("\033[92m" + command_ + " >& " + logname + "\033[0m")
         os.system(command_+" >& "+logname)
         output_rootfile = "higgsCombine"+self.year_+"_"+self.region_+"_" + self.channel_ + "_"+mass_point+"_" + self.signal_str_ + "_" + self.postfix_+"_"+self.model_+".AsymptoticLimits.mH120.root"
-        print(command_+" >& "+logname)
 
         # delete the output combine root file (not to make dirty your home area!)
         os.system("rm "+output_rootfile)
