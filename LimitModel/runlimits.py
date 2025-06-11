@@ -52,7 +52,7 @@ def get_color_from_value(x, min_val, max_val):
 file_path = "../data/signal_xsec.txt"  # Replace with your file path
 df_sig_xsec = pd.read_csv(
     file_path,
-    delim_whitespace=True,  # Handle white-space delimited data
+    sep=r'\s+',  # Handle white-space delimited data
     skiprows=2,             # Skip the second row containing '---'
 )
 
@@ -70,7 +70,7 @@ column_names = [
 # Read the file while handling whitespace and missing columns
 df_sig_xsec_err = pd.read_csv(
     file_path,
-    delim_whitespace=True,  # Handle white-space delimited data
+    sep=r'\s+',  # Handle white-space delimited data
     skiprows=1,             # Skip the comment row (starts with #)
     names=column_names,     # Use predefined column names
     engine="python",        # Use Python engine for complex parsing

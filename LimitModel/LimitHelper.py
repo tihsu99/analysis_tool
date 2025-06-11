@@ -24,7 +24,7 @@ CMS.SetEnergy("13")
 
 df_ratio = pd.read_csv(
     "../data/bquarks_ratio.txt",
-    delim_whitespace=True,
+    sep=r'\s+',
     skiprows=2,
 )
 
@@ -45,7 +45,7 @@ for mass_ in unique_masses:
 class RunLimits:
     ''' class to perform all tasks related to the limits once datacards are prepared '''
     ''' this class exepcts that all the steps needed to prepare the datacards and prepration of its inputs are already performed '''
-    ''' instantiation of the class is done here ''' 
+    ''' instantiation of the class is done here '''
     def __init__(self, year, analysis="bH", region="SR", channel="em", postfix="asimov", model="extYukawa",unblind=False, verbose=False, rMax=5, signal_param=OrderedDict(), outputdir = "./", all_signal = []):
         self.year_                 = year
         self.analysis_             = analysis
@@ -74,7 +74,7 @@ class RunLimits:
         self.all_signal_limitlog_tmp_node = []
         self.all_signal_limitlog = []
         for signal_ in all_signal:
-            limitlog = os.path.join(self.limit_dir, "limits_" + self.analysis_ + "_" + signal_ + "_" + self.postfix_ + "_" + self.model_ + ".txt")           
+            limitlog = os.path.join(self.limit_dir, "limits_" + self.analysis_ + "_" + signal_ + "_" + self.postfix_ + "_" + self.model_ + ".txt")
             self.all_signal_limitlog.append(limitlog)
             self.all_signal_limit_root_file.append(limitlog.replace('.txt', '.root'))
             self.all_signal_limitlog_tmp_node.append(limitlog.replace('.txt', '_{}.txt'))
@@ -167,7 +167,7 @@ class RunLimits:
         else:
           pass
         os.system(command_ + " >& " + logname)
-        print(command_ + " >& " + logname)   
+        print(command_ + " >& " + logname)
         return logname
     ## category can be merged/resolved/combined
 
@@ -176,7 +176,7 @@ class RunLimits:
 
         for ilongline in open(logfile):
             if 'Significance: ' in ilongline:
-               significance_ = ilongline.replace('Significance: ', '').rstrip() 
+               significance_ = ilongline.replace('Significance: ', '').rstrip()
 
         towrite = str(allparameters[2]) + " " + str(allparameters[1]) + " " + significance_
         print(towrite)
@@ -236,7 +236,7 @@ class RunLimits:
 
 
         if mode == "era":
-          for Era in Eras: 
+          for Era in Eras:
             y_array = array('f')
             for imass in Masses:
                limit_dir = os.path.join(self.outputdir_, "bin", Era, self.region_, self.channel_)
@@ -250,7 +250,7 @@ class RunLimits:
             significance_dict[Era] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
 
         if mode == "region":
-          for Region in Regions: 
+          for Region in Regions:
             y_array = array('f')
             for imass in Masses:
                limit_dir = os.path.join(self.outputdir_, "bin", "run2", Region, self.channel_)
@@ -278,7 +278,7 @@ class RunLimits:
         if mode == "era":
           for Era, graph in significance_dict.items():
             if Era == "run2":
-                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 3) 
+                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 3)
             else:
                 CMS.cmsDraw(graph, 'P L SAME', lcolor = iColor[idx], msize=0, fstyle = 0, lwidth = 2, lstyle = 9)
                 idx += 1
@@ -287,7 +287,7 @@ class RunLimits:
         if mode == "region":
           for Region, graph in significance_dict.items():
             if Region == "C":
-                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 2) 
+                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 2)
             else:
                 CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlue + iColor - 1, msize=0, fstyle = 0, lwidth = 3, lstyle = iColor)
                 iColor += 1
@@ -340,19 +340,19 @@ class RunLimits:
 
             counter = 0
             Merged_txt_file = open(limit_log_list[file_idx],'w')
-         
-        
+
+
             for imass in Masses:
                 input_file = input_limitlog_tmp_list[file_idx].format(Higgs+str(imass))
                 if CheckFile(input_file):pass
                 else:
                     raise ValueError('Make sure you have this file: {}'.format(input_file))
-            
+
                 f = open(input_file,"r")
                 for line in f:
                     if len(line.rsplit())<7: continue
                     med.append(float(line.rstrip().split()[1]))
-                    #mchi.append(chr(line.rstrip().split()[0]))                
+                    #mchi.append(chr(line.rstrip().split()[0]))
                     expm2.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[2]) )
                     expm1.append(float(line.rstrip().split()[4]) - float(line.rstrip().split()[3]) )
                     expmed.append(float(line.rstrip().split()[4]))
@@ -377,10 +377,10 @@ class RunLimits:
             g_exp2  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm2, expp2 )   ;  g_exp2.SetName("exp2")
             g_exp1  = TGraphAsymmErrors(int(len(med)), med, expmed, errx, errx, expm1, expp1 )   ;  g_exp1.SetName("exp1")
             g_expmed = TGraphAsymmErrors(int(len(med)), med, expmed)   ;  g_expmed.SetName("expmed")
-        
+
             if self.__unblind:
                 g_obs    = TGraphAsymmErrors(int(len(med)), med, obs   )   ;  g_obs.SetName("obs")
-    
+
             f1 = TFile(limit_log_root_list[file_idx],'RECREATE')
             g_exp2.Write()
             g_exp1.Write()
@@ -777,7 +777,7 @@ class RunLimits:
 
     def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased', fastScan = False):
         asimovstr ="-t -1 "
-        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ 
+        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
         if self.__unblind:
           tag += "_unblind"
 
@@ -808,7 +808,7 @@ class RunLimits:
         else:
           command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
 
-        if self.__unblind: 
+        if self.__unblind:
             asimov = False
 
         if asimov:
@@ -838,7 +838,7 @@ class RunLimits:
           x_tmp   = -100
           y_tmp   = -100
           for entry in t:
-             nll = getattr(entry, "deltaNLL")   
+             nll = getattr(entry, "deltaNLL")
              if nll < min_tmp:
                  min_tmp = nll
                  x_tmp = getattr(entry, x) * xsec_2b
@@ -1055,7 +1055,7 @@ class RunLimits:
             rtt = float(rtt)
             rtc = float(rtc)
             ratio_list.append(1.0/ratio)
-   
+
             if (abs(rtt - 0.6) > 1e-5) or (abs(rtc - 0.4) > 1e-5):
                 continue
             xsec_2b_ratio = ratio / (1.0 + ratio)
@@ -1071,12 +1071,12 @@ class RunLimits:
         ratio_mean = np.mean(ratio_list)
 
 
-        
+
 
 
         h_expected, CL68_expected, CL95_expected = self.draw_contour2D(MultiFit_root_file_expected, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
         h_observed, CL68_observed, CL95_observed = self.draw_contour2D(MultiFit_root_file_observed, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
-      
+
         xsec_2b_limit = xsec_2b_ratio * xsec_2b_limit
         xsec_3b_limit = xsec_3b_ratio * xsec_3b_limit
 
@@ -1096,7 +1096,7 @@ class RunLimits:
           best_fit = self.bestFit(MultiFit_root_file_observed, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
         else:
           best_fit = self.bestFit(MultiFit_root_file_expected, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
- 
+
         #CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
         #CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
         #CL68.SetLineWidth(2); CL68.SetLineStyle(1); CL68.SetLineColor(1); CL68.SetFillStyle(1001); CL68.SetFillColorAlpha(17,0.35); CL68.SetMarkerSize(3)
@@ -1123,8 +1123,8 @@ class RunLimits:
         line_central.SetLineColor(rt.kBlack)
         line_central.SetLineWidth(2)
         line_central.Draw("L SAME")
-       
-        
+
+
 
 
         SM = self.drawPoint(0, 0, 29, rt.kBlue, size = 4.0)
@@ -1145,10 +1145,10 @@ class RunLimits:
             rtt, rtc = coupling
             rtt = float(rtt)
             rtc = float(rtc)
- 
+
             ratio_list.append(ratio)
             xsec_2b_ratio = ratio / (1.0 + ratio)
-            xsec_3b_ratio = 1.0   / (1.0 + ratio) 
+            xsec_3b_ratio = 1.0   / (1.0 + ratio)
 
 
             xsec = df_sig_xsec[(df_sig_xsec['Mass'] == int(mass)) & (abs(df_sig_xsec['rtt'] - rtt) < 1e-5) & (abs(df_sig_xsec['rtc'] - rtc) < 1e-5)]['xsec'].iloc[0]
@@ -1162,7 +1162,7 @@ class RunLimits:
                   add_the_point = False
             if (xsec_2b > (0.9 * xsec_2b_limit)) or (xsec_3b > (0.9 * xsec_3b_limit)):
                 add_the_point = False
-           
+
             if add_the_point:
               point_collection.append(xsec_2b + xsec_3b)
               signal_points["#rho_{tc}=%.1f, #rho_{tt}=%.1f"%(rtc, rtt)] = self.drawPoint(xsec_2b, xsec_3b, 33, rt.kBlack, size = 2.0, text = "#rho_{tc}=%.1f, #rho_{tt}=%.1f"%(rtc, rtt), dx = xsec_2b_limit * 0.02)
