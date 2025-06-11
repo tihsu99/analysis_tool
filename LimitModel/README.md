@@ -1,4 +1,11 @@
 # 0. Cheat sheet
+## addtional update for some packages:
+```
+pip3 install --user scipy pandas
+pip3 install --user numpy==1.24.3
+```
+its wrtten on file: addtional_install.txt
+
 ## 0.1 Cheating tablet for commands (temporary, inputdir will change time by time, **only to test code in current version**):
 To initialization and rebin:
 ```
@@ -48,21 +55,21 @@ sh example/plot_Impact_bHplus.sh "--year run2 --region C --channel C --mass_poin
 # Method 2: Command
 python3 ./SignalExtraction_Estimation.py --mode datacard2workspace --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 python3 ./SignalExtraction_Estimation.py --mode FitDiagnostics --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode FinalYieldComputation --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type preFit --plotRatio
-python ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type postFit --plotRatio
-python ./SignalExtraction_Estimation.py --mode diffNuisances --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode PlotPulls --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode BiasTest --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode Impact_doInitFit --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode Impact_doFits --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode SubmitGOF --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode FinalYieldComputation --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type preFit --plotRatio
+python3 ./SignalExtraction_Estimation.py --mode PlotShape --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind] --shape_type postFit --plotRatio
+python3 ./SignalExtraction_Estimation.py --mode diffNuisances --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode PlotPulls --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode BiasTest --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode Impact_doInitFit --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode Impact_doFits --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode SubmitGOF --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 ```
 After condor finishes the job.
 ```
-python ./SignalExtraction_Estimation.py --mode Plot_Impacts --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode BiasTestPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
-python ./SignalExtraction_Estimation.py --mode GoFPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode Plot_Impacts --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode BiasTestPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
+python3 ./SignalExtraction_Estimation.py --mode GoFPlot --year run2 --region C --channel C --mass_point 500 --outdir [OUTPUTDIR] --datacard_dir [OUTPUTDIR]/datacards_g2HDM_3Bbased/ [--unblind]
 ```
 # 1. Initialization
 
@@ -176,13 +183,13 @@ Note!!!: The pre-requiest for this is the corresponding datacard.
 
 You can try following commands to produce the limit plots, but you would find it will take a century to finish per command :).
 ```
-python runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b]
+python3 runlimits.py [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b]
 ```
 #### Plot Limits
 
 After the programs is finished, you should use [--plot_only] and [--outputdir] to see the plots. Like:
 ```
-python runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b] --plot_only;
+python3 runlimits.py  [--channel] [--region] [--year] --rtt [0.6] --rtc [0.4] [--unblind] --Masses [Mass list] --datacard_dir [datacard directory] --outputdir [your/favoured/output/folder] --POI_name [i.e. r_3b] --plot_only;
 ```
 Note: Generally, it would take > 1 day to finish the calculation for full run2 limit plots. In section `6`, we provide the steps to get script for condor, and take rtc0p4 full run2 limit plot for low regime (200-700GeV) for example.
 
@@ -196,78 +203,78 @@ N.B: if you want to do some parameter optimization and wanted to same output to 
 
 Step1 -> convert datacard to workspace files distribution. O(time) ~ 10 sec. For fullrun2: O(time) ~ 3mins.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode datacard2workspace [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode datacard2workspace [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step2 -> FitDiagnostics. O(time) ~ O(3mins~15mins) for single year. time  ~ O(2.5-3hr )
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FitDiagnostics [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FitDiagnostics [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> FinalYieldComputation.
 After this, you will have latex table with yields value (and error values) for each background.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FinalYieldComputation [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode FinalYieldComputation [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step3 -> preFit distribution. O(time) ~ 1 sec
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type preFit
 ```
 
 Step4 -> postFit distribution.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotShape [--rtt] [--rtc] --mass_point 800 --text_y 800 --outdir [path/to/workspace] [--logy] [--plotRatio] --shape_type postFit
 ```
 
 Step5 -> Calculating Pulls for each nuisances and background.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode diffNuisances [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode diffNuisances [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step6 -> Plot the pulls.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotPulls [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode PlotPulls [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.1 -> Init Fit for Impact. O(time) ~ 30 sec. O(time) ~ 5hrs for Combined.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doInitFit [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doInitFit [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step7.2 -> Do Fits for Impacts. You need to wait all the jobs completed. O(time) ~ 20-40 mins for single year. --outdir [path/to/workspace]
 
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doFits [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Impact_doFits [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 Step7.3: Submit from EOS (Only when workspace is under eos) (**TODO:Check the code**)
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitFromEOS [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitFromEOS [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 
 Step8: Plot Impacts.  O(time) ~ 30 sec.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Plot_Impacts [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode Plot_Impacts [--rtt] [--rtc] --mass_point 800 --outdir [path/to/workspace]
 ```
 Step9 : Goodness of Test
 Firstly, you need to submit the jobs to condor for 50 toys for GoF
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode SubmitGOF [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
 ```
 Then, after all the jobs are completed, you can plot it with
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode GoFPlot [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode GoFPlot [--rtt] [--rtc] --mass_point 800 --GoF_Algorithm [KS, AD, saturated:default]
 ```
 
 Step 10: plotCorrelation (**TODO:Modify to `analysis_tool` structure**)
 Currently, only the correlated uncertainties to JES are plotted (Under development)
 Note: FitDiagnostics files and impact json are necessary in this step.
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode plotCorrelationRanking [--rtt] [--rtc] --mass_point 800
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode plotCorrelationRanking [--rtt] [--rtc] --mass_point 800
 ```
 Step 11: Profile Scan plot (**TODO: Modify to `analysis_tool` structure**)
 ```
-python ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode DrawNLL [--rtt] [--rtc] --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
+python3 ./SignalExtraction_Estimation.py -y 2017 -c [CHANNEL] -r [REGION] --mode DrawNLL [--rtt] [--rtc] --mass_point 800 --unblind --rMin -2 --rMax 1.5 --group ${GROUP:1, 2, 3}
 ```
 
 # Final Yield computation:
@@ -500,7 +507,7 @@ Like the above option fix the Run-2 combined channel impact plot.
 NB: they are added in the code but while run you have to apply from command line option
 e.g
 ```
-python ./SignalExtraction_Estimation.py -y run2 -c C --mode Impact_doInitFit  --coupling_value rtc04 --mass_point 350 --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=1.0
+python3 ./SignalExtraction_Estimation.py -y run2 -c C --mode Impact_doInitFit  --coupling_value rtc04 --mass_point 350 --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance=1.0
 ```
 
 ### 10. Appendix from Raman
