@@ -39,7 +39,7 @@ const float trigger_highest_pt = trigger_sf_electron_HLT_resolved->GetXaxis()->G
 
 // Fake rate
 // non_prompt_2016postapv_1b_notopcut.root
-TFile*f_fakerate=TFile::Open("../../data/fake_rate/non_prompt_" + era + "_final_notopcut.root");
+TFile*f_fakerate=TFile::Open("../../data/non-prompt-fr/non_prompt_" + era + "_final_notopcut.root");
 TH2D*fake_rate_electron = (TH2D*) f_fakerate->Get("ele_resolved");
 TH2D*fake_rate_muon     = (TH2D*) f_fakerate->Get("mu_resolved");
 
