@@ -47,7 +47,8 @@ def Slim_module(filein,
                 noNLOwjet = False,
                 not_ensemble = False,
                 train = None,
-                dir_tag = None):
+                dir_tag = None,
+                fake_rate = False):
 
   #############
   ##  Basic  ##
@@ -193,13 +194,12 @@ def Slim_module(filein,
     else:
       nuisances_valid[nuisances[nuisance]["Nominal"][-1]].append(nuisance)
 
-
   ##############
   ##  Weight  ##
   ##############
   if "Data" in sample_labels:
     weight_def = 1       # Data weight is also to be 1
-    nuisances_valid = [] # Nuisances only affect MC
+    # nuisances_valid = [] # Nuisances only affect MC
   # Apply toppt by default
   if sample_category == 'TT':
     print (colored('--> For ttbar apply toppt_weight','yellow'))
@@ -232,6 +232,12 @@ def Slim_module(filein,
     "Def": str('(float)({})'.format(weight_def)),
     'Label': ['Normal']
   }
+
+  if fake_rate:
+    variables['final_fake_weight'] = {
+      'Def': str('(float)(weight * fake_rate)'),
+      'Label': ['Normal']
+    }
 
 
   print('nuisances_valid', nuisances_valid)
@@ -587,9 +593,16 @@ def Slim_module(filein,
     # df_histo = df_plot.Histo1D((str(Histogram), Title, nbin, xlow, xhigh), Histogram_definition, "weight")
     Histos_from_df[Histogram] = df_histo
 
+    if fake_rate:
+        df_histo_fk =  df_plot.Histo1D((str(Histogram + "_fake"), Title, nbin, xlow, xhigh), Histogram_definition, "final_fake_weight")
+        Histos_from_df[Histogram + "_fake"] = df_histo_fk
+
+
     ## Nuisance variation for POIs
     if Histogram in POIs:
       Histos_from_df_var[Histogram] = ROOT.RDF.Experimental.VariationsFor(df_histo)
+      if fake_rate:
+        Histos_from_df_var[Histogram + "_fake"] = ROOT.RDF.Experimental.VariationsFor(df_histo_fk)
 #      print(h_variation.GetKeys())
 #      for nuisance in nuisance_list:
 #        if ("{}:Down".format(nuisance) not in h_variation.GetKeys()): continue
@@ -713,6 +726,7 @@ if __name__ == "__main__":
   parser.add_argument("--not_ensemble", action = 'store_true')
   parser.add_argument("--train",   type=str, default = None)
   parser.add_argument("--dir_tag", type=str, default = None)
+  parser.add_argument("--fake_rate", action="store_true")
 
   args = parser.parse_args()
   if "DEFAULT" in args.POIs: args.POIs = []
@@ -742,6 +756,7 @@ if __name__ == "__main__":
               noNLOwjet = args.noNLOwjet,\
               not_ensemble = args.not_ensemble,\
               train = args.train,
-              dir_tag = args.dir_tag)
+              dir_tag = args.dir_tag,
+              fake_rate = args.fake_rate)
   end_time = time.time()
   print('process time', end_time - start_time)

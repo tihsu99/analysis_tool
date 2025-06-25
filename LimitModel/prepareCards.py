@@ -12,7 +12,7 @@ from common import *
 import copy
 import re
 
-def create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx, ABCD_regionA = False, ABCD_region = dict()):
+def create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx, ABCD_regionA = False, ABCD_region = dict(), all_shape=False):
     Datacards_Input = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
     # Add background
     bkg_list = []
@@ -35,7 +35,7 @@ def create_tables(cb, parameter_constraint, era, region, channel, signal_process
                 process_list.append(sig_)
             else:
               process_list.append(process)
-        if Datacards_Input["UnclnN"][nuisance] == 'shape':
+        if (Datacards_Input["UnclnN"][nuisance] == 'shape') or all_shape:
             cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "shape", ch.SystMap()(1.0))
         else:
             cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "lnN",  ch.SystMap()(float(Datacards_Input["UnclnN"][nuisance])))
@@ -62,7 +62,7 @@ def compare_two_list(l1, l2):
     if not l1[idx] in l2: return False
   return True
 
-def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json', create_WorkSpace = False, randomized_scan = False, signal_nominal = None):
+def create_datacards(years, regions, channels, signal, combined, outdir, analysis_name="bH", dataset_dir='', signal_process = [], PhysicsModel='g2HDM_2Bbased', cut_json = '../data/cut.json', create_WorkSpace = False, randomized_scan = False, signal_nominal = None, all_shape=False):
 
 
   if signal_nominal is None:
@@ -115,10 +115,10 @@ def create_datacards(years, regions, channels, signal, combined, outdir, analysi
         Datacards_Input = read_json(f"data_info/Datacard_Input/{era}/Datacard_Input_{region}_{channel}.json")
         ABCDmethod = (len(Datacards_Input["ABCDmethod"]) > 0)
         if len(Datacards_Input["ABCDmethod"]) > 0:
-            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["B"], channel, signal_process, analysis_name, region_idx = 2)
-            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["C"], channel, signal_process, analysis_name, region_idx = 3)
-            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["D"], channel, signal_process, analysis_name, region_idx = 4)
-        create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx = 1, ABCD_regionA = ABCDmethod, ABCD_region = Datacards_Input["ABCDmethod"])
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["B"], channel, signal_process, analysis_name, region_idx = 2, all_shape=all_shape)
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["C"], channel, signal_process, analysis_name, region_idx = 3, all_shape=all_shape)
+            create_tables(cb, parameter_constraint, era, Datacards_Input["ABCDmethod"]["D"], channel, signal_process, analysis_name, region_idx = 4, all_shape=all_shape)
+        create_tables(cb, parameter_constraint, era, region, channel, signal_process, analysis_name, region_idx = 1, ABCD_regionA = ABCDmethod, ABCD_region = Datacards_Input["ABCDmethod"], all_shape=all_shape)
         # Set Rate
         cb.ForEachProc(set_Rate)
         cb.ForEachObs(set_Rate)
@@ -264,6 +264,7 @@ if __name__ == "__main__":
   parser.add_argument('--ch_merge', action = 'store_true')
   parser.add_argument('--randomized_scan', action = 'store_true')
   parser.add_argument('--mass_detailed',  help="List of mass", default=[200, 300, 350, 400, 500, 600, 700, 800, 900, 1000], nargs='+')
+  parser.add_argument('--all_shape', action='store_true')
   args = parser.parse_args()
   CheckDir(args.outdir, True)
 
@@ -288,7 +289,7 @@ if __name__ == "__main__":
         if "Signal" in samples[sample_]["Label"]: signal_list.append(sample_)
       args.signal = signal_list
     for signal_ in args.signal:
-      create_datacards(args.year, args.region, args.channel, signal_, args.combined, args.outdir, args.analysis_name, args.dataset_dir, PhysicsModel=args.PhysicsModel, cut_json = args.cut_json, create_WorkSpace = args.create_WorkSpace)
+      create_datacards(args.year, args.region, args.channel, signal_, args.combined, args.outdir, args.analysis_name, args.dataset_dir, PhysicsModel=args.PhysicsModel, cut_json = args.cut_json, create_WorkSpace = args.create_WorkSpace, all_shape=args.all_shape)
 
   # Method 2(specific to bHplus study): give lists of masses and coupling(TODO)
   else:
@@ -312,4 +313,4 @@ if __name__ == "__main__":
               else:
                 subprocess.append(signal_name_in_loop)
 
-              create_datacards(args.year, args.region, args.channel, signal_name_in_loop, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json, create_WorkSpace = args.create_WorkSpace, randomized_scan = args.randomized_scan, signal_nominal = signal_name)
+              create_datacards(args.year, args.region, args.channel, signal_name_in_loop, args.combined, args.outdir, args.analysis_name, args.dataset_dir, signal_process = subprocess, PhysicsModel=args.PhysicsModel, cut_json=args.cut_json, create_WorkSpace = args.create_WorkSpace, randomized_scan = args.randomized_scan, signal_nominal = signal_name, all_shape=args.all_shape)

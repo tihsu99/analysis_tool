@@ -89,10 +89,10 @@ print(df_sig_xsec_err)
 
 usage = "python runlimits.py -c em"
 parser = argparse.ArgumentParser(description=usage)
-parser.add_argument("-c", "--channel", dest="channel", default="ele")
-parser.add_argument("-r", "--region", dest="region", default="SR")
-parser.add_argument("-y", "--year", dest="year", default="2017")
-parser.add_argument("--year_for_plot", dest = 'year_for_plot', default = ['2016apv', '2016postapv', '2017', '2018', 'run2'])
+parser.add_argument("-c", "--channel", dest="channel", default="C")
+parser.add_argument("-r", "--region", dest="region", default="C")
+parser.add_argument("-y", "--year", dest="year", default="run2")
+parser.add_argument("--year_for_plot", dest = 'year_for_plot', default = ['run2'])
 parser.add_argument("--region_for_plot", dest = 'region_for_plot', default = ['SR_2b2j', 'SR_2b3j', 'SR_2b4j', 'SR_3b3j', 'SR_3b4j'])
 parser.add_argument("--rtc", dest="rtc", default=0.4, type=float)
 parser.add_argument("--rtt", dest="rtt", default=0.6, type=float)
@@ -122,6 +122,8 @@ parser.add_argument('--ratio_file', type=str, default=None)
 parser.add_argument('--coupling_varied', type=str, default='best_rtt_rtc')
 parser.add_argument('--all_signal', action = 'store_true')
 parser.add_argument('--fastScan', action = 'store_true')
+parser.add_argument('--inject_signal', type=float, default = 0.0)
+parser.add_argument('--inject_mass', type=str, default = "500")
 parser.add_argument("--extraCommand", help='extra addtional command', default='', type=str)
 args = parser.parse_args()
 
@@ -272,8 +274,6 @@ if args.plot_only:
           mH = str(imass)
           RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file, df_sig_xsec = df_sig_xsec)
 
-
-
   elif args.Scan2D:
     limitlog = RL.limitlog
     TGraph_File_dict = dict()
@@ -293,14 +293,14 @@ if args.plot_only:
     Plot_1D_Limit_For(TGraph_File_dict, args.unblind, y_max=args.plot_y_max, y_min=args.plot_y_min, year=[args.year], region=[args.region], channel=[args.channel], outputFolder=args.outputdir, Masses=args.Masses, mode = "Rb", legend_dict={(0.1*0):'pp\\rightarrow bH^{+}', (0.1*10):'pp\\rightarrow bH^{+} + H^{+}'}, AN=True)
 
   elif args.Significance:
-    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'era')
+    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'era', postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "")
 #    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'region')
 
   else:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
     #RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
-    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied) #gkole-9Feb2025
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied, postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "") #gkole-9Feb2025
 else:
     counter=0
     template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=year, signal=signal_name_template, region=region, channel=channel)
@@ -308,6 +308,12 @@ else:
     for imass in mass_points:
         mH = str(imass)
         card_name = template_card.replace("MASS", mH)
+        if args.inject_signal > 0:
+            card_ = template_card.split('/')[-1].replace("MASS", args.inject_mass)
+            folder_ = '/'.join(template_card.split('/')[:-1]).replace("MASS", mH)
+            gen_card_name = f"{folder_}/{card_}"
+        else:
+            gen_card_name = card_name
         if args.Scan2DNLL:
           RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'), model_name = args.model_name, cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, fastScan = args.fastScan)
 
@@ -322,12 +328,12 @@ else:
             limitlogfile = RL.LogToLimitList(logname, param_list, mode_, postfix='_%s_Rb%.1f'%(args.POI_name, Rb), POI=args.POI_name)
 
         elif args.Significance:
-          logname = RL.getSignificance(card_name, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, log_dir = 'significance_log', cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance)
+          logname = RL.getSignificance(card_name, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, log_dir = 'significance_log', cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, gen_card_name = gen_card_name, args=args)
           param_list = (Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
           significance_log_file = RL.LogToSignificanceList(logname, param_list, 'w')
 
         else:
-          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, log_dir='datacard_log', extraCommand = args.extraCommand)
+          logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, gen_card_name = gen_card_name, log_dir='datacard_log', args=args, extraCommand = args.extraCommand)
           mode_ = "w"
 
           if counter==0: mode_="w"
