@@ -24,6 +24,88 @@ import argparse
 sys.path.append('../python')
 from common import *
 import numpy as np
+import multiprocessing as mp
+
+def process_nuisance(nuisance, datacard_inputs, era_list, indir, samples, datacard_json_dict, 
+                     binning, POI, category, category_name, quiet, analysis_name, channel, region, scale, era):
+    """
+    Function to process each nuisance in parallel.
+    """
+
+    category_replace_signal = "SIGNAL" if "SIGNAL" in category else category
+    if category_replace_signal not in datacard_inputs["NuisForProc"][nuisance]:
+        return []
+
+    prompt_region = region.replace("CRb", "SR").replace("CRc", "SR").replace("CRd", "SR")
+    
+    if datacard_inputs["UnclnN"][nuisance] != "shape":
+        histograms = []
+        for variation in ["_up", "_down"]:
+          h_merge = None
+          for era_ in era_list:
+            indir_tmp = indir.replace("Merged_run2", era_)
+            h = MakePositive_Hist(Make_Hist(
+                    prefix=POI, samples_list=samples[category], nuis='', category=category_name,
+                    indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name,
+                    channel=channel, region=region, scale=scale
+            ))
+            if nuisance not in datacard_json_dict[era_]["UnclnN"]:
+              hist = h.Clone()
+            else:
+              if variation == "_up":
+                hist = h.Clone()
+                hist.Scale(float(datacard_inputs["UnclnN"][nuisance]))
+              else:
+                hist = h.Clone()
+                hist.Scale(2.0-float(datacard_inputs["UnclnN"][nuisance]))
+            if h_merge is None:
+              h_merge = hist.Clone()
+            else:
+              h_merge.Add(h.Clone())
+
+          nuis_name = f"_{nuisance}{variation}".replace("_up", "Up").replace("_down", "Down")
+          year = '2016' if '2016' in era else era
+          nuis_name = nuis_name.replace('YEAR', year).replace("ERA", era).replace('REGION', prompt_region).replace("CHANNEL", channel)
+          h_merge.SetNameTitle(f"{analysis_name}{era}_{category_name}{nuis_name}", f"{era}_{category_name}{nuis_name}")
+          histograms.append(h_merge)
+        return histograms
+
+    histograms = []
+    for variation in ["_up", "_down"]:
+        h_merge = None
+        for era_ in era_list:
+            year_name = "2016" if "2016" in era_ else era_
+            real_nuis_dict = [k.replace("ERA", era_).replace("YEAR", year_name) for k in datacard_json_dict[era_]["UnclnN"].keys()]
+            indir_tmp = indir.replace('Merged_run2', era_)
+            if nuisance not in real_nuis_dict:
+                h = MakePositive_Hist(Make_Hist(
+                    prefix=POI, samples_list=samples[category], nuis='', category=category_name,
+                    indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name,
+                    channel=channel, region=region, scale=scale
+                ))
+            else:
+                h = MakePositive_Hist(Make_Hist(
+                    prefix=POI, samples_list=samples[category], nuis=f"_{nuisance}{variation}",
+                    category=category_name, indir=indir_tmp, bins=binning, era=era_,
+                    q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale
+                ))
+            
+            if h_merge is None:
+                h_merge = h.Clone()
+            else:
+                h_merge.Add(h.Clone())
+
+
+        # Finalize naming
+        nuis_name = f"_{nuisance}{variation}".replace("_up", "Up").replace("_down", "Down")
+        year = '2016' if '2016' in era else era
+        nuis_name = nuis_name.replace('YEAR', year).replace("ERA", era).replace('REGION', prompt_region).replace("CHANNEL", channel)
+        h_merge.SetNameTitle(f"{analysis_name}{era}_{category_name}{nuis_name}", f"{era}_{category_name}{nuis_name}")
+        histograms.append(h_merge)
+
+    return histograms
+
+
 
 def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=False, bins='', era='2017', analysis_name="bH", channel='ele_resolved', region = 'CR_1b4j', scale = 1.0):
 
@@ -37,24 +119,33 @@ def Make_Hist(prefix='', samples_list=[], nuis='', category='', indir='', q=Fals
   year = '2016' if '2016' in era else era
 
   for sample_ in samples_list:
-    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era).replace('REGION', region)
+    sample_nuis_name = str(prefix + nuis).replace('YEAR', year).replace('CHANNEL', channel).replace('ERA', era) #.replace('REGION', region)
     fin = os.path.join(indir, "{}.root".format(sample_))
     fin = TFile.Open(fin, "READ")
-    if(type(fin.Get(sample_nuis_name)) is TH1F or type(fin.Get(sample_nuis_name)) is TH1D):
+    cleanest_nuis_name = str(prefix+nuis).replace('_YEAR', '').replace('_CHANNEL', '').replace('_ERA', '').replace(f"_{category}", '').replace('_REGION', '').replace('_Signal', '')
+#    if category == "QCD":
+#      cleanest_nuis_name = "_".join(sample_nuis_name.split("_")[:-2] + [sample_nuis_name.split("_")[-1]])
+    hist = fin.Get(sample_nuis_name)
+    if not isinstance(hist, (TH1F, TH1D)):
+      hist = fin.Get(cleanest_nuis_name)
+      if not isinstance(hist, (TH1F, TH1D)):
+        hist = fin.Get(sample_nuis_name.replace("REGION", region))
+    if isinstance(hist, (TH1F, TH1D)):
       if Init:
-        h = copy.deepcopy(fin.Get(sample_nuis_name))
+        h = copy.deepcopy(hist)
         Init = False
         Nui_Exist=True
       else:
-        h.Add(fin.Get(sample_nuis_name))
+        h.Add(hist)
     fin.Close()
   if Nui_Exist:
     h = h.Rebin(len(bins)-1, "h", bins)
-    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era).replace('REGION', region)
+    prompt_region = region.replace("CRb", "SR").replace("CRc", "SR").replace("CRd", "SR")
+    nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace('CHANNEL', channel).replace("ERA", era).replace('REGION', prompt_region)
     h.SetNameTitle(analysis_name + era + "_" + category + nuis, era + "_" + category + nuis)
   else:
     if q: pass
-    else: print("\033[0;32m Warning \033[0;m: {} doesn't exist".format(sample_nuis_name))
+    else: print("\033[0;32m Warning \033[0;m: {}({}) doesn't exist".format(sample_nuis_name, cleanest_nuis_name))
 
 #  print('produce', analysis_name + era + "_" + category + nuis, era + "_" + category + nuis, indir, sample_)
   try:
@@ -91,7 +182,6 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
   #binning = [0.2 * i for i in range(6)] if binning is None else binning
   binning = [100 * i for i in range(11)] if binning is None else binning
   binning = array.array('d', binning)
-  print(POI, binning)
   sample_json = 'data_info/Sample_Names/process_name_{}_{}_{}.json'.format(era, region, channel)
 
   if merge_era:
@@ -127,7 +217,6 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
       for idx, subprocess_ in enumerate(subprocess):
         samples["SIGNAL{}".format(idx)] = [subprocess_]
 
-  print(samples)
   for category in samples:
     # Nominal
     scale = 1.0
@@ -175,10 +264,8 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                 h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
                 Histograms.append(h_merge)
     elif merge_era is not None:
-        print(era)
         h_merge = None
         for era_ in era_list:
-             print(indir)
              indir_tmp = indir.replace('Merged_run2', era_)
              h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale))
              if h_merge is None: 
@@ -187,30 +274,51 @@ def ReBin(indir, fout_name, era, region, channel, unblind=False, POI='BDT', pref
                  h_merge.Add(h.Clone())
         h_merge.SetNameTitle(analysis_name + era + "_" + category_name, analysis_name + era + "_" + category_name)
         Histograms.append(h_merge)
-        for nuisance in datacard_inputs["NuisForProc"]:
-            if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
-            category_replace_signal = category
-            if "SIGNAL" in category:
-                category_replace_signal = "SIGNAL"
-            if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
-            for variation in ["_up", "_down"]:
-                h_merge = None
-                for era_ in era_list:
-                    indir_tmp = indir.replace('Merged_run2', era_)
-                    if nuisance not in datacard_json_dict[era_]["UnclnN"]:
-                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale))
-                    else:
-                        h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir_tmp, bins=binning, era = era_, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale))
-                    if h_merge is None:
-                        h_merge = h.Clone()
-                    else:
-                        h_merge.Add(h.Clone())
-                nuis = str("_" + nuisance + variation)
-                year = '2016' if '2016' in era else era
-                nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region).replace("CHANNEL", channel)
-                h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
-                Histograms.append(h_merge)
-       
+
+        # Get the number of available CPU cores
+        cpu_count = 4 # mp.cpu_count()
+        num_processes = max(1, cpu_count - 1)  # Use all but one core to prevent system overload
+        print(f"run with {num_processes} process")
+        args_list = [(nuisance, datacard_inputs, era_list, indir, samples, datacard_json_dict, 
+             binning, POI, category, category_name, quiet, analysis_name, channel, region, scale, era) 
+            for nuisance in datacard_inputs["NuisForProc"]]
+
+        with mp.Pool(processes=num_processes) as pool:
+            histogram_results = pool.starmap(process_nuisance, args_list)
+
+        # Flatten and store histograms
+            Histograms.extend([h for hist_list in histogram_results for h in hist_list])
+
+        print("----")
+        for h in Histograms:
+            print(h.GetName(), h.Integral())
+ 
+
+        print("------")
+        #for nuisance in datacard_inputs["NuisForProc"]:
+        #    if not datacard_inputs["UnclnN"][nuisance] == "shape": continue
+        #    category_replace_signal = category
+        #    if "SIGNAL" in category:
+        #        category_replace_signal = "SIGNAL"
+        #    if not category_replace_signal in datacard_inputs["NuisForProc"][nuisance]: continue
+        #    for variation in ["_up", "_down"]:
+        #        h_merge = None
+        #        for era_ in era_list:
+        #            indir_tmp = indir.replace('Merged_run2', era_)
+        #            if nuisance not in datacard_json_dict[era_]["UnclnN"]:
+        #                h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir_tmp, bins=binning, era=era_, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale))
+        #            else:
+        #                h = MakePositive_Hist(Make_Hist(prefix=POI, samples_list=samples[category], nuis= str("_" + nuisance + variation), category=category_name, indir=indir_tmp, bins=binning, era = era_, q=quiet, analysis_name=analysis_name, channel=channel, region = region, scale=scale))
+        #            if h_merge is None:
+        #                h_merge = h.Clone()
+        #            else:
+        #                h_merge.Add(h.Clone())
+        #        nuis = str("_" + nuisance + variation)
+        #        year = '2016' if '2016' in era else era
+        #        nuis = nuis.replace("_up", "Up").replace("_down", "Down").replace('YEAR',year).replace("ERA", era).replace('REGION', region).replace("CHANNEL", channel)
+        #        h_merge.SetNameTitle(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis)
+        #        Histograms.append(h_merge)
+        #        print(analysis_name + era + "_" + category_name + nuis, era + "_" + category_name + nuis, h_merge.Integral()) 
     else:
         if samples[category][0] in samples_contain_datainfo and "Channel" in samples_contain_datainfo[samples[category][0]] and channel not in samples_contain_datainfo[samples[category][0]]["Channel"]: continue
         h = Make_Hist(prefix=POI, samples_list=samples[category], nuis='', category=category_name, indir=indir, bins=binning, era=era, q=quiet, analysis_name=analysis_name, channel=channel, region=region, scale=scale)

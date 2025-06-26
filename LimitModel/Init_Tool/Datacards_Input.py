@@ -30,6 +30,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
           break
 
     print("process", process)
+    print("process(data driven)", process_data_driven)
 
 
     Input['bin']=dict()
@@ -124,7 +125,10 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
               if "Signal" in nuisance_dict[nuisance]["Label"]:
                 if "SIGNAL" not in Input['NuisForProc'][nuisance_name] and not config.no_signal:
                   Input['NuisForProc'][nuisance_name].insert(0,"SIGNAL")
-
+            if config.add_data_driven_process:
+              for process_ in process_data_driven:
+                if process_ not in Input['NuisForProc'][nuisance_name] and ("Signal" not in nuisance_name):
+                  Input['NuisForProc'][nuisance_name].append(process_)
 
    
 
@@ -150,6 +154,11 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
       if 'norm' + category_ not in nuisance_list: continue
       Input['UnclnN']['norm' + category_] = str(1. + 0.01 * xsec_err_dict[category_])
       Input['NuisForProc']['norm' + category_] = [category_]
+
+      if config.add_data_driven_process:
+        for process_ in process_data_driven:
+            if process_ not in Input['NuisForProc']['norm' + category_]:
+                  Input['NuisForProc']['norm' + category_].append(process_)
 
 
     CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format(year, region, channel),True)

@@ -129,7 +129,7 @@ class RunLimits:
             return ([mparameters_[1], mparameters_[3] ])
 
 
-    def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None, logname = None, extraCommand=''):
+    def getLimits(self, dc, asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, log_dir=None, logname = None, extraCommand='', args=None, gen_card_name = ""):
         asimovstr =""
         if logname is None:
           logname = dc.replace(".txt",".log")
@@ -142,7 +142,11 @@ class RunLimits:
         if self.__unblind:
             command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point + "_" + self.signal_str_+"_"+self.postfix_+"_"+self.model_+' --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_) + ' ' + extraCommand + ' '
         else:
-            command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + ' ' + extraCommand + ' ' #TODO check -t -1 is correct
+            
+            if args.inject_signal > 0:
+                command_ = f"combine -M GenerateOnly {gen_card_name} --expectSignal {args.inject_signal} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --saveToys -t -1; combine -M AsymptoticLimits {dc} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --rAbsAcc {rAbsAcc} --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMax {self.rMax_} {extraCommand} --toysFile higgsCombine{self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_}.GenerateOnly.mH120.123456.root --setParameters r={args.inject_signal} -t -1"
+            else:
+                command_ = "combine -M AsymptoticLimits " + dc + " -n " + self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_ + ' --run blind --cminDefaultMinimizerStrategy ' + str(cminDefaultMinimizerStrategy) + ' --rAbsAcc '+ str(rAbsAcc) + ' --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance=' + str(cminDefaultMinimizerTolerance) + ' --rMax ' + str(self.rMax_)  + ' ' + extraCommand + ' ' #TODO check -t -1 is correct
         if asimov:
             command_ = command_ + asimovstr
         if self.__verbose:
@@ -156,14 +160,18 @@ class RunLimits:
         os.system("rm "+output_rootfile)
         return logname
 
-    def getSignificance(self, dc,  dc_dir=None, log_dir = None, logname = None,  mass_point='MA200', cminDefaultMinimizerStrategy = 0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0):
+    def getSignificance(self, dc,  dc_dir=None, log_dir = None, logname = None,  mass_point='MA200', cminDefaultMinimizerStrategy = 0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, gen_card_name="", args=None):
         if logname is None:
             logname = dc.replace(".txt", ".log")
         logname = logname.replace(dc_dir, log_dir)
         CheckDir('/'.join(logname.split('/')[:-1]), True)
 
         if self.__unblind:
-          command_ = f"combine -M Significance {dc} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy}  --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMax {self.rMax_} "
+          if args.inject_signal > 0:
+              command_ = f"combine -M Significance {dc} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy}  --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMax {self.rMax_} -t -1  --toysFile higgsCombine{self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_}.GenerateOnly.mH120.123456.root --setParameters r={args.inject_signal}"
+
+          else:
+              command_ = f"combine -M Significance {dc} -n {self.year_}_{self.region_}_{self.channel_}_{mass_point}_{self.signal_str_}_{self.postfix_}_{self.model_} --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy}  --X-rtd FITTER_NEW_CROSSING_ALGO --X-rtd FITTER_NEVER_GIVE_UP --X-rtd FITTER_BOUND --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMax {self.rMax_} "
         else:
           pass
         os.system(command_ + " >& " + logname)
@@ -227,7 +235,7 @@ class RunLimits:
         return outfile
 
 
-    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Higgs="MH", mode = "era"):
+    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Higgs="MH", mode = "era", postfix = ""):
         significance_dict = dict()
 
         mass_array = array('f')
@@ -313,7 +321,7 @@ class RunLimits:
 
         out_dir = os.path.join(self.outputdir_, "Significance")
         CheckDir(out_dir,MakeDir=True)
-        outputfilename = os.path.join(out_dir, f"local_significance_summary_{mode}")
+        outputfilename = os.path.join(out_dir, f"local_significance_summary_{mode}{postfix}")
         c.SaveAs(outputfilename + ".png")
         c.SaveAs(outputfilename + ".pdf")
         c.SaveAs(outputfilename + ".C")
@@ -391,7 +399,7 @@ class RunLimits:
             f1.Close()
         return self.limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None, postfix = ""):
         rootfile = self.limit_root_file
         setlogX=0
         y_max=y_max # scale of y axis
@@ -559,7 +567,7 @@ class RunLimits:
         self.limit_pdf_file  = os.path.join(OUT_DIR,self.limit_pdf_file)
 
         if signal_xsec_TGraph is not None and coupling_varied is not None:
-          self.limit_pdf_file = self.limit_pdf_file.replace(".pdf", "_{}_varied.pdf".format(coupling_varied))
+          self.limit_pdf_file = self.limit_pdf_file.replace(".pdf", "_{}_varied{}.pdf".format(coupling_varied, postfix))
 
         CheckFile(self.limit_pdf_file,True)
 
@@ -819,7 +827,7 @@ class RunLimits:
         if fastScan:
             command_ = command_ + " --fastScan "
 
-        os.system(command_ + "--algo grid --points 800 -n {tag} --cminDefaultMinimizerStrategy {strategy} --cminDefaultMinimizerTolerance {tolerance} ".format(tag = tag + "_2DNLL" , strategy = cminDefaultMinimizerStrategy, tolerance = cminDefaultMinimizerTolerance))
+        os.system(command_ + "--algo grid --points 405 -n {tag} --cminDefaultMinimizerStrategy {strategy} --cminDefaultMinimizerTolerance {tolerance} ".format(tag = tag + "_2DNLL" , strategy = cminDefaultMinimizerStrategy, tolerance = cminDefaultMinimizerTolerance))
         output_rootfile = 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag)
 
     def bestFit(self, fin_name, x, y, xsec_2b = 1.0, xsec_3b = 1.0):
@@ -887,7 +895,7 @@ class RunLimits:
 
         print(xsec_3b_limit, xsec_3b)
 #        h = rt.TH2F('2DNLL', '2*deltaNLL:{x}:{y}'.format(x=x,y=y),44,0,2,44,0,2)
-        t.Draw("2*deltaNLL:{y}*{xsec_3b}:{x}*{xsec_2b}>>2DNLL(28, 0, {xsec_2b_boundary}, 28, 0, {xsec_3b_boundary})".format(x=x, y=y, xsec_2b_boundary = xsec_2b * xsec_2b_limit, xsec_3b_boundary = xsec_3b * xsec_3b_limit, xsec_2b = xsec_2b, xsec_3b = xsec_3b),"","PROF COLZ")
+        t.Draw("2*deltaNLL:{y}*{xsec_3b}:{x}*{xsec_2b}>>2DNLL(19, 0, {xsec_2b_boundary}, 19, 0, {xsec_3b_boundary})".format(x=x, y=y, xsec_2b_boundary = xsec_2b * xsec_2b_limit, xsec_3b_boundary = xsec_3b * xsec_3b_limit, xsec_2b = xsec_2b, xsec_3b = xsec_3b),"","PROF COLZ")
         h = rt.gROOT.FindObject("2DNLL").Clone()
 #        for entry in range(t.GetEntries()):
 #          t.GetEntry(entry)
@@ -911,7 +919,7 @@ class RunLimits:
         x_range = [0, xsec_2b_limit * xsec_2b]
         y_range = [0, xsec_3b_limit * xsec_3b]
 
-        n_bins = 40
+        n_bins = 20
 
         x_array, y_array, deltaNLL = [], [], []
         for ev in t:
