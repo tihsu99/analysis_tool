@@ -25,7 +25,7 @@ parser.add_argument('--nuisance_json', default = '../data/nuisance.json')
 parser.add_argument('--no_signal', action = 'store_true')
 parser.add_argument('--ch_merge', action = 'store_true')
 parser.add_argument('--era_merge', action = 'store_true')
-
+parser.add_argument('--add_data_driven_process', action='store_true')
 #####################
 ## mkdir data_info ##
 #####################
