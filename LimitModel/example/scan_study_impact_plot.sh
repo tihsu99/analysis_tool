@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###########################################################################
-# :Usage                                                                  #  
+# :Usage                                                                  #
 #  - Use tmux to run plot_dis.sh in batch                              #
 # :Command                                                                #
 #  - sh quick_tmux_batch.sh  ./                                           #
@@ -28,14 +28,12 @@ command=${1}
 step_=${2}
 
 
-for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j C
+for region in SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j C
 do
   for channel in C
   do
-    command_="sh example/plot_Impact_bHplus.sh '${command} --region ${region} --channel ${channel}' ${step_}" 
+    command_="sh example/plot_Impact_bHplus.sh '${command} --region ${region} --channel ${channel}' ${step_}"
     echo -e "${BCyan}[tmux: ${region}_${channel}]${NC} ${BYellow} ${command_} ${NC}"
     tmux new-session -d -s $region\_$channel "${command_} ${MASS};"
   done
 done
-
-
