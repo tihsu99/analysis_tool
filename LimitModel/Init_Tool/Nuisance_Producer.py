@@ -36,7 +36,7 @@ def nui_producer(year,blacklist=[],whitelist=[],outputdir='./data_info',channel=
     ## Add NormUnc ##
     #################
 
-    Process_not_use_NormUnc = nuisances_dict['PDF']['Process']
+    Process_not_use_NormUnc = nuisances_dict['QCDscale_muf_PROCESS']['Process']
 
 
     jsonfile = open(config.sample_json)

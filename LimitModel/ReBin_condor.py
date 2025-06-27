@@ -68,6 +68,7 @@ if __name__ == '__main__':
   condor.write('log    = %s/job_common_$(cfgFile).log\n'%farm_dir)
   condor.write('executable = %s/$(cfgFile)\n'%farm_dir)
   condor.write('universe = vanilla\n')
+  condor.write('RequestCpus = 4\n')
   condor.write('+JobFlavour = "workday"\n')
   condor.write('queue 1 cfgFile in ')
 
@@ -92,17 +93,32 @@ if __name__ == '__main__':
   region_json = read_json(args.cut_json)
   region_list = list(region_json.keys()) if region == 'all' else [region]
 
+  region_channel_dict = dict()
+  for region_ in region_list:
+    region_channel_dict[region_] = []
+
+  if "all" in args.channel:
+    for region_ in region_channel_dict:
+      for channel_ in region_json[region_]["channel_cut"]:
+        region_channel_dict[region_].append(channel_)
+  else:
+    for region_ in region_channel_dict:
+      region_channel_dict[region_] = args.channel
+
   for sig_ in signal_list:
-    for region_ in region_list:
-        command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {ch_merge} {era_merge}'.format(year=year, region=region_, channel=channel, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, ch_merge = ch_merge, era_merge = era_merge)
+    for region_ in region_channel_dict:
+      for channel_ in region_channel_dict[region_]:
+        command = 'python3 ReBin.py --sample_json {sample_json} --era {year} --region {region} --channel {channel} --signal {signal} --outputdir {outputdir} --inputdir {inputdir} --analysis_name {analysis_name} {unblind} --quiet --POI {POI} {sig_norm} --cut_json {cut_json} {ch_merge} {era_merge}'.format(year=year, region=region_, channel=channel_, signal=sig_, outputdir=outputdir, inputdir=inputdir, analysis_name=analysis_name, unblind=unblind, POI=POI, sig_norm=sig_norm, cut_json = args.cut_json, sample_json = args.sample_json, ch_merge = ch_merge, era_merge = era_merge)
 
         if args.check:
           year_check = year[0] if not era_merge else "Merged_run2"
+          if not os.path.exists(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_ele_resolved.root")):
+              cprint(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_ele_resolved.root") + "not exists", "red")
           if not os.path.exists(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root")):
               cprint(os.path.join(outputdir, "FinalInputs", year_check, sig_, f"TMVApp_{region_}_mu_resolved.root") + "not exists", "red")
           else:
               continue
-        prepare_shell(f'{sig_}_{region_}.sh', command, condor, farm_dir, True)
+        prepare_shell(f'{sig_}_{region_}_{channel_}.sh', command, condor, farm_dir, True)
 
   condor.close()
   if not args.test:
