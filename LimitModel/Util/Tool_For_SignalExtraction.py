@@ -1561,7 +1561,7 @@ def SubmitGOF(settings = dict()):
 
     nJobs = 20
     for t in range(1, nJobs +1):
-        command = "combineTool.py -m {MASS} -M GoodnessOfFit {datacards} --algo={ALGO}  -t 50 --job-mode condor --sub-opts='+JobFlavour=\"workday\"\nRequestCpus=2' --task-name {t}  --seed {seed} -n toys{t}.{COUPLING}.{YEAR}.{REGION}.{CHANNEL}.{MASS}.{ALGO}  --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} --toysFrequentist {command} > SubmitGoF_${t}.log".format(MASS = settings['mass'], datacards = settings['datacard_name'], ALGO =  settings['GoF_Algorithm'], t = t, seed = 123456 * t, COUPLING = settings['coupling_value'], YEAR = settings['year'], REGION = settings['region'], CHANNEL = settings['channel'], cminDefaultMinimizerStrategy = settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance = settings['cminDefaultMinimizerTolerance'], rMin = settings['rMin'], rMax = settings['rMax'], command = gof_command)
+        command = "combineTool.py -m {MASS} -M GoodnessOfFit {datacards} --algo={ALGO}  -t 50 --job-mode condor --sub-opts='+JobFlavour=\"workday\"\nRequestCpus=2' --task-name {t}  --seed {seed} -n toys{t}.{COUPLING}.{YEAR}.{REGION}.{CHANNEL}.{MASS}.{ALGO}  --cminDefaultMinimizerStrategy {cminDefaultMinimizerStrategy} --cminDefaultMinimizerTolerance={cminDefaultMinimizerTolerance} --rMin {rMin} --rMax {rMax} --toysFrequentist {command} > SubmitGoF_{t}.log".format(MASS = settings['mass'], datacards = settings['datacard_name'], ALGO =  settings['GoF_Algorithm'], t = t, seed = 123456 * t, COUPLING = settings['coupling_value'], YEAR = settings['year'], REGION = settings['region'], CHANNEL = settings['channel'], cminDefaultMinimizerStrategy = settings['cminDefaultMinimizerStrategy'], cminDefaultMinimizerTolerance = settings['cminDefaultMinimizerTolerance'], rMin = settings['rMin'], rMax = settings['rMax'], command = gof_command)
         print(command)
         os.system(command)
     if settings['unblind']:
@@ -1571,6 +1571,7 @@ def SubmitGOF(settings = dict()):
 
     condorDir = os.path.join(settings['condorDir'], result_dir)
     CheckDir(condorDir)
+    print ("condorDir", condorDir)
     command = "cp {origin}/*.s* {dest}/.".format(origin = outputdir, dest = condorDir)
     os.system(command)
     for f in os.listdir(condorDir):
