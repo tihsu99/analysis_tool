@@ -168,6 +168,12 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             # htemp.GetXaxis().SetRangeUser(float(Histograms[histogram]["xlow"]), float(Histograms[histogram]["xhigh"])) # this does not work (23Jul2024)
             # print ("xmin: ", htemp.GetXaxis().GetXmin())
             # print ("nbins: ", htemp.GetNbinsX())
+            # print ("histogram name", histogram )
+            if (histogram == 'n_tight_jet' or histogram == 'n_bjet_DeepB_v'):
+              htemp.GetXaxis().SetNdivisions(505)
+              htemp.GetXaxis().CenterLabels()
+
+
 
           ##################################
           ## Add Hist to correspond group ##
