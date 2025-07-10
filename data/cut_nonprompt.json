@@ -1,4 +1,23 @@
 {
+  "NonPrompt_B_default":{
+    "channel_cut":{
+      "ele_resolved": {
+        "channel_lepton": "n_loose_ele == 1",
+        "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+      },
+      "mu_resolved": {
+        "channel_lepton": "n_loose_muon == 1",
+        "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+        }
+    },
+    "general_cut":{
+       "met":          "bh_met>35"
+   },
+   "MVA_Label": "DNN_SR_2b2j",
+   "POI": ["DNN"],
+   "POI_bin": [0, 1, 5]
+ },
+
   "NonPrompt_D_default":{
      "channel_cut":{
        "ele_resolved": {
