@@ -1179,3 +1179,18 @@ float fake_weight(float pt, float eta, int channel, float variation){
 
   return (fake_rate / (1.0 - fake_rate));
 }
+
+float HEM_effect(ROOT::VecOps::RVec<float> tight_jet_id, ROOT::VecOps::RVec<Float_t> Jet_phi, ROOT::VecOps::RVec<Float_t> Jet_eta){
+  float hem = 1.0;
+  for(int idx; idx < tight_jet_id.size(); idx++){
+    int jet_idx = tight_jet_id[idx];
+    if(jet_idx < 0) continue;
+    if (Jet_phi[jet_idx] < -0.87 && Jet_phi[jet_idx] > -1.57 && Jet_eta[jet_idx] < -1.3550 && Jet_eta[jet_idx] > -2.5){
+      hem *= 0.8; // 20% for jets with −1.57 < ϕ < −0.87 and −2.5 < η < −1.3550
+    }
+    else if (Jet_phi[jet_idx] < -0.87 && Jet_phi[jet_idx] > -1.57 && Jet_eta[jet_idx] < -2.5 && Jet_eta[jet_idx] > -3.0){
+      hem *= 0.65; // 35% for jets with −1.57 < ϕ < −0.87 and −3.0 < η < −2.5
+    }
+  }
+  return hem;
+}

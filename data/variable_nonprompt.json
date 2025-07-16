@@ -146,13 +146,14 @@
 
   "tightJets_b_DeepJet_id": {
     "Def": "Btag_WP_Dep",
-    "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id, tightJets_id_in24)",
+     "Category": { "Loose":  "reselect_btag_jet(tightJets_b_DeepJetloose_id, tightJets_id_in24)",
                   "Medium": "reselect_btag_jet(tightJets_b_DeepJetmedium_id, tightJets_id_in24)",
                   "Tight":  "reselect_btag_jet(tightJets_b_DeepJettight_id, tightJets_id_in24)"
-                },
+                 },
     "Label": ["Normal"],
     "Save": ["BDT_Training", "Debug"]
-  },  
+  },
+
   "Jet_btagDeepFlavB": {
     "Def": "Defined",
     "Label": ["Normal"],
@@ -604,6 +605,11 @@
                  "mu_resolved":  "Muon_mvaTOP[bh_l1_id]"},
     "Label": ["Normal"],
     "Save":  [""]
-  }
+  },
 
+  "HEM_weight":{
+    "Def": "HEM_effect(tightJets_id_in24, Jet_phi, Jet_eta)",
+    "Label": ["Normal", "MC"],
+    "Save": ["Control_plot"]
+  }
 }
