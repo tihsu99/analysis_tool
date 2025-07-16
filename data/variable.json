@@ -566,6 +566,12 @@
                  "mu_resolved":  "Muon_mvaTOP[bh_l1_id]"},
     "Label": ["Normal"],
     "Save":  [""]
+  },
+
+  "HEM_weight":{
+    "Def": "HEM_effect(tightJets_id_in24, Jet_phi, Jet_eta)",
+    "Label": ["Normal", "MC"],
+    "Save": ["Control_plot"]
   }
 
 }
