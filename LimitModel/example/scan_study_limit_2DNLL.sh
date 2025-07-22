@@ -27,11 +27,16 @@ datacarddir=${1}/datacards_${3}
 outdir=${1}
 workdir=$(pwd)
 POI=${2}
+command=${4}
 
 for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-    echo -e "${BCyan}[tmux: $MASS\_Scan2D]${NC} ${BYellow} python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}; ${NC}"
-    tmux new-session -d -s $MASS\_Scan2D "python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --Masses ${MASS};python3 runlimits.py --year run2 --channel C --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI} --Scan2DNLL --plot_only --Masses ${MASS}"
+    for channel in  C
+    do
+
+        echo -e "${BCyan}[tmux: ${MASS}_${channel}_Scan2D]${NC} ${BYellow} python3 runlimits.py --year run2 --channel ${channel} --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --Scan2DNLL --model_name ${3} ${4}; ${NC}"
+        tmux new-session -d -s $MASS\_${channel}\_Scan2D "python3 runlimits.py --year run2 --channel ${channel} --region C --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --Scan2DNLL --model_name ${3} ${4};"
+    done
 done
 
 

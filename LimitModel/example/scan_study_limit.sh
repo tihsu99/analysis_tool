@@ -23,25 +23,34 @@ BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
 refdir=${1}
-outdir=${2:-"./"}
+datacarddir=${1}/datacards_${3}
+outdir=${1}
 workdir=$(pwd)
-unblind=${3:-""}
+POI=${2}
+Command=${4}
 
-for ERA in run2
+ulimit -s unlimited
+
+for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-  for region in C SR_2b2j SR_2b3j SR_3b3j SR_3b4j SR_2b4j CR_1b4j
-  do
-    echo -e "${BCyan}[tmux: $ERA\_$region\_bH]${NC} ${BYellow} python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name bH --signal_template  CGToBHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name bH --signal_template  CGToBHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only; ${NC}"
-    tmux new-session -d -s $ERA\_$region\_bH "python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name bH --signal_template  CGToBHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name bH --signal_template  CGToBHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only;"
-    echo -e "${BCyan}[tmux: $ERA\_$region\_TH]${NC} ${BYellow} python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name tH --signal_template  BGToTHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name tH --signal_template  BGToTHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only; ${NC}"
-    tmux new-session -d -s $ERA\_$region\_TH "python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name tH --signal_template  BGToTHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 900 1000 --datacarddir ${refdir} --analysis_name tH --signal_template  BGToTHpm_a_MASS_rttRTT_rtcRTC --signal_xsec --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only;"
-    echo -e "${BCyan}[tmux: $ERA\_$region\_Wprime]${NC} ${BYellow} python runlimits.py -c C -r ${region} -y ${ERA} --Masses 300 500 700 900 1100 --datacarddir ${refdir} --analysis_name Wprime --signal_template  WprimeTotb_leptonicDecays_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 300 500 700 900 1100 --datacarddir ${refdir} --analysis_name Wprime --signal_template  WprimeTotb_leptonicDecays_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only; ${NC}"
-    tmux new-session -d -s $ERA\_$region\_Wprime "python runlimits.py -c C -r ${region} -y ${ERA} --Masses 300 500 700 900 1100 --datacarddir ${refdir} --analysis_name Wprime --signal_template  WprimeTotb_leptonicDecays_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 300 500 700 900 1100 --datacarddir ${refdir} --analysis_name Wprime --signal_template  WprimeTotb_leptonicDecays_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir} --plot_only;"
-    echo -e "${BCyan}[tmux: $ERA\_$region\_Hplus]${NC} ${BYellow} python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 1000 1250 1500 1750 2000 2500 3000 --datacarddir ${refdir} --analysis_name Hplus --signal_template   HplusToTB_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 1000 1250 1500 1750 2000 2500 3000 --datacarddir ${refdir} --analysis_name Hplus --signal_template  HplusToTB_M_MASS  --plot_y_max  1000 --plot_y_min 0.0005 --outputdir ${refdir} --plot_only; ${NC}"
-    tmux new-session -d -s $ERA\_$region\_Hplus "python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 1000 1250 1500 1750 2000 2500 3000 --datacarddir     ${refdir} --analysis_name Hplus --signal_template   HplusToTB_M_MASS  --plot_y_max  1000 --plot_y_min 0.005 --outputdir ${refdir};python runlimits.py -c C -r ${region} -y ${ERA} --Masses 200 300 350 400 500 600 700 800 1000 1250 1500 1750 2000 2500 3000 --datacarddir ${refdir} --analysis_name Hplus --signal_template  HplusToTB_M_MASS  --plot_y_max  1000 --plot_y_min 0.0005 --outputdir ${refdir} --plot_only;"
+    for channel in  C
+    do
 
+        for region in C
+        do
 
-  done
+            if [[ $MASS -gt 750 ]]; then
+                rMax=0.2
+            elif [[ $MASS -gt 350 ]]; then
+                rMax=1.0
+            else
+                rMax=30.0
+            fi
+
+            echo -e "${BCyan}[tmux: ${MASS}_${channel}_${region}_limit]${NC} ${BYellow} python3 runlimits.py --year run2 --channel ${channel} --region ${region} --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --rMax ${rMax} ${Command}; ${NC}"
+            tmux new-session -d -s $MASS\_${channel}\_${region}\_limit "python3 runlimits.py --year run2 --channel ${channel} --region ${region} --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --rMax ${rMax} ${Command};"
+        done 
+    done
 done
 
 
