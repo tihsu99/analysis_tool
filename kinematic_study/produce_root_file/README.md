@@ -1,5 +1,5 @@
 # Produce ROOT file
-This section is mainly focus on producing slim root file. The input directory is kept in `../../pyhon/common.py`.  
+This section is mainly focus on producing slim root file. The input directory is kept in `../../pyhon/common.py`.
 ```
 python runcondor.py [args]
 ```
@@ -7,13 +7,13 @@ The arguments are:
 1. `--outdir`: Target stored directory. It can be in `\eos`.
 2. `--era`: Target era. Default is `all`, which runs all four eras
 3. `--region`: List of regions (Default follows the setting in `--cut_json`)
-4. `--channels`: List of channels (Default follows the setting in `--cut_json`) 
+4. `--channels`: List of channels (Default follows the setting in `--cut_json`)
 5. `--Labels`: Target label/group of `variables`
 6. `--Black_list`: Banned label/group of `variables`
 7. `--POIs`: List of `variables` that will perform nuisance varition.
 8. `--JobFlavour`: condor JobFlavour
 9. `--universe`: condor universe
-10. `--blocksize`: Events processed in each condor job` 
+10. `--blocksize`: Events processed in each condor job`
 11. `--test`: Do not trigger condor submission
 12. `--check`: Check all files are produced successfully and merged them.
 13. `--sample_json`: Json file that contains sample information.
@@ -25,6 +25,12 @@ The arguments are:
 19. `--MET_filter_json`: Json file that contains MET filter information.
 20. `--notoppt`: to turn off top reweighting. (Default toppt is ON)
 
+## HEM effect can be added as event weight, what needs to be done:
+```
+default weight*HEM_weight i.e.
+
+weight_def="puWeight*genWeight*L1PreFiringWeight_Nom/abs(genWeight)*Lepton_ID_SF*Lepton_RECO_SF*btag_DeepJet_SF*Trigger_sf*Pileupjetid_sf*HEM_weight",
+```
 As an example, you produce the 2017 skimmed ntuple with following command (most of the arguments can just follow default value):
 ```
 python runcondor.py --outdir [YOUR DIRECTORY] --era 2017 --POIs bh_HT
@@ -38,9 +44,7 @@ After running `runcondor.py`, the code will produce `check.sh` and `clear.sh`, w
 **It is important to check and merge the files, it may take one or two more trials to make all files correct**
 ```
 sh check.sh
-``` 
+```
 ```
 sh clear.sh # Once all files merge successfully
 ```
-
- 
