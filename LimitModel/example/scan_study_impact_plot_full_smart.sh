@@ -12,9 +12,13 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-# sh example/plot_Impact_bHplus.sh "--year 2017 --region CR_1b4j --channel mu_resolved --mass_point 500 --outdir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/ --datacard_dir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/datacards_g2HDM_3Bbased/ --cminDefaultMinimizerStrategy 2" 1
+# sh exapmle/scan_study_impact_plot_full_smart.sh "--year 2017 --region CR_1b4j --channel mu_resolved --mass_point 500 --outdir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/ --datacard_dir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/datacards_g2HDM_3Bbased/ --cminDefaultMinimizerStrategy 2 --cut_json ..." step
+# step 0: GoF
+# step 1: Full chain
+# step 3: PlotShape
+# step 2/else: summary for impacts
 
-
+# step
 command=${1}
 step_=${2}
 MAX_CONCURRENT=20  # Limit of parallel tmux sessions

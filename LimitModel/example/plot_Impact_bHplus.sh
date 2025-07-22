@@ -1,6 +1,11 @@
 command=$1
 echo $1
 
+# step 0: GoF
+# step 1: Full chain
+# step 3: PlotShape
+# step 2/else: summary for impacts
+
 ulimit -s unlimited
 if [[ $2 == 0 ]]; then
 python3 SignalExtraction_Estimation.py --mode datacard2workspace ${command}
