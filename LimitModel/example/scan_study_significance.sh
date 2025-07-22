@@ -22,24 +22,30 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-# python3 PlotNuisanceShape.py --era 2017 --region SR_2b2j --channel ele_resolved --input_dir /eos/user/t/tihsu/bHplus/full_run2_v7/Limit_study --mass_point 500 --logy
-
-command=${1}
-
-for era in Merged_run2
+refdir=${1}
+datacarddir=${1}/datacards_${3}
+outdir=${1}
+workdir=$(pwd)
+POI=${2}
+Command=${4}
+for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-  for mass in 200 500 700 900 1000
-  do
-    for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
+    for channel in  C ele_resolved mu_resolved
     do
-      for channel in ele_resolved mu_resolved
-      do
-        unblind_name=" --unblind"
-        command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name} --mass_point ${mass} --era ${era}" 
-        echo -e "${BCyan}[tmux: ${region}_${channel}_${mass}_${era}]${NC} ${BYellow} ${command_} ${NC}"
-        tmux new-session -d -s $region\_$channel\_$mass\_$era "${command_} ${MASS};"
-      done
+        for region in C
+        do
+          if [[ $MASS -gt 550 ]]; then
+            rMax=0.4
+          else
+            rMax=10.0
+          fi
+          for Era in run2
+          do
+              echo -e "${BCyan}[tmux: ${Era}_${MASS}_${channel}_${region}_Significance]${NC} ${BYellow} python3 runlimits.py --year ${Era} --channel ${channel} --region ${region} --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --rMax ${rMax} ${Command} --Significance; ${NC}"
+              tmux new-session -d -s ${Era}\_$MASS\_${channel}\_${region}\_Significance "python3 runlimits.py --year ${Era} --channel ${channel} --region ${region} --datacard_dir ${datacarddir} --outputdir ${outdir} --POI_name ${POI}  --Masses ${MASS} --rMax ${rMax} ${Command} --Significance;"
+          done
+        done
     done
-  done
 done
+
 

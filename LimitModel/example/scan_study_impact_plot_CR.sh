@@ -22,24 +22,22 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-# python3 PlotNuisanceShape.py --era 2017 --region SR_2b2j --channel ele_resolved --input_dir /eos/user/t/tihsu/bHplus/full_run2_v7/Limit_study --mass_point 500 --logy
+# sh example/plot_Impact_bHplus.sh "--year 2017 --region CR_1b4j --channel mu_resolved --mass_point 500 --outdir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/ --datacard_dir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/datacards_g2HDM_3Bbased/" 1
 
 command=${1}
+step_=${2}
 
-for era in Merged_run2
+for region in CR_1b4j
 do
-  for mass in 200 500 700 900 1000
+  for channel in C
   do
-    for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
+    for era in 2016apv 2016postapv 2017 2018 run2
     do
-      for channel in ele_resolved mu_resolved
-      do
-        unblind_name=" --unblind"
-        command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name} --mass_point ${mass} --era ${era}" 
-        echo -e "${BCyan}[tmux: ${region}_${channel}_${mass}_${era}]${NC} ${BYellow} ${command_} ${NC}"
-        tmux new-session -d -s $region\_$channel\_$mass\_$era "${command_} ${MASS};"
-      done
+      command_="sh example/plot_Impact_bHplus_unblind.sh '${command} --year ${era} --region ${region} --channel ${channel}' ${step_}" 
+      echo -e "${BCyan}[tmux: ${era}_${region}_${channel}]${NC} ${BYellow} ${command_} ${NC}"
+      tmux new-session -d -s $era\_$region\_$channel "${command_} ${MASS};"
     done
   done
 done
+
 

@@ -22,24 +22,20 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-# python3 PlotNuisanceShape.py --era 2017 --region SR_2b2j --channel ele_resolved --input_dir /eos/user/t/tihsu/bHplus/full_run2_v7/Limit_study --mass_point 500 --logy
 
-command=${1}
+model=${1}
+refdir=${2}
+cutjson=${3}
+workdir=$(pwd)
 
-for era in Merged_run2
+for MASS in 200 300 350 400 500 600 700 800 900 1000
 do
-  for mass in 200 500 700 900 1000
+  for RTT in rhott01 rhott04 rhott06 rhott10
   do
-    for region in CR_1b4j SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j
-    do
-      for channel in ele_resolved mu_resolved
-      do
-        unblind_name=" --unblind"
-        command_="python3 PlotNuisanceShape.py --region ${region} --channel ${channel} ${command} ${unblind_name} --mass_point ${mass} --era ${era}" 
-        echo -e "${BCyan}[tmux: ${region}_${channel}_${mass}_${era}]${NC} ${BYellow} ${command_} ${NC}"
-        tmux new-session -d -s $region\_$channel\_$mass\_$era "${command_} ${MASS};"
-      done
-    done
+      command="python3 prepareCards.py --PhysicsModel ${model} --year 2016apv 2016postapv 2017 2018 --mass ${MASS} --dataset_dir ${refdir} --outdir ${refdir} --cut_json ${cutjson} --combined --merge --rtt ${RTT} --rtc rhotc01 rhotc04 rhotc06 rhotc10 --randomized_scan --mass_detailed ${MASS}"
+      echo -e "${BCyan}[tmux: $MASS\_$RTT\_datacard]${NC} ${BYellow} ${command} ${NC}"
+    tmux new-session -d -s $MASS\_$RTT\_datacard "${command}"
   done
 done
+
 
