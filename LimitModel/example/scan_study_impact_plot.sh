@@ -22,7 +22,7 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-# sh example/plot_Impact_bHplus.sh "--year 2017 --region CR_1b4j --channel mu_resolved --mass_point 500 --outdir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/ --datacard_dir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/datacards_g2HDM_3Bbased/ --cminDefaultMinimizerStrategy 2" 1
+# sh example/plot_Impact_bHplus.sh "--year 2017 --region CR_1b4j --channel mu_resolved --mass_point 500 --outdir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/ --datacard_dir /eos/user/t/tihsu/bHplus/Limit_study_full_run2/datacards_g2HDM_3Bbased/ --cminDefaultMinimizerStrategy 2  --cut_json ../data/cut_cr_top_mass_top_mass_cut.json" 1
 
 command=${1}
 step_=${2}
@@ -30,7 +30,7 @@ step_=${2}
 
 for region in SR_2b2j SR_2b3j SR_2b4j SR_3b3j SR_3b4j C
 do
-  for channel in C
+  for channel in mu_resolved
   do
     command_="sh example/plot_Impact_bHplus.sh '${command} --region ${region} --channel ${channel}' ${step_}"
     echo -e "${BCyan}[tmux: ${region}_${channel}]${NC} ${BYellow} ${command_} ${NC}"

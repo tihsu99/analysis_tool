@@ -235,7 +235,7 @@ class RunLimits:
         return outfile
 
 
-    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Higgs="MH", mode = "era", postfix = ""):
+    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Channels = [], Higgs="MH", mode = "era", postfix = ""):
         significance_dict = dict()
 
         mass_array = array('f')
@@ -271,6 +271,19 @@ class RunLimits:
             print(Region, y_array)
             significance_dict[Region] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
 
+        if mode == "channel":
+           for channel in Channels:
+             y_array = array('f')
+             for imass in Masses:
+                 limit_dir = os.path.join(self.outputdir_, "bin", "run2", self.region_, channel)
+                 significance_file = os.path.join(limit_dir, self.limitlog_tmp_node.format(Higgs+str(imass)).split('/')[-1]).replace('.txt', '_significance.txt')
+                 for ilongline in open(significance_file):
+                   local_significance = float(ilongline.rstrip().split()[2])
+
+                 p_value = rt.Math.normal_cdf_c(local_significance)
+                 y_array.append(p_value)
+             significance_dict[channel] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
+
 
         x_binnings = mass_array
         x_title = "m_{H^{#pm}} [GeV]"
@@ -300,6 +313,17 @@ class RunLimits:
                 CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlue + iColor - 1, msize=0, fstyle = 0, lwidth = 3, lstyle = iColor)
                 iColor += 1
             legend.AddEntry(graph, Region, "L")
+
+        if mode == "channel":
+          for Region, graph in significance_dict.items():
+            if Region == "C":
+                CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack, msize=1, fstyle = 0, lwidth = 2)
+            else:
+                CMS.cmsDraw(graph, 'P L SAME', lcolor =  iColor[idx] - 1, msize=0, fstyle = 0, lwidth = 3, lstyle = idx)
+                idx += 1
+            legend.AddEntry(graph, Region, "L")
+
+
 
         Line_collection = dict()
         for i in range(6):
@@ -420,8 +444,8 @@ class RunLimits:
         exp2s.SetMarkerStyle(20)
         exp2s.SetMarkerSize(1.1)
         exp2s.SetLineWidth(2)
-        exp2s.SetFillColor(rt.kOrange);
-        exp2s.SetLineColor(rt.kOrange)
+        exp2s.SetFillColor(rt.TColor.GetColor("#F5BB54"));
+        exp2s.SetLineColor(rt.TColor.GetColor("#F5BB54"))
         exp2s.GetXaxis().SetTitle("m_{H^{\pm}} (GeV)");
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
         exp2s.GetXaxis().SetTitleOffset(1.1)
@@ -442,8 +466,8 @@ class RunLimits:
         exp1s.SetMarkerStyle(20)
         exp1s.SetMarkerSize(1.1)
         exp1s.SetLineWidth(2)
-        exp1s.SetFillColor(rt.kGreen + 2);
-        exp1s.SetLineColor(rt.kGreen + 2)
+        exp1s.SetFillColor(rt.TColor.GetColor("#607641"));
+        exp1s.SetLineColor(rt.TColor.GetColor("#607641"));
         exp1s.Draw("3 same")
 
         exp =  f.Get("expmed")

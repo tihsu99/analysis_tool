@@ -94,6 +94,7 @@ parser.add_argument("-r", "--region", dest="region", default="C")
 parser.add_argument("-y", "--year", dest="year", default="run2")
 parser.add_argument("--year_for_plot", dest = 'year_for_plot', default = ['run2'])
 parser.add_argument("--region_for_plot", dest = 'region_for_plot', default = ['SR_2b2j', 'SR_2b3j', 'SR_2b4j', 'SR_3b3j', 'SR_3b4j'])
+parser.add_argument("--channel_for_plot", dest = 'channel_for_plot', default = ['ele_resolved', 'mu_resolved'], nargs="+")
 parser.add_argument("--rtc", dest="rtc", default=0.4, type=float)
 parser.add_argument("--rtt", dest="rtt", default=0.6, type=float)
 parser.add_argument("--Masses",help='List of masses point. Default list=[200,300,350,400,500,600,700]',default=[200, 300, 350, 400, 500, 600, 700],nargs='+')
@@ -294,6 +295,7 @@ if args.plot_only:
 
   elif args.Significance:
     RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'era', postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "")
+    RL.TextFileToSignificancePlot(Masses = mass_points, Channels = args.channel_for_plot, mode = 'channel', postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb_channel" if args.inject_signal > 0 else "")
 #    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'region')
 
   else:
