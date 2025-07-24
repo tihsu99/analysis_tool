@@ -161,7 +161,7 @@ class Legend(object):
             for at in Legend.Attributes:
                 if 'Color' in at:
                     getattr(ent, 'Set' + at)(color)
-            
+
         self.entries[name] = ent
         self.defaultOrder.append(name)
 
@@ -228,7 +228,7 @@ class Legend(object):
 
         self.legend.Draw()
 
-    def __getattr__(self, name):      
+    def __getattr__(self, name):
         return getattr(self.legend, name)
 
 
@@ -299,6 +299,7 @@ class SimpleCanvas(object):
 
         if cms:
             self.cmsPave = makeText(0.18, SimpleCanvas.YMAX - 0.12, 0.3, SimpleCanvas.YMAX - 0.01, align = 11, font = 62)
+            # self.cmsPave = makeText(0.10, 0.90, 0.45, 0.94, align = 13, font = 62) # moderate
         else:
             self.cmsPave = None
 
@@ -319,7 +320,7 @@ class SimpleCanvas(object):
 
     def _modified(self):
         self._needUpdate = True
-        
+
         for obj in self._temporaries:
             try:
                 obj.Delete()
@@ -485,7 +486,7 @@ class SimpleCanvas(object):
             maximum, minimum = self._drawHist(base, True, rooHists)
 
             pad.Update()
-   
+
             # draw other histograms
             for ih in hList[1:]:
                 hist = self._histograms[ih]
@@ -564,7 +565,7 @@ class SimpleCanvas(object):
                     w = tmp.GetXaxis().GetBinWidth(iX)
                     tmp.SetBinContent(iX, tmp.GetBinContent(iX) * w)
                     tmp.SetBinError(iX, tmp.GetBinError(iX) * w)
-        
+
                 graph = ROOT.RooHist(tmp, 1.)
                 tmp.Delete()
             else:
@@ -578,7 +579,7 @@ class SimpleCanvas(object):
             drawOpt = hist.drawOpt
             if first:
                 drawOpt += 'A'
-                
+
             graph.Draw(drawOpt)
 
         else:
@@ -619,6 +620,8 @@ class SimpleCanvas(object):
         self.titlePave.AddText(self.title)
         self.titlePave.Draw()
 
+
+
         if self.cmsPave:
             if self.textside == 'right':
                 self.cmsPave.SetX1NDC(0.7)
@@ -634,10 +637,18 @@ class SimpleCanvas(object):
             if self.sim:
                 self.cmsPave.AddText('#splitline{CMS}{#font[52]{Simulation}}')
             elif self.prelim:
-                self.cmsPave.AddText('#splitline{CMS}{#font[52]{Preliminary}}')
+                # Write CMS preliminary (other way)
+                latex = ROOT.TLatex()
+                latex.SetNDC()
+                latex.SetTextFont(62)
+                latex.SetTextSize(0.040)
+                latex.SetTextAlign(13)
+                latex.DrawLatex(0.15, 0.96, "CMS #font[52]{Preliminary}")
+                # commented out the default ones
+                # self.cmsPave.AddText('#splitline{CMS}{#font[52]{Preliminary}}')
             else:
                 self.cmsPave.AddText('#splitline{CMS}{#font[52]{  }}')
-    
+
             self.cmsPave.Draw()
 
             if self.lumi > 0.:
@@ -693,10 +704,10 @@ class TwoDimCanvas(SimpleCanvas):
             self.cmsPave = None
 
         self._modified()
-    
+
     def Clear(self, full = False, xmax = None):
         SimpleCanvas.Clear(self, full = full, xmax = xmax)
-        
+
         self.canvas.SetCanvasSize(1000, 1000)
 
         if full:
@@ -760,7 +771,7 @@ class TwoDimCanvas(SimpleCanvas):
             maximum, minimum = self._drawHist(base, True, rooHists)
 
             pad.Update()
-   
+
             # draw other histograms
             for ih in hList[1:]:
                 hist = self._histograms[ih]
@@ -991,7 +1002,7 @@ class Normalizer(object):
                             nrerrdown = obj.GetErrorYlow(iP) / obj.GetY()[iP]
                             targ.SetPointEYlow(iP, y * math.sqrt(nrerrup * nrerrup + drerr * drerr))
                             targ.SetPointEYhigh(iP, y * math.sqrt(nrerrdown * nrerrdown + drerr * drerr))
-                        
+
                 elif self._errtype == 'binom':
                     if norm != 0.:
                         up = ROOT.TEfficiency.ClopperPearson(int(norm), int(obj.GetY()[iP]), 0.6826895, True) - targ.GetY()[iP]
@@ -1070,7 +1081,7 @@ class RatioCanvas(SimpleCanvas):
         self.raxis.SetTickLength(0.09)
         self.raxisr.SetTickLength(0.09)
 
-        self.rtitle = 'new / old' #'data / MC' #gkole 
+        self.rtitle = 'new / old' #'data / MC' #gkole
 
         self.rlimits = (0.9, 1.2) # it was 0.0, 2.0 #gkole
 
@@ -1085,13 +1096,13 @@ class RatioCanvas(SimpleCanvas):
 
     def _makePads(self):
         self.canvas.Divide(2)
-        
+
         self.plotPad = self.canvas.cd(1)
         self.plotPad.SetPad(0., 0., 1., 1.)
         self.plotPad.SetMargin(SimpleCanvas.XMIN, 1. - SimpleCanvas.XMAX, RatioCanvas.PLOT_YMIN, 1. - SimpleCanvas.YMAX) # lrbt
         self.plotPad.SetLogx(self._logx)
         self.plotPad.SetLogy(self._logy)
-        
+
         self.ratioPad = self.canvas.cd(2)
         self.ratioPad.SetPad(SimpleCanvas.XMIN, RatioCanvas.RATIO_YMIN, SimpleCanvas.XMAX, RatioCanvas.RATIO_YMAX)
         self.ratioPad.SetMargin(0., 0., 0., 0.)
@@ -1163,7 +1174,7 @@ class RatioCanvas(SimpleCanvas):
             base.GetYaxis().SetNdivisions(self.yaxis.GetNdiv())
             base.GetYaxis().SetTitle('')
             base.GetYaxis().SetLabelSize(0.)
-    
+
             # will be overridden by self.ytitle
             self.yaxis.SetTitle(base.GetYaxis().GetTitle())
 
@@ -1192,7 +1203,7 @@ class RatioCanvas(SimpleCanvas):
             self._temporaries.append(rframe)
 
             rframe.Draw()
-            
+
             # draw the base line
             if not ('P' in rbase.drawOpt or rbase.GetLineWidth() == 0):
                 rline = ROOT.TLine(rframe.GetXaxis().GetXmin(), 1., rframe.GetXaxis().GetXmax(), 1.)
@@ -1201,11 +1212,11 @@ class RatioCanvas(SimpleCanvas):
                 rline.SetLineWidth(rbase.GetLineWidth())
                 rline.Draw()
                 self._temporaries.append(rline)
-   
+
             # use rnorms to normalize others
             for ir in rList[1:]:
                 hist = self._histograms[ir]
-   
+
                 self._hStore.cd()
 
                 try:
@@ -1407,7 +1418,7 @@ class RatioCanvas(SimpleCanvas):
                 axis.SetOption(opt.replace('G', ''))
                 axis.SetWmin(umin)
                 axis.SetWmax(umax)
-    
+
             axis.Draw()
         self.canvas.Update()
 
@@ -1471,7 +1482,7 @@ class DataMCCanvas(RatioCanvas):
                 g = fillcolor.GetGreen() * 0.8
                 b = fillcolor.GetBlue() * 0.8
                 color = ROOT.TColor.GetColor(r, g, b)
-                
+
                 fillcolor = ROOT.gROOT.GetColor(color)
                 """
                 r = fillcolor.GetRed() * 0.8
@@ -1579,11 +1590,12 @@ class DataMCCanvas(RatioCanvas):
             self._temporaries.append(uncertHist)
 
             hList += self._sigs
-            rList += self._sigs
+            # Do NOT add signals to rList! (by commenting out the line below, signal does not appear in ratio pannel)
+            # rList += self._sigs
             if self._obs != -1:
-                hList.append(self._obs)                
+                hList.append(self._obs)
                 rList.append(self._obs)
-                
+
             legendOrder = []
             if self._obs != -1:
                 legendOrder.append('obs')
