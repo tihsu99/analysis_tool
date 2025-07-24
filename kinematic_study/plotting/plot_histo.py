@@ -135,6 +135,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           ##########################
 
           ftemp = ROOT.TFile.Open(os.path.join(Indir, subprocess_ + ".root"), "READ")
+          # Good debug tips
+          # print ("1-->", os.path.join(Indir, subprocess_ + ".root"))
+          # print ("2-->", histogram)
           try:
             htemp = ftemp.Get(str(histogram)).Clone()
           except:
@@ -285,11 +288,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
     print('Generating png')
     resultLegend.construct()
-    canvas.addObject(resultLegend.legend, clone = False)
+    # canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
 
     #add text region and channel
-    canvas.addText(region, 0.27, 0.70, 0.29, 0.80)
-    canvas.addText(channel, 0.24, 0.65, 0.26, 0.75)
+    canvas.addText(region.replace("SR_",""), 0.27, 0.75, 0.29, 0.85)
+    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.20, 0.75, 0.26, 0.85)
     canvas.applyStyles()
     if args.unblind:
       if logy:
