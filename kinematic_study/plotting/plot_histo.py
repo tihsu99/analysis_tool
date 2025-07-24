@@ -308,17 +308,35 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.74, 0.46, 0.75)
     canvas.addText(region.replace("SR_",""), 1.00, 0.74, 0.48, 0.75)
 
+
     canvas.applyStyles()
     if args.unblind:
-      if logy:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel,'log'), histogram, logy=logy)
-      else:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+        outdir_plot = os.path.join(outdir, 'plot', era, region+'_unblind', channel)
     else:
-      if logy:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
-      else:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
+        outdir_plot = os.path.join(outdir, 'plot', era, region, channel)
+
+    if logy:
+        outdir_plot = os.path.join(outdir_plot, 'log')
+
+    # Ensure directory exists
+    os.makedirs(outdir_plot, exist_ok=True)
+
+    canvas.printWeb(outdir_plot, histogram, logy=logy)
+
+    # Save as .C and .root
+    canvas.SaveAs(os.path.join(outdir_plot, f"{histogram}.C"))
+    canvas.SaveAs(os.path.join(outdir_plot, f"{histogram}.root"))
+    # canvas.applyStyles()
+    # if args.unblind:
+    #   if logy:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel,'log'), histogram, logy=logy)
+    #   else:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+    # else:
+    #   if logy:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
+    #   else:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
     print (100*"=")
 if __name__ == "__main__":
 
