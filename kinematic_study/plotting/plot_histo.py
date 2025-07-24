@@ -67,7 +67,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     # TODO plot_ratio
     if not only_signal:
       canvas = DataMCCanvas(" "," ", Lumi[era])
-      canvas.legend.setPosition(0.35,0.77,0.8,0.9)
+      # canvas.legend.setPosition(0.35,0.77,0.8,0.9)
+      canvas.legend.setPosition(0.20, 0.73, 0.95, 0.92)
       canvas.raxis.SetNdivisions(ratio_Ndiv)
       canvas.rlimits = (ratio_min, ratio_max)
       if ymin is not None and ymax is not None:
@@ -88,7 +89,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     Histo_exist_in_file = True
     for data_type in [["MC", "Background"], ["Data"], ["MC", "Signal"]]:
       if not unblind and "Data" in data_type: continue
-      Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
+      if era == "2025":
+        Process_List   = Get_Sample(sample_json, data_type, "2017", withTail=False)
+      else:
+        Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
+
       Histogram = dict()
       Integral  = dict()
 
@@ -283,16 +288,26 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         for idx in range(ref_xaxis.GetNbins()):
           canvas.xaxis.ChangeLabel(idx+1,45,0.022,-1,-1,-1,ref_xaxis.GetBinLabel(idx+1))
 
-      canvas.rtitle = str("Data/MC")
+      canvas.rtitle = str("Obs/Exp")
       canvas.yaxis.SetMaxDigits(4)
 
+    # Extract x-axis title from the Title string in the JSON
+    title_str = Histograms[histogram]["Title"]
+    title_parts = title_str.split(";")
+    if len(title_parts) > 1:
+      xaxis_title = title_parts[1]
+    else:
+      xaxis_title = ""  # fallback if not found
+
+    canvas.xtitle = xaxis_title
     print('Generating png')
     resultLegend.construct()
     # canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
 
     #add text region and channel
-    canvas.addText(region.replace("SR_",""), 0.27, 0.75, 0.29, 0.85)
-    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.20, 0.75, 0.26, 0.85)
+    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.74, 0.46, 0.75)
+    canvas.addText(region.replace("SR_",""), 1.00, 0.74, 0.48, 0.75)
+
     canvas.applyStyles()
     if args.unblind:
       if logy:
