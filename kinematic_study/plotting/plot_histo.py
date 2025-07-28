@@ -59,10 +59,10 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Canvas Setting ##
     ####################
     # y coordinates will be adjusted later
-    resultLegend = Legend(0.80, 0.70, 0.90, 0.75)
+    resultLegend = Legend(0.60, 0.60, 0.90, 0.65)
     resultLegend.SetTextSize(0.02)
     resultLegend.SetX2(0.95)
-    resultLegend.add('stat', title = 'stat-unc', opt = 'LF', color = ROOT.kBlack, lstyle = ROOT.kDashed, lwidth = 2, fstyle = 3004, mstyle = 8, msize = 0.8)
+    # resultLegend.add('stat', title = 'stat-unc', opt = 'LF', color = ROOT.kBlack, lstyle = ROOT.kDashed, lwidth = 2, fstyle = 3004, mstyle = 8, msize = 0.8)
 
     # TODO plot_ratio
     if not only_signal:
@@ -237,11 +237,62 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
         if "Background" in data_type:
           if Yield:
-            canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            if "TT" in sample_:
+              for bin in range(1, Histogram[sample_].GetNbinsX() + 1):
+                syst_err = 0.10 * Histogram[sample_].GetBinContent(bin)
+                stat_err = Histogram[sample_].GetBinError(bin)
+                total_err = (stat_err**2 + syst_err**2)**0.5
+                Histogram[sample_].SetBinError(bin, total_err)
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            else:
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
             # Assuming sample_ is a string and Histogram[sample_].Integral() returns a float
             print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           else:
             canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
+
+          # # trying to add systematics:
+          # if "TT" in sample_:
+          #   print ("Add TT syst: -> ")
+          #   print ("sample_ again: -> ", sample_)
+          #   tt_syst_band = Histogram[sample_].Clone(sample_ + "_tt_syst_band")
+          #   for bin in range(1, tt_syst_band.GetNbinsX() + 1):
+          #       syst_err = 0.30 * tt_syst_band.GetBinContent(bin)
+          #       tt_syst_band.SetBinError(bin, syst_err)
+          #   tt_syst_band.SetFillColor(ROOT.kRed)
+          #   tt_syst_band.SetFillStyle(1001)
+          #   tt_syst_band.SetLineColor(ROOT.kRed)
+          #   idx_syst = canvas.addExtra(tt_syst_band, drawOpt="E2")
+          #   # Add legend entry for the band
+          #   resultLegend.add('tt_syst', title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+          #   canvas.legend.add(tt_syst_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+
+          #   #FIXME the ratio (if possible)
+          #   ratio_band = tt_syst_band.Clone("tt_syst_ratio_band")
+          #   nominal = Histogram["TT"]
+          #   for bin in range(1, ratio_band.GetNbinsX() + 1):
+          #       nom_val = nominal.GetBinContent(bin)
+          #       syst_err = ratio_band.GetBinError(bin)
+          #       # Avoid division by zero
+          #       if nom_val > 0:
+          #           ratio_band.SetBinContent(bin, 1.0)  # Centered at 1
+          #           ratio_band.SetBinError(bin, syst_err / nom_val)
+          #       else:
+          #           ratio_band.SetBinContent(bin, 0)
+          #           ratio_band.SetBinError(bin, 0)
+          #   # for bin in range(1, ratio_band.GetNbinsX() + 1):
+          #   #   print ("bin: ", bin , " ratio_band.GetBinContent(bin): ", ratio_band.GetBinContent(bin))
+          #   #   print ("bin: ", bin , " ratio_band.GetBinError(bin): ", ratio_band.GetBinError(bin))
+          #   ratio_band.SetFillColor(ROOT.kRed)
+          #   ratio_band.SetFillStyle(3002)
+          #   ratio_band.SetLineColor(ROOT.kRed)
+          #   ratio_band.absolute = True
+          #   print("absolute flag:", getattr(ratio_band, "absolute", False))
+          #   idx_ratio_band = canvas.addExtraRatio(ratio_band, drawOpt="E2")
+
+          #   # resultLegend.add('tt_syst_ratio', title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+          #   # canvas.legend.add(ratio_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+
         elif "Signal" in data_type:
           color = Color_List_Signal[sig_idx]
           sig_idx += 1
@@ -253,7 +304,6 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             resultLegend.apply('stat', Histogram[sample_], opt = 'L') #this is working (but need to understand more ?)
           else:
             canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
-
         elif "Data" in data_type and unblind:
           print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           if partial_blind: #partial_blind:
@@ -262,11 +312,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
               print ("partial_blinding applied to: ", histogram)
               show_ranges = [(50.0, 150.0)]
               blind_data_hist = apply_blinding(Histogram[sample_], ranges = show_ranges)
-              canvas.addObs(blind_data_hist)
+              canvas.addObs(blind_data_hist, title = 'Data', drawOpt = 'X0 P E1')
             else:
-              canvas.addObs(Histogram[sample_])
+              canvas.addObs(Histogram[sample_], title = 'Data', drawOpt = 'X0 P E1')
           else:
-            canvas.addObs(Histogram[sample_])
+            canvas.addObs(Histogram[sample_], title = 'Data', drawOpt = 'X0 P E1')
 
     #############################
     ## Plot Setting for Canvas ##
@@ -300,11 +350,18 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
       xaxis_title = ""  # fallback if not found
 
     canvas.xtitle = xaxis_title
+
+    # Total backgrounds (as sheed plotted on stack)
+    totalbkgs = canvas.drawTotalUncertaintyBand(rel_unc=0.0, color=ROOT.kGray + 2, fstyle=3345)  # 0% uncertainty band
+    canvas.addExtra(totalbkgs, drawOpt="E2")
+
     print('Generating png')
     resultLegend.construct()
-    # canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
 
-    #add text region and channel
+    # canvas.legend.add(tt_syst_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+    canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
+
+    # add text region and channel
     canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.74, 0.46, 0.75)
     canvas.addText(region.replace("SR_",""), 1.00, 0.74, 0.48, 0.75)
 
@@ -320,7 +377,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
     # Ensure directory exists
     os.makedirs(outdir_plot, exist_ok=True)
-
+    print ("1: ", canvas._sigs)
+    print ("2: ", canvas._obs)
+    print ("3: ", canvas._bkgs)
     canvas.printWeb(outdir_plot, histogram, logy=logy)
 
     # Save as .C and .root

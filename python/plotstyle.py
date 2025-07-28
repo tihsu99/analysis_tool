@@ -1431,6 +1431,8 @@ class DataMCCanvas(RatioCanvas):
         self._obs = -1
         self._bkgs = []
         self._sigs = []
+        self._extras = []
+        self._extras_ratio = []
 
 
         self._stack = ROOT.THStack('stack', '')
@@ -1439,6 +1441,16 @@ class DataMCCanvas(RatioCanvas):
         self.borderColor = ROOT.kBlack
 
         self.zeroNegativeBase = False
+
+    def addExtra(self, hist, drawOpt="E2"):
+        idx = self.addHistogram(hist, drawOpt)
+        self._extras.append(idx)
+        return idx
+
+    def addExtraRatio(self, hist, drawOpt="E2"):
+        idx = self.addHistogram(hist, drawOpt)
+        self._extras_ratio.append(idx)
+        return idx
 
     def Clear(self, full = False):
         RatioCanvas.Clear(self, full = full)
@@ -1570,7 +1582,7 @@ class DataMCCanvas(RatioCanvas):
                 bkg = self._histograms[iBkg]
                 uncertHist.Add(bkg.obj)
 
-            uncertHist.SetFillStyle(3003)
+            uncertHist.SetFillStyle(3345)
             uncertHist.SetFillColor(ROOT.kGray + 2)
             uncertHist.SetMarkerSize(0)
             uncertHist.SetMarkerStyle(0)
@@ -1578,7 +1590,7 @@ class DataMCCanvas(RatioCanvas):
             uncertHist.SetLineWidth(0)
 
             self.addHistogram(uncertHist, drawOpt = 'E2', clone = True)
-            self.legend.add('stat unc', title = 'stat unc', fstyle = 3003, fcolor = ROOT.kGray + 2, opt = 'F', msize = 0, mstyle = 0, mcolor = ROOT.kGray + 2, lwidth = 0)
+            self.legend.add('stat unc', title = 'unc', fstyle = 3345, fcolor = ROOT.kGray + 2, opt = 'F', msize = 0, mstyle = 0, mcolor = ROOT.kGray + 2, lwidth = 0)
             self.legend.apply('stat unc', uncertHist)
             iUncert = len(self._histograms) - 1
             hList.append(iUncert)
@@ -1590,8 +1602,13 @@ class DataMCCanvas(RatioCanvas):
             self._temporaries.append(uncertHist)
 
             hList += self._sigs
+            hList += self._extras # try
+
             # Do NOT add signals to rList! (by commenting out the line below, signal does not appear in ratio pannel)
             # rList += self._sigs
+            #Add extra ratio bands
+            rList += self._extras_ratio #try
+
             if self._obs != -1:
                 hList.append(self._obs)
                 rList.append(self._obs)
@@ -1616,3 +1633,37 @@ class DataMCCanvas(RatioCanvas):
             return self._histograms[self._obs]
         else:
             return None
+
+    def drawTotalUncertaintyBand(self, rel_unc=0.1, color=ROOT.kGray+2, fstyle=3003):
+        """
+        Draws a shaded band for the total uncertainty on the sum of backgrounds.
+        rel_unc: relative uncertainty (e.g. 0.1 for 10%)
+        color: fill color for the band
+        fstyle: fill style for the band
+        """
+        if not hasattr(self, '_bkgs') or not self._bkgs:
+            print("No backgrounds found!")
+            return
+
+        # Sum all background histograms
+        base_hist = self._histograms[self._bkgs[0]].Clone("total_unc_band")
+        print ("check Name ", base_hist.GetName())
+        for idx in self._bkgs[1:]:
+            base_hist.Add(self._histograms[idx].obj)
+
+        # Set bin errors to total uncertainty (stat ⊕ rel_unc)
+        for i in range(1, base_hist.GetNbinsX() + 1):
+            stat_err = base_hist.GetBinError(i)
+            syst_err = rel_unc * base_hist.GetBinContent(i)
+            total_err = (stat_err**2 + syst_err**2)**0.5
+            base_hist.SetBinError(i, total_err)
+
+        base_hist.SetFillColor(color)
+        base_hist.SetFillStyle(fstyle)
+        base_hist.SetLineWidth(0)
+        base_hist.SetMarkerSize(0)
+
+        return base_hist
+        # base_hist.Draw("E2 SAME")
+        if hasattr(self, "legend"):
+            self.legend.add(base_hist, title="Total unc.", opt="F", color=color, fstyle=fstyle)
