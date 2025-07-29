@@ -126,6 +126,7 @@ parser.add_argument('--fastScan', action = 'store_true')
 parser.add_argument('--inject_signal', type=float, default = 0.0)
 parser.add_argument('--inject_mass', type=str, default = "500")
 parser.add_argument("--extraCommand", help='extra addtional command', default='', type=str)
+parser.add_argument("--plot_injection", type=str, default=None)
 args = parser.parse_args()
 
 year     = args.year
@@ -296,6 +297,13 @@ if args.plot_only:
   elif args.Significance:
     RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'era', postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "")
     RL.TextFileToSignificancePlot(Masses = mass_points, Channels = args.channel_for_plot, mode = 'channel', postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb_channel" if args.inject_signal > 0 else "")
+    if args.plot_injection is not None:
+       injection_str = args.plot_injection.split(",")
+       inject_dict = dict()
+       for injection_ in injection_str:
+          mass, value = injection_.split("=")
+          inject_dict[mass] = value
+       RL.TextFileToSignificancePlot(Masses = mass_points, Channels = args.channel_for_plot, mode = 'inject', postfix = f"_inject", inject_dict = inject_dict)
 #    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'region')
 
   else:
@@ -332,7 +340,8 @@ else:
         elif args.Significance:
           logname = RL.getSignificance(card_name, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, log_dir = 'significance_log', cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, gen_card_name = gen_card_name, args=args)
           param_list = (Higgs_Mass_Name,mH,RL.signal_str_) # e.g., (200,0.4)
-          significance_log_file = RL.LogToSignificanceList(logname, param_list, 'w')
+          postfix = f"_inject_{args.inject_mass}_{args.inject_signal}" if args.inject_signal>0 else ""
+          significance_log_file = RL.LogToSignificanceList(logname, param_list, 'w', postfix = postfix)
 
         else:
           logname = RL.getLimits(card_name,asimov=False, mass_point=Higgs_Mass_Name+str(imass),cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, rAbsAcc=args.rAbsAcc, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, dc_dir=args.datacard_dir, gen_card_name = gen_card_name, log_dir='datacard_log', args=args, extraCommand = args.extraCommand)
