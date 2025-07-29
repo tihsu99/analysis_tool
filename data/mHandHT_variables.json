@@ -1,0 +1,26 @@
+{
+  "bh_HT": {
+    "Title": ";H_{T} [GeV];Events / 100 GeV",
+    "xlow": 0,
+    "xhigh": 1000,
+    "nbin": 10,
+    "plottingbins": [200, 300, 400, 500, 600, 700, 800, 900, 1000],
+    "Label": ["Control_plot"]
+  },
+  "top_reco_mass":{
+    "Title": ";mt^{reco} [GeV];Events / 10 GeV",
+    "xlow": 100,
+    "xhigh": 500,
+    "nbin": 40,
+    "plottingbins": [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450],
+    "Label": ["Reco", "Control_plot"]
+  },
+  "Higgs_reco_mass":{
+    "Title": ";reconstructed m_{H^{#pm}} [GeV]; Events / 50 GeV",
+    "xlow": 200,
+    "xhigh": 1500,
+    "nbin": 26,
+    "Label": ["Control_plot"]
+  }
+
+}

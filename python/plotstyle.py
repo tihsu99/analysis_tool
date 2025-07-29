@@ -1467,7 +1467,7 @@ class DataMCCanvas(RatioCanvas):
             self._hStore.cd()
             self._obs = self.addHistogram(obs, drawOpt, asymErr = asymErr)
 
-            self.legend.add('obs', title = title, opt = 'LP', color = color, mstyle = 8, msize = 0.8)
+            self.legend.add('obs', title = title, opt = drawOpt, color = color, mstyle = 8, msize = 0.8)
             self.legend.apply('obs', self._histograms[self._obs].obj)
 
         else:
@@ -1563,7 +1563,7 @@ class DataMCCanvas(RatioCanvas):
                     bkg = self._histograms[iBkg]
                     borderHist.Add(bkg.obj)
 
-                borderHist.SetLineWidth(2)
+                borderHist.SetLineWidth(0)
                 borderHist.SetLineColor(self.borderColor)
                 borderHist.SetMarkerSize(0)
                 borderHist.SetMarkerStyle(0)
@@ -1590,7 +1590,7 @@ class DataMCCanvas(RatioCanvas):
             uncertHist.SetLineWidth(0)
 
             self.addHistogram(uncertHist, drawOpt = 'E2', clone = True)
-            self.legend.add('stat unc', title = 'unc', fstyle = 3345, fcolor = ROOT.kGray + 2, opt = 'F', msize = 0, mstyle = 0, mcolor = ROOT.kGray + 2, lwidth = 0)
+            self.legend.add('stat unc', title = 'stat unc', fstyle = 3345, fcolor = ROOT.kGray + 2, opt = 'F', msize = 0, mstyle = 0, mcolor = ROOT.kGray + 2, lwidth = 0)
             self.legend.apply('stat unc', uncertHist)
             iUncert = len(self._histograms) - 1
             hList.append(iUncert)

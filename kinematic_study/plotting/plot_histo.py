@@ -68,7 +68,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if not only_signal:
       canvas = DataMCCanvas(" "," ", Lumi[era])
       # canvas.legend.setPosition(0.35,0.77,0.8,0.9)
-      canvas.legend.setPosition(0.20, 0.73, 0.95, 0.92)
+      canvas.legend.setPosition(0.17, 0.71, 0.94, 0.90)
       canvas.raxis.SetNdivisions(ratio_Ndiv)
       canvas.rlimits = (ratio_min, ratio_max)
       if ymin is not None and ymax is not None:
@@ -79,6 +79,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if Yield:
       canvas.legend.SetTextSize(0.02)
       canvas.legend.SetX2(0.95)
+    else:
+      canvas.legend.SetTextSize(0.019)
+
 
     canvas.ytitle = "Events/bin"
 
@@ -239,59 +242,17 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           if Yield:
             if "TT" in sample_:
               for bin in range(1, Histogram[sample_].GetNbinsX() + 1):
-                syst_err = 0.10 * Histogram[sample_].GetBinContent(bin)
+                syst_err = 0.00 * Histogram[sample_].GetBinContent(bin)
                 stat_err = Histogram[sample_].GetBinError(bin)
                 total_err = (stat_err**2 + syst_err**2)**0.5
                 Histogram[sample_].SetBinError(bin, total_err)
-              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_.replace("TT","t#bar{t}"), Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
             else:
-              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_.replace("QCD","NonPrompt").replace("SingleTop","Single t").replace("tt","t#bar{t}").replace('DY', 'Z+jets').replace('WJets', 'W+jets'), Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
             # Assuming sample_ is a string and Histogram[sample_].Integral() returns a float
             print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           else:
-            canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
-
-          # # trying to add systematics:
-          # if "TT" in sample_:
-          #   print ("Add TT syst: -> ")
-          #   print ("sample_ again: -> ", sample_)
-          #   tt_syst_band = Histogram[sample_].Clone(sample_ + "_tt_syst_band")
-          #   for bin in range(1, tt_syst_band.GetNbinsX() + 1):
-          #       syst_err = 0.30 * tt_syst_band.GetBinContent(bin)
-          #       tt_syst_band.SetBinError(bin, syst_err)
-          #   tt_syst_band.SetFillColor(ROOT.kRed)
-          #   tt_syst_band.SetFillStyle(1001)
-          #   tt_syst_band.SetLineColor(ROOT.kRed)
-          #   idx_syst = canvas.addExtra(tt_syst_band, drawOpt="E2")
-          #   # Add legend entry for the band
-          #   resultLegend.add('tt_syst', title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
-          #   canvas.legend.add(tt_syst_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
-
-          #   #FIXME the ratio (if possible)
-          #   ratio_band = tt_syst_band.Clone("tt_syst_ratio_band")
-          #   nominal = Histogram["TT"]
-          #   for bin in range(1, ratio_band.GetNbinsX() + 1):
-          #       nom_val = nominal.GetBinContent(bin)
-          #       syst_err = ratio_band.GetBinError(bin)
-          #       # Avoid division by zero
-          #       if nom_val > 0:
-          #           ratio_band.SetBinContent(bin, 1.0)  # Centered at 1
-          #           ratio_band.SetBinError(bin, syst_err / nom_val)
-          #       else:
-          #           ratio_band.SetBinContent(bin, 0)
-          #           ratio_band.SetBinError(bin, 0)
-          #   # for bin in range(1, ratio_band.GetNbinsX() + 1):
-          #   #   print ("bin: ", bin , " ratio_band.GetBinContent(bin): ", ratio_band.GetBinContent(bin))
-          #   #   print ("bin: ", bin , " ratio_band.GetBinError(bin): ", ratio_band.GetBinError(bin))
-          #   ratio_band.SetFillColor(ROOT.kRed)
-          #   ratio_band.SetFillStyle(3002)
-          #   ratio_band.SetLineColor(ROOT.kRed)
-          #   ratio_band.absolute = True
-          #   print("absolute flag:", getattr(ratio_band, "absolute", False))
-          #   idx_ratio_band = canvas.addExtraRatio(ratio_band, drawOpt="E2")
-
-          #   # resultLegend.add('tt_syst_ratio', title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
-          #   # canvas.legend.add(ratio_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+            canvas.addStacked(Histogram[sample_], title = "%s"%(sample_.replace("TT","t#bar{t}").replace("QCD","NonPrompt").replace("SingleTop","Single t").replace("tt","t#bar{t}").replace('DY', 'Z+jets').replace('WJets', 'W+jets')), color = Color_Dict_ref[sample_], opt='F')
 
         elif "Signal" in data_type:
           color = Color_List_Signal[sig_idx]
@@ -303,7 +264,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
             resultLegend.apply('stat', Histogram[sample_], opt = 'L') #this is working (but need to understand more ?)
           else:
-            canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
+            canvas.addSignal(Histogram[sample_], title = SignalText_Dict[sample_]+" (x100)", color = color)
         elif "Data" in data_type and unblind:
           print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           if partial_blind: #partial_blind:
@@ -316,7 +277,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             else:
               canvas.addObs(Histogram[sample_], title = 'Data', drawOpt = 'X0 P E1')
           else:
-            canvas.addObs(Histogram[sample_], title = 'Data', drawOpt = 'X0 P E1')
+            canvas.addObs(Histogram[sample_], title = "Data [%.0f]"%(Integral[sample_]), drawOpt = 'X0 P E1')
 
     #############################
     ## Plot Setting for Canvas ##
@@ -338,7 +299,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         for idx in range(ref_xaxis.GetNbins()):
           canvas.xaxis.ChangeLabel(idx+1,45,0.022,-1,-1,-1,ref_xaxis.GetBinLabel(idx+1))
 
-      canvas.rtitle = str("Obs/Exp")
+      canvas.rtitle = str("Data/Prediction")
       canvas.yaxis.SetMaxDigits(4)
 
     # Extract x-axis title from the Title string in the JSON
@@ -346,10 +307,13 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     title_parts = title_str.split(";")
     if len(title_parts) > 1:
       xaxis_title = title_parts[1]
+      yaxis_title = title_parts[2]
     else:
       xaxis_title = ""  # fallback if not found
+      yaxis_title = ""
 
     canvas.xtitle = xaxis_title
+    canvas.ytitle = yaxis_title
 
     # Total backgrounds (as sheed plotted on stack)
     totalbkgs = canvas.drawTotalUncertaintyBand(rel_unc=0.0, color=ROOT.kGray + 2, fstyle=3345)  # 0% uncertainty band
@@ -362,8 +326,8 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
 
     # add text region and channel
-    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.74, 0.46, 0.75)
-    canvas.addText(region.replace("SR_",""), 1.00, 0.74, 0.48, 0.75)
+    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.71, 0.46, 0.75)
+    canvas.addText(region.replace("SR_",""), 1.00, 0.71, 0.48, 0.75)
 
 
     canvas.applyStyles()
