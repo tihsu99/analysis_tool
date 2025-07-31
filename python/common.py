@@ -56,7 +56,8 @@ Lumi = {
   '2016postapv': 16810.,
   '2017': 41480.,
   '2018': 59830.,
-  "Merged_run2": 138000,
+  '2025': 138000.,
+  "Merged_run2": 138000.,
 }
 
 
@@ -221,8 +222,15 @@ Color_Dict_ref = {
   'ttXY': ROOT.TColor.GetColor("#717581"),
   'cgTotH': ROOT.TColor.GetColor("#92dadd")
 }
-Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kCyan, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2, ROOT.kViolet+2, ROOT.kCyan+3, ROOT.kBlue-2, ROOT.kOrange-1, ROOT.kRed-2, ROOT.kBlack]
+Color_List_Signal = [ROOT.TColor.GetColor("#92dadd"), ROOT.kOrange, ROOT.kMagenta, ROOT.kBlue+2, ROOT.kViolet-1, ROOT.kPink, ROOT.kCyan-9, ROOT.kBlue, ROOT.kOrange+3, ROOT.kViolet, ROOT.kRed+2, ROOT.kViolet+2, ROOT.kCyan+3, ROOT.kBlue-2, ROOT.kOrange-1, ROOT.kRed-2, ROOT.kBlack]
 
+SignalText_Dict = {
+  'bH^{#pm}(200)' : 'm_{H^{#pm}} = 200 GeV',
+  'bH^{#pm}(300)' : 'm_{H^{#pm}} = 300 GeV',
+  'bH^{#pm}(500)' : 'm_{H^{#pm}} = 500 GeV',
+  'bH^{#pm}(800)' : 'm_{H^{#pm}} = 800 GeV',
+  'bH^{#pm}(1000)' : 'm_{H^{#pm}} = 1 TeV'
+}
 
 ########################
 ##  OverFlow Binning  ##

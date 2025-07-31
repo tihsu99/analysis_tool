@@ -175,12 +175,11 @@
   "Label":  ["MC", "Background"]
 },
 
-
   "QCD_DataDriven":{
     "xsec": 1,
     "Category": "QCD",
     "Train_ratio": {"2b": 0.0, "3b": 0.0},
-    "Label": ["DataDriven"]
+      "Label": ["DataDriven", "MC", "Background"]
   },
 
 

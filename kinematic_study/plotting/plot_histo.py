@@ -59,15 +59,16 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     ## Canvas Setting ##
     ####################
     # y coordinates will be adjusted later
-    resultLegend = Legend(0.80, 0.70, 0.90, 0.75)
+    resultLegend = Legend(0.60, 0.60, 0.90, 0.65)
     resultLegend.SetTextSize(0.02)
     resultLegend.SetX2(0.95)
-    resultLegend.add('stat', title = 'stat-unc', opt = 'LF', color = ROOT.kBlack, lstyle = ROOT.kDashed, lwidth = 2, fstyle = 3004, mstyle = 8, msize = 0.8)
+    # resultLegend.add('stat', title = 'stat-unc', opt = 'LF', color = ROOT.kBlack, lstyle = ROOT.kDashed, lwidth = 2, fstyle = 3004, mstyle = 8, msize = 0.8)
 
     # TODO plot_ratio
     if not only_signal:
       canvas = DataMCCanvas(" "," ", Lumi[era])
-      canvas.legend.setPosition(0.35,0.77,0.8,0.9)
+      # canvas.legend.setPosition(0.35,0.77,0.8,0.9)
+      canvas.legend.setPosition(0.17, 0.71, 0.94, 0.90)
       canvas.raxis.SetNdivisions(ratio_Ndiv)
       canvas.rlimits = (ratio_min, ratio_max)
       if ymin is not None and ymax is not None:
@@ -78,6 +79,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     if Yield:
       canvas.legend.SetTextSize(0.02)
       canvas.legend.SetX2(0.95)
+    else:
+      canvas.legend.SetTextSize(0.019)
+
 
     canvas.ytitle = "Events/bin"
 
@@ -88,7 +92,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
     Histo_exist_in_file = True
     for data_type in [["MC", "Background"], ["Data"], ["MC", "Signal"]]:
       if not unblind and "Data" in data_type: continue
-      Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
+      if era == "2025":
+        Process_List   = Get_Sample(sample_json, data_type, "2017", withTail=False)
+      else:
+        Process_List   = Get_Sample(sample_json, data_type, era, withTail=False)
+
       Histogram = dict()
       Integral  = dict()
 
@@ -135,6 +143,9 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
           ##########################
 
           ftemp = ROOT.TFile.Open(os.path.join(Indir, subprocess_ + ".root"), "READ")
+          # Good debug tips
+          # print ("1-->", os.path.join(Indir, subprocess_ + ".root"))
+          # print ("2-->", histogram)
           try:
             htemp = ftemp.Get(str(histogram)).Clone()
           except:
@@ -229,11 +240,20 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
 
         if "Background" in data_type:
           if Yield:
-            canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_, Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            if "TT" in sample_:
+              for bin in range(1, Histogram[sample_].GetNbinsX() + 1):
+                syst_err = 0.00 * Histogram[sample_].GetBinContent(bin)
+                stat_err = Histogram[sample_].GetBinError(bin)
+                total_err = (stat_err**2 + syst_err**2)**0.5
+                Histogram[sample_].SetBinError(bin, total_err)
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_.replace("TT","t#bar{t}"), Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
+            else:
+              canvas.addStacked(Histogram[sample_], title = "%s [%.0f]"%(sample_.replace("QCD","NonPrompt").replace("SingleTop","Single t").replace("tt","t#bar{t}").replace('DY', 'Z+jets').replace('WJets', 'W+jets'), Integral[sample_]), color = Color_Dict_ref[sample_], opt='F')
             # Assuming sample_ is a string and Histogram[sample_].Integral() returns a float
             print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           else:
-            canvas.addStacked(Histogram[sample_], title = "%s"%(sample_), color = Color_Dict_ref[sample_], opt='F')
+            canvas.addStacked(Histogram[sample_], title = "%s"%(sample_.replace("TT","t#bar{t}").replace("QCD","NonPrompt").replace("SingleTop","Single t").replace("tt","t#bar{t}").replace('DY', 'Z+jets').replace('WJets', 'W+jets')), color = Color_Dict_ref[sample_], opt='F')
+
         elif "Signal" in data_type:
           color = Color_List_Signal[sig_idx]
           sig_idx += 1
@@ -244,8 +264,7 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
             canvas.legend.add(Histogram[sample_], title = sample_, opt = 'LP', color = color, fstyle = 0, lwidth = 4)
             resultLegend.apply('stat', Histogram[sample_], opt = 'L') #this is working (but need to understand more ?)
           else:
-            canvas.addSignal(Histogram[sample_], title = sample_+"x 100", color = color)
-
+            canvas.addSignal(Histogram[sample_], title = SignalText_Dict[sample_]+" (x100)", color = color)
         elif "Data" in data_type and unblind:
           print(f"Name: {sample_:<20} Integral: {Histogram[sample_].Integral():>10.2f}")
           if partial_blind: #partial_blind:
@@ -254,11 +273,11 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
               print ("partial_blinding applied to: ", histogram)
               show_ranges = [(50.0, 150.0)]
               blind_data_hist = apply_blinding(Histogram[sample_], ranges = show_ranges)
-              canvas.addObs(blind_data_hist)
+              canvas.addObs(blind_data_hist, title = 'Data', drawOpt = 'X0 P E1')
             else:
-              canvas.addObs(Histogram[sample_])
+              canvas.addObs(Histogram[sample_], title = 'Data', drawOpt = 'X0 P E1')
           else:
-            canvas.addObs(Histogram[sample_])
+            canvas.addObs(Histogram[sample_], title = "Data [%.0f]"%(Integral[sample_]), drawOpt = 'X0 P E1')
 
     #############################
     ## Plot Setting for Canvas ##
@@ -280,27 +299,67 @@ def Generate_Histogram(era, indir, outdir, Labels, Black_list, logy, plot_ratio,
         for idx in range(ref_xaxis.GetNbins()):
           canvas.xaxis.ChangeLabel(idx+1,45,0.022,-1,-1,-1,ref_xaxis.GetBinLabel(idx+1))
 
-      canvas.rtitle = str("Data/MC")
+      canvas.rtitle = str("Data/Prediction")
       canvas.yaxis.SetMaxDigits(4)
+
+    # Extract x-axis title from the Title string in the JSON
+    title_str = Histograms[histogram]["Title"]
+    title_parts = title_str.split(";")
+    if len(title_parts) > 1:
+      xaxis_title = title_parts[1]
+      yaxis_title = title_parts[2]
+    else:
+      xaxis_title = ""  # fallback if not found
+      yaxis_title = ""
+
+    canvas.xtitle = xaxis_title
+    canvas.ytitle = yaxis_title
+
+    # Total backgrounds (as sheed plotted on stack)
+    totalbkgs = canvas.drawTotalUncertaintyBand(rel_unc=0.0, color=ROOT.kGray + 2, fstyle=3345)  # 0% uncertainty band
+    canvas.addExtra(totalbkgs, drawOpt="E2")
 
     print('Generating png')
     resultLegend.construct()
-    canvas.addObject(resultLegend.legend, clone = False)
 
-    #add text region and channel
-    canvas.addText(region, 0.27, 0.70, 0.29, 0.80)
-    canvas.addText(channel, 0.24, 0.65, 0.26, 0.75)
+    # canvas.legend.add(tt_syst_band, title='TT syst. (30%)', opt='F', color=ROOT.kRed, fstyle=3002)
+    canvas.addObject(resultLegend.legend, clone = False) # commented out to remove addtional "stat-unc"
+
+    # add text region and channel
+    canvas.addText(channel.replace("_resolved","").replace("ele","e, ").replace("mu","#mu, "), 0.93, 0.71, 0.46, 0.75)
+    canvas.addText(region.replace("SR_",""), 1.00, 0.71, 0.48, 0.75)
+
+
     canvas.applyStyles()
     if args.unblind:
-      if logy:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel,'log'), histogram, logy=logy)
-      else:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+        outdir_plot = os.path.join(outdir, 'plot', era, region+'_unblind', channel)
     else:
-      if logy:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
-      else:
-        canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
+        outdir_plot = os.path.join(outdir, 'plot', era, region, channel)
+
+    if logy:
+        outdir_plot = os.path.join(outdir_plot, 'log')
+
+    # Ensure directory exists
+    os.makedirs(outdir_plot, exist_ok=True)
+    print ("1: ", canvas._sigs)
+    print ("2: ", canvas._obs)
+    print ("3: ", canvas._bkgs)
+    canvas.printWeb(outdir_plot, histogram, logy=logy)
+
+    # Save as .C and .root
+    canvas.SaveAs(os.path.join(outdir_plot, f"{histogram}.C"))
+    canvas.SaveAs(os.path.join(outdir_plot, f"{histogram}.root"))
+    # canvas.applyStyles()
+    # if args.unblind:
+    #   if logy:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel,'log'), histogram, logy=logy)
+    #   else:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region+'_unblind',channel), histogram, logy=logy)
+    # else:
+    #   if logy:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region,channel,'log'), histogram, logy=logy)
+    #   else:
+    #     canvas.printWeb(os.path.join(outdir,'plot',era,region,channel), histogram, logy=logy)
     print (100*"=")
 if __name__ == "__main__":
 
