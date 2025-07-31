@@ -20,7 +20,7 @@
       "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
     },
     "MVA_Label": "DNN_SR_2b2j",
-     "POI": ["DNN"],
+     "POI": ["DNN", "bh_HT", "Higgs_reco_mass"],
      "POI_bin": [0, 1, 5]
   },
 
@@ -46,7 +46,7 @@
       "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
     },
     "MVA_Label": "DNN_SR_2b_rest",
-     "POI": ["DNN"],
+     "POI": ["DNN", "bh_HT", "Higgs_reco_mass"],
      "POI_bin": [0, 1, 5]
   },
 
@@ -72,7 +72,7 @@
        "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
     },
     "MVA_Label": "DNN_SR_2b_rest",
-     "POI": ["DNN"],
+     "POI": ["DNN", "bh_HT", "Higgs_reco_mass"],
      "POI_bin": [0, 1, 5]
   },
 
@@ -98,7 +98,7 @@
        "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
     },
     "MVA_Label": "DNN_SR_3b3j",
-     "POI": ["DNN"],
+     "POI": ["DNN", "bh_HT", "Higgs_reco_mass"],
      "POI_bin": [0, 1, 20]
   },
 
@@ -125,7 +125,7 @@
       "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
     },
     "MVA_Label": "DNN_SR_3b_rest",
-     "POI": ["DNN"],
+     "POI": ["DNN", "bh_HT", "Higgs_reco_mass"],
      "POI_bin": [0, 1, 20]
   },
 
@@ -153,10 +153,8 @@
     },
 
      "MVA_Label": "DNN_SR_2b_rest",
-     "POI": ["top_reco_mass"],
+     "POI": ["top_reco_mass", "bh_HT", "Higgs_reco_mass"],
      "POI_binnings": {"Normal": [120, 150, 200, 250, 300, 350, 400]}
   }
 
 }
-
-
