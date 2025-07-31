@@ -1,0 +1,162 @@
+{
+  "CRb_2b2j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet == 2",
+      "b jet cut":    "n_bjet_DeepB_v == 2",
+      "met":          "bh_met>35",
+      "bh_HT":        "bh_HT > 200",
+      "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+    "MVA_Label": "DNN_SR_2b2j",
+     "POI": ["DNN"],
+     "POI_bin": [0, 1, 5]
+  },
+
+
+  "CRb_2b3j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet == 3",
+      "b jet cut":    "n_bjet_DeepB_v == 2",
+      "bh_HT":        "bh_HT > 200",
+      "met":          "bh_met>35",
+      "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+    "MVA_Label": "DNN_SR_2b_rest",
+     "POI": ["DNN"],
+     "POI_bin": [0, 1, 5]
+  },
+
+
+  "CRb_2b4j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+       "njet":         "n_tight_jet >= 4",
+       "b jet cut":    "n_bjet_DeepB_v == 2",
+       "bh_HT":        "bh_HT > 200",
+       "met":          "bh_met>35",
+       "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+    "MVA_Label": "DNN_SR_2b_rest",
+     "POI": ["DNN"],
+     "POI_bin": [0, 1, 5]
+  },
+
+
+  "CRb_3b3j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+       "njet":         "n_tight_jet == 3",
+       "b jet cut":    "n_bjet_DeepB_v >= 3",
+       "bh_HT":        "bh_HT > 200",
+       "met":          "bh_met>35",
+       "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+    "MVA_Label": "DNN_SR_3b3j",
+     "POI": ["DNN"],
+     "POI_bin": [0, 1, 20]
+  },
+
+
+
+  "CRb_3b4j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+	       "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet >= 4",
+      "b jet cut":    "n_bjet_DeepB_v >= 3",
+      "bh_HT":        "bh_HT > 200",
+      "met":          "bh_met>35",
+      "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+    "MVA_Label": "DNN_SR_3b_rest",
+     "POI": ["DNN"],
+     "POI_bin": [0, 1, 20]
+  },
+
+
+
+  "CRb_1b4j":{
+     "channel_cut":{
+       "ele_resolved": {
+         "channel_lepton": "n_loose_ele == 1",
+         "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 35"
+       },
+       "mu_resolved": {
+         "channel_lepton": "n_loose_muon == 1",
+         "iso_cut":        "QCD_anti_iso < 0.4",
+         "QCD_Lepton_pt":  "QCD_Lepton_pt > 30"
+         }
+     },
+     "general_cut":{
+      "njet":         "n_tight_jet>=4",
+      "b jet cut":    "n_bjet_DeepB_v == 1",
+      "bh_HT":        "bh_HT > 200",
+      "met":          "bh_met>35",
+      "top mass cut": "(top_reco_mass < 400) && (top_reco_mass > 120)"
+    },
+
+     "MVA_Label": "DNN_SR_2b_rest",
+     "POI": ["top_reco_mass"],
+     "POI_binnings": {"Normal": [120, 150, 200, 250, 300, 350, 400]}
+  }
+
+}
+
+

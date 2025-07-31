@@ -1,0 +1,368 @@
+{
+"DYnlo":{
+  "xsec": 6077.22,
+  "xsec_err": 0.3,
+  "Category": "DY",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label":  ["MC", "Background"]
+},
+
+"QCD_HT50to100":{
+  "xsec": 188800000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT100to200":{
+  "xsec": 23600000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT200to300":{
+  "xsec": 1550000,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT300to500":{
+  "xsec": 321600,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT500to700":{
+  "xsec": 30980,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT700to1000":{
+  "xsec": 6364,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT1000to1500":{
+  "xsec": 1117,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT1500to2000":{
+  "xsec": 108.4,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"QCD_HT2000toInf":{
+  "xsec": 22.36,
+  "xsec_err": 50.0,
+  "Category": "QCD",
+  "Train_ratio": {"2b": 0.0, "3b": 0.0},
+  "Label": ["MC", "Background", "Nonprompt"]
+},
+"tW":{
+    "xsec": 21.53,
+    "xsec_err": 7.8,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label":  ["MC", "Background"]
+  },
+
+"tbarW":{
+    "xsec": 21.53,
+    "xsec_err": 7.8,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+"tbar_tch":{
+    "xsec": 80.0,
+    "xsec_err": 2.3,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+
+"t_tch":{
+    "xsec": 134.2,
+    "xsec_err": 1.9,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+
+"t_sch":{
+    "xsec": 3.36,
+    "xsec_err": 3.9,
+    "Category": "SingleTop",
+    "Train_ratio": {"2b": 0.15, "3b": 0.5},
+    "Label": ["MC", "Background"]
+  },
+
+"WJets_HT70to100":{
+   "xsec": 1443.7,
+   "xsec_err": 3.8,
+   "Category": "WJets",
+   "Train_ratio": {"2b": 0.15, "3b": 0.5},
+   "Label": ["MC", "Background"],
+   "LO": "--noNLOwjet"
+},
+"WJets_HT100to200":{
+  "xsec": 1434.5,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT200to400":{
+  "xsec": 383.19,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT400to600":{
+  "xsec": 51.68,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT600to800":{
+  "xsec": 12.53,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT800to1200":{
+  "xsec": 5.62,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT1200to2500":{
+  "xsec": 1.32,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"WJets_HT2500toInf":{
+  "xsec": 0.009,
+  "xsec_err": 3.8,
+  "Category": "WJets",
+  "Train_ratio": {"2b": 0.15, "3b": 0.5},
+  "Label": ["MC", "Background"],
+  "LO": "--noNLOwjet"
+},
+
+"TTTo2L":{
+    "xsec": 87.56,
+    "xsec_err": 4.3,
+    "Category": "TT",
+    "subfile": {"2016apv": ["_1", "_2"], "2016postapv": ["_1","_2"], "2017":["_1", "_2", "_3", "_4"], "2018": ["_1", "_2", "_3", "_4", "_5", "_6"]},
+    "Train_ratio": {"2b": 0.075, "3b": 0.5},
+    "Label": ["MC", "Background"]
+ },
+ "TTTo1L":{
+    "xsec": 365.25,
+    "xsec_err": 4.3,
+    "Category": "TT",
+    "subfile": {"2016apv": ["_1", "_2", "_3", "_4"],
+                "2016postapv": ["_1", "_2", "_3", "_4", "_5"],
+                "2017": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10"],
+                "2018": ["_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13", "_14"]
+                },
+    "Train_ratio": {"2b": 0.025, "3b": 0.10},
+    "Label": ["MC", "Background"]
+ },
+ "TTtoHadronic":{
+   "xsec": 381.09,
+   "xsec_err": 4.3,
+   "Category": "TT",
+   "Train_ratio": {"2b": 0.15, "3b": 0.5},
+   "Label": ["MC", "Background"]
+ },
+
+
+
+  "SingleEG":{
+    "xsec": 1,
+    "Category": "data",
+    "Train_ratio": {"2b": 0.0, "3b": 0.0},
+    "Label":  ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2016postapv", "2016apv", "2017"]
+  },
+  "SingleMuon":{
+    "xsec": 1,
+    "Category": "data",
+    "Train_ratio": {"2b": 0.0, "3b": 0.0},
+    "Label":  ["Data", "mu", "mm"],
+    "Channel": ["mu", "mm", "mu_resolved"]
+  },
+
+  "SinglePhoton":{
+    "xsec": 1,
+    "Category": "data",
+    "Train_ratio": {"2b": 0.0, "3b": 0.0},
+    "Label": ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2016postapv", "2016apv", "2017"]
+  },
+
+  "EGamma":{
+    "xsec": 1,
+    "Category": "data",
+    "Train_ratio": {"2b": 0.0, "3b": 0.0},
+    "Label": ["Data", "ele", "ee"],
+    "Channel": ["ele", "ee", "ele_resolved"],
+    "Era": ["2018"]
+  },
+
+   "CGToBHpm_a_200_rtt06_rtc04":{
+     "xsec": 6.609,
+     "xsec_err": 18.6,
+     "Category": "bH^{#pm}(200)",
+     "Train_ratio": {"2b": 0.5, "3b": 0.5},
+     "Label": ["MC","Signal"],
+     "SubProcess": {
+       "CGToBHpm_a_200_rtt06_rtc04_2b": "LHE_Nb == 2",
+       "CGToBHpm_a_200_rtt06_rtc04_3b": "LHE_Nb >  2"
+     }
+   },
+
+   "CGToBHpm_a_300_rtt06_rtc04":{
+     "xsec": 5.370,
+     "xsec_err": 16.17,
+     "Category": "bH^{#pm}(300)",
+     "Train_ratio": {"2b": 0.5, "3b": 0.5},
+     "Label": ["MC","Signal"],
+     "SubProcess":{
+       "CGToBHpm_a_300_rtt06_rtc04_2b": "LHE_Nb == 2",
+       "CGToBHpm_a_300_rtt06_rtc04_3b": "LHE_Nb > 2"
+     }
+   },
+
+   "CGToBHpm_a_350_rtt06_rtc04":{
+     "xsec": 3.391,
+     "xsec_err": 15.38,
+     "Category": "bH^{#pm}(350)",
+     "Train_ratio": {"2b": 0.5, "3b": 0.5},
+     "Label": ["MC","Signal"],
+     "SubProcess":{
+       "CGToBHpm_a_350_rtt06_rtc04_2b": "LHE_Nb == 2",
+       "CGToBHpm_a_350_rtt06_rtc04_3b": "LHE_Nb > 2"
+     }
+   },
+
+  "CGToBHpm_a_400_rtt06_rtc04":{
+    "xsec": 1.887,
+    "xsec_err": 14.94,
+    "Category": "bH^{#pm}(400)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_400_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_400_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_500_rtt06_rtc04":{
+    "xsec": 0.7911,
+    "xsec_err": 15.95,
+    "Category": "bH^{#pm}(500)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_500_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_500_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_600_rtt06_rtc04":{
+    "xsec": 0.3790,
+    "xsec_err": 16.27,
+    "Category": "bH^{#pm}(600)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_600_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_600_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_700_rtt06_rtc04":{
+    "xsec": 0.19,
+    "xsec_err": 17.49,
+    "Category": "bH^{#pm}(700)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_700_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_700_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_800_rtt06_rtc04":{
+    "xsec": 0.09575,
+    "xsec_err": 18.45,
+    "Category": "bH^{#pm}(800)",
+    "Label": ["MC","Signal"],
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "SubProcess":{
+      "CGToBHpm_a_800_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_800_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_900_rtt06_rtc04":{
+    "xsec": 0.04865,
+    "xsec_err": 20.12,
+    "Category": "bH^{#pm}(900)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_900_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_900_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  },
+
+  "CGToBHpm_a_1000_rtt06_rtc04":{
+    "xsec": 0.02755,
+    "xsec_err": 22.22,
+    "Category": "bH^{#pm}(1000)",
+    "Train_ratio": {"2b": 0.5, "3b": 0.5},
+    "Label": ["MC","Signal"],
+    "SubProcess":{
+      "CGToBHpm_a_1000_rtt06_rtc04_2b": "LHE_Nb == 2",
+      "CGToBHpm_a_1000_rtt06_rtc04_3b": "LHE_Nb > 2"
+    }
+  }
+
+
+}
