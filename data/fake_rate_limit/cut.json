@@ -22,7 +22,7 @@
         },
         "MVA_Label": "DNN_SR_2b_rest",
         "POI": [
-            "DNN"
+            "DNN", "bh_HT", "Higgs_reco_mass"
         ],
         "POI_binnings": {
             "Normal": [
@@ -158,7 +158,7 @@
         },
         "MVA_Label": "DNN_SR_3b_rest",
         "POI": [
-            "DNN"
+            "DNN", "bh_HT", "Higgs_reco_mass"
         ],
         "POI_binnings": {
             "Normal": [
@@ -282,7 +282,7 @@
         },
         "MVA_Label": "DNN_SR_2b_rest",
         "POI": [
-            "DNN"
+            "DNN", "bh_HT", "Higgs_reco_mass"
         ],
         "POI_binnings": {
             "Normal": [
@@ -424,7 +424,7 @@
         },
         "MVA_Label": "DNN_SR_3b3j",
         "POI": [
-            "DNN"
+            "DNN", "bh_HT", "Higgs_reco_mass"
         ],
         "POI_binnings": {
             "Normal": [
@@ -555,7 +555,7 @@
         },
         "MVA_Label": "DNN_SR_2b2j",
         "POI": [
-            "DNN"
+            "DNN", "bh_HT", "Higgs_reco_mass"
         ],
         "POI_binnings": {
             "Normal": [
