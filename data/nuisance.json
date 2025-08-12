@@ -164,9 +164,9 @@
     "Label": ["MC", "Background", "Signal", "Shape"]
   },
 
-  "Top_pt_reweighting":{
+  "Top_pt_reweighting_REGION":{
     "Nominal": ["toppt_weight"],
-    "Def": "RVecF{(float)(1.0), (float)(2*toppt_weight - 1.0)}",
+    "Def": "RVecF{(float)(1.0), (float)(toppt_weight*toppt_weight)}",
     "Label": ["MC", "Background", "Shape"],
     "Process": ["TT"]
   },
@@ -246,5 +246,20 @@
     "value": {"2016postapv":1.006, "2016apv": 1.006, "2017": 1.009, "2018": 1.02},
     "vary":  ["Era"],
     "Label": ["lnN", "Background", "Signal"]
+  },
+
+  "CMS_e_fake_rate_ERA":{
+    "Nominal": ["fake_rate"],
+    "Def": "RVecF{fake_rate_down, fake_rate_up}",
+    "Label": ["MC", "Background", "Signal", "Data", "Shape"],
+    "Channel": ["ele_resolved"]
+  },
+
+  "CMS_m_fake_rate_ERA":{
+    "Nominal": ["fake_rate"],
+    "Def": "RVecF{fake_rate_down, fake_rate_up}",
+    "Label": ["MC", "Background", "Signal", "Data", "Shape"],
+    "Channel": ["mu_resolved"]
   }
+
 }
