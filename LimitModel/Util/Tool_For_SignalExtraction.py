@@ -23,6 +23,7 @@ import random
 import matplotlib.pyplot as plt
 from array import array
 import cmsstyle as CMS
+import tdrstyle
 
 CMS.SetExtraText("Preliminary")
 CMS.SetEnergy("13")
@@ -619,7 +620,7 @@ def PlotShape(settings=dict()):
                bin_edges.append(h.GetX()[n_points - 1] + h.GetErrorXhigh(n_points - 1))
 
             print(bin_edges)
-            h_postfix = ROOT.TH1F(fpath, '', len(bin_edges) - 1, array('d', bin_edges))
+            h_postfix = ROOT.TH1F(fpath, 'h', len(bin_edges) - 1, array('d', bin_edges))
 
 
 
@@ -754,6 +755,7 @@ def PlotShape(settings=dict()):
             # check if the DNNMASS bin present or not
             print (settings['region_info'][correct_region]["POI"][0]+settings['mass'])
             xaxisTitlestring = settings['region_info'][correct_region]['POI_name'].replace('MASS', settings['mass'])
+            print("xaxisTitlestring ", xaxisTitlestring)
             temp_string = settings['region_info'][correct_region]["POI"][0]+settings['mass']
             if temp_string in settings['region_info'][correct_region]['POI_binnings']:
                 new_binning = settings['region_info'][correct_region]['POI_binnings'][temp_string] if not isABCD else [0, 1]
@@ -871,7 +873,8 @@ def PlotShape(settings=dict()):
 
 
 def Plot_Histogram(template_settings=dict()):
-
+    #tdrstyle.setTDRStyle()
+    print("\n\033[0;35mPlotting Histogram...\033[0;m")
     Color_Dict = Color_Dict_ref
     if template_settings["unblind"]:
         Color_Dict['Data'] = ROOT.kBlack
@@ -883,7 +886,7 @@ def Plot_Histogram(template_settings=dict()):
     #### Canvas ####
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
-    ROOT.gStyle.SetErrorX(0.001)
+    #ROOT.gStyle.SetErrorX(0.001)
     ROOT.gROOT.SetBatch(1)
 
     if template_settings['plotRatio']:
@@ -901,14 +904,14 @@ def Plot_Histogram(template_settings=dict()):
       pad1 = ROOT.TPad('pad1','',0.00, 0.25, 1, 1)
       pad2 = ROOT.TPad('pad2','',0.00, 0.00, 1, 0.25)
       pad1.SetBottomMargin(0.02)
-      pad1.SetLeftMargin(0.1)
-      pad1.SetRightMargin(0.01)
+      pad1.SetLeftMargin(0.16)
+      pad1.SetRightMargin(0.04)
       if template_settings['pull']:
         pad2.SetTopMargin(0.008);
       else:
         pad2.SetTopMargin(0.005);
-      pad2.SetLeftMargin(0.1)
-      pad2.SetRightMargin(0.01)
+      pad2.SetLeftMargin(0.16)
+      pad2.SetRightMargin(0.04)
       pad2.SetBottomMargin(0.40);
       pad1.SetBorderMode(1)
       pad2.SetBorderMode(1)
@@ -942,23 +945,22 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.105, .62, .90, .86);
+    legend = ROOT.TLegend(.12, .62, .95, .87);
     legend.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
     if not template_settings['plotRatio']:
-      legend.SetTextSize(0.02);
+      legend.SetTextSize(0.045);
     else:
-      legend.SetTextSize(0.04);
-
-      legend2 = ROOT.TLegend(.90, .85, .95, .99);
+      legend.SetTextSize(0.045);
+      legend2 = ROOT.TLegend(.12, .83, .25, .97);
       legend2.SetBorderSize(0);
       legend2.SetFillColor(0);
       legend2.SetShadowColor(0);
       legend2.SetTextFont(42);
-      legend2.SetTextSize(0.08);
+      legend2.SetTextSize(0.14);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -976,13 +978,13 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Histogram Settings ####
     h_stack = ROOT.THStack()
+    h_stack.SetName("stack")
     hh_total = None
     hh_total = template_settings['Histogram']['TotalBkg'].Clone()
-    h_sig =None
+    h_sig = None
+    mass = ''
 
-
-
-    for idx, Histogram_Name in enumerate(Ordered_Integral):
+    for Histogram_Name in Ordered_Integral:
         if template_settings["Signal_Name"] in Histogram_Name and template_settings["Signal_Name"] != "DEFAULT":
             if h_sig is None:
               h_sig = template_settings['Histogram'][Histogram_Name].Clone()
@@ -990,24 +992,12 @@ def Plot_Histogram(template_settings=dict()):
               h_sig.SetLineWidth(5)
             else:
               h_sig.Add(template_settings['Histogram'][Histogram_Name].Clone())
-
-
-
-    if template_settings["stack_signal"]:
-        h_sig.SetFillColorAlpha(ROOT.TColor.GetColor('#b3539c'), 0.65)
-        h_stack.Add(h_sig)
-        legend.AddEntry(h_sig,'g2HDM Signal', 'F')
-        hh_total.Add(h_sig)
-
-
-    for idx, Histogram_Name in enumerate(Ordered_Integral):
-        if template_settings["Signal_Name"] in Histogram_Name and template_settings["Signal_Name"] != "DEFAULT":
-            continue
+            mass = Histogram_Name.replace('CGToBHpm_a_', '').replace('_rtt06_rtc04', '').replace('_2b', '').replace('_3b', '')
         else:
             if Histogram_Name == 'Data':
                 if template_settings['unblind']:
 #                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name, 'PE') #+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
-                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
+                    legend.AddEntry(template_settings['Histogram'][Histogram_Name], Histogram_Name, 'PE')
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
                     template_settings['Histogram'][Histogram_Name].SetMarkerSize(3.5)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
@@ -1016,29 +1006,37 @@ def Plot_Histogram(template_settings=dict()):
             else:
                 if Histogram_Name == 'TotalBkg': continue
                 template_settings['Histogram'][Histogram_Name].SetFillColorAlpha(Color_Dict[Histogram_Name],0.65)
-
+                template_settings['Histogram'][Histogram_Name].SetLineWidth(0)
                 h_stack.Add(template_settings['Histogram'][Histogram_Name])
                 print(Histogram_Name, template_settings['Integral'][Histogram_Name])
                 #legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H"), 'F') # + ' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]), 'F')
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TTTo2L","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttH","t#bar{t}H").replace("QCD", "NonPrompt"), 'F') # + ' [%.1f]'%(float(template_settings['Integral'][Histogram_Name])), 'F')
+                #legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TT","t#bar{t}").replace("ttW","t#bar{t}W").replace("ttX","t#bar{t}X").replace("QCD", "NonPrompt"), 'F') # + ' [%.1f]'%(float(template_settings['Integral'][Histogram_Name])), 'F')
 
+    for Histogram_Name in reversed(Ordered_Integral):
+        if template_settings["Signal_Name"] in Histogram_Name and template_settings["Signal_Name"] != "DEFAULT":
+            continue
+        else:
+            if Histogram_Name == 'Data':
+               continue
+            else:
+                if Histogram_Name == 'TotalBkg': continue
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TT","t#bar{t}").replace("tt","t#bar{t}").replace("QCD", "NonPrompt").replace('SingleTop', 'Single t').replace('DY', 'Z+jets').replace('WJets', 'W+jets'), 'F') 
 
-
+    h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
 
     h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     if Set_Logy:
-      h_stack.SetMinimum(3.2)
+      h_stack.SetMinimum(.1)
     else:
       h_stack.SetMinimum(0.1)
     h_stack.Draw()
     h_stack.GetYaxis().SetTitle("Events/bin")
     if template_settings['plotRatio']:
-      h_stack.GetYaxis().SetTitleSize(0.035) # THStack should first be drawn and then can do this step
-      h_stack.GetYaxis().SetLabelSize(0.035)
-      h_stack.GetYaxis().SetTitleOffset(1.2)
+      h_stack.GetYaxis().SetTitleSize(0.05) # THStack should first be drawn and then can do this step
+      h_stack.GetYaxis().SetLabelSize(0.05)
+      h_stack.GetYaxis().SetTitleOffset(1.06)
       h_stack.GetXaxis().SetLabelOffset(3.2)
-      h_stack.GetXaxis().SetLabelSize(0.04)
     else:
       h_stack.GetYaxis().SetTitleSize(0.03) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.03)
@@ -1051,15 +1049,15 @@ def Plot_Histogram(template_settings=dict()):
 #    pad1.Update()
     h_stack.Draw("HIST")
     # For uncert.
-    hh_total.SetFillStyle(3005)
-    hh_total.SetFillColor(12) #ROOT.kGray + 2)
-    hh_total.SetMarkerSize(4)
-    hh_total.SetMarkerStyle(0)
-    hh_total.SetMarkerColor(12) #ROOT.kGray + 2)
-    hh_total.SetLineWidth(0)
-    legend.AddEntry(hh_total,'Stat + Syst unc.','F')
-    hh_total.Draw("SAME E2")
-
+    hh_total.SetFillStyle(3345)
+    hh_total.SetFillColor(ROOT.kGray + 2)
+    hh_total.SetMarkerSize(0)
+    hh_total.SetLineWidth(100)
+    print("Integral of TotalBkg: ", hh_total.Integral())
+    print("Content of TotalBkg: ", hh_total.GetBinContent(1))
+    print("Error of TotalBkg: ", hh_total.GetBinError(1))
+    hh_total.Draw("E2 SAME")
+    legend.AddEntry(hh_total,'Syst unc.','F')
 
     sep_line = dict()
     sep_line_ratio = dict()
@@ -1071,7 +1069,7 @@ def Plot_Histogram(template_settings=dict()):
         sep_line[region_].SetLineColor(ROOT.kBlack)
         sep_line[region_].SetLineStyle(2)
         sep_line[region_].SetLineWidth(5)
-        sep_line[region_].Draw()
+        #sep_line[region_].Draw()
 
         region_name = ''
         channel_name = ''
@@ -1094,27 +1092,28 @@ def Plot_Histogram(template_settings=dict()):
               region_list = [QCD_ABCD.replace("CR", "")]
         for channel_ in ['ele_resolved', 'mu_resolved', 'merged_resolved']:
           if channel_ in region_:
-            channel_name = channel_.replace('_resolved', '')
+            channel_name = channel_.replace('_resolved', '').replace('ele', 'e').replace('mu', '#mu')
             region_list.append(channel_name)
-        for region_height, region_text in enumerate(region_list):
-          if Set_Logy: y_text_log = 10**((2.4 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
-          else: y_text_log = (1.2 - 0.05 * region_height) * hh_total.GetMaximum()
+        print(region_list)
+        region_list_final = [', '.join(region_list[::-1])]
+        for region_height, region_text in enumerate(region_list_final):
+          if Set_Logy: y_text_log = 10**((2.2 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
+          else: y_text_log = (1.1 - 0.05 * region_height) * hh_total.GetMaximum()
           print(x_text, y_text_log,  region_text)
           label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
-          label_text[region_ + region_text].SetTextSize(0.04)
-#          label_text[region_ + region_text].SetTextColor(ROOT.kGreen + 3)  # Blue color
+          label_text[region_ + region_text].SetTextSize(0.05)
           label_text[region_ + region_text].SetTextFont(42)
           label_text[region_ + region_text].Draw("SAME")
 
 
     if type(h_sig )== ROOT.TH1F and not template_settings["stack_signal"]:
         h_sig.Scale(2.5)
-        h_sig.Draw("HIST;SAME")
-        legend.AddEntry(h_sig,'g2HDM Signal(x2.5)', 'L')
+        h_sig.Draw("HIST SAME")
+        legend.AddEntry(h_sig,'m_{H^{#pm}} = ' + mass + ' GeV (x2.5)', 'L')
     if template_settings['unblind']:
         template_settings['Histogram']["Data"].SetMarkerSize(2)
-        template_settings['Histogram']["Data"].Draw("SAME P E")
+        template_settings['Histogram']["Data"].Draw("SAME EP")
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
@@ -1140,7 +1139,7 @@ def Plot_Histogram(template_settings=dict()):
 
             h_ratio_max = 6 if template_settings['shape_type'] == 'postfit' else 105.0
             h_ratio_min = -6 if template_settings['shape_type'] == 'postfit' else -105.0
-            h_ratio.GetYaxis().SetTitle("Pull")
+            h_ratio.GetYaxis().SetTitle("#frac{data-MC}{#sigma_{data}}")
 
         else:
             h_ratio.Divide(hh_total_sumw2)
@@ -1155,24 +1154,24 @@ def Plot_Histogram(template_settings=dict()):
         h_ratio.SetMarkerColor(1)
         h_ratio.SetLineWidth(3)
 
-        h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         h_ratio.GetYaxis().CenterTitle()
         h_ratio.GetYaxis().SetNdivisions(4)
-        h_ratio.GetYaxis().SetTitleOffset(0.33)
-        h_ratio.GetYaxis().SetTitleSize(0.1)
-        h_ratio.GetYaxis().SetLabelSize(0.12)
+        h_ratio.GetYaxis().SetTitleOffset(0.28)
+        h_ratio.GetYaxis().SetTitleSize(0.15)
+        h_ratio.GetYaxis().SetLabelSize(0.14)
         h_ratio.GetYaxis().SetTickLength(0.02)
-        h_ratio.GetXaxis().SetTitleSize(0.1)
-        h_ratio.GetXaxis().SetLabelSize(0.1) # Hide X label (0.0)
-        h_ratio.GetXaxis().SetTitleOffset(0.8)
-
+        h_ratio.GetXaxis().SetLabelSize(0.14)
+        h_ratio.GetXaxis().SetTitleOffset(1.0)
+        h_ratio.GetXaxis().SetTitleSize(0.15)
+        if h_stack.GetXaxis().GetTitle().startswith('pDNN'):
+            h_ratio.GetXaxis().SetTitle("pDNN score")
+        else:
+           h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
         if template_settings['unblind']:
           h_ratio.SetMarkerSize(1)
-          h_ratio.Draw("P")
+          h_ratio.Draw("P E")
         else:
           h_ratio.Draw("AXIS")
-
-
 
         for region_ in template_settings['Region_binning']:
             x_line = template_settings['Region_binning'][region_][1]
@@ -1191,11 +1190,9 @@ def Plot_Histogram(template_settings=dict()):
             x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
             label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, y_text, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
             label_text[region_ + region_text + "axis"].SetTextAlign(22)  # Center align
-            label_text[region_ + region_text + "axis"].SetTextSize(0.12)
+            label_text[region_ + region_text + "axis"].SetTextSize(0.16)
             label_text[region_ + region_text + "axis"].SetTextFont(42)
-            label_text[region_ + region_text + "axis"].Draw("SAME")
-
-
+            #label_text[region_ + region_text + "axis"].Draw("SAME")
 
         x = []
         y = []
@@ -1203,8 +1200,6 @@ def Plot_Histogram(template_settings=dict()):
         xerror_r = []
         yerror_u = []
         yerror_d = []
-
-
 
         for i in range(0,h_ratio.GetNbinsX()):
           x.append(h_ratio.GetBinCenter(i+1))
@@ -1232,19 +1227,20 @@ def Plot_Histogram(template_settings=dict()):
               yerror_d.append(err_tmp)
 
         ru = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
-        ru.SetFillColorAlpha(ROOT.kOrange - 3, 0.8)
-#        legend2.AddEntry(ru, '#frac{#sigma_{total}}{#sigma_{stat}}', 'F')
+        ru.SetFillStyle(3345)
+        ru.SetFillColor(ROOT.kGray+3)
+        #ru.SetFillColor(ROOT.kOrange-3) #ROOT.TColor.GetColor("#e76300")
+        ru.SetMarkerSize(0)
+        ru.SetLineWidth(100)
+        legend2.AddEntry(ru, 'Syst unc./Stat unc.', 'F')
 #        ru.SetFillStyle(3005)
         ru.Draw("SAME 2")
-#        legend2.Draw("SAME E2")
+        legend2.Draw("SAME E2")
         if template_settings['unblind']:
           h_ratio.SetMarkerSize(1)
-          h_ratio.Draw("P SAME")
-
-
+          h_ratio.Draw("P E SAME")
+        #  print("in unblind if h_ratio.GetXaxis().GetTitle() = ", h_ratio.GetXaxis().GetTitle())
         pad1.cd()
-
-
 
     ###########################
     #value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
@@ -1254,7 +1250,7 @@ def Plot_Histogram(template_settings=dict()):
     latex.SetTextSize(0.05)
     latex.SetTextAlign(12)
     latex.SetNDC()
-    latex.SetTextFont(42);
+    latex.SetTextFont(42)
     #latex.DrawLatex(0.180, 0.59, "#rho_{t%s} = %.1f,  m_{A} = %s GeV"%(quark, value,template_settings['mass']))
 
     ### CMS Pad #####
@@ -1267,6 +1263,7 @@ def Plot_Histogram(template_settings=dict()):
       CMS_lumi.relPosY = 0.03
     else:
       CMS_lumi.extraText = "Preliminary"
+      CMS_lumi.relPosY = 0.03
       CMS_lumi.relPosX = 0.12
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
@@ -1275,7 +1272,7 @@ def Plot_Histogram(template_settings=dict()):
     iPeriod=template_settings['year']
 
     if template_settings['plotRatio']:
-      CMS_lumi.CMS_lumi(pad1, iPeriod, 11, 0.12)
+      CMS_lumi.CMS_lumi(pad1, iPeriod, iPos, 0.12, 0.08)
     else:
       CMS_lumi.CMS_lumi(pad1, iPeriod, iPos, 0.09)
     ######
@@ -1289,6 +1286,7 @@ def Plot_Histogram(template_settings=dict()):
     canvas.SaveAs('{prefix}{log}{combined}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
     canvas.SaveAs('{prefix}{log}{combined}.png'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
     canvas.SaveAs('{prefix}{log}{combined}.C'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
+    #canvas.SaveAs('{prefix}{log}{combined}.root'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
 
 
 
