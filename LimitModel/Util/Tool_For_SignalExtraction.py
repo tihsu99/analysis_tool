@@ -23,7 +23,6 @@ import random
 import matplotlib.pyplot as plt
 from array import array
 import cmsstyle as CMS
-import tdrstyle
 
 CMS.SetExtraText("Preliminary")
 CMS.SetEnergy("13")
