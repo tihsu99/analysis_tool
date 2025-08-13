@@ -83,7 +83,12 @@ def get_2DNLL(fin_name, xsec_2b = 1.0, xsec_3b = 1.0, input_x = [], input_y = []
     points = np.array([x_array, y_array]).transpose()
     dnll = np.asarray(deltaNLL)
     # Set up grid
-    grid_x, grid_y = np.mgrid[min(x_array) : max(x_array) : n_points * 1j, min(y_array) : max(y_array) : n_points * 1j]
+    x_range = max(input_x) - min(input_x)
+    y_range = max(input_y) - min(input_y)
+    grid_x, grid_y = np.mgrid[min(input_x) - 0.01*x_range : max(input_x) + 0.01*x_range : n_points * 1j, \
+                          min(input_y) - 0.01*y_range : max(input_y) + 0.01*y_range : n_points * 1j]
+
+#    grid_x, grid_y = np.mgrid[min(x_array) : max(x_array) : n_points * 1j, min(y_array) : max(y_array) : n_points * 1j]
     grid_vals = griddata(points, dnll, (grid_x, grid_y), options["strategy"])
 
     # Remove NANS
@@ -127,7 +132,12 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
 
     points = np.array([input_x, input_y]).transpose()
     # Set up grid
-    grid_x, grid_y = np.mgrid[min(input_x) : max(input_x) : n_points * 1j, min(input_y) : max(input_y) : n_points * 1j]
+    x_range = max(input_x) - min(input_x)
+    y_range = max(input_y) - min(input_y)
+    grid_x, grid_y = np.mgrid[min(input_x) - 0.01*x_range : max(input_x) + 0.01*x_range : n_points * 1j, \
+                          min(input_y) - 0.01*y_range : max(input_y) + 0.01*y_range : n_points * 1j]
+
+    #grid_x, grid_y = np.mgrid[min(input_x) : max(input_x) : n_points * 1j, min(input_y) : max(input_y) : n_points * 1j]
     grid_vals = griddata(points, pred, (grid_x, grid_y), options["strategy"])
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -139,7 +149,11 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
 
     n_bins = 40
     # Define Profile2D histogram
-    h2D = ROOT.TProfile2D("h", "h", n_bins, min(input_x),  max(input_x), n_bins, min(input_y), max(input_y))
+    x_min = min(input_x) - 0.01*x_range
+    x_max = max(input_x) + 0.01*x_range
+    y_min = min(input_y) - 0.01*y_range
+    y_max = max(input_y) + 0.01*y_range
+    h2D = ROOT.TProfile2D("h", "h", n_bins, x_min,  x_max, n_bins, y_min, y_max)
     #h2D = ROOT.TH2D("h_converted", "h_converted", n_bins, min(input_x), max(input_x), n_bins, min(input_y), max(input_y))
     h2D.SetDirectory(0)
 

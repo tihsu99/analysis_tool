@@ -594,7 +594,7 @@ def Slim_module(filein,
     Histos_from_df[Histogram] = df_histo
 
     if fake_rate:
-        df_histo_fk =  df_plot.Histo1D((str(Histogram + "_fake"), Title, nbin, xlow, xhigh), Histogram_definition, "final_fake_weight")
+        df_histo_fk =  df_plot.Histo1D((str(Histogram + "_fake"), Title, nbinx, xlow, xhigh), Histogram_definition, "final_fake_weight")
         Histos_from_df[Histogram + "_fake"] = df_histo_fk
 
 
