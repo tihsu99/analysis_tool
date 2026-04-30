@@ -8,11 +8,12 @@ from common import *
 from scipy.interpolate import griddata
 import numpy as np
 import cmsstyle as CMS
+import math
 
-
-CMS.SetExtraText("Preliminary")
+#CMS.SetExtraText("Preliminary")
+CMS.SetExtraText("")
 CMS.SetEnergy("13")
-
+CMS.SetLumi(138, "fb", "")
 
 ############################
 ##  Basic Initialization  ##
@@ -103,7 +104,7 @@ def get_2DNLL(fin_name, xsec_2b = 1.0, xsec_3b = 1.0, input_x = [], input_y = []
     return grid_vals_iter
 
 
-def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, config = dict(), cond = 500, options = dict(), param = ''):
+def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, config = dict(), cond = 500, options = dict(), param = '', logy=True, skip_padding=False):
 
 
 #    ROOT.gStyle.Reset()
@@ -127,8 +128,12 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
     input_y = np.array(input_y)
     pred = np.array(input_z)
 
+    if logy:
+        pred = np.array([1 + math.log(pred_) for pred_ in pred])
+        target_values = {target_: 1 + math.log(value_) for target_, value_ in target_values.items()}
 
-    
+    print(pred)
+    print(target_values) 
 
     points = np.array([input_x, input_y]).transpose()
     # Set up grid
@@ -159,7 +164,7 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
 
     for i in range(len(grid_vals)):
         # Factor of 2 comes from 2*NLL
-        h2D.Fill(grid_x[i], grid_y[i], 2 * grid_vals[i])
+        h2D.Fill(grid_x[i], grid_y[i], grid_vals[i])
 
     # Loop over bins: if content = 0 then set 999
     for ibin in range(1, h2D.GetNbinsX() + 1):
@@ -187,6 +192,7 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
     for target_legend, target_value in target_values.items():
         return_contour[target_legend] = h2D.Clone()
         return_contour[target_legend].SetContour(2)
+        print(target_legend, target_value)
         return_contour[target_legend].SetContourLevel(1, target_value)
         return_contour[target_legend].SetContourLevel(0, 1e10)
         return_contour[target_legend].SetLineWidth(3)
@@ -213,13 +219,14 @@ def draw_contour2D(input_x, input_y, input_z, target_values, n_points = 200, con
         ROOT.gPad.Update()
         contours = ROOT.gROOT.GetListOfSpecials().FindObject("contours").At(1)
         if contours:
-            return_contour_graph[target_legend] = extend_graph(contours.First().Clone(), return_contour[target_legend], target_value)
+            return_contour_graph[target_legend] = extend_graph(contours.First().Clone(), return_contour[target_legend], target_value, skip_padding)
         else:
             return_contour_graph[target_legend] = None
     return h2D, return_contour, return_contour_graph
 
-def extend_graph(graph, hist, threshold):
-
+def extend_graph(graph, hist, threshold, skip_padding=False):
+    if skip_padding:
+        return graph
     x_array = []
     y_array = []
 
@@ -258,7 +265,9 @@ def extend_graph(graph, hist, threshold):
     return graph
 
 def draw_exclusion_line(exclusion_line, outfile_name, config):
-    
+   
+    record = ROOT.TFile(outfile_name + ".root", "RECREATE")
+
     for title, line in exclusion_line["expected"].items():
       line = line["TProfile2D"]
       x_axis = line.GetXaxis()
@@ -271,30 +280,46 @@ def draw_exclusion_line(exclusion_line, outfile_name, config):
       y_binnings = [y_axis.GetBinLowEdge(bin_+1) for bin_ in range(nbinY+1)]
       break
 
-    c = CMS.cmsCanvas('', min(x_binnings), max(x_binnings), 0.1, max(y_binnings), x_title, y_title, square = CMS.kSquare, extraSpace=0.03, iPos=0, with_z_axis=False)
-    c.SetLogy()
+    print("xmin", min(x_binnings))
+
+    c = CMS.cmsCanvas('', max(min(x_binnings), 200), min(max(x_binnings), 1000), 0.075, min(max(y_binnings), 1.0), x_title, y_title, square = CMS.kSquare, extraSpace=0.03, iPos=0, with_z_axis=False)
+    # Draw CMS + lumi as usual
     c.SetRightMargin(0.06)
-    legend = CMS.cmsLeg(0.7, 0.17, 0.85, 0.42, textSize=0.035)
-    legend2 = CMS.cmsLeg(0.5, 0.17, 0.7, 0.27, textSize=0.035)
+    # Now SHIFT the lumi text left manually
+    # (ROOT stores the text in the list of primitives)
+    c.SetLogy()
+#    c.SetRightMargin(0.12)
+    legend = CMS.cmsLeg(0.77, 0.17, 0.92, 0.37, textSize=0.030)
+    legend2 = CMS.cmsLeg(0.5, 0.17, 0.69, 0.3, textSize=0.030)
 
     line_idx = 0
     line_array = dict()
+    color_template = [
+      "#5790fc",  # soft red
+      "#f89c20",  # soft orange
+      "#e42536",  # soft yellow
+      "#964a8b",  # soft green
+      "#9c9ca1",  # soft blue
+    ]
     for title, line in exclusion_line["expected"].items():
         line = line["TGraph"]
         if line is None: continue
         line.SetLineStyle(2)
-        line.SetLineWidth(2)
-        line.SetLineColor(ROOT.kBlue + 2 * line_idx)
-        line.SetFillColorAlpha(ROOT.kBlue + 2 * line_idx, 0.1)
+        line.SetLineWidth(8)
+        line.SetLineColor(ROOT.TColor.GetColor(color_template[line_idx]))
+        line.SetFillColorAlpha(ROOT.TColor.GetColor(color_template[line_idx]), 0.1)
         if config.unblind:
             line_obs = exclusion_line["observed"][title]["TGraph"]
             line_obs.SetLineStyle(1)
             line_obs.SetLineWidth(2)
-            line_obs.SetLineColor(ROOT.kBlue + 2 * line_idx)
-            line_obs.SetFillColorAlpha(ROOT.kBlue +  2 * line_idx, 0.4)
+            line_obs.SetLineColor(ROOT.TColor.GetColor(color_template[line_idx]))
+            line_obs.SetFillColorAlpha(ROOT.TColor.GetColor(color_template[line_idx]), 0.6)
             line_obs.Draw('F same')
             if line_idx == 0:
-              legend2.AddEntry(line_obs, "observed", "F")
+              legend2.AddEntry(line_obs, "Observed 95% CL", "F")
+            record.cd()
+            line.Write(f"{title}_exp")
+            line_obs.Write(f"{title}_obs")
 
         line_idx += 1
         line_array[title] = line.Clone()
@@ -303,11 +328,10 @@ def draw_exclusion_line(exclusion_line, outfile_name, config):
     for title, line in line_array.items():
         line.Draw("same")
         if line_idx == 0:
-          legend2.AddEntry(line, "expected", "L")
-        legend.AddEntry(line, title, "LF")
+          legend2.AddEntry(line, "Expected 95% CL", "L")
+        legend.AddEntry(line, title, "L")
 
         line_idx += 1
-
 
     legend.Draw("SAME")
     latex = ROOT.TLatex()
@@ -315,11 +339,20 @@ def draw_exclusion_line(exclusion_line, outfile_name, config):
     latex.SetTextAlign(12)
     latex.SetNDC()
     latex.SetTextFont(42);
+    latex.SetTextColor(ROOT.TColor.GetColor("#FFFFF0"));
     latex.DrawLatex(0.3, 0.7, "excluded")
     c.Update()
+    for prim in c.GetListOfPrimitives():
+        if isinstance(prim, ROOT.TLatex) and "fb" in prim.GetTitle():
+            prim.SetX(0.94)   # <-- try 0.88, 0.86, 0.84... until it fits
+    c.Modified()
+    c.Update()
+
     c.SaveAs(outfile_name + ".png")
     c.SaveAs(outfile_name + ".pdf")
     c.SaveAs(outfile_name + ".C")
+    record.Close()
+
 
 def analysis(config):
 
@@ -403,12 +436,12 @@ def analysis(config):
               #NLL_list.append(float(info_dict[mass_][coupling_]["NLL"]))
     
       plot_options = {"strategy": "linear", "mode": "rtt", "xTitle": "m_{H^{#pm}} [GeV]", "yTitle": "#rho_{tc}", "zTitle": "95% C.L. on #mu = #sigma/#sigma_{theory}"}
-      h2D, contour, contour_graph = draw_contour2D(mass_list, rtc_list, limit_list, target_values = {"exclusion": 1.0}, config = config, n_points = 200, cond = rtt_, options = plot_options, param = 'signal_strength')
-      exclusion_line_signal_strength["expected"]["#rho_{tt} = " + rtt_] = {"TProfile2D": contour["exclusion"], "TGraph": contour_graph["exclusion"]}
+      h2D, contour, contour_graph = draw_contour2D(mass_list, rtc_list, limit_list, target_values = {"exclusion": 1.0}, config = config, n_points = 200, cond = rtt_, options = plot_options, param = 'signal_strength', skip_padding=True) #expect only shows exclusion line, no need padding/re-ordering for contour plot.
+      exclusion_line_signal_strength["expected"]["#rho_{tt} = " + "%.1f"%(float(rtt_))] = {"TProfile2D": contour["exclusion"], "TGraph": contour_graph["exclusion"]}
       if config.unblind:
           plot_options = {"strategy": "linear", "mode": "rtt", "xTitle": "m_{H^{#pm}} [GeV]", "yTitle": "#rho_{tc}", "zTitle": "95% C.L. on #mu = #sigma/#sigma_{theory}", 'postfix': 'unblind'}
           h2D, contour, contour_graph =  draw_contour2D(mass_list, rtc_list, limit_list_observed, target_values = {"exclusion": 1.0}, config = config, n_points = 200, cond = rtt_, options = plot_options, param = 'signal_strength')
-          exclusion_line_signal_strength["observed"]["#rho_{tt} = " + rtt_] = {"TProfile2D": contour["exclusion"], "TGraph": contour_graph["exclusion"]}
+          exclusion_line_signal_strength["observed"]["#rho_{tt} = " + "%.1f"%(float(rtt_))] = {"TProfile2D": contour["exclusion"], "TGraph": contour_graph["exclusion"]}
 
     #  _, contour_NLL = draw_contour2D(mass_list, rtc_list, NLL_list, target_values = {"exclusion": 5.99}, config = config, n_points = 200, cond = rtt_, options = plot_options, param = 'NLL')
     #  exclusion_line_NLL["#rho_{tt} = " + rtt_] = contour_NLL["exclusion"]
