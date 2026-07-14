@@ -127,6 +127,9 @@ parser.add_argument('--inject_signal', type=float, default = 0.0)
 parser.add_argument('--inject_mass', type=str, default = "500")
 parser.add_argument("--extraCommand", help='extra addtional command', default='', type=str)
 parser.add_argument("--plot_injection", type=str, default=None)
+parser.add_argument("--paper", action='store_true')
+parser.add_argument("--r_2b_limit", type=float, default=None)
+parser.add_argument("--r_3b_limit", type=float, default=None)
 args = parser.parse_args()
 
 year     = args.year
@@ -274,7 +277,7 @@ if args.plot_only:
   if args.Scan2DNLL:
       for imass in mass_points:
           mH = str(imass)
-          RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file, df_sig_xsec = df_sig_xsec)
+          RL.Save2DNLL(outputdir = args.outputdir,mass_point=Higgs_Mass_Name+str(imass), POI_name = args.POI_name, model_name = args.model_name, ratio_file = args.ratio_file, df_sig_xsec = df_sig_xsec, paper=args.paper, r_2b_limit=args.r_2b_limit, r_3b_limit=args.r_3b_limit)
 
   elif args.Scan2D:
     limitlog = RL.limitlog
@@ -303,14 +306,14 @@ if args.plot_only:
        for injection_ in injection_str:
           mass, value = injection_.split("=")
           inject_dict[mass] = value
-       RL.TextFileToSignificancePlot(Masses = mass_points, Channels = args.channel_for_plot, mode = 'inject', postfix = f"_inject", inject_dict = inject_dict)
+       RL.TextFileToSignificancePlot(Masses = mass_points, Channels = args.channel_for_plot, mode = 'inject', postfix = f"_inject", inject_dict = inject_dict, paper=args.paper)
 #    RL.TextFileToSignificancePlot(Masses = mass_points, Eras = args.year_for_plot, Regions = args.region_for_plot, mode = 'region')
 
   else:
     TGraph_File = RL.TextFileToRootGraphs(Masses=mass_points, Higgs=Higgs_Mass_Name)
     CheckDir(args.outputdir,True)
     #RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min)
-    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied, postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "") #gkole-9Feb2025
+    RL.SaveLimitPdf1D(outputdir=args.outputdir,y_max=args.plot_y_max,y_min=args.plot_y_min, signal_xsec_TGraph=signal_xsec_TGraph, coupling_varied = args.coupling_varied, postfix = f"_inject_M{args.inject_mass}_{args.inject_signal}pb" if args.inject_signal > 0 else "", paper = args.paper) #gkole-9Feb2025
 else:
     counter=0
     template_card = "{dc_dir}/{year}/{signal}/{signal}_{year}_{region}_{channel}.txt".format(dc_dir=args.datacard_dir, year=year, signal=signal_name_template, region=region, channel=channel)
@@ -325,7 +328,7 @@ else:
         else:
             gen_card_name = card_name
         if args.Scan2DNLL:
-          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'), model_name = args.model_name, cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, fastScan = args.fastScan)
+          RL.Scan2DNLL(card_name.replace('txt','root'), POI_name = args.POI_name, asimov=True, mass_point=Higgs_Mass_Name+str(imass), dc_dir=args.datacard_dir, out_dir=os.path.join(args.outputdir, '2DNLL'), model_name = args.model_name, cminDefaultMinimizerStrategy=args.cminDefaultMinimizerStrategy, cminDefaultMinimizerTolerance=args.cminDefaultMinimizerTolerance, fastScan = args.fastScan, r_2b_limit = args.r_2b_limit, r_3b_limit=args.r_3b_limit)
 
 
         elif args.Scan2D:

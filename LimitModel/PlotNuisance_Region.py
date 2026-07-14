@@ -54,6 +54,16 @@ def integral_with_flow(h):
   return h.Integral(0, h.GetNbinsX()+1)
 
 
+def integral_error_with_flow(h):
+  if h is None:
+    return 0.
+  err2 = 0.
+  for ibin in range(0, h.GetNbinsX()+2):
+    err = h.GetBinError(ibin)
+    err2 += err * err
+  return math.sqrt(err2)
+
+
 def make_region_hist(name, regions):
   h = ROOT.TH1F(name, "", len(regions), 0.5, len(regions)+0.5)
   h.Sumw2()
@@ -61,6 +71,16 @@ def make_region_hist(name, regions):
     h.GetXaxis().SetBinLabel(ibin, reg)
   h.GetXaxis().LabelsOption("v")
   return h
+
+
+def make_ratio_line(h, name, color, lstyle=ROOT.kSolid, lwidth=4):
+  ratio = clone_hist(h, name)
+  ratio.SetLineColor(color)
+  ratio.SetLineStyle(lstyle)
+  ratio.SetLineWidth(lwidth)
+  ratio.SetFillStyle(0)
+  ratio.SetMarkerSize(0)
+  return ratio
 
 
 def discover_regions(data_info_dir, era, channel, region_patterns):
@@ -223,20 +243,23 @@ if __name__ == '__main__':
     data_info = data_info_map[region]
 
     nominal_total = 0.
+    nominal_error2 = 0.
     nominal_proc_yields = {}
 
     # fill nominal background stacks
     for process_ in process_union:
       htmp = get_hist(fin, "bH{era}_{process}".format(era=era, process=process_), allow_missing=True)
       y = integral_with_flow(htmp)
+      yerr = integral_error_with_flow(htmp)
       nominal_proc_yields[process_] = y
       nominal_total += y
+      nominal_error2 += yerr * yerr
 
       h_bkg_map[process_].SetBinContent(ibin, y)
-      h_bkg_map[process_].SetBinError(ibin, 0.)
+      h_bkg_map[process_].SetBinError(ibin, yerr)
 
     h_nom.SetBinContent(ibin, nominal_total)
-    h_nom.SetBinError(ibin, 0.)
+    h_nom.SetBinError(ibin, math.sqrt(nominal_error2))
 
     # data
     if args.unblind:
@@ -347,7 +370,7 @@ if __name__ == '__main__':
   canvas.legend.SetTextSize(0.018)
   canvas.legend.SetX2(0.95)
   canvas.ytitle = "Events/region"
-  canvas.rtitle = str("Data/Pred.")
+  canvas.rtitle = "Ratio"
   canvas.yaxis.SetMaxDigits(4)
 
   for process_ in process_union:
@@ -378,6 +401,8 @@ if __name__ == '__main__':
 
   canvas.addSignal(h_up, title="VarUp[%.0f]" % (h_up.Integral()), color=ROOT.kRed)
   canvas.addSignal(h_do, title="VarDown[%.0f]" % (h_do.Integral()), color=ROOT.kOrange)
+  canvas.addExtraRatio(make_ratio_line(h_up, "h_up_ratio", ROOT.kRed), drawOpt="HIST")
+  canvas.addExtraRatio(make_ratio_line(h_do, "h_do_ratio", ROOT.kOrange), drawOpt="HIST")
 
   canvas.addText('Channel: {}'.format(channel), 0.18, 0.82, 0.35, 0.85, size=0.02, align=12)
   canvas.addText('Regions: {}'.format(','.join(regions[:4]) + ('...' if len(regions) > 4 else '')), 0.18, 0.79, 0.60, 0.82, size=0.02, align=12)
@@ -390,3 +415,4 @@ if __name__ == '__main__':
     canvas.printWeb(os.path.join(outdir), f"RegionSummary_{tag}_log", logy=True)
   else:
     canvas.printWeb(os.path.join(outdir), f"RegionSummary_{tag}", logy=False)
+

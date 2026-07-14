@@ -150,7 +150,16 @@ if args.era_merge:
                 for sub_key in input_:
                   year = '2016' if '2016' in era else era
                   key_name = sub_key.replace("ERA", era).replace("YEAR", year)
-                  era_input[key_][key_name] = input_[sub_key]
+                  if isinstance(input_[sub_key], list):
+                      refreshed_input = [input_element.replace("ERA", era).replace("YEAR", year) for input_element in input_[sub_key]]
+                      if key_name in era_input[key_]:
+                          for new_input in refreshed_input:
+                            if new_input not in era_input[key_][key_name]:
+                                 era_input[key_][key_name].append(new_input)
+                      else:
+                          era_input[key_][key_name] = refreshed_input
+                  else:
+                      era_input[key_][key_name] = input_[sub_key]
             else:
                 era_input[key_] = input_
 
@@ -162,6 +171,10 @@ if args.era_merge:
                       for sub_key in input_:
                           if sub_key not in merged_input[key_]:
                               merged_input[key_][sub_key] = input_[sub_key]
+                          elif isinstance(input_[sub_key], list):
+                            for new_element in input_[sub_key]:
+                              if new_element not in merged_input[key_][sub_key]:
+                                  merged_input[key_][sub_key].append(new_element)
       CheckDir("./data_info/Datacard_Input/{}/".format('Merged_run2'),MakeDir=True)
       CheckFile('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format('Merged_run2', region, channel),True)
       with open('./data_info/Datacard_Input/{}/Datacard_Input_{}_{}.json'.format('Merged_run2', region, channel),'w') as f:

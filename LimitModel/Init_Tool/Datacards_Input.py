@@ -60,11 +60,15 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
     jsonfile.close()
   
     nuisance_list = []
+    nuisance_group = dict()
 
     for nuisance in nuisances:
         nuisance='_'.join(str(nuisances[nuisance]).split('_')[1:]).strip()
-        nuisance_list.append(nuisance)
+        nuisance_list.append(nuisance
+        )
         if nuisance not in nuisance_dict: continue # NormUnc will be defined specifically in next part 
+        if nuisance_dict[nuisance]["Group"] not in nuisance_group:
+            nuisance_group[nuisance_dict[nuisance]["Group"]] = []
         ############
         ## UnclnN ##
         ############
@@ -104,6 +108,8 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
                 Input['UnclnN'][nuisance_name]=str(nuisance_dict[nuisance]["value"][label_search])
 
             Input['NuisForProc'][nuisance_name] = []
+            print(nuisance)
+            nuisance_group[nuisance_dict[nuisance]["Group"]].append(nuisance_name)
 
             if "PROCESS" in nuisance_name_:
               blind_process_name = nuisance_name_.replace('PROCESS', '')
@@ -130,7 +136,7 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
                 if process_ not in Input['NuisForProc'][nuisance_name] and ("Signal" not in nuisance_name):
                   Input['NuisForProc'][nuisance_name].append(process_)
 
-   
+    Input['NuisGroup'] = nuisance_group
 
 
 
@@ -154,6 +160,10 @@ def Datacard_Input_Producer(year, region='', channel='', process=[] , nuisances=
       if 'norm' + category_ not in nuisance_list: continue
       Input['UnclnN']['norm' + category_] = str(1. + 0.01 * xsec_err_dict[category_])
       Input['NuisForProc']['norm' + category_] = [category_]
+      if 'xsec' not in Input['NuisGroup']:
+        Input['NuisGroup']['xsec'] = ['norm' + category_]
+      elif ('norm' + category_) not in Input['NuisGroup']['xsec']:
+        Input['NuisGroup']['xsec'].append('norm' + category_)
 
       if config.add_data_driven_process:
         for process_ in process_data_driven:

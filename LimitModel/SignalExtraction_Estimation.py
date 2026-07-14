@@ -62,6 +62,8 @@ parser.add_argument('--outdir', help='output directory', default='./', type=str)
 parser.add_argument('--prefix', help='output directory', default=None, type=str)
 parser.add_argument('--plotRatio', help='plot data/MC ratio in pre/post-fit plots', action="store_true")
 parser.add_argument('--stack_signal', help='plot signal stacking in the pre/post-fit plots', action = 'store_true')
+parser.add_argument('--signal_prefit', help='plot signal using prefit template', action = 'store_true')
+parser.add_argument('--extra_signal', help='extra signal for plotting', default = [], type = str, nargs='+')
 parser.add_argument('--GoF_Algorithm', help='Goodness of Test Algorithms', choices = ['KS', 'AD', 'saturated'], default='saturated')
 parser.add_argument('--correlation', help='Save correlation matrix in FigDiagnostics root file', action="store_true")
 parser.add_argument('--saveNormalizations', help = 'option: --saveNormalizations', action = "store_true")
@@ -76,6 +78,7 @@ parser.add_argument('--combined', action='store_true')
 parser.add_argument('--channel_mask', default = None, type = str)
 parser.add_argument('--pull', action='store_true')
 parser.add_argument('--nToys', default = 2000, type = int)
+parser.add_argument('--nuisance_json', default=None, type=str)
 args = parser.parse_args()
 
 '''
@@ -150,7 +153,10 @@ settings ={
     'pull': args.pull,
     'nToys': args.nToys,
     'bonly_gof': args.bonly_gof,
-    'stack_signal': args.stack_signal
+    'stack_signal': args.stack_signal,
+    'signal_prefit': args.signal_prefit,
+    'extra_signal': args.extra_signal,
+    'nuisance_json': args.nuisance_json
 }
 
 if args.mode =='PlotShape':

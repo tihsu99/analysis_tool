@@ -39,6 +39,11 @@ def create_tables(cb, parameter_constraint, era, region, channel, signal_process
             cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "shape", ch.SystMap()(1.0))
         else:
             cb.cp().bin([str(region + "_" + channel)]).process(process_list).AddSyst(cb, str(nuisance), "lnN",  ch.SystMap()(float(Datacards_Input["UnclnN"][nuisance])))
+    # Add systematic group
+    for nuisance_group, nuisance_elements in Datacards_Input["NuisGroup"].items():
+        cb.SetGroup(nuisance_group, nuisance_elements)
+    cb.SetGroup("MCstat", ["autoMCStats_.*", "prop_bin*"]);
+
 
     if ABCD_regionA:
       for ff_process in Datacards_Input["FreeFloat"]:

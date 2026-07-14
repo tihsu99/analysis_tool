@@ -23,6 +23,7 @@ import random
 import matplotlib.pyplot as plt
 from array import array
 import cmsstyle as CMS
+import ghostscript
 
 CMS.SetExtraText("Preliminary")
 CMS.SetEnergy("13")
@@ -175,11 +176,11 @@ def GlobalSignificance(settings=dict()):
              command += f'rm {root_file_}\n'
            prepare_shell(shell_file, command, condor, farm_dir, cmssw = True)
     condor.close()
-    # os.system(f"condor_submit {farm_dir}/condor.sub")
+    os.system(f"condor_submit {farm_dir}/condor.sub")
 
 def GlobalSignificancePlot(settings=dict()):
 
-    mass_list = [200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    mass_list = [200, 300, 600]
     nToys     = settings['nToys']
     nToys_per_job = 40
 
@@ -202,18 +203,95 @@ def GlobalSignificancePlot(settings=dict()):
                 array = tree.arrays(["limit"], library = "np")
                 if(len(array["limit"]) < nToys_per_job):
                     continue
+                    print(f"No enough points for HiggsCombineM{mass_}_{iTask}.root")
                 significance_tensor[iTask * nToys_per_job: iTask * nToys_per_job + len(array["limit"]), idx] = array["limit"]
             except Exception as e:
               print(f"Error processing higgsCombineM{mass_}_{iTask}.root: {e}")
               continue
 
     print(significance_tensor)
-    significance_tensor = significance_tensor[~np.any(significance_tensor < 0, axis=1)]
+    significance_tensor = significance_tensor[~np.any(significance_tensor < -0.5, axis=1)]
     significance_max = np.max(significance_tensor, axis = 1)
+
+    def plot_significance_distributions(significance_tensor, mass_list, Z_cut, bins=40, density=False, savepath=None):
+        from scipy.stats import norm, chi2
+
+        nMass = len(mass_list)
+        fig, axes = plt.subplots(1, nMass, figsize=(4*nMass, 4), sharey=True)
+
+        if nMass == 1:  # handle single subplot
+            axes = [axes]
+
+        for idx, mass in enumerate(mass_list):
+            data = significance_tensor[:, idx]
+            axes[idx].hist(data, bins=bins, density=density, alpha=0.7, color="steelblue", edgecolor="black")
+            # Chi2 overlay (Z -> Z^2)
+            x = np.linspace(0, max(data)*1.2, 500)
+            axes[idx].plot(x, chi2.pdf(x**2, df=1)*2*x, 'r--', label=r'$\chi^2$ df=1')
+
+            # Vertical cut line
+            axes[idx].axvline(Z_cut, color='orange', linestyle='--', label=f'Z_cut={Z_cut}')
+
+            # Fraction of toys above cut
+            frac = np.sum(data > Z_cut) / len(data)
+   
+            # Convert fraction to empirical Z
+            # Use one-sided Gaussian significance: Z_empirical = norm.ppf(1-frac)
+            Z_empirical = norm.ppf(1 - frac)
+
+            axes[idx].text(0.6*max(x), max(np.histogram(data, bins=bins, density=True)[0])*0.8,
+                       f'Z_empirical={Z_empirical:.2f}', color='black')
+
+            axes[idx].set_title(f"Mass {mass} GeV")
+            axes[idx].set_xlabel("Significance")
+            axes[idx].set_yscale("log")  # log y-axis
+
+            if idx == 0:
+                axes[idx].set_ylabel("Density" if density else "Counts")
+
+        plt.tight_layout()
+        if savepath:
+            plt.savefig(savepath, dpi=150)
+            plt.close(fig)
+        else:
+            plt.show()
+
+
+    def plot_sigma_max(significance_tensor, mass_list, fname):
+        """
+        significance_tensor : np.array, shape (nToys, nMasses)
+        mass_list : list of mass points
+        """
+        # Filter out invalid entries (negative values)
+        valid_tensor = significance_tensor[~np.any(significance_tensor < 0, axis=1)]
+
+        # For each toy, find the index of the mass with maximum sigma
+        max_indices = np.argmax(valid_tensor, axis=1)
+
+        # Count how many times each mass achieves the maximum
+        counts = np.array([np.sum(max_indices == i) for i in range(len(mass_list))])
+
+        # Print results
+        for m, c in zip(mass_list, counts):
+            print(f"Mass {m} GeV achieves maximum σ in {c} toys")
+
+        # Optional: plot as bar chart
+        plt.figure(figsize=(10,5))
+        plt.bar(mass_list, counts)
+        plt.xlabel('Mass (GeV)')
+        plt.ylabel('Number of toys with max σ')
+        plt.title('Frequency of Mass Achieving Maximum Significance')
+        plt.grid(axis='y', linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.savefig(fname)
 
     significance_file = os.path.join(settings['working_directory'], 'bin', settings['year'], settings['region'], settings['channel'], f'limits_bH_rtt0p6_rtc0p4_asimov_extYukawa_MH{settings["mass"]}_significance.txt')
     for ilongline in open(significance_file):
         significance_local = float(ilongline.rstrip().split()[2])
+
+    plot_sigma_max(significance_tensor, mass_list, '../results/global_sig_summary.png')
+    plot_significance_distributions(significance_tensor, mass_list, Z_cut=significance_local, savepath = '../results/global_sig_distribution.png')
+
 
     print(len(significance_max), significance_local)
 
@@ -268,10 +346,10 @@ def BiasTest(settings=dict()):
     Log_Path = os.path.basename(settings['Log_Path'])
     os.system("mkdir -p {outputdir}/bias_test".format(outputdir=settings['outputdir']))
     command = ""
-    farm_dir = "Farm_BiasTest"
+    farm_dir = "Farm_BiasTest/" + settings['mass']
     os.system("mkdir -p {farm_dir}".format(farm_dir = farm_dir))
 
-    for r in [0.0, 0.05, 0.1, 0.2, 1.0, 2.0]:
+    for r in [0.0]: #, 0.05, 0.1, 0.2, 1.0, 2.0]:
       r_min = r - 10
       r_max = r + 10
       condor = open(os.path.join(farm_dir, 'condor_{}.sub'.format(r)), 'w')
@@ -305,13 +383,34 @@ def BiasTestPlot(settings=dict()):
     truth_r = np.array([])
     fit_r_mean = np.array([])
 
-    for r in [0.0, 0.5, 1.0, 1.5, 2.0]:
+    import glob
+
+    for r in [0.0, 0.05, 0.1, 0.2, 1.0, 2.0]:
 
       truth_r = np.append(truth_r, r)
       r_fit_collection = np.array([])
 
       os.system("rm  higgsCombiner_"+str(r)+"_toys.root")
-      os.system("hadd  higgsCombiner_{r}_toys.root  higgsCombiner_{r}_toys_*.root".format(r = r))
+
+      pattern = f"higgsCombiner_{r}_toys_*.root"
+      files = glob.glob(pattern)
+
+      # Filter out invalid or zombie ROOT files
+      valid_files = []
+      for f in files:
+          try:
+            tf = ROOT.TFile.Open(f)
+            if tf and not tf.IsZombie():
+              keys = tf.GetListOfKeys()
+              if keys:
+                 valid_files.append(f)
+            else:
+                print(f"Skipping invalid or zombie file: {f}")
+            if tf: tf.Close()
+          except:
+            print(f"Skipping invalid or zombie file: {f}")
+
+      os.system("hadd -f  higgsCombiner_{r}_toys.root ".format(r=r) + " ".join(valid_files))
 
       ROOT.gStyle.SetOptStat(111)
       ROOT.gStyle.SetOptFit(1)
@@ -550,7 +649,7 @@ def PlotShape(settings=dict()):
     else:
         raise ValueError('\033[0;31mCheck :{outputFile} exists or not.'.format(outputFile = outputFile))
 
-
+ 
 
 
     FileIn = ROOT.TFile(outputFile,"READ")
@@ -601,8 +700,8 @@ def PlotShape(settings=dict()):
             if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
             if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
             fpath = first_level_name + '/' + category
-    #        if settings['shape_type'].lower()  == 'postfit' and 'CG' in category:
-    #            fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
+            if settings['signal_prefit'] and (settings['shape_type'].lower()  == 'postfit' and 'CG' in category):
+                fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
             h = RootLevel.Get(fpath).Clone()
             if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
 
@@ -655,6 +754,89 @@ def PlotShape(settings=dict()):
             Histogram[region_name][category] = h_postfix.Clone()
 
             print('Access Histogram {fpath}'.format(fileName = outputFile, RootLevel = RootLevel, fpath = fpath))
+
+    extra_signal = dict()
+
+    for ext_signal_ in settings['extra_signal']:
+        ext_outputFile = outputFile.replace(settings['mass'], ext_signal_)
+        print(ext_outputFile)
+        ext_FileIn = ROOT.TFile(ext_outputFile,"READ")
+        ext_Histogram_Names = []
+        ext_RootLevel = ext_FileIn
+        if settings['shape_type'].lower() == 'prefit':
+            ext_RootLevel = ext_FileIn.Get('shapes_prefit')
+
+      ## This part is only for creating the keys which corresponds to category defintion
+        for first_level in ext_RootLevel.GetListOfKeys():
+            first_level_name = first_level.GetName()
+            if type(ext_RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+
+            for second_level in ext_RootLevel.Get(first_level_name).GetListOfKeys():
+                category = second_level.GetName()
+                if category == 'data_obs' or category == 'data': category = 'Data'
+                if category not in ext_Histogram_Names:
+                    ext_Histogram_Names.append(category)
+
+        for first_level in ext_RootLevel.GetListOfKeys():
+            first_level_name = first_level.GetName()
+            if not(settings['shape_type'].lower() in first_level_name) and settings['shape_type'].lower() == 'postfit':
+                continue
+            if type(ext_RootLevel.Get(first_level_name)) !=  ROOT.TDirectoryFile: continue
+            for second_level in ext_RootLevel.Get(first_level_name).GetListOfKeys():
+                category = second_level.GetName()
+                if (category =='TotalSig') or  (category == 'TotalProcs'):continue # In PostfitWorkspace
+                if ('total_overall' in category) or ('total_signal' in category) or ('total' == category) or ('overall_total_covar' in category) or ('total_covar' in category): continue #In Fitdiagnostics
+                fpath = first_level_name + '/' + category
+                if settings['signal_prefit'] and (settings['shape_type'].lower()  == 'postfit' and 'CG' in category):
+                    fpath = fpath.replace('postfit', 'prefit') # preFit make the signal looks significant
+
+                h = ext_RootLevel.Get(fpath).Clone()
+                if type(h) != ROOT.TH1F and type(h) != ROOT.TGraphAsymmErrors: raise TypeError('No such Histogram in file: {}'.format(fpath))
+
+                if isinstance(h, ROOT.TH1):
+                   # Binning from TH1
+                   nbin = h.GetNbinsX()
+                   bin_edges = [h.GetBinLowEdge(i + 1) for i in range(nbin)]
+                   bin_edges.append(h.GetBinLowEdge(nbin) + h.GetBinWidth(nbin))
+                else:
+                   # Binning from TGraphAsymmErrors
+                   n_points = h.GetN()
+                   bin_edges = [h.GetX()[i] - h.GetErrorXlow(i) for i in range(n_points)]
+                   bin_edges.append(h.GetX()[n_points - 1] + h.GetErrorXhigh(n_points - 1))
+
+                h_postfix = ROOT.TH1F(fpath, 'h', len(bin_edges) - 1, array('d', bin_edges))
+                nbin = h_postfix.GetNbinsX()
+
+                for ibin in range(nbin):
+ 
+                    if category == 'data_obs' or category == 'data':
+                        if settings['shape_type'].lower()  == 'prefit':
+                            # h is TGraphAsymmetryError in prefit case. See FitDiagnostics file.
+                            error = h.GetErrorY(ibin)
+                            bincontent = h.Eval(ibin + 0.5) #Graph
+                        else:
+                            error   = h.GetBinError(ibin+1) # just symmetrical error
+                            bincontent = h.GetBinContent(ibin+1)
+                        h_postfix.SetBinError(ibin+1, error)
+                    else:
+                        bincontent = h.GetBinContent(ibin+1)
+                        h_postfix.SetBinError(ibin+1,  h.GetBinError(ibin+1))
+                    h_postfix.SetBinContent(ibin+1, bincontent) # Modify the x-axis value
+                region_name = first_level_name.replace('_prefit', '').replace('_postfit', '').replace('era', '')
+                if region_name not in extra_signal:
+                    extra_signal[region_name] = dict()
+                if "CG" in category and ext_signal_ in category: 
+                    if ext_signal_ not in extra_signal[region_name]:
+                        extra_signal[region_name][f"EXT{ext_signal_}"] = h_postfix.Clone()
+                        Integral[f"EXT{ext_signal_}"] = h_postfix.Integral()
+                        Histogram[region_name][f"EXT{ext_signal_}"] = h_postfix.Clone()
+                        Histogram[region_name][f"EXT{ext_signal_}"].SetDirectory(0)
+                        Histogram_Names.append(f"EXT{ext_signal_}")
+                    else:
+                        extra_signal[region_name][f"EXT{ext_signal_}"].Add(h_postfix.Clone())
+                        Histogram[region_name][f"EXT{ext_signal_}"].Add(h_postfix.Clone())
+                        Integral[f"EXT{ext_signal_}"] += h_postfix.Integral()
+
     for region_ in Histogram:
       for category in Histogram[region_]:
         if ('TotalSig' in category) or  ('TotalProcs' in category):continue
@@ -668,18 +850,18 @@ def PlotShape(settings=dict()):
     if settings['combined']:
         Histogram_merged       = dict()
         for region_ in Histogram:
-            if settings['region'] == 'C':
-                region_out = region_.replace("2016postapv_", "").replace("2017_", "").replace("2018_", "").replace("2016apv_", "").replace('era','')
-            else:
-                region_out = region_.replace('era', '').replace('merged_resolved', '')
-                region_out += f"_{settings['region']}"
+
+            region_out = region_.replace("ele_resolved", "merged_resolved").replace("mu_resolved", "merged_resolved")
+
             if region_out not in Histogram_merged: Histogram_merged[region_out] = dict()
+
             for category in Histogram[region_]:
                 if category not in Histogram_merged[region_out]:
                     Histogram_merged[region_out][category] = Histogram[region_][category].Clone()
                 else:
                     Histogram_merged[region_out][category].Add(Histogram[region_][category].Clone())
                 print(region_, category, Histogram[region_][category].GetBinContent(1), Histogram[region_][category].GetBinError(1))
+
         Histogram = Histogram_merged
 
 #    for name in Histogram_merged:
@@ -689,11 +871,12 @@ def PlotShape(settings=dict()):
 
     Histogram_concatenated = dict()
     region_binning         = dict()
-
+    region_binning_histo  = dict()
 
     for region_ in Histogram:
 
         Histogram_concatenated_tmp = dict()
+        extra_signal_concatenated_tmp = dict()
         region_binning_tmp        = dict()
         Integral_tmp              =dict()
         year_tmp = settings['year']
@@ -777,6 +960,7 @@ def PlotShape(settings=dict()):
 
            if region_ not in region_binning:
                 region_binning[region_name] = [Histogram_concatenated[category].GetNbinsX() - htemp.GetNbinsX(), Histogram_concatenated[category].GetNbinsX()]
+                region_binning_histo[region_name] = htemp.Clone()
                 region_binning_tmp[region_name] = [0, htemp.GetNbinsX()]
 
         print(os.path.join(CURRENT_WORKDIR, os.path.join(settings['outputdir'], shape_type, year_tmp, f"{settings['shapePlot']}_{region_}")))
@@ -800,12 +984,15 @@ def PlotShape(settings=dict()):
             "plotRatio": settings['plotRatio'],
             "paper": settings['paper'],
             "Region_binning": region_binning_tmp,
+            "Region_binning_histo": None,
             "region_info": settings['region_info'],
             "combined": settings['combined'],
             "pull": settings['pull'],
             'shape_type': settings['shape_type'].lower(),
             'xaxisSize': 1500,
-            'stack_signal': settings['stack_signal']
+            'yaxisSize': 1500,
+            'stack_signal': settings['stack_signal'],
+            'signal_prefit': settings['signal_prefit'],
         }
         template_settings["Signal_Name"] = settings['signal_name']
         print("\n")
@@ -819,7 +1006,7 @@ def PlotShape(settings=dict()):
     else:
         Title = 'Post-Fit Distribution'
 
-
+    ROOT.gStyle.SetLineScalePS(1)
     template_settings= {
             "Maximum":Maximum,
             "Integral":Integral,
@@ -839,12 +1026,15 @@ def PlotShape(settings=dict()):
             "plotRatio":settings['plotRatio'],
             "paper":settings['paper'],
             "Region_binning": region_binning,
+            "Region_binning_histo": region_binning_histo,
             "region_info": settings['region_info'],
             "combined": settings['combined'],
             "pull": settings['pull'],
             'shape_type': settings['shape_type'].lower(),
-            'xaxisSize': 6500,
-            'stack_signal': settings['stack_signal']
+            'xaxisSize': 5500,
+            'yaxisSize': 2500,
+            'stack_signal': settings['stack_signal'],
+            'signal_prefit': settings['signal_prefit']
             }
     #if settings["unblind"] or settings["expectSignal"]:
     template_settings["Signal_Name"] = settings['signal_name']
@@ -880,6 +1070,18 @@ def Plot_Histogram(template_settings=dict()):
     #if template_settings["unblind"] or template_settings["expectSignal"]:
     Color_Dict[template_settings["Signal_Name"]] = ROOT.kBlack
     print(template_settings["Signal_Name"])
+    nregion = len( template_settings['Region_binning'])
+
+    Set_Logy = template_settings['logy']
+
+    if Set_Logy:
+      log_tag = "_log"
+    else:
+      log_tag = ""
+    combined_text = "_combined" if template_settings['combined'] else ""
+
+
+    record = ROOT.TFile('{prefix}{log}{combined}.root'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text), "RECREATE")
 
 
     #### Canvas ####
@@ -889,40 +1091,59 @@ def Plot_Histogram(template_settings=dict()):
     ROOT.gROOT.SetBatch(1)
 
     if template_settings['plotRatio']:
-      if template_settings['combined']:
-        canvas = ROOT.TCanvas("","",template_settings['xaxisSize'],1500)
-      else:
-        canvas = ROOT.TCanvas("","",template_settings['xaxisSize'],1500)
+        if template_settings['pull']:
+            canvas = ROOT.TCanvas("","",template_settings['xaxisSize'], int(template_settings['yaxisSize'] * 1.2))
+        else:
+            canvas = ROOT.TCanvas("","",template_settings['xaxisSize'], template_settings['yaxisSize'])
 
     else:
       canvas = ROOT.TCanvas("","",500,500)
 
-    Set_Logy = template_settings['logy']
 
     if template_settings['plotRatio']:
-      pad1 = ROOT.TPad('pad1','',0.00, 0.25, 1, 1)
-      pad2 = ROOT.TPad('pad2','',0.00, 0.00, 1, 0.25)
+      if template_settings['pull']:
+          pad1 = ROOT.TPad('pad1','',0.00, 0.375, 1, 1)
+          pad2 = ROOT.TPad('pad2','',0.00, 0.215, 1, 0.375)
+          pad3 = ROOT.TPad('pad2','',0.00, 0.00, 1, 0.215)
+      else:
+          pad1 = ROOT.TPad('pad1','',0.00, 0.25, 1, 1)
+          pad2 = ROOT.TPad('pad2','',0.00, 0.00, 1, 0.25)
       pad1.SetBottomMargin(0.02)
-      pad1.SetLeftMargin(0.16)
       pad1.SetRightMargin(0.04)
       if template_settings['pull']:
-        pad2.SetTopMargin(0.008);
+        pad2.SetTopMargin(0.005);
+        pad2.SetRightMargin(0.04)
+        pad2.SetBottomMargin(0.02)
+        pad3.SetTopMargin(0.005)
+        pad3.SetRightMargin(0.04)
+        pad3.SetBottomMargin(0.4)
+        pad3.SetBorderMode(1)
       else:
         pad2.SetTopMargin(0.005);
-      pad2.SetLeftMargin(0.16)
-      pad2.SetRightMargin(0.04)
-      pad2.SetBottomMargin(0.40);
+        pad2.SetRightMargin(0.04)
+        pad2.SetBottomMargin(0.40);
       pad1.SetBorderMode(1)
       pad2.SetBorderMode(1)
-      pad1.SetTicks(1,1)
-      pad2.SetTicks(1,1)
+      if nregion > 1:
+          pad1.SetTicks(0,1)
+          pad2.SetTicks(0,1)
+          if template_settings['pull']:
+              pad3.SetTicks(0,1)
+
+      else:
+          pad1.SetTicks(1,1)
+          pad2.SetTicks(1,1)
+          if template_settings['pull']:
+                pad3.SetTicks(1,1)
       # pad2.SetGrid(5,5)
-      if not template_settings['combined']:
-        pad1.SetLeftMargin(0.1)
-        pad2.SetLeftMargin(0.1)
+      pad1.SetLeftMargin(0.12)
+      pad2.SetLeftMargin(0.12)
 
       pad1.Draw()
       pad2.Draw()
+      if template_settings['pull']:
+        pad3.SetLeftMargin(0.12)
+        pad3.Draw()
       pad1.cd()
     else:
       pad1 = ROOT.TPad('pad1','',0.00, 0.00, 0.99, 0.99)
@@ -944,22 +1165,36 @@ def Plot_Histogram(template_settings=dict()):
 
     #### Legend ####
     legend_NCol = int(len(Color_Dict.keys())/5)
-    legend = ROOT.TLegend(.12, .62, .95, .87);
-    legend.SetNColumns(legend_NCol)
+    legend = ROOT.TLegend(.15, .69, .95, .84) if nregion > 1 else ROOT.TLegend(.15, .63, .92, .87);
+    legend_sig = ROOT.TLegend(.15, .62, .95, .67) if nregion > 1 else ROOT.TLegend(.15, .58, .92, .62);
+    if nregion > 1:
+      legend.SetNColumns(legend_NCol+1)
+      legend_sig.SetNColumns(legend_NCol+1)
+    else:
+      legend.SetNColumns(legend_NCol)
+      legend_sig.SetNColumns(legend_NCol)
     legend.SetBorderSize(0);
     legend.SetFillColor(0);
     legend.SetShadowColor(0);
     legend.SetTextFont(42);
+    legend_sig.SetColumnSeparation(legend.GetColumnSeparation())
+
+    legend_sig.SetBorderSize(0);
+    legend_sig.SetFillColor(0);
+    legend_sig.SetShadowColor(0);
+    legend_sig.SetTextFont(42);
     if not template_settings['plotRatio']:
       legend.SetTextSize(0.045);
+      legend_sig.SetTextSize(0.045);
     else:
-      legend.SetTextSize(0.045);
-      legend2 = ROOT.TLegend(.12, .83, .25, .97);
+      legend.SetTextSize(0.05 if nregion > 1 else 0.045);
+      legend_sig.SetTextSize(0.05 if nregion > 1 else 0.045);
+      legend2 = ROOT.TLegend(.30, .8, .41, .94) if nregion > 1 else ROOT.TLegend(.16, .76, .3, .90)
       legend2.SetBorderSize(0);
       legend2.SetFillColor(0);
       legend2.SetShadowColor(0);
       legend2.SetTextFont(42);
-      legend2.SetTextSize(0.14);
+      legend2.SetTextSize(0.14 if nregion > 1 else 0.18);
     #### Ordered_Integral ####
     Ordered_Integral = OrderedDict(sorted(template_settings['Integral'].items(), key=itemgetter(1)))
     ##########################
@@ -981,6 +1216,7 @@ def Plot_Histogram(template_settings=dict()):
     hh_total = None
     hh_total = template_settings['Histogram']['TotalBkg'].Clone()
     h_sig = None
+    extra_signal = dict()
     mass = ''
 
     for Histogram_Name in Ordered_Integral:
@@ -992,11 +1228,13 @@ def Plot_Histogram(template_settings=dict()):
             else:
               h_sig.Add(template_settings['Histogram'][Histogram_Name].Clone())
             mass = Histogram_Name.replace('CGToBHpm_a_', '').replace('_rtt06_rtc04', '').replace('_2b', '').replace('_3b', '')
+        elif "EXT" in Histogram_Name:
+            extra_signal[Histogram_Name.replace("EXT", "")] = template_settings['Histogram'][Histogram_Name].Clone()
         else:
             if Histogram_Name == 'Data':
                 if template_settings['unblind']:
 #                    legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name, 'PE') #+' [{:.0f}]'.format(template_settings['Integral'][Histogram_Name]) , 'PE')
-                    legend.AddEntry(template_settings['Histogram'][Histogram_Name], Histogram_Name, 'PE')
+                    legend.AddEntry(template_settings['Histogram'][Histogram_Name], Histogram_Name, 'LPE')
                     template_settings['Histogram'][Histogram_Name].SetMarkerStyle(8)
                     template_settings['Histogram'][Histogram_Name].SetMarkerSize(3.5)
                     template_settings['Histogram'][Histogram_Name].SetMarkerColor(1)
@@ -1014,28 +1252,29 @@ def Plot_Histogram(template_settings=dict()):
     for Histogram_Name in reversed(Ordered_Integral):
         if template_settings["Signal_Name"] in Histogram_Name and template_settings["Signal_Name"] != "DEFAULT":
             continue
+        elif "EXT" in Histogram_Name:
+            continue
         else:
             if Histogram_Name == 'Data':
                continue
             else:
                 if Histogram_Name == 'TotalBkg': continue
-                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TT","t#bar{t}").replace("tt","t#bar{t}").replace("QCD", "NonPrompt").replace('SingleTop', 'Single t').replace('DY', 'Z+jets').replace('WJets', 'W+jets'), 'F') 
+                legend.AddEntry(template_settings['Histogram'][Histogram_Name],Histogram_Name.replace("TT","t#bar{t}").replace("tt","t#bar{t}").replace("QCD", "Nonprompt leptons").replace('SingleTop', 'Single t').replace('DY', 'Z+jets').replace('WJets', 'W+jets'), 'F') 
 
-    h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
-
-    h_stack.SetTitle("{};{};Events/bin ".format(template_settings['Title'], template_settings['xaxisTitle']))
+    h_stack.SetTitle("{};{};Events/100 GeV".format(template_settings['Title'], template_settings['xaxisTitle']))
     h_stack.SetMaximum(h_stack.GetStack().Last().GetMaximum() * Histogram_MaximumScale)
     if Set_Logy:
       h_stack.SetMinimum(.1)
     else:
       h_stack.SetMinimum(0.1)
     h_stack.Draw()
-    h_stack.GetYaxis().SetTitle("Events/bin")
+    #h_stack.GetYaxis().SetTitle("Events/bin")
+#    h_stack.GetYaxis().SetTitle("Events / 100 GeV")
     if template_settings['plotRatio']:
       h_stack.GetYaxis().SetTitleSize(0.05) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.05)
-      h_stack.GetYaxis().SetTitleOffset(1.06)
-      h_stack.GetXaxis().SetLabelOffset(3.2)
+      h_stack.GetYaxis().SetTitleOffset(0.6 if nregion > 1 else 1.06)
+      h_stack.GetXaxis().SetLabelOffset(2.0 if nregion > 1 else 3.2)
     else:
       h_stack.GetYaxis().SetTitleSize(0.03) # THStack should first be drawn and then can do this step
       h_stack.GetYaxis().SetLabelSize(0.03)
@@ -1046,17 +1285,26 @@ def Plot_Histogram(template_settings=dict()):
     h_stack.GetYaxis().SetTickLength(0.02)
 #    pad1.Modified()
 #    pad1.Update()
+    if nregion > 1:
+      h0 = h_stack.GetStack()[0]  # first histogram in the stack
+      h0.GetXaxis().SetTickLength(0)  # remove bottom ticks
+
     h_stack.Draw("HIST")
+    h_stack.Write("h_stack")
     # For uncert.
-    hh_total.SetFillStyle(3345)
+    hh_total.SetFillStyle(3145 if nregion > 1 else 3345)
     hh_total.SetFillColor(ROOT.kGray + 2)
     hh_total.SetMarkerSize(0)
     hh_total.SetLineWidth(100)
-    print("Integral of TotalBkg: ", hh_total.Integral())
-    print("Content of TotalBkg: ", hh_total.GetBinContent(1))
-    print("Error of TotalBkg: ", hh_total.GetBinError(1))
-    hh_total.Draw("E2 SAME")
-    legend.AddEntry(hh_total,'Syst unc.','F')
+
+    h_data = (template_settings['Histogram']["Data"].Clone())
+    hh_total_full_unc = hh_total.Clone()
+    for i in range(1,hh_total.GetNbinsX()+1):
+      hh_total_full_unc.SetBinError(i, (h_data.GetBinError(i)**2 + hh_total.GetBinError(i)**2)**0.5)
+
+    hh_total_full_unc.Draw("E2 SAME")
+    hh_total.Write("h_total")
+    legend.AddEntry(hh_total_full_unc,'stat #oplus syst unc.','F')
 
     sep_line = dict()
     sep_line_ratio = dict()
@@ -1068,7 +1316,7 @@ def Plot_Histogram(template_settings=dict()):
         sep_line[region_].SetLineColor(ROOT.kBlack)
         sep_line[region_].SetLineStyle(2)
         sep_line[region_].SetLineWidth(5)
-        #sep_line[region_].Draw()
+        sep_line[region_].Draw()
 
         region_name = ''
         channel_name = ''
@@ -1091,13 +1339,16 @@ def Plot_Histogram(template_settings=dict()):
               region_list = [QCD_ABCD.replace("CR", "")]
         for channel_ in ['ele_resolved', 'mu_resolved', 'merged_resolved']:
           if channel_ in region_:
-            channel_name = channel_.replace('_resolved', '').replace('ele', 'e').replace('mu', '#mu')
+            channel_name = channel_.replace('_resolved', '').replace('ele', 'e').replace('mu', '#mu').replace("merged", "e+#mu").replace("e+#mu", "") #"#font[132]{#it{l}}")
             region_list.append(channel_name)
         print(region_list)
-        region_list_final = [', '.join(region_list[::-1])]
+        if template_settings['combined']:
+          region_list_final = [' '.join(region_list[::-1])]
+        else:
+          region_list_final = [', '.join(region_list[::-1])]
         for region_height, region_text in enumerate(region_list_final):
-          if Set_Logy: y_text_log = 10**((2.2 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
-          else: y_text_log = (1.1 - 0.05 * region_height) * hh_total.GetMaximum()
+          if Set_Logy: y_text_log = 10**((1.4 - 0.5 * region_height)) * hh_total.GetMaximum() / 10
+          else: y_text_log = (1.05 - 0.05 * region_height) * hh_total.GetMaximum()
           print(x_text, y_text_log,  region_text)
           label_text[region_ + region_text] = ROOT.TLatex(x_text, y_text_log,  region_text)
           label_text[region_ + region_text].SetTextAlign(22)  # Center align
@@ -1106,13 +1357,31 @@ def Plot_Histogram(template_settings=dict()):
           label_text[region_ + region_text].Draw("SAME")
 
 
-    if type(h_sig )== ROOT.TH1F and not template_settings["stack_signal"]:
-        h_sig.Scale(2.5)
-        h_sig.Draw("HIST SAME")
-        legend.AddEntry(h_sig,'m_{H^{#pm}} = ' + mass + ' GeV (x2.5)', 'L')
+    # Combine all signals into one dictionary
+    all_signals = {mass_: h for mass_, h in extra_signal.items()}
+    all_signals[mass] = h_sig  # Add main signal (assuming `mass` variable for h_sig)
+
+    # Sort all masses numerically
+    sorted_masses = sorted(all_signals.keys(), key=lambda x: float(x))  # convert strings to float
+
+    # Define colors for extra signals (main signal will use its own color)
+    extra_sig_color_template = ["#D55E00", "#0072B2", "#6B8E23", "#E69F00", "#CC79A7"]  # extend if needed
+
+    for idx, sig_mass in enumerate(sorted_masses):
+        sig_hist = all_signals[sig_mass]
+        sig_hist.SetLineColor(ROOT.TColor.GetColor(extra_sig_color_template[idx % len(extra_sig_color_template)]))
+        sig_hist.SetLineWidth(6)
+        sig_hist.Draw("HIST SAME")
+    
+        # Add entry to legend
+        if template_settings['signal_prefit']:
+            legend_sig.AddEntry(sig_hist, 'm_{H^{#pm}} = ' + (sig_mass + ' GeV, #sigma = 1 pb'), 'L')
+        else:
+            legend_sig.AddEntry(sig_hist, 'm_{H^{#pm}} = ' + (sig_mass + ' GeV'), 'L')
     if template_settings['unblind']:
-        template_settings['Histogram']["Data"].SetMarkerSize(2)
+        template_settings['Histogram']["Data"].SetMarkerSize(4 if nregion>1 else 2)
         template_settings['Histogram']["Data"].Draw("SAME EP")
+        template_settings['Histogram']["Data"].Write("h_data")
     if template_settings['plotRatio']:
         pad2.cd()
         hMC     = h_stack.GetStack().Last()
@@ -1120,44 +1389,77 @@ def Plot_Histogram(template_settings=dict()):
         h_data = (template_settings['Histogram']["Data"].Clone())
         # h_ratio.Sumw2()
         hh_total_sumw2 = hh_total.Clone()
+        h_sig_ratio = h_sig.Clone()
         for bin_idx in range(1, hh_total_sumw2.GetNbinsX() + 1):
           bin_content = hh_total_sumw2.GetBinContent(bin_idx)
           poisson_error = bin_content**0.5 if bin_content > 0 else 0
           hh_total_sumw2.SetBinError(bin_idx, poisson_error)
 
         if template_settings['pull']:
-            for bin_idx in range(1, h_ratio.GetNbinsX() + 1):
+            h_ratio_pull = h_ratio.Clone()
+            h_sig_ratio_pull = h_sig_ratio.Clone()
+            for bin_idx in range(1, h_ratio_pull.GetNbinsX() + 1):
                 if h_data.GetBinError(bin_idx) == 0:
                   unc = 1.0
                 else:
-                  unc =  h_data.GetBinError(bin_idx)
+                  unc =  (h_data.GetBinError(bin_idx) ** 2 + hh_total.GetBinError(bin_idx) ** 2) ** 0.5
                 bin_content = (h_data.GetBinContent(bin_idx) - hh_total.GetBinContent(bin_idx)) / unc
                 bin_error   = h_data.GetBinError(bin_idx) / unc
-                h_ratio.SetBinContent(bin_idx, bin_content)
-                h_ratio.SetBinError(bin_idx, bin_error)
+                h_ratio_pull.SetBinContent(bin_idx, bin_content)
+                h_ratio_pull.SetBinError(bin_idx, bin_error)
+                h_sig_ratio_pull.SetBinContent(bin_idx, h_sig.GetBinContent(bin_idx) / unc)
+                h_sig_ratio_pull.SetBinError(bin_idx, h_sig.GetBinError(bin_idx) / unc)
 
-            h_ratio_max = 6 if template_settings['shape_type'] == 'postfit' else 105.0
-            h_ratio_min = -6 if template_settings['shape_type'] == 'postfit' else -105.0
-            h_ratio.GetYaxis().SetTitle("#frac{data-MC}{#sigma_{data}}")
+            h_ratio_pull_max = 4.5 if template_settings['shape_type'] == 'postfit' else 105.0
+            h_ratio_pull_min = -4.5 if template_settings['shape_type'] == 'postfit' else -105.0
+            h_ratio_pull.GetYaxis().SetTitle("#frac{Data-Bkg}{#delta}")
+            h_ratio_pull.SetMaximum(h_ratio_pull_max)
+            h_ratio_pull.SetMinimum(h_ratio_pull_min)
+            h_ratio_pull.SetMarkerStyle(20)
+            h_ratio_pull.SetMarkerColor(1)
+            h_ratio_pull.SetLineWidth(3)
+            h_ratio_pull.GetYaxis().CenterTitle()
+            h_ratio_pull.GetYaxis().SetNdivisions(505)
+            h_ratio_pull.GetYaxis().SetTitleOffset(0.20 if nregion > 1 else 0.32)
+            h_ratio_pull.GetYaxis().SetTitleSize(0.14)
+            h_ratio_pull.GetYaxis().SetLabelSize(0.13)
+            h_ratio_pull.GetYaxis().SetTickLength(0.02)
+            h_ratio_pull.GetXaxis().SetLabelSize(0.14)
+            h_ratio_pull.GetXaxis().SetTitleOffset(1.0)
+            h_ratio_pull.GetXaxis().SetTitleSize(0.15)
 
+            if h_stack.GetXaxis().GetTitle().startswith('pDNN'):
+                h_ratio_pull.GetXaxis().SetTitle("pDNN score")
+                if nregion == 1:
+                    region_name = next(iter(template_settings['Region_binning']))
+                    if "2b" in region_name:
+                        h_ratio_pull.GetXaxis().SetTitle("pDNN_{#font[12]{2b}} score")
+                    elif "3b" in region_name:
+                        h_ratio_pull.GetXaxis().SetTitle("pDNN_{#font[12]{3b}} score")
+            else:
+                h_ratio_pull.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
+
+        h_ratio.Divide(hh_total_sumw2)
+        h_sig_ratio.Divide(hh_total_sumw2)
+        if template_settings['shape_type'] == 'prefit':
+          h_ratio_max = 1.7
+          h_ratio_min = 0.3
         else:
-            h_ratio.Divide(hh_total_sumw2)
-            h_ratio_max = 1.3
-            h_ratio_min = 0.7
-            h_ratio.GetYaxis().SetTitle("Obs/Exp")
+          h_ratio_max = 1.08 #1.7 # 1.25
+          h_ratio_min = 0.88 #0.3 # 0.75
+        h_ratio.GetYaxis().SetTitle("Obs/Exp")
 
         h_ratio.SetMaximum(h_ratio_max)
         h_ratio.SetMinimum(h_ratio_min)
         h_ratio.SetMarkerStyle(20)
-        h_ratio.SetMarkerSize(3.5)
         h_ratio.SetMarkerColor(1)
         h_ratio.SetLineWidth(3)
 
         h_ratio.GetYaxis().CenterTitle()
-        h_ratio.GetYaxis().SetNdivisions(4)
-        h_ratio.GetYaxis().SetTitleOffset(0.28)
-        h_ratio.GetYaxis().SetTitleSize(0.15)
-        h_ratio.GetYaxis().SetLabelSize(0.14)
+        h_ratio.GetYaxis().SetNdivisions(505)
+        h_ratio.GetYaxis().SetTitleOffset(0.19 if nregion > 1 else 0.27)
+        h_ratio.GetYaxis().SetTitleSize(0.15 if nregion > 1 else 0.18)
+        h_ratio.GetYaxis().SetLabelSize(0.14 if nregion > 1 else 0.17)
         h_ratio.GetYaxis().SetTickLength(0.02)
         h_ratio.GetXaxis().SetLabelSize(0.14)
         h_ratio.GetXaxis().SetTitleOffset(1.0)
@@ -1166,11 +1468,101 @@ def Plot_Histogram(template_settings=dict()):
             h_ratio.GetXaxis().SetTitle("pDNN score")
         else:
            h_ratio.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
+
+
+        if nregion > 1:
+          # Turn off default bin labels
+          h_ratio.GetXaxis().SetLabelOffset(999)  # hide default labels
         if template_settings['unblind']:
-          h_ratio.SetMarkerSize(1)
+          h_ratio.SetMarkerSize(4 if nregion>1 else 2)
           h_ratio.Draw("P E")
+          if template_settings['pull']:
+              pad3.cd()
+              h_ratio_pull.SetMarkerSize(4 if nregion>1 else 2)
+              h_ratio_pull.Draw("AXIS")
+              if not template_settings['signal_prefit'] and template_settings['pull']:
+                 h_sig_ratio_pull.Draw("HIST SAME")
+              h_ratio_pull.Draw("P E SAME")
+
+              pad2.cd()
         else:
           h_ratio.Draw("AXIS")
+
+        labeling = dict()
+        ticks = dict()
+        if nregion > 1:
+          xax = h_ratio.GetXaxis()
+          hh_total.GetXaxis().SetTickLength(0)
+          for region_ in template_settings['Region_binning']:
+            label_left, label_right = template_settings['Region_binning'][region_]
+            histo_tmp = template_settings['Region_binning_histo'][region_]
+            xax.SetTitle(histo_tmp.GetXaxis().GetTitle())
+
+
+            for n_labeling in range(label_left, label_right):
+              print(n_labeling)
+              if ((n_labeling - label_left)%2) == 0 and (n_labeling < label_right -1):
+                  x = h_ratio.GetBinLowEdge(n_labeling + 1)
+                  y = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.22
+                  labeling[n_labeling] = ROOT.TLatex(x, y, str(int(histo_tmp.GetBinLowEdge(n_labeling-label_left + 1))))
+                  labeling[n_labeling].SetTextSize(0.15)
+                  labeling[n_labeling].SetTextAlign(21)  # centered horizontally
+                  labeling[n_labeling].Draw()
+
+                  ticks[f"{n_labeling}_do"] = ROOT.TLine(x, h_ratio_min, x, h_ratio_min + (h_ratio_max - h_ratio_min)* 0.1);
+                  ticks[f"{n_labeling}_do"].Draw("SAME");
+                  ticks[f"{n_labeling}_up"] = ROOT.TLine(x, h_ratio_max-(h_ratio_max-h_ratio_min)*0.1, x, h_ratio_max);
+                  ticks[f"{n_labeling}_up"].Draw("SAME");
+
+                  pad1.cd()
+
+                  h_total_min = pad1.GetUymin()
+                  h_total_max = pad1.GetUymax()
+                  h_tick_min = (0.04 * (h_total_max - h_total_min) + h_total_min) # if not Set_Logy else 10**(0.1*(np.log10(h_total_max/h_total_min)) + np.log10(h_total_min))
+                  h_tick_max = (h_total_max - 0.04 * (h_total_max - h_total_min)) # if not Set_Logy else 10**(np.log10(h_total_max) - 0.1*(np.log10(h_total_max/h_total_min)))
+                   
+                  if Set_Logy:
+                    h_total_min = 10**h_total_min
+                    h_tick_min = 10**h_tick_min
+                    h_total_max = 10**h_total_max
+                    h_tick_max = 10**h_tick_max
+
+
+                  ticks[f"H_{n_labeling}_do"] = ROOT.TLine(x, h_total_min, x, h_tick_min);
+                  ticks[f"H_{n_labeling}_do"].Draw("SAME");
+                  ticks[f"H_{n_labeling}_up"] = ROOT.TLine(x, h_tick_max, x, h_total_max);
+                  ticks[f"H_{n_labeling}_up"].Draw("SAME");
+
+                  pad2.cd()
+
+              else:                  
+                  x = h_ratio.GetBinLowEdge(n_labeling + 1)
+                  ticks[f"{n_labeling}_do"] = ROOT.TLine(x, h_ratio_min, x, h_ratio_min + (h_ratio_max - h_ratio_min)* 0.05);
+                  ticks[f"{n_labeling}_do"].Draw("SAME");
+                  ticks[f"{n_labeling}_up"] = ROOT.TLine(x, h_ratio_max-(h_ratio_max-h_ratio_min)*0.05, x, h_ratio_max);
+                  ticks[f"{n_labeling}_up"].Draw("SAME");
+             
+                  pad1.cd()
+
+                  h_total_min = pad1.GetUymin()
+                  h_total_max = pad1.GetUymax()
+                  h_tick_min = (0.025 * (h_total_max - h_total_min) + h_total_min) # if not Set_Logy else 10**(0.1*(np.log10(h_total_max/h_total_min)) + np.log10(h_total_min))
+                  h_tick_max = (h_total_max - 0.02 * (h_total_max - h_total_min)) # if not Set_Logy else 10**(np.log10(h_total_max) - 0.1*(np.log10(h_total_max/h_total_min)))
+                   
+                  if Set_Logy:
+                    h_total_min = 10**h_total_min
+                    h_tick_min = 10**h_tick_min
+                    h_total_max = 10**h_total_max
+                    h_tick_max = 10**h_tick_max
+
+
+                  ticks[f"H_{n_labeling}_do"] = ROOT.TLine(x, h_total_min, x, h_tick_min);
+                  ticks[f"H_{n_labeling}_do"].Draw("SAME");
+                  ticks[f"H_{n_labeling}_up"] = ROOT.TLine(x, h_tick_max, x, h_total_max);
+                  ticks[f"H_{n_labeling}_up"].Draw("SAME");
+
+                  pad2.cd()
+
 
         for region_ in template_settings['Region_binning']:
             x_line = template_settings['Region_binning'][region_][1]
@@ -1178,9 +1570,11 @@ def Plot_Histogram(template_settings=dict()):
             sep_line_ratio[region_].SetLineColor(ROOT.kBlack)
             sep_line_ratio[region_].SetLineStyle(2)
             sep_line_ratio[region_].SetLineWidth(5)
-            sep_line_ratio[region_].Draw("SAME")
 
-            y_text = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.25
+            if nregion > 1:
+                sep_line_ratio[region_].Draw("SAME")
+
+            y_text = h_ratio_min - (h_ratio_max - h_ratio_min) * 0.44
 
             print('region', region_)
             for region_candidate in template_settings['region_info']:
@@ -1189,9 +1583,10 @@ def Plot_Histogram(template_settings=dict()):
             x_text = (template_settings['Region_binning'][region_][0] + template_settings['Region_binning'][region_][1]) / 2
             label_text[region_ + region_text + "axis"] = ROOT.TLatex(x_text, y_text, template_settings['region_info'][region_name]["POI_name"].replace("MASS", template_settings['mass']))
             label_text[region_ + region_text + "axis"].SetTextAlign(22)  # Center align
-            label_text[region_ + region_text + "axis"].SetTextSize(0.16)
+            label_text[region_ + region_text + "axis"].SetTextSize(0.16 if nregion > 1 else 0.16)
             label_text[region_ + region_text + "axis"].SetTextFont(42)
-            #label_text[region_ + region_text + "axis"].Draw("SAME")
+            if nregion > 1:
+                label_text[region_ + region_text + "axis"].Draw("SAME")
 
         x = []
         y = []
@@ -1212,38 +1607,44 @@ def Plot_Histogram(template_settings=dict()):
           else:
             err_tmp = 0.0
 
-          if template_settings['pull']:
-              y.append(0.0)
-              if h_data.GetBinError(i+1) == 0:
-                yerror_u.append(0.0)
-                yerror_d.append(0.0)
-              else:
-                yerror_u.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
-                yerror_d.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
-          else:
-              y.append(1.0)
-              yerror_u.append(err_tmp)
-              yerror_d.append(err_tmp)
+#          if template_settings['pull']:
+#              y.append(0.0)
+#              if h_data.GetBinError(i+1) == 0:
+#                yerror_u.append(0.0)
+#                yerror_d.append(0.0)
+#              else:
+#                yerror_u.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
+#                yerror_d.append( hh_total.GetBinError(i+1) / h_data.GetBinError(i+1))
+#                yerror_u.append(1.0)
+#                yerror_d.append(1.0)
+#          else:
+          y.append(1.0)
+          yerror_u.append(err_tmp)
+          yerror_d.append(err_tmp)
 
         ru = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
-        ru.SetFillStyle(3345)
+        ru.SetFillStyle(3145 if nregion > 1 else 3345)
         ru.SetFillColor(ROOT.kGray+3)
         #ru.SetFillColor(ROOT.kOrange-3) #ROOT.TColor.GetColor("#e76300")
         ru.SetMarkerSize(0)
         ru.SetLineWidth(100)
-        legend2.AddEntry(ru, 'Syst unc./Stat unc.', 'F')
+        legend2.AddEntry(ru, 'stat #oplus syst unc.', 'F')
 #        ru.SetFillStyle(3005)
         ru.Draw("SAME 2")
+        ru.Write("h_ratio_err")
         legend2.Draw("SAME E2")
         if template_settings['unblind']:
-          h_ratio.SetMarkerSize(1)
+          h_ratio.SetMarkerSize(3 if nregion>1 else 1.5)
           h_ratio.Draw("P E SAME")
+          h_ratio.Write("h_ratio")
+
         #  print("in unblind if h_ratio.GetXaxis().GetTitle() = ", h_ratio.GetXaxis().GetTitle())
         pad1.cd()
 
     ###########################
     #value = int(template_settings['coupling_value'].split(coupling)[-1]) * 0.1
     legend.Draw("SAME")
+    legend_sig.Draw("SAME")
 
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)
@@ -1258,12 +1659,14 @@ def Plot_Histogram(template_settings=dict()):
     CMS_lumi.writeExtraText = 1
     if template_settings['paper']:
       CMS_lumi.extraText = ""
-      CMS_lumi.relPosX = 0.06
-      CMS_lumi.relPosY = 0.03
+      CMS_lumi.relPosX = 0.09  if nregion > 1 else 0.13
+      CMS_lumi.relPosY = 0.03 
     else:
       CMS_lumi.extraText = "Preliminary"
       CMS_lumi.relPosY = 0.03
-      CMS_lumi.relPosX = 0.12
+      CMS_lumi.relPosX = 0.08 if nregion > 1 else 0.12
+      CMS_lumi.sepX_   = 0.03 if nregion > 1 else 0.12
+      CMS_lumi.sepY_   = 0.09 if nregion > 1 else None
     CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
     iPos = 11
     if( iPos==0 ): CMS_lumi.relPosX = 0.15
@@ -1275,19 +1678,35 @@ def Plot_Histogram(template_settings=dict()):
     else:
       CMS_lumi.CMS_lumi(pad1, iPeriod, iPos, 0.09)
     ######
-    if Set_Logy:
-      log_tag = "_log"
-    else:
-      log_tag = ""
-    canvas.Update()
 
-    combined_text = "_combined" if template_settings['combined'] else ""
+    canvas.Update()
+    canvas.Write("canvas")
     canvas.SaveAs('{prefix}{log}{combined}.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
     canvas.SaveAs('{prefix}{log}{combined}.png'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
     canvas.SaveAs('{prefix}{log}{combined}.C'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
     #canvas.SaveAs('{prefix}{log}{combined}.root'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text))
+    canvas.Print('{prefix}{log}{combined}.eps'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text), "EmbedFonts")
+    eps_to_pdf(
+       '{prefix}{log}{combined}.eps'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text),
+       '{prefix}{log}{combined}_converted.pdf'.format(prefix=template_settings['outputfilename'],log=log_tag, combined = combined_text)
+    )
 
-
+def eps_to_pdf(eps_file, pdf_file):
+    args = [
+        "ps2pdf",          # actual command name doesn't matter here
+        "-dNOPAUSE",
+        "-dBATCH",
+        "-dSAFER",
+        "-dPDFSETTINGS=/prepress",   # high quality
+        "-dEmbedAllFonts=true",      # ensure fonts embedded
+        "-sDEVICE=pdfwrite",
+        f"-sOutputFile={pdf_file}",
+        eps_file,
+    ]
+    # ghostscript expects bytes
+    encoding = 'utf-8'
+    args = [a.encode(encoding) for a in args]
+    ghostscript.Ghostscript(*args)
 
 
 def ResultsCopy(settings=dict()):
@@ -1323,12 +1742,15 @@ def SubmitFromEOS(settings=dict()):
       os.chdir("{dest}".format(dest = settings['WorkDir']))
 
 def DrawNLL(settings=dict()):
-    if settings['group'] == 0:
-      Group = dict()
-    else:
-        with open('./data_info/NuisanceList/group_set{group}.json'.format(group = int(settings['group']))) as f:
-            Group = json.load(f)
 
+
+    nuisance_json = settings["nuisance_json"]
+    with open(nuisance_json, "r") as f:
+        nuisance_info = json.load(f)
+    Group = []
+    for nuisance, nuisance_property in nuisance_info.items():
+        if nuisance_property["Group"] not in Group:
+            Group.append(nuisance_property["Group"])
 
     os.chdir(settings['outputdir'])
     workspace_root = os.path.basename(settings['workspace_root'])
@@ -1336,7 +1758,7 @@ def DrawNLL(settings=dict()):
 
     # safety check:
     if not os.path.isfile(workspace_root):
-          raise Exception("First run: --mode datacard2workspace step")
+          raise Exception(f"no workspace {os.path.abspath(workspace_root)}, First run: --mode datacard2workspace step")
 
     Log_Path = os.path.basename(settings['Log_Path'])
     commands = []
@@ -1352,7 +1774,7 @@ def DrawNLL(settings=dict()):
     commands.append('echo Start to do likelihood Scan')
     commands.append('echo single scan ...')
 
-    common_pattern = '.{year}.{region}.{channel}.{coupling}.unblind.Set{group}'.format(year = settings['year'], region = settings['region'], channel = settings['channel'], coupling = settings['coupling_value'], group = settings['group'])
+    common_pattern = '.{year}.{region}.{channel}.unblind'.format(year = settings['year'], region = settings['region'], channel = settings['channel'])
 
 
 
@@ -1371,14 +1793,14 @@ def DrawNLL(settings=dict()):
     ####  SnapShot #####
     ####################
 
-    #commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], command = settings["command"]))
+    commands.append('combine -M MultiDimFit {workspace_root} -n {Snapshot_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --saveWorkspace'.format(workspace_root = workspace_root, Snapshot_pattern = Snapshot_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], command = settings["command"]))
 
     #####################
     #### Profile Scan ###
     #####################
 
-    #commands.append('echo Start to do breakdown')
-    #commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
+    commands.append('echo Start to do breakdown')
+    commands.append('combine -M MultiDimFit {Snapshot_root} -n {common_pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --snapshotName MultiDimFit'.format(Snapshot_root = Snapshot_root, common_pattern = common_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
     FreezeGroup_root = []
     FreezeGroup_pattern = []
@@ -1399,7 +1821,7 @@ def DrawNLL(settings=dict()):
     for Idx, group in enumerate(Group):
         if Idx == len(Group) - 1: break
         FREEZE += group if Idx == 0 else ',' + group
-        #commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE, command = settings["command"]))
+        commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points} --freezeNuisanceGroups {FREEZE} --snapshotName MultiDimFit'.format(workspace_root = Snapshot_root, pattern = FreezeGroup_pattern[Idx], mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, FREEZE = FREEZE, command = settings["command"]))
 
     freeze_pattern = '.freeze.All' + common_pattern
 
@@ -1409,7 +1831,7 @@ def DrawNLL(settings=dict()):
 
 
 
-    #commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
+    commands.append('combine -M MultiDimFit {workspace_root}  -n {pattern} -m {mass} --rMin {rMin} --rMax {rMax} {command} --algo grid --points {points}  --snapshotName MultiDimFit --freezeParameters allConstrainedNuisances'.format(workspace_root = Snapshot_root, pattern = freeze_pattern, mass = settings['mass'], rMin = settings['rMin'], rMax = settings['rMax'], points = points, command = settings["command"]))
 
     ## Plot ##
     Queue = ''
@@ -1422,10 +1844,10 @@ def DrawNLL(settings=dict()):
 
     BREAKDOWN_LIST = ','.join(Group)
     POSTFIX = ''
-    #commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ', Stat.') + ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) #TODO add region
+    commands.append('{plot1DScan} {SingleScan_root} --main-label "Total Uncert." -o Likelihood.breakdown.mH{mass}{common_pattern} --others {Queue} --breakdown "{BREAKDOWN_LIST}"'.format(mass = settings['mass'], plot1DScan = plot1Dscan, SingleScan_root = SingleScan_root,common_pattern = common_pattern, Queue = Queue, BREAKDOWN_LIST = BREAKDOWN_LIST + ',Stat.')) #+ ' --year {year} --channel {channel} --mass {mass} --postfixname Set{group} {POSTFIX}'.format(year = settings['year'], channel = settings['channel'], mass = settings['mass'], group = settings['group'], POSTFIX = POSTFIX) ) #TODO add region
 
     ### Scan NLL under each nuisance variation
-    commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root))
+    #commands.append('combineTool.py -M FastScan -w {workspace_root}:w'.format(workspace_root = workspace_root))
 
     for i in range(len(commands)):
         print(ts+commands[i]+ns)

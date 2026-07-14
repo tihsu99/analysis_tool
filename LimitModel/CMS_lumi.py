@@ -35,10 +35,15 @@ lumi_8TeV = "35.8 fb^{-1}"
 lumi_7TeV  = "5.1 fb^{-1}"
 lumi_sqrtS = ""
 
+sepX_ = None
+sepY_ = None
 drawLogo      = False
 
 def CMS_lumi(pad,  iPeriod,  iPosX ,sepX = 0.07, sepY=0.088):
     outOfFrame    = False
+    sepX = sepX if sepX_ is None else sepX_
+    sepY = sepY if sepY_ is None else sepY_
+
     if(iPosX/10==0 ): outOfFrame = True
 
     alignY_=3

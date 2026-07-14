@@ -17,10 +17,11 @@ from scipy.interpolate import griddata
 from scipy.interpolate import LinearNDInterpolator
 from scipy.optimize import root
 import cmsstyle as CMS
+import math
 
 CMS.SetExtraText("Preliminary")
 CMS.SetEnergy("13")
-
+CMS.SetLumi(138, "fb", "")
 
 df_ratio = pd.read_csv(
     "../data/bquarks_ratio.txt",
@@ -240,7 +241,17 @@ class RunLimits:
         return outfile
 
 
-    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Channels = [], Higgs="MH", mode = "era", postfix = "", inject_dict=None):
+    def TextFileToSignificancePlot(self, Masses = [], Eras = [], Regions = [], Channels = [], Higgs="MH", mode = "era", postfix = "", inject_dict=None, paper=False):
+
+        if paper:
+          CMS.SetExtraText("")
+
+        out_dir = os.path.join(self.outputdir_, "Significance")
+        CheckDir(out_dir,MakeDir=True)
+        outputfilename = os.path.join(out_dir, f"local_significance_summary_{mode}{postfix}")
+
+        record = rt.TFile(outputfilename + ".root", "RECREATE")
+
         significance_dict = dict()
 
         mass_array = array('f')
@@ -300,7 +311,7 @@ class RunLimits:
 
             p_value = rt.Math.normal_cdf_c(local_significance)
             y_array.append(p_value)
-          significance_dict["Observed #sigma_{local}"] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
+          significance_dict["Observed SD_{local}"] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
 
           for mass, xsec in inject_dict.items():
               y_array = array('f')
@@ -312,16 +323,17 @@ class RunLimits:
 
                   p_value = rt.Math.normal_cdf_c(local_significance)
                   y_array.append(p_value)
-              significance_dict["Exp #sigma_{local} (m_{H^{#pm}}=%s GeV, #sigma = %.2f pb)"%(mass, float(xsec))] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
+              significance_dict["Expected (m_{H^{#pm}} = %s GeV, #sigma = %.2f pb)"%(mass, float(xsec))] = TGraphAsymmErrors(int(len(mass_array)), mass_array, y_array)
           print(significance_dict)
 
         x_binnings = mass_array
         x_title = "m_{H^{#pm}} [GeV]"
-        y_title = "p value"
+        y_title = "Local p value"
         c = CMS.cmsCanvas('', min(x_binnings), max(x_binnings), rt.Math.normal_cdf_c(5.2), 1.0, x_title, y_title, square = CMS.kSquare, extraSpace=0.03, iPos=0, with_z_axis=False, yTitOffset = 1.3)
-        c.SetRightMargin(0.06)
+
+        c.SetRightMargin(0.05)
         c.SetLogy()
-        legend = CMS.cmsLeg(0.2, 0.2, 0.85, 0.4, textSize=0.035)
+        legend = CMS.cmsLeg(0.2, 0.2, 0.85, 0.4, textSize=0.032)
 #        legend.SetHeader("Observed #sigma_{local}")
 
         iColor = [rt.kRed+2, rt.kBlue+1, rt.kMagenta+1, rt.kOrange + 7]
@@ -361,7 +373,8 @@ class RunLimits:
                 CMS.cmsDraw(graph, 'P L SAME', lcolor = rt.kBlack,  msize=0, fstyle = 0, lwidth = 3, lstyle = 1 + idx)
               idx += 1
               legend.AddEntry(graph, legend_, "L")
-
+              record.cd()
+              graph.Write(legend_)
 
 
         Line_collection = dict()
@@ -379,16 +392,27 @@ class RunLimits:
             latex.SetTextAlign(12)
             latex.SetTextFont(42);
             latex.SetTextColor(rt.kRed)
-            latex.DrawLatex( max(x_binnings) * 0.94, p_value_for_sigma * 0.7, f"{i}#sigma")
+            latex.DrawLatex( max(x_binnings) * 0.90, p_value_for_sigma * 0.7, f"{i} SD")
 
+        frame = CMS.GetcmsCanvasHist(c)
+        frame.GetXaxis().SetTitleSize(0.05)
+        frame.GetYaxis().SetTitleSize(0.05)
+        frame.GetXaxis().SetLabelSize(0.04)
+        frame.GetYaxis().SetLabelSize(0.04)
+        frame.GetXaxis().SetTitleOffset(1.2)
+        frame.GetYaxis().SetTitleOffset(1.4)
+        c.Modified()
+        c.Update()
+        for prim in c.GetListOfPrimitives():
+            if isinstance(prim, rt.TLatex) and "fb" in prim.GetTitle():
+                prim.SetX(0.95)   # <-- try 0.88, 0.86, 0.84... until it fits
+        c.Modified()
+        c.Update()
 
-        out_dir = os.path.join(self.outputdir_, "Significance")
-        CheckDir(out_dir,MakeDir=True)
-        outputfilename = os.path.join(out_dir, f"local_significance_summary_{mode}{postfix}")
         c.SaveAs(outputfilename + ".png")
         c.SaveAs(outputfilename + ".pdf")
         c.SaveAs(outputfilename + ".C")
-
+        record.Close()
         print("succsess")
     def TextFileToRootGraphs(self,med_idx=0,Masses=[],Higgs="MA"):
         #limit_root_file = filename.replace(".txt",".root")
@@ -462,11 +486,14 @@ class RunLimits:
             f1.Close()
         return self.limit_root_file
 
-    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None, postfix = ""):
+    def SaveLimitPdf1D(self,outputdir='./',y_max=1000,y_min=0.1, signal_xsec_TGraph=None, coupling_varied = None, postfix = "", paper=False):
         rootfile = self.limit_root_file
         setlogX=0
         y_max=y_max # scale of y axis
         y_min=y_min # scale of y axis
+        OUT_DIR = os.path.join(outputdir,"plots_limit", self.year_)
+
+        record = rt.TFile(( os.path.join(OUT_DIR,self.limit_pdf_file)).replace(".pdf", "_{}_varied{}.root".format(coupling_varied, postfix)), "RECREATE")
 
 
         rt.gStyle.SetOptTitle(0)
@@ -485,14 +512,17 @@ class RunLimits:
         exp2s.SetLineWidth(2)
         exp2s.SetFillColor(rt.TColor.GetColor("#F5BB54"));
         exp2s.SetLineColor(rt.TColor.GetColor("#F5BB54"))
-        exp2s.GetXaxis().SetTitle("m_{H^{\pm}} (GeV)");
+        exp2s.GetXaxis().SetTitle("m_{H^{#pm}} [GeV]");
+        exp2s.GetXaxis().SetTitleSize(0.05)
+        exp2s.GetYaxis().SetTitleSize(0.04)
         exp2s.GetYaxis().SetRangeUser(y_min,y_max)
-        exp2s.GetXaxis().SetTitleOffset(1.1)
+        exp2s.GetXaxis().SetTitleOffset(0.9)
         if signal_xsec_TGraph is None:
-          exp2s.GetYaxis().SetTitle("95% C.L. limit on #mu=#sigma/#sigma_{theory}");
+          exp2s.GetYaxis().SetTitle("95% CL limit on #mu=#sigma/#sigma_{theory}");
         #exp2s.GetYaxis().SetTitle("95% C.L. #mu=#sigma/#sigma_{theory}");
         else:
-          exp2s.GetYaxis().SetTitle("95% C.L. limit on #sigma(pp#rightarrow XH^{#pm}) #it{B}(H^{#pm}#rightarrow tb)[pb]")
+          #exp2s.GetYaxis().SetTitle("95% CL limit on #sigma(pp#rightarrow (q)H^{#pm}) #it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu)[pb]")
+          exp2s.GetYaxis().SetTitle("#sigma(pp#rightarrow (b)H^{#pm}) #it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu) [pb]")
         exp2s.GetYaxis().SetTitleOffset(1.6)
         exp2s.GetYaxis().SetNdivisions(20,5,0);
         #exp2s.GetXaxis().SetNdivisions(505);
@@ -500,6 +530,8 @@ class RunLimits:
         #exp2s.GetXaxis().SetMoreLogLabels()
         #exp2s.GetXaxis().SetRangeUser(10,750)
         exp2s.Draw("A 3")
+        record.cd()
+        exp2s.Write("exp2sigma")
 
         exp1s =  f.Get("exp1")
         exp1s.SetMarkerStyle(20)
@@ -508,6 +540,8 @@ class RunLimits:
         exp1s.SetFillColor(rt.TColor.GetColor("#607641"));
         exp1s.SetLineColor(rt.TColor.GetColor("#607641"));
         exp1s.Draw("3 same")
+        record.cd()
+        exp1s.Write("exp1sigma")
 
         exp =  f.Get("expmed")
         exp.SetMarkerStyle(1)
@@ -515,6 +549,9 @@ class RunLimits:
         exp.SetLineStyle(2)
         exp.SetLineWidth(3)
         exp.Draw("L same")
+        record.cd()
+        exp.Write("expmed")
+
         if self.__unblind:
             print ("***Unblinding BOX***")
             obs =  f.Get("obs")
@@ -524,6 +561,9 @@ class RunLimits:
             obs.SetLineColor(1)
             obs.SetLineWidth(3)
             obs.Draw("LP same")
+            record.cd()
+            obs.Write("obs")
+
 
         leg = rt.TLegend(.52, .55, .80, .890);
         leg.SetBorderSize(0);
@@ -577,6 +617,8 @@ class RunLimits:
             # signal_xsec_TGraph[stuff_].SetFillColorAlpha(signal_xsec_TGraph['color'][stuff_], 0.5)
             signal_xsec_TGraph[stuff_].SetLineWidth(3)
             signal_xsec_TGraph[stuff_].Draw('3 L same')
+            record.cd()
+            signal_xsec_TGraph[stuff_].Write("{}".format(stuff_))
             leg.AddEntry(signal_xsec_TGraph[stuff_], "{}".format(stuff_), "L")
             color_idx += 1
             style_idx += 1
@@ -595,9 +637,13 @@ class RunLimits:
         model_ = '2HDM+a'
 
         import CMS_lumi
-        CMS_lumi.writeExtraText = 1
-        CMS_lumi.extraText = "Preliminary"
+        if not paper:
+          CMS_lumi.writeExtraText = 1
+          CMS_lumi.extraText = "Preliminary"
+        else:
+          CMS_lumi.writeExtraText = 0
         CMS_lumi.cmsTextSize = 0.55
+        CMS_lumi.lumiTextSize = 0.45
         CMS_lumi.relPosX    = 0.15
         CMS_lumi.relPosY    = 0.05
         CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
@@ -617,7 +663,6 @@ class RunLimits:
           latex.DrawLatex(0.20, 0.64, str(param_string)); #sin#theta = 0.7, m_{\chi} = 1 GeV");
 
 
-        OUT_DIR = os.path.join(outputdir,"plots_limit", self.year_)
 
         #if not os.path.isdir(OUT_DIR):os.system("mkdir -p {OUT_DIR}")
 
@@ -642,6 +687,8 @@ class RunLimits:
 
         c.SaveAs(self.limit_png_file.replace(".png", ".C"))
         c.Close()
+
+        record.Close()
 
         return "pdf file is saved"
 
@@ -846,7 +893,7 @@ class RunLimits:
       self.limitlog_tmp_node = self.limitlog.replace(".txt","_{}.txt")
 
 
-    def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased', fastScan = False):
+    def Scan2DNLL(self, dc, POI_name = 'r_3b', asimov=True, mass_point='MA200', cminDefaultMinimizerStrategy=0, rAbsAcc=0.001, cminDefaultMinimizerTolerance=1.0, dc_dir=None, out_dir=None, extraCommand='', model_name = 'g2HDM_3Bbased', fastScan = False, r_2b_limit=None, r_3b_limit=None):
         asimovstr ="-t -1 "
         tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
         if self.__unblind:
@@ -873,14 +920,22 @@ class RunLimits:
             expmed = (float(line.rstrip().split()[4]))
             expup = (float(line.rstrip().split()[6]))
             obs = (float(line.rstrip().split()[7]))
-        
-        r2b_limit = max(expup, obs) * 1.5
-        r3b_limit = max(expup, obs) * 3
+            obs_up = obs + abs(expup-expmed)
+       
+        if r_2b_limit is not None:
+            r2b_limit = r_2b_limit
+        else:
+            r2b_limit = obs_up * 1.5
+        if r_3b_limit is not None:
+            r3b_limit = r_3b_limit
+        else:
+            r3b_limit = obs_up * 3
 
 
         CheckDir(out_dir,MakeDir=True)
         os.chdir(out_dir)
         if model_name == 'g2HDM_separate':
+          print(f"expmed:{expmed}, expup: {expup}, obs_up: {obs_up}, r2b: {r2b_limit}, r3b: {r3b_limit}")
           command_ = f"combine -M MultiDimFit " + dc + extraCommand + f' --setParameterRanges r_2b=0,{r2b_limit}:r_3b=0,{r3b_limit} --setParameters r_2b=0,r_3b=0 ' #TODO check -t -1 is correct
         else:
           command_ = "combine -M MultiDimFit " + dc + extraCommand + ' --setParameterRanges {POI}=0,2:Rb=0,2 --setParameters {POI}=1,Rb=1 '.format(POI=POI_name) #TODO check -t -1 is correct
@@ -974,6 +1029,49 @@ class RunLimits:
         fin.Close()
         return h
 
+
+
+    def getProfiledErrors(self, contour_hist, best_fit=None):
+    
+        # Force ROOT to generate TGraph contours
+        tmp = rt.TCanvas()
+        contour_hist.Draw("CONT LIST")
+        rt.gPad.Update()
+    
+        # Extract contour from ROOT memory
+        contours = rt.gROOT.GetListOfSpecials().FindObject("contours")
+        if not contours:
+            raise RuntimeError("No contour found. Did you call Draw(\"CONT LIST\")?")
+    
+        # Pick first usable graph (skip degenerate ones)
+        gr = None
+        obj = contours.At(1).First()
+        if obj.InheritsFrom("TGraph"):
+            gr = obj.Clone()
+    
+        if gr is None:
+            raise RuntimeError("Could not extract contour TGraph.")
+    
+        # Extract points
+        xs = np.array([gr.GetPointX(i) for i in range(gr.GetN())])
+        ys = np.array([gr.GetPointY(i) for i in range(gr.GetN())])
+    
+        # Best-fit point
+        if best_fit is not None:
+            bx = best_fit.GetX()[0]
+            by = best_fit.GetY()[0]
+        else:
+            bx = 0
+            by = 0
+   
+        # Remove extreme (fake) boundary points (loose but safe cut)
+        x_med, y_med = np.median(xs), np.median(ys)
+        xs_f = xs[xs < 1e3]
+        ys_f = ys[ys < 1e3]
+
+        print(xs_f)
+        return (bx - xs_f.min(), xs_f.max() - bx), (by - ys_f.min(), ys_f.max() - by), gr
+    
 
 
 
@@ -1097,7 +1195,14 @@ class RunLimits:
       fin.Close()
       return gr
 
-    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_3b', model_name = 'g2HDM_3Bbased', ratio_file = None, df_sig_xsec = None):
+    def Save2DNLL(self,outputdir='./', mass_point='MA200', POI_name='r_3b', model_name = 'g2HDM_3Bbased', ratio_file = None, df_sig_xsec = None, paper=False, r_2b_limit = None, r_3b_limit = None):
+
+        plotdir = os.path.join(outputdir, '2DNLL', 'plot')
+        CheckDir(plotdir)
+        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+
+        record = rt.TFile(os.path.join(plotdir, '{tag}.root'.format(tag=tag)), "RECREATE")
+
         rt.gStyle.Reset()
         rt.gStyle.SetOptTitle(0)
         rt.gStyle.SetOptStat(0)
@@ -1109,6 +1214,7 @@ class RunLimits:
         c.SetTopMargin(0.085)
         c.SetRightMargin(0.14)
         c.SetLeftMargin(0.14)
+        c.SetBottomMargin(0.14)
         c.SetLogz(1)
         c.SetGrid(0,0)
         c.SetTicks(1,1)
@@ -1127,10 +1233,19 @@ class RunLimits:
             expmed = (float(line.rstrip().split()[4]))
             expup = (float(line.rstrip().split()[6])) 
             obs   = (float(line.rstrip().split()[7]))
-        xsec_2b_limit = max(expup, obs) * 1.5
-        xsec_3b_limit = max(expup, obs) * 3
+            obs_up = obs + abs(expup-expmed)
 
-        tag = self.year_ + "_" + self.region_ + "_" + self.channel_ + "_" + mass_point+"_"+ self.signal_str_ + "_" + self.postfix_ + "_" + self.model_
+
+        if r_2b_limit is not None:
+            xsec_2b_limit = r_2b_limit
+        else:
+            xsec_2b_limit = obs_up * 1.5
+        if r_3b_limit is not None:
+            xsec_3b_limit = r_3b_limit
+        else:
+            xsec_3b_limit = obs_up * 3
+
+
         MultiFit_root_file_expected = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DNLL.MultiDimFit.mH120.root'.format(tag=tag))
         if self.__unblind:
           tag_unblind = tag + "_unblind"
@@ -1169,6 +1284,7 @@ class RunLimits:
         h_expected, CL68_expected, CL95_expected = self.draw_contour2D(MultiFit_root_file_expected, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
         h_observed, CL68_observed, CL95_observed = self.draw_contour2D(MultiFit_root_file_observed, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio, xsec_2b_limit = xsec_2b_limit, xsec_3b_limit = xsec_3b_limit)
 
+
         xsec_2b_limit = xsec_2b_ratio * xsec_2b_limit
         xsec_3b_limit = xsec_3b_ratio * xsec_3b_limit
 
@@ -1176,18 +1292,55 @@ class RunLimits:
 
         h.SetTitle("2 #Delta NLL;;;")
         if model_name == 'g2HDM_separate':
-          h.GetXaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})Br(H^{#pm}#rightarrow tb)[pb]' if POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]')
-          h.GetYaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})Br(H^{#pm}#rightarrow tb)[pb]' if second_POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})Br(H^{#pm}#rightarrow tb)[pb]')
+          h.GetXaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})#it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu) [pb]' if POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})#it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu) [pb]')
+          h.GetYaxis().SetTitle('#sigma(pp#rightarrow H^{#pm})#it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu) [pb]' if second_POI_name == 'r_2b' else '#sigma(pp#rightarrow bH^{#pm})#it{B}(H^{#pm}#rightarrow tb, t#rightarrow bl#nu) [pb]')
         else:
           h.GetXaxis().SetTitle(POI_name)
           h.GetYaxis().SetTitle(second_POI_name)
-        h.GetZaxis().SetTitle("2 #Delta NLL")
+        h.GetZaxis().SetTitle("2#DeltaNLL")
         h.GetZaxis().SetMaxDigits(2)
+        h.GetXaxis().SetTitleSize(0.045);
+        h.GetXaxis().SetTitleOffset(1.2); 
+        h.GetYaxis().SetTitleSize(0.045);
+        h.GetYaxis().SetTitleOffset(1.2); 
+        h.SetMaximum(10.5)
+        h.SetMinimum(0.015)
+
+        # Extract style from the existing Z axis so formatting matches
+        zaxis = h.GetZaxis()
+
+        latex_axis = rt.TLatex()
+        latex_axis.SetNDC(False)  # use pad coordinates, not normalized coords
+        latex_axis.SetTextFont(zaxis.GetTitleFont())
+        latex_axis.SetTextSize(zaxis.GetLabelSize())
+
+        # Determine a precise print position:
+        # x-position: a bit to the right of the last z-axis tick
+        # y-position: where you want the "5" level to appear. 
+        # Evaluate using the axis limits:
+        zmin = h.GetMinimum()
+        zmax = h.GetMaximum()
+        gPad = rt.gPad
+        target_val = 3.0   # value you want to show on axis
+        frac = (math.log10(target_val) - math.log10(zmin)) / (math.log10(zmax) - math.log10(zmin))
+        # Get XY coordinate range of the *actual histogram*
+        xmin = h.GetXaxis().GetXmin()
+        xmax = h.GetXaxis().GetXmax()
+        ymin = h.GetYaxis().GetXmin()
+        ymax = h.GetYaxis().GetXmax()
+        y_pos = ymin + frac * (ymax-ymin) * 0.93 #0.94 for 5 # magic number, I don't know why
+
+        # x offset so it sits exactly next to the existing z-axis tick labels
+        x_pos = xmax + (xmax-xmin)*0.055  # adjust if needed
+        print("position", x_pos, y_pos)
+        # Draw text
 
         if self.__unblind:
           best_fit = self.bestFit(MultiFit_root_file_observed, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
         else:
           best_fit = self.bestFit(MultiFit_root_file_expected, POI_name, second_POI_name, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
+
+
 
         #CL68_root_file = os.path.join(outputdir, '2DNLL', 'higgsCombine{tag}_2DContour68.MultiDimFit.mH120.root'.format(tag=tag))
         #CL68 = self.draw_contour(CL68_root_file, POI_name, second_POI_name, 0.31, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
@@ -1196,6 +1349,12 @@ class RunLimits:
         #CL95 = self.draw_contour(CL95_root_file, POI_name, second_POI_name, 0.049, 1.0, best_fit, xsec_2b = xsec_2b_ratio, xsec_3b = xsec_3b_ratio)
         #CL95.SetLineWidth(2); CL95.SetLineStyle(7); CL95.SetLineColor(1); CL95.SetFillStyle(1001); CL95.SetFillColorAlpha(43, 0.5); CL95.SetMarkerSize(3)
         h.Draw("COLZ")
+        gPad.Update()
+        #latex_axis.DrawLatex(x_pos, y_pos, "3")
+
+
+
+
         CL68_expected.SetLineStyle(2)
         CL95_expected.SetLineStyle(2)
         CL68_expected.Draw("cont3 same")
@@ -1217,10 +1376,18 @@ class RunLimits:
         line_central.Draw("L SAME")
 
 
+        record.cd()
+        h_expected.Write("expect_2DNLL")
+        CL68_expected.Write("CL68_expected")
+        CL95_expected.Write("CL95_expected")
+        h_observed.Write("obs_2DNLL")
+        CL68_observed.Write("CL68_obs")
+        CL95_observed.Write("CL95_obs")
+        line_central.Write("g2HDM_pred")
+        best_fit.Write("best_fit")
 
-
-        SM = self.drawPoint(0, 0, 29, rt.TColor.GetColor("#5AA0D9"), size = 4.0)
-        SM.Draw("P SAME")
+        #SM = self.drawPoint(0, 0, 29, rt.TColor.GetColor("#5AA0D9"), size = 4.0)
+        #SM.Draw("P SAME")
 
 
         signal_points = OrderedDict()
@@ -1270,8 +1437,8 @@ class RunLimits:
         else:
           second_POI_name = 'Rb'
 
-        for signal_point in signal_points:
-          signal_points[signal_point].Draw("P SAME")
+        #for signal_point in signal_points:
+          #signal_points[signal_point].Draw("P SAME")
 
         best_fit.Draw("P SAME")
 
@@ -1284,48 +1451,58 @@ class RunLimits:
         latex.SetTextColor(rt.kWhite)
         latex.DrawLatex(0.18, 0.85, "m_{H^{#pm}}=%s GeV"%mass)
 
-        legend = rt.TLegend(0.4, 0.65, 0.85, 0.9)
+        legend = rt.TLegend(0.34, 0.65, 0.85, 0.9)
         legend.SetNColumns(2)
         #legend.SetTextFont(61)  # 61 = Helvetica, normal (not bold)
-        #legend.SetTextSize(0.06) # bigger text size (default is about 0.04)
-        legend.SetFillColorAlpha(rt.kWhite, 0.0)
+        legend.SetTextSize(0.03) # bigger text size (default is about 0.04)
+        legend.SetFillColorAlpha(rt.kWhite, 0.1)
         legend.SetTextColor(rt.TColor.GetColor("#FFFFCC"))
 
-        legend.AddEntry(CL68_expected, "expected 1#sigma", "L")
-        legend.AddEntry(CL95_expected, "expected 2#sigma", "L")
+        legend.AddEntry(CL68_expected, "Expected 68% CL", "L")
+        legend.AddEntry(CL95_expected, "Expected 95% CL", "L")
 
         if self.__unblind:
             CL68_observed.SetLineStyle(1)
             CL95_observed.SetLineStyle(1)
             CL68_observed.Draw("cont3 same")
             CL95_observed.Draw("cont3 same")
-            legend.AddEntry(CL68_observed, "observed 1#sigma", "L")
-            legend.AddEntry(CL95_observed, "observed 2#sigma", "L")
+            legend.AddEntry(CL68_observed, "Observed 68% CL", "L")
+            legend.AddEntry(CL95_observed, "Observed 95% CL", "L")
+
+            (x_low, x_high), (y_low, y_high), gr68 = self.getProfiledErrors(CL68_observed, best_fit)
+            (x_low_exp, x_high_exp), (y_low_exp, y_high_exp), gr68_exp = self.getProfiledErrors(CL68_expected)
+
+            print(f"68% profiled uncertainty:")
+            print(f"  x = {best_fit.GetX()[0]:.3f}  -{x_low:.3f}  +{x_high:.3f}")
+            print(f"  y = {best_fit.GetY()[0]:.3f}  -{y_low:.3f}  +{y_high:.3f}")
+            print(f"  x_exp = {x_high_exp:.3f}, y_exp = {y_high_exp:.3f}")
 
 
-        legend.AddEntry(best_fit, "Best Fit", "P")
-        legend.AddEntry(SM, "SM", "P")
+
+        legend.AddEntry(best_fit, "Best fit", "P")
+        #legend.AddEntry(SM, "SM", "P")
         legend.AddEntry(line_central, "g2HDM", "L")
         legend.Draw("SAME")
 
 
-        legend2 = rt.TLegend(0.6, 0.15, 0.85, 0.25)
-        legend2.SetTextSize(0.04)
-        legend2.AddEntry(next(iter(signal_points.values())), "#rho_{tc,tt} #leq %.1f"%(max(rtt_max, rtc_max)), "P")
-        legend2.SetFillColorAlpha(rt.kWhite, 0.0)
-        legend2.SetTextColor(rt.TColor.GetColor("#FFFFCC"))
-        legend2.Draw("SAME")
-        plotdir = os.path.join(outputdir, '2DNLL', 'plot')
-        CheckDir(plotdir)
+        #legend2 = rt.TLegend(0.6, 0.15, 0.85, 0.25)
+        #legend2.SetTextSize(0.04)
+        #legend2.AddEntry(next(iter(signal_points.values())), "#rho_{tc,tt} #leq %.1f"%(max(rtt_max, rtc_max)), "P")
+        #legend2.SetFillColorAlpha(rt.kWhite, 0.0)
+        #legend2.SetTextColor(rt.TColor.GetColor("#FFFFCC"))
+        #legend2.Draw("SAME")
 
 
         # CMS style
 
         import CMS_lumi
 
-        CMS_lumi.writeExtraText = 1
-        CMS_lumi.relPosX = 0.15
-        CMS_lumi.extraText = "Preliminary"
+        if not paper:
+          CMS_lumi.writeExtraText = 1
+          CMS_lumi.relPosX = 0.15
+          CMS_lumi.extraText = "Preliminary"
+        else:
+          CMS_lumi.writeExtraText = 0
         CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
         iPos = 0
         iPeriod="run2"
@@ -1335,3 +1512,5 @@ class RunLimits:
         c.SaveAs(os.path.join(plotdir, '{tag}.png'.format(tag=tag)))
         c.SaveAs(os.path.join(plotdir, '{tag}.pdf'.format(tag=tag)))
         c.SaveAs(os.path.join(plotdir, '{tag}.C'.format(tag=tag)))
+
+        record.Close()

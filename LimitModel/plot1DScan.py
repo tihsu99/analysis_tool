@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import ROOT
 import math
 from functools import partial
@@ -38,7 +37,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
         graph.Print()
         raise RuntimeError('Attempting to build %s scan from TGraph with zero or one point (see above)' % files)
     bestfit = None
-    for i in xrange(graph.GetN()):
+    for i in range(graph.GetN()):
         if graph.GetY()[i] == 0.:
             bestfit = graph.GetX()[i]
     graph.SetMarkerColor(color)
@@ -111,9 +110,9 @@ parser.add_argument('--postfixname', type = str, default = '')
 args = parser.parse_args()
 
 
-print '--------------------------------------'
-print  args.output
-print '--------------------------------------'
+print('--------------------------------------')
+print( args.output)
+print('--------------------------------------')
 
 fixed_name = args.POI
 if args.translate is not None:
@@ -226,12 +225,12 @@ if args.breakdown is not None:
     for i, br in enumerate(breakdown):
         if i < (len(breakdown) - 1):
             if (abs(v_hi[i+1]) > abs(v_hi[i])):
-                print 'ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br
+                print('ERROR SUBTRACTION IS NEGATIVE FOR %s HI' % br)
                 hi = 0.
             else:
                 hi = math.sqrt(v_hi[i]*v_hi[i] - v_hi[i+1]*v_hi[i+1])
             if (abs(v_lo[i+1]) > abs(v_lo[i])):
-                print 'ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br
+                print('ERROR SUBTRACTION IS NEGATIVE FOR %s LO' % br)
                 lo = 0.
             else:
                 lo = math.sqrt(v_lo[i]*v_lo[i] - v_lo[i+1]*v_lo[i+1])
